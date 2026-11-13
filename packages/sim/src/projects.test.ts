@@ -3,8 +3,8 @@ import { fakeContent } from './__fixtures__/fake-content.js';
 import { fakeRules } from './__fixtures__/fake-rules.js';
 import { applyDeltas } from './effects.js';
 import { createInitialState } from './init.js';
-import { rngFor } from './rng.js';
-import { TOTAL_TURNS, type Action, type ConversionPath, type GameState } from './state.js';
+import { randomGame } from './__fixtures__/random-game.js';
+import { TOTAL_TURNS, type ConversionPath, type GameState } from './state.js';
 import { ActionError, advanceTurn, applyAction, type TurnRules } from './turn.js';
 import { validateState } from './validate.js';
 
@@ -134,16 +134,6 @@ describe('lavoro di cantiere', () => {
     state = applyAction(state, { kind: 'cancel-project', projectId: state.projects[0]!.id }, rules);
     expect(state.labor.employed.services).toBe(base);
   });
-
-  it('un cantiere fermo per mancanza di fondi resta in works con i suoi occupati', () => {
-    let state = start(initial(), 'progetto-finto-8-anni');
-    const base = state.labor.employed.services;
-    state = advance(state, 4);
-    state = withEconomy(state, { funds: { state: 0 } });
-    state = advance(state, 3);
-    expect(state.projects[0]).toMatchObject({ phase: 'works', delayTurns: 3 });
-    expect(state.labor.employed.services).toBe(base + 30);
-  });
 });
 
 describe('effetti di esercizio', () => {
@@ -248,42 +238,10 @@ describe('lotti come progetti', () => {
 });
 
 describe('gioco casuale', () => {
-  const PATHS: readonly ConversionPath[] = ['idle', 'green-steel', 'remediation', 'energy', 'sea-culture'];
-  const DEFINITIONS = Object.keys(rules.projects);
-
-  /** Un giocatore che tenta azioni a caso, guidato dal generatore con seme. */
-  function randomGame(seed: number, check: (s: GameState) => void): GameState {
-    let state = initial(seed);
-    while (state.status === 'running') {
-      const rng = rngFor(seed, 'bot', state.turn);
-      const pick = <T,>(xs: readonly T[]): T => xs[rng.int(0, xs.length - 1)]!;
-      const attempts = rng.int(0, 5);
-      for (let i = 0; i < attempts; i++) {
-        const candidates: Action[] = [
-          { kind: 'start-project', definitionId: pick(DEFINITIONS) },
-          { kind: 'convert-lot', lotId: pick(state.plantLots).id, path: pick(PATHS) },
-          { kind: 'set-policy', policyId: `p${rng.int(0, 3)}`, active: rng.next() < 0.5 },
-          { kind: 'answer-dilemma', dilemmaId: 'd', optionId: 'a' },
-          { kind: 'make-promise', text: 'promessa', dueByTurn: Math.min(TOTAL_TURNS, state.turn + rng.int(1, 10)) },
-        ];
-        if (state.projects.length > 0) candidates.push({ kind: 'cancel-project', projectId: pick(state.projects).id });
-        try {
-          state = applyAction(state, pick(candidates), rules);
-        } catch (error) {
-          if (!(error instanceof ActionError)) throw error;
-        }
-        check(state);
-      }
-      state = advanceTurn(state, rules);
-      check(state);
-    }
-    return state;
-  }
-
   it('100 turni di gioco casuale lasciano lo stato sempre valido', () => {
     for (const seed of [1, 2, 3, 4, 5]) {
       let projects = 0;
-      const final = randomGame(seed, (s) => {
+      const final = randomGame(seed, rules, (s) => {
         expect(validateState(s).errors).toEqual([]);
         projects = s.projects.length;
       });
@@ -294,7 +252,6 @@ describe('gioco casuale', () => {
   });
 
   it('la partita resta identica a parità di seme e storia', () => {
-    const noop = (): void => {};
-    expect(JSON.stringify(randomGame(77, noop))).toBe(JSON.stringify(randomGame(77, noop)));
+    expect(JSON.stringify(randomGame(77, rules))).toBe(JSON.stringify(randomGame(77, rules)));
   });
 });

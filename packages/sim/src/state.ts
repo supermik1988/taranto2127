@@ -71,6 +71,19 @@ export interface EconomyState {
   supplierFirms: number; // imprese dell'indotto attive
   /** Quanta spesa la macchina amministrativa riesce a realizzare per turno (milioni). */
   spendingCapacity: number;
+  /** Anni consecutivi chiusi con i fondi propri in disavanzo: oltre la soglia dei dati, dissesto. */
+  deficitYears: number;
+  /** Rate europee arrivate e non ancora scadute, con la parte non spesa. */
+  euTranches: EuTranche[];
+}
+
+/** Rata di fondi europei vincolati: ciò che non si spende entro la scadenza va perso. */
+export interface EuTranche {
+  id: string;
+  /** Milioni ancora da spendere. */
+  remaining: number;
+  /** Ultimo turno utile: a fine turno la parte non spesa viene tolta dal fondo. */
+  expiresOnTurn: number;
 }
 
 export interface ClimateState {
@@ -121,6 +134,10 @@ export interface Project {
   delayTurns: number;
   /** true se una fase è stata saltata o accorciata con una scorciatoia Red. */
   shortcutTaken: boolean;
+  /** Persone della città assunte dal cantiere (fase 'works'); i posti coperti da fuori non contano. */
+  localHires: number;
+  /** true se il cantiere è fermo per mancanza di fondi o capacità: gli assunti locali sono in cassa. */
+  worksStalled: boolean;
 }
 
 // ---------- Morale ----------

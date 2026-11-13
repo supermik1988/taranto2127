@@ -4,6 +4,7 @@ import {
   MAX_FREE_ACTIONS_PER_TURN,
   TOTAL_TURNS,
   epochOfTurn,
+  yearOfTurn,
   type Action,
   type ConversionPath,
   type Delta,
@@ -40,7 +41,10 @@ export interface PhaseSpec extends PhaseDuration {
 export interface ProjectDefinition {
   id: string;
   phases: Record<BuildPhase, PhaseSpec>;
-  /** Occupati aggiunti al settore per tutta la durata della fase 'works'. */
+  /**
+   * Posti di cantiere nella fase 'works'. Si coprono prima con i cassa
+   * integrati, poi con i disoccupati; il resto arriva da fuori città.
+   */
   worksJobs: { sector: Sector; count: number };
   /** Effetti di esercizio: mai prima dell'entrata in esercizio. */
   operatingEffects: {
@@ -66,9 +70,36 @@ export interface ClimateScenario {
   annualChangeByEpoch: ClimateAnnualChange[];
 }
 
+/** Rata di fondi europei nei dati. */
+export interface EuTrancheSpec {
+  id: string;
+  /** Milioni. */
+  amount: number;
+  /** Anno in cui la rata arriva nel fondo vincolato. */
+  arrivesInYear: number;
+  /** Ultimo anno utile per spenderla: a fine anno la parte non spesa va persa. */
+  expiresInYear: number;
+}
+
+/** Entrate e spese obbligate di ogni anno. Importi in milioni di euro. */
+export interface EconomyRules {
+  /** Entrate proprie per occupato locale all'anno, con reddito medio 100 (scala in proporzione). */
+  ownRevenuePerWorker: number;
+  /** Trasferimenti statali annui. */
+  stateTransferPerYear: number;
+  euTranches: EuTrancheSpec[];
+  /** Costo annuo di un cassa integrato, a carico del fondo statale. */
+  wageSupportCostPerPerson: number;
+  /** Costo annuo dei servizi, a carico dei fondi propri: può portarli in disavanzo. */
+  servicesCostPerYear: number;
+  /** Anni consecutivi di disavanzo dei fondi propri che portano al dissesto. */
+  bankruptcyAfterDeficitYears: number;
+}
+
 /** Numeri che il ciclo del turno legge dai dati (CLAUDE.md, regola 4). */
 export interface TurnRules {
   projects: Record<string, ProjectDefinition>;
+  economy: EconomyRules;
   /** Per ogni strada di riconversione, la definizione del progetto che trasforma un lotto. */
   lotConversion: Record<ActivePath, string>;
   climateScenario: ClimateScenario;
@@ -228,6 +259,8 @@ function startProject(
     turnsLeftInPhase: 0,
     delayTurns: 0,
     shortcutTaken: false,
+    localHires: 0,
+    worksStalled: false,
   };
   state.projects.push(project);
   // Se tutte le fasi durano 0, gli effetti arrivano dal turno dopo, mai nello stesso.
@@ -266,7 +299,7 @@ function enterPhaseFrom(
     if (turns > 0) {
       project.phase = phase;
       project.turnsLeftInPhase = turns;
-      if (phase === 'works') changeWorksJobs(state, definition, +1);
+      if (phase === 'works') startWorks(state, project, definition);
       return;
     }
   }
@@ -275,13 +308,63 @@ function enterPhaseFrom(
   pushEffect(state, project.id, effectsTurn, definition.operatingEffects.once);
 }
 
-function changeWorksJobs(state: GameState, definition: ProjectDefinition, sign: 1 | -1): void {
+// ---------- Lavoro di cantiere (bilancio chiuso) ----------
+
+/** Assume fino a `need` persone: prima dalla cassa integrazione, poi dai disoccupati. */
+function hireLocal(state: GameState, need: number): number {
+  const fromWageSupport = Math.min(state.labor.onWageSupport, need);
+  state.labor.onWageSupport -= fromWageSupport;
+  const fromUnemployed = Math.min(state.labor.unemployed, need - fromWageSupport);
+  state.labor.unemployed -= fromUnemployed;
+  return fromWageSupport + fromUnemployed;
+}
+
+/** Apre il cantiere: i posti non coperti in città vanno a lavoratori di fuori, che non contano. */
+function startWorks(state: GameState, project: Project, definition: ProjectDefinition): void {
   const { sector, count } = definition.worksJobs;
-  if (count !== 0) applyDeltasInPlace(state, [{ target: `labor.employed.${sector}`, amount: sign * count }]);
+  project.localHires = hireLocal(state, count);
+  project.worksStalled = false;
+  state.labor.employed[sector] += project.localHires;
+}
+
+/** Cantiere fermo: gli assunti locali passano in cassa integrazione. */
+function stallWorks(state: GameState, project: Project, definition: ProjectDefinition): void {
+  if (project.worksStalled) return;
+  const { sector } = definition.worksJobs;
+  const moved = Math.min(state.labor.employed[sector], project.localHires);
+  state.labor.employed[sector] -= moved;
+  state.labor.onWageSupport += moved;
+  project.localHires = moved;
+  project.worksStalled = true;
+}
+
+/** Il cantiere riparte: riassume i suoi, prima dalla cassa, poi dai disoccupati. */
+function resumeWorks(state: GameState, project: Project, definition: ProjectDefinition): void {
+  if (!project.worksStalled) return;
+  const { sector } = definition.worksJobs;
+  project.localHires = hireLocal(state, project.localHires);
+  project.worksStalled = false;
+  state.labor.employed[sector] += project.localHires;
+}
+
+/** Fine lavori o annullamento: gli assunti locali tornano disoccupati. */
+function releaseWorks(state: GameState, project: Project, definition: ProjectDefinition): void {
+  const { sector } = definition.worksJobs;
+  if (project.worksStalled) {
+    const moved = Math.min(state.labor.onWageSupport, project.localHires);
+    state.labor.onWageSupport -= moved;
+    state.labor.unemployed += moved;
+  } else {
+    const moved = Math.min(state.labor.employed[sector], project.localHires);
+    state.labor.employed[sector] -= moved;
+    state.labor.unemployed += moved;
+  }
+  project.localHires = 0;
+  project.worksStalled = false;
 }
 
 function cancelProject(state: GameState, project: Project, rules: TurnRules): void {
-  if (project.phase === 'works') changeWorksJobs(state, definitionOrThrow(rules, project.definitionId, TurnError), -1);
+  if (project.phase === 'works') releaseWorks(state, project, definitionOrThrow(rules, project.definitionId, TurnError));
   project.phase = 'cancelled';
   project.turnsLeftInPhase = 0;
 }
@@ -307,12 +390,15 @@ export function delayProject(state: GameState, projectId: string, turns: number)
 
 /**
  * Chiude l'anno in corso e apre il successivo. Funzione pura. In ordine:
- * 1. effetti ricorrenti dei progetti già in esercizio;
- * 2. progetti in costruzione, in ordine di avvio: chi trova fondi e capacità
- *    di spesa paga l'anno e avanza, gli altri restano fermi e accumulano ritardo;
- * 3. clima secondo lo scenario dell'epoca;
- * 4. effetti in scadenza.
- * Poi il turno avanza; al turno TOTAL_TURNS la partita termina con 'ended-2127'.
+ * 1. entrate: proprie, trasferimenti statali, rate europee in arrivo;
+ * 2. spese obbligate: cassa integrazione (fondo statale) e servizi (fondi propri);
+ * 3. progetti: effetti ricorrenti di quelli in esercizio, poi quelli in
+ *    costruzione in ordine di avvio, entro fondi e capacità di spesa; infine
+ *    scadono le rate europee non spese;
+ * 4. clima secondo lo scenario dell'epoca;
+ * 5. effetti in scadenza.
+ * Poi il turno avanza. Dopo troppi anni di disavanzo la partita termina con
+ * 'ended-bankrupt'; al turno TOTAL_TURNS con 'ended-2127'.
  */
 export function advanceTurn(state: GameState, rules: TurnRules): GameState {
   if (state.status !== 'running') throw new TurnError(`partita conclusa (${state.status})`);
@@ -320,14 +406,93 @@ export function advanceTurn(state: GameState, rules: TurnRules): GameState {
   const closing = next.turn;
   const opening = closing + 1;
 
-  for (const project of next.projects) {
+  collectRevenue(next, rules.economy, closing);
+  payMandatorySpending(next, rules.economy);
+  advanceProjects(next, rules, opening);
+  expireEuTranches(next, closing);
+  advanceClimate(next, rules, closing);
+  applyDueEffectsInPlace(next, opening);
+
+  next.economy.deficitYears = next.economy.funds.own < 0 ? next.economy.deficitYears + 1 : 0;
+  next.turn = opening;
+  if (next.economy.deficitYears >= rules.economy.bankruptcyAfterDeficitYears) next.status = 'ended-bankrupt';
+  else if (opening >= TOTAL_TURNS) next.status = 'ended-2127';
+  return next;
+}
+
+// ---------- Entrate e spese obbligate ----------
+
+const totalEmployed = (state: GameState): number =>
+  Object.values(state.labor.employed).reduce((sum, n) => sum + n, 0);
+
+function collectRevenue(state: GameState, economy: EconomyRules, closing: number): void {
+  const { funds } = state.economy;
+  funds.own += economy.ownRevenuePerWorker * totalEmployed(state) * (state.economy.averageIncome / 100);
+  funds.state += economy.stateTransferPerYear;
+  const year = yearOfTurn(closing);
+  for (const tranche of economy.euTranches) {
+    if (tranche.arrivesInYear !== year) continue;
+    funds['eu-earmarked'] += tranche.amount;
+    state.economy.euTranches.push({
+      id: tranche.id,
+      remaining: tranche.amount,
+      expiresOnTurn: closing + (tranche.expiresInYear - tranche.arrivesInYear),
+    });
+  }
+}
+
+/**
+ * Cassa integrazione dal fondo statale: se non basta, chi resta scoperto
+ * diventa disoccupato. Servizi dai fondi propri, anche in disavanzo.
+ */
+function payMandatorySpending(state: GameState, economy: EconomyRules): void {
+  const { funds } = state.economy;
+  const { labor } = state;
+  const costPerPerson = economy.wageSupportCostPerPerson;
+  if (costPerPerson > 0) {
+    const covered = Math.min(labor.onWageSupport, Math.floor(funds.state / costPerPerson));
+    const uncovered = labor.onWageSupport - covered;
+    funds.state -= covered * costPerPerson;
+    labor.onWageSupport = covered;
+    labor.unemployed += uncovered;
+  }
+  funds.own -= economy.servicesCostPerYear;
+}
+
+/** Paga da un fondo; per il fondo europeo consuma prima le rate che scadono prima. */
+function payFrom(state: GameState, fund: FundKind, amount: number): void {
+  state.economy.funds[fund] -= amount;
+  if (fund !== 'eu-earmarked') return;
+  let left = amount;
+  const tranches = [...state.economy.euTranches].sort((a, b) => a.expiresOnTurn - b.expiresOnTurn);
+  for (const tranche of tranches) {
+    if (left <= 0) break;
+    const used = Math.min(tranche.remaining, left);
+    tranche.remaining -= used;
+    left -= used;
+  }
+}
+
+/** A fine anno la parte non spesa delle rate in scadenza viene tolta dal fondo europeo. */
+function expireEuTranches(state: GameState, closing: number): void {
+  const { economy } = state;
+  for (const tranche of economy.euTranches.filter((t) => t.expiresOnTurn <= closing)) {
+    economy.funds['eu-earmarked'] -= Math.min(tranche.remaining, economy.funds['eu-earmarked']);
+  }
+  economy.euTranches = economy.euTranches.filter((t) => t.expiresOnTurn > closing && t.remaining > 0);
+}
+
+// ---------- Progetti ----------
+
+function advanceProjects(state: GameState, rules: TurnRules, opening: number): void {
+  for (const project of state.projects) {
     if (project.phase === 'operating') {
-      applyDeltasInPlace(next, definitionOrThrow(rules, project.definitionId, TurnError).operatingEffects.everyYear);
+      applyDeltasInPlace(state, definitionOrThrow(rules, project.definitionId, TurnError).operatingEffects.everyYear);
     }
   }
 
-  let capacityLeft = next.economy.spendingCapacity;
-  const inProgress = next.projects
+  let capacityLeft = state.economy.spendingCapacity;
+  const inProgress = state.projects
     .filter((p) => p.phase !== 'operating' && p.phase !== 'cancelled')
     .sort((a, b) => a.startedOnTurn - b.startedOnTurn); // stabile: a parità di turno, ordine di creazione
   for (const project of inProgress) {
@@ -336,21 +501,16 @@ export function advanceTurn(state: GameState, rules: TurnRules): GameState {
     if (!Number.isFinite(annualCost) || annualCost < 0) {
       throw new TurnError(`costo non valido per ${definition.id}.${project.phase}: ${annualCost}`);
     }
-    if (next.economy.funds[fund] < annualCost || capacityLeft < annualCost) {
+    if (state.economy.funds[fund] < annualCost || capacityLeft < annualCost) {
       project.delayTurns += 1;
+      if (project.phase === 'works') stallWorks(state, project, definition);
       continue;
     }
-    next.economy.funds[fund] -= annualCost;
+    payFrom(state, fund, annualCost);
     capacityLeft -= annualCost;
-    workOneYear(next, project, definition, rules, opening);
+    if (project.phase === 'works') resumeWorks(state, project, definition);
+    workOneYear(state, project, definition, rules, opening);
   }
-
-  advanceClimate(next, rules, closing);
-  applyDueEffectsInPlace(next, opening);
-
-  next.turn = opening;
-  if (opening >= TOTAL_TURNS) next.status = 'ended-2127';
-  return next;
 }
 
 /** Un anno di lavoro pagato: la fase avanza, e con essa il lotto collegato. */
@@ -366,7 +526,7 @@ function workOneYear(
   if (project.turnsLeftInPhase <= 0) {
     const leaving = project.phase as BuildPhase;
     enterPhaseFrom(state, project, definition, BUILD_PHASES.indexOf(leaving) + 1, opening);
-    if (leaving === 'works' && project.phase !== 'works') changeWorksJobs(state, definition, -1);
+    if (leaving === 'works') releaseWorks(state, project, definition);
   }
 
   const lot = conversionLotOf(state, project, rules);

@@ -33,7 +33,8 @@ export interface InitialContent {
   calibrationVersion: string;
   districts: Record<DistrictId, DistrictStart>;
   labor: LaborState;
-  economy: EconomyState;
+  /** Disavanzo e rate europee partono da zero: li gestisce il motore. */
+  economy: Omit<EconomyState, 'deficitYears' | 'euTranches'>;
   climate: ClimateState;
   plantLots: PlantLot[];
   /** Consiglio della prima epoca. */
@@ -71,7 +72,7 @@ export function createInitialState(seed: number, content: InitialContent): GameS
     turn: 0,
     districts,
     labor: data.labor,
-    economy: data.economy,
+    economy: { ...data.economy, deficitYears: 0, euTranches: [] },
     climate: data.climate,
     plantLots: data.plantLots,
     projects: [],

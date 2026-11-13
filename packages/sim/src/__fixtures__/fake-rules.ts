@@ -6,7 +6,7 @@
  * fonte, arrivano con la scheda T05 in packages/content.
  */
 import type { FundKind } from '../state.js';
-import type { PhaseSpec, ProjectDefinition, TurnRules } from '../turn.js';
+import type { EconomyRules, PhaseSpec, ProjectDefinition, TurnRules } from '../turn.js';
 
 const phase = (minTurns: number, maxTurns = minTurns, annualCost = 1, fund: FundKind = 'state'): PhaseSpec => ({
   minTurns,
@@ -61,6 +61,16 @@ export const fakeRules = (): TurnRules => ({
     'lotto-energia': lotProject('lotto-energia', 1),
     'lotto-mare-cultura': lotProject('lotto-mare-cultura', 3),
   },
+  // Economia neutra: nessuna entrata né spesa obbligata, così i test sui
+  // progetti contano i fondi in modo esatto. Per l'economia vedi activeEconomy.
+  economy: {
+    ownRevenuePerWorker: 0,
+    stateTransferPerYear: 0,
+    euTranches: [],
+    wageSupportCostPerPerson: 0,
+    servicesCostPerYear: 0,
+    bankruptcyAfterDeficitYears: 5,
+  },
   lotConversion: {
     'green-steel': 'lotto-acciaio-verde',
     remediation: 'lotto-bonifica',
@@ -78,3 +88,18 @@ export const fakeRules = (): TurnRules => ({
     ],
   },
 });
+
+/** Economia finta con entrate e spese: anche questi numeri sono inventati. */
+export const activeEconomy = (): EconomyRules => ({
+  ownRevenuePerWorker: 0.02,
+  stateTransferPerYear: 10,
+  euTranches: [
+    { id: 'rata-finta-1', amount: 20, arrivesInYear: 2028, expiresInYear: 2030 },
+    { id: 'rata-finta-2', amount: 30, arrivesInYear: 2035, expiresInYear: 2040 },
+  ],
+  wageSupportCostPerPerson: 0.01,
+  servicesCostPerYear: 2,
+  bankruptcyAfterDeficitYears: 3,
+});
+
+export const fakeRulesWithEconomy = (): TurnRules => ({ ...fakeRules(), economy: activeEconomy() });

@@ -40,7 +40,7 @@ describe('createInitialState', () => {
     expect(Object.keys(state.districts)).toEqual([...DISTRICT_IDS]);
     expect(state.districts.tamburi).toEqual({ id: 'tamburi', ...content.districts.tamburi });
     expect(state.labor).toEqual(content.labor);
-    expect(state.economy).toEqual(content.economy);
+    expect(state.economy).toEqual({ ...content.economy, deficitYears: 0, euTranches: [] });
     expect(state.climate).toEqual(content.climate);
     expect(state.plantLots).toEqual(content.plantLots);
     expect(state.council.map((c) => c.electedInEpoch)).toEqual([0, 0]);

@@ -16,6 +16,8 @@ export {
   type BuildPhase,
   type ClimateAnnualChange,
   type ClimateScenario,
+  type EconomyRules,
+  type EuTrancheSpec,
   type PhaseDuration,
   type PhaseSpec,
   type ProjectDefinition,
