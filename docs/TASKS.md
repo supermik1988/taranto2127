@@ -119,3 +119,36 @@ elencati. Ordine: T01, poi T02, poi T03 e T05 in parallelo, poi T04, poi T06.
 - **Fatto quando:** un test dimostra che senza consenso non parte alcuna
   richiesta; il record ricevuto basta a rigiocare la partita; `docs/RICERCA.md`
   elenca ogni campo raccolto e il motivo.
+
+---
+
+## T03b — Economia e cantieri dei progetti
+
+- **Agente:** `sim-engineer`
+- **Dipende da:** T03
+- **File:** `packages/sim/src/turn.ts`, `effects.ts`, `limits.ts`, `index.ts`,
+  `state.ts` (solo aggiunte indispensabili, elencate nel resoconto), test e dati
+  di prova in `packages/sim/src/__fixtures__/`.
+- **Cosa fare:**
+  1. *Lotti come progetti.* `convert-lot` avvia un progetto legato al lotto,
+     con la definizione indicata in `rules` per ciascuna strada. Sparisce
+     `lotConversionTurns`. `lot.progress` è la quota di anni trascorsi sul
+     totale previsto; `remediated` diventa vero quando un progetto di bonifica
+     entra in esercizio. Cambiare strada annulla il progetto in corso sul lotto.
+  2. *Costi.* Ogni fase ha nei dati un costo annuo e un tipo di fondo. A ogni
+     turno il costo si scala dal fondo, entro `economy.spendingCapacity`
+     complessiva del turno.
+  3. *Ritardi deterministici.* Se fondi o capacità di spesa non bastano, la
+     fase non avanza in quel turno e `delayTurns` cresce di 1. I progetti si
+     servono in ordine di avvio. `delayProject` resta interno al motore e non
+     si esporta.
+  4. *Lavoro di cantiere.* Durante la fase `works` il progetto aggiunge
+     occupati al settore indicato nei dati, e li toglie quando la fase finisce.
+  5. *Effetti di esercizio.* Due elenchi nei dati: una volta sola all'entrata
+     in esercizio, e ricorrenti ogni anno finché il progetto è in esercizio.
+- **Fatto quando:** un progetto senza fondi resta fermo e accumula ritardo, e
+  riparte quando i fondi tornano; con capacità di spesa per un solo progetto,
+  due progetti avanzano uno alla volta in ordine di avvio; gli occupati di
+  cantiere compaiono solo durante `works`; un effetto ricorrente si applica ogni
+  anno e mai prima dell'esercizio; la partita resta identica a parità di seme e
+  storia; 100 turni di gioco casuale lasciano lo stato sempre valido.
