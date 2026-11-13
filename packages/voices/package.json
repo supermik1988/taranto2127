@@ -1,0 +1,15 @@
+{
+  "name": "@taranto2127/voices",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Voci: contesto, formato, filtro, frasi di riserva.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  }
+}

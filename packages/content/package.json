@@ -1,0 +1,15 @@
+{
+  "name": "@taranto2127/content",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Dati di gioco: quartieri, leve, dilemmi, archetipi, coefficienti.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  }
+}

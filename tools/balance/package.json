@@ -1,0 +1,15 @@
+{
+  "name": "@taranto2127/balance",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Bot che giocano partite senza grafica per il bilanciamento.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "@taranto2127/sim",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Motore: stato, turno, regole, effetti ritardati, morale.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  }
+}
