@@ -152,3 +152,42 @@ elencati. Ordine: T01, poi T02, poi T03 e T05 in parallelo, poi T04, poi T06.
   cantiere compaiono solo durante `works`; un effetto ricorrente si applica ogni
   anno e mai prima dell'esercizio; la partita resta identica a parità di seme e
   storia; 100 turni di gioco casuale lasciano lo stato sempre valido.
+
+---
+
+## T03c — Lavoro ed entrate
+
+- **Agente:** `sim-engineer`
+- **Dipende da:** T03b
+- **File:** `packages/sim/src/turn.ts`, `init.ts`, `index.ts`, `state.ts` (solo
+  aggiunte indispensabili, elencate nel resoconto), test e dati di prova in
+  `packages/sim/src/__fixtures__/`. Tutti i numeri vengono da `rules`.
+- **Cosa fare:**
+  1. *Lavoro come bilancio chiuso.* La forza lavoro è la somma di occupati,
+     cassa integrati, disoccupati e persone in formazione, e cambia solo per
+     regole esplicite. Un cantiere assume prima dai cassa integrati, poi dai
+     disoccupati. Se non bastano, la parte mancante viene da fuori città: la
+     fase avanza lo stesso, ma quei posti non entrano negli occupati locali. A
+     fine lavori gli assunti locali tornano disoccupati.
+  2. *Cantiere fermo.* Negli anni in cui la fase `works` non avanza per
+     mancanza di fondi o capacità, i suoi assunti locali passano in cassa
+     integrazione e rientrano quando il cantiere riparte.
+  3. *Entrate annuali.* Nei dati: entrate proprie proporzionali a occupati
+     locali e reddito medio; trasferimenti statali annui; rate dei fondi europei
+     con anno di arrivo e anno di scadenza. La parte di una rata non spesa alla
+     scadenza viene tolta dal fondo.
+  4. *Spese obbligate annuali.* Nei dati: costo annuo per cassa integrato, dal
+     fondo statale; costo annuo dei servizi, dai fondi propri. Le spese
+     obbligate possono portare i fondi propri in disavanzo. Se il fondo statale
+     non copre la cassa, la parte scoperta dei cassa integrati diventa
+     disoccupata.
+  5. *Dissesto.* Dopo un numero di anni consecutivi di disavanzo dei fondi
+     propri, preso dai dati, la partita termina con `ended-bankrupt`.
+  6. *Ordine nel turno:* entrate, spese obbligate, progetti, clima, effetti.
+- **Fatto quando:** la forza lavoro totale resta costante in 100 turni di gioco
+  casuale; un cantiere con 30 posti e 10 persone disponibili ne assume 10 e
+  avanza comunque; un cantiere fermo sposta i suoi assunti in cassa e li
+  riprende alla ripartenza; meno occupati locali producono meno entrate proprie
+  l'anno dopo; una rata europea non spesa scade nell'anno previsto; il
+  disavanzo prolungato chiude la partita con `ended-bankrupt`; stessa partita
+  identica a parità di seme e storia; stato sempre valido.
