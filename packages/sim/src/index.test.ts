@@ -25,4 +25,13 @@ describe('API del pacchetto', () => {
     expect(typeof api.validateState).toBe('function');
     expect(api.DISTRICT_IDS).toHaveLength(6);
   });
+
+  it('esporta generatore, effetti e ciclo del turno, ma non delayProject', async () => {
+    const api: Record<string, unknown> = await import('./index.js');
+    for (const name of ['createRng', 'rngFor', 'deriveSeed', 'applyDeltas', 'scheduleEffect', 'applyAction', 'advanceTurn', 'replay']) {
+      expect(typeof api[name], name).toBe('function');
+    }
+    expect(api.delayProject).toBeUndefined();
+    expect(api.applyDeltasInPlace).toBeUndefined();
+  });
 });

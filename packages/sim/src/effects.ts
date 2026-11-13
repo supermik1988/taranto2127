@@ -1,3 +1,4 @@
+import { boundsFor, clampToBounds } from './limits.js';
 import type { Delta, GameState } from './state.js';
 
 export class EffectError extends Error {
@@ -11,34 +12,6 @@ export class EffectError extends Error {
 const WRITABLE_ROOTS = new Set(['districts', 'labor', 'economy', 'climate', 'moral', 'council', 'plantLots']);
 
 const FORBIDDEN_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
-
-type Bounds = readonly [min: number, max: number];
-const INDEX: Bounds = [0, 100];
-const NON_NEGATIVE: Bounds = [0, Infinity];
-const MORAL: Bounds = [-100, 100];
-const FREE: Bounds = [-Infinity, Infinity];
-
-/**
- * Intervallo ammesso per una variabile, coerente con validateState.
- * Un effetto che lo supererebbe si ferma al limite.
- */
-const BOUNDS: readonly (readonly [RegExp, Bounds])[] = [
-  [/^districts\.[^.]+\.population\.[^.]+$/, NON_NEGATIVE],
-  [/^districts\.[^.]+\.[^.]+$/, INDEX],
-  [/^labor\./, NON_NEGATIVE],
-  [/^economy\.averageIncome$/, INDEX],
-  [/^economy\.funds\.own$/, FREE],
-  [/^economy\./, NON_NEGATIVE],
-  [/^climate\.co2Emissions$/, NON_NEGATIVE],
-  [/^climate\.seaLevelRiseCm$/, FREE],
-  [/^climate\./, INDEX],
-  [/^moral\./, MORAL],
-  [/^council\.\d+\.(trustInPlayer|patience)$/, INDEX],
-  [/^plantLots\.\d+\.progress$/, [0, 1]],
-];
-
-const boundsFor = (target: string): Bounds =>
-  BOUNDS.find(([pattern]) => pattern.test(target))?.[1] ?? FREE;
 
 /**
  * Applica le variazioni direttamente su `state`. Uso interno del motore, che
@@ -58,8 +31,7 @@ export function applyDeltasInPlace(state: GameState, deltas: readonly Delta[]): 
     }
     const current = ownChild(node, field, target);
     if (typeof current !== 'number') throw new EffectError(`${target}: non è un numero`);
-    const [min, max] = boundsFor(target);
-    (node as Record<string, number>)[field] = Math.min(max, Math.max(min, current + amount));
+    (node as Record<string, number>)[field] = clampToBounds(current + amount, boundsFor(target));
   }
 }
 

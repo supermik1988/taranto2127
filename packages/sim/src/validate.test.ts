@@ -74,10 +74,10 @@ describe('validateState: indici tra 0 e 100', () => {
 
   it('fallisce se fiducia o pazienza di un consigliere escono da 0-100', () => {
     expect(broken((s) => (s.council[1]!.trustInPlayer = 120))).toEqual([
-      expect.stringContaining('council[1].trustInPlayer'),
+      expect.stringContaining('council.1.trustInPlayer'),
     ]);
     expect(broken((s) => (s.council[0]!.patience = -1))).toEqual([
-      expect.stringContaining('council[0].patience'),
+      expect.stringContaining('council.0.patience'),
     ]);
   });
 });
@@ -234,10 +234,10 @@ describe('validateState: turno e avanzamento dei lotti', () => {
 
   it("fallisce se l'avanzamento di un lotto esce da 0-1", () => {
     expect(broken((s) => (s.plantLots[1]!.progress = -0.1))).toEqual([
-      expect.stringContaining('plantLots[1].progress = -0.1'),
+      expect.stringContaining('plantLots.1.progress = -0.1'),
     ]);
     expect(broken((s) => (s.plantLots[0]!.progress = 1.5))).toEqual([
-      expect.stringContaining('plantLots[0].progress = 1.5'),
+      expect.stringContaining('plantLots.0.progress = 1.5'),
     ]);
   });
 
