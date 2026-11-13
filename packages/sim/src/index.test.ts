@@ -17,3 +17,12 @@ describe('contratto dello stato: tempo', () => {
     expect(epochOfTurn(TOTAL_TURNS - 1)).toBe(TOTAL_EPOCHS - 1);
   });
 });
+
+describe('API del pacchetto', () => {
+  it('esporta stato iniziale e validazione', async () => {
+    const api = await import('./index.js');
+    expect(typeof api.createInitialState).toBe('function');
+    expect(typeof api.validateState).toBe('function');
+    expect(api.DISTRICT_IDS).toHaveLength(6);
+  });
+});

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { fakeContent } from './__fixtures__/fake-content.js';
 import { createInitialState } from './init.js';
-import type { GameState } from './state.js';
+import { TOTAL_TURNS, type GameState } from './state.js';
 import { validateState } from './validate.js';
 
 /** Stato iniziale valido, poi modificato da `mutate` per violare una regola. */
@@ -55,9 +55,12 @@ describe('validateState: indici tra 0 e 100', () => {
     ]);
   });
 
-  for (const field of ['co2Emissions', 'summerHeat', 'waterStress'] as const) {
+  for (const field of ['summerHeat', 'waterStress'] as const) {
     it(`fallisce se climate.${field} esce da 0-100`, () => {
       expect(broken((s) => (s.climate[field] = -5))).toEqual([
+        expect.stringContaining(`climate.${field}`),
+      ]);
+      expect(broken((s) => (s.climate[field] = 101))).toEqual([
         expect.stringContaining(`climate.${field}`),
       ]);
     });
@@ -138,5 +141,109 @@ describe('validateState: completezza', () => {
       s.moral.conscience = 300;
     });
     expect(errors).toHaveLength(3);
+  });
+});
+
+describe('validateState: emissioni aperte verso l’alto', () => {
+  it('accetta co2Emissions sopra 100', () => {
+    const state = createInitialState(1, fakeContent());
+    state.climate.co2Emissions = 250;
+    expect(validateState(state).ok).toBe(true);
+  });
+
+  it('fallisce se co2Emissions è negativa', () => {
+    expect(broken((s) => (s.climate.co2Emissions = -0.1))).toEqual([
+      expect.stringContaining('climate.co2Emissions = -0.1'),
+    ]);
+  });
+});
+
+describe('validateState: dimensioni morali tra -100 e +100', () => {
+  for (const dimension of ['truth', 'word', 'care', 'legality', 'listening'] as const) {
+    it(`fallisce se ${dimension} esce da -100/+100`, () => {
+      expect(broken((s) => (s.moral.byDimension[dimension] = -101))).toEqual([
+        expect.stringContaining(`moral.byDimension.${dimension} = -101`),
+      ]);
+      expect(broken((s) => (s.moral.byDimension[dimension] = 101))).toEqual([
+        expect.stringContaining(`moral.byDimension.${dimension} = 101`),
+      ]);
+    });
+  }
+
+  it('accetta gli estremi', () => {
+    const state = createInitialState(1, fakeContent());
+    state.moral.byDimension.truth = -100;
+    state.moral.byDimension.care = 100;
+    expect(validateState(state).ok).toBe(true);
+  });
+});
+
+describe('validateState: lavoro ed economia non negativi', () => {
+  for (const sector of ['steel', 'remediation', 'energy', 'sea', 'culture-tourism', 'services', 'public'] as const) {
+    it(`fallisce se gli occupati in ${sector} sono negativi`, () => {
+      expect(broken((s) => (s.labor.employed[sector] = -1))).toEqual([
+        expect.stringContaining(`labor.employed.${sector} = -1`),
+      ]);
+    });
+  }
+
+  for (const field of ['onWageSupport', 'unemployed', 'inTraining'] as const) {
+    it(`fallisce se labor.${field} è negativo`, () => {
+      expect(broken((s) => (s.labor[field] = -1))).toEqual([
+        expect.stringContaining(`labor.${field} = -1`),
+      ]);
+    });
+  }
+
+  for (const field of ['supplierFirms', 'spendingCapacity'] as const) {
+    it(`fallisce se economy.${field} è negativo`, () => {
+      expect(broken((s) => (s.economy[field] = -1))).toEqual([
+        expect.stringContaining(`economy.${field} = -1`),
+      ]);
+    });
+  }
+
+  for (const kind of ['state', 'eu-earmarked', 'private'] as const) {
+    it(`fallisce se i fondi ${kind} sono negativi`, () => {
+      expect(broken((s) => (s.economy.funds[kind] = -1))).toEqual([
+        expect.stringContaining(`economy.funds.${kind} = -1`),
+      ]);
+    });
+  }
+
+  it('accetta fondi propri negativi (disavanzo)', () => {
+    const state = createInitialState(1, fakeContent());
+    state.economy.funds.own = -500;
+    expect(validateState(state).ok).toBe(true);
+  });
+});
+
+describe('validateState: turno e avanzamento dei lotti', () => {
+  it('fallisce se il turno esce da 0-TOTAL_TURNS', () => {
+    expect(broken((s) => (s.turn = -1))).toEqual([expect.stringContaining('turn = -1')]);
+    expect(broken((s) => (s.turn = TOTAL_TURNS + 1))).toEqual([
+      expect.stringContaining(`turn = ${TOTAL_TURNS + 1}`),
+    ]);
+  });
+
+  it('accetta il turno finale', () => {
+    const state = createInitialState(1, fakeContent());
+    state.turn = TOTAL_TURNS;
+    expect(validateState(state).ok).toBe(true);
+  });
+
+  it("fallisce se l'avanzamento di un lotto esce da 0-1", () => {
+    expect(broken((s) => (s.plantLots[1]!.progress = -0.1))).toEqual([
+      expect.stringContaining('plantLots[1].progress = -0.1'),
+    ]);
+    expect(broken((s) => (s.plantLots[0]!.progress = 1.5))).toEqual([
+      expect.stringContaining('plantLots[0].progress = 1.5'),
+    ]);
+  });
+
+  it('accetta un lotto completato', () => {
+    const state = createInitialState(1, fakeContent());
+    state.plantLots[0]!.progress = 1;
+    expect(validateState(state).ok).toBe(true);
   });
 });

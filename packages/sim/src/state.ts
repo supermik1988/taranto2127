@@ -74,7 +74,7 @@ export interface EconomyState {
 }
 
 export interface ClimateState {
-  co2Emissions: number; // indice, 100 = livello del 2026
+  co2Emissions: number; // indice aperto verso l'alto: 100 = livello del 2026, minimo 0
   seaLevelRiseCm: number; // rispetto al 2027
   summerHeat: number; // indice
   waterStress: number; // indice
@@ -132,6 +132,7 @@ export interface MoralState {
   conscience: number;
   /** Ciò che i cittadini credono, da -100 a +100. */
   reputation: number;
+  /** Ogni dimensione da -100 a +100. */
   byDimension: Record<MoralDimension, number>;
   /** Atti Red non ancora scoperti: alimentano il rischio di scandalo. */
   hiddenActs: HiddenAct[];
