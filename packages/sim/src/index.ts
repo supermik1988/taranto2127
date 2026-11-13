@@ -17,6 +17,7 @@ export {
   type ClimateAnnualChange,
   type ClimateScenario,
   type PhaseDuration,
+  type PhaseSpec,
   type ProjectDefinition,
   type TurnRules,
 } from './turn.js';

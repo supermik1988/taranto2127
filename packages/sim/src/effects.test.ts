@@ -78,11 +78,11 @@ describe('applicazione delle variazioni', () => {
 
   it('lascia liberi fondi propri, emissioni sopra 100 e livello del mare', () => {
     const state = applyDeltas(initial(), [
-      { target: 'economy.funds.own', amount: -1000 },
+      { target: 'economy.funds.own', amount: -2000 },
       { target: 'climate.co2Emissions', amount: 50 },
       { target: 'climate.seaLevelRiseCm', amount: 200 },
     ]);
-    expect(state.economy.funds.own).toBe(-990);
+    expect(state.economy.funds.own).toBe(-1000);
     expect(state.climate.co2Emissions).toBe(150);
     expect(state.climate.seaLevelRiseCm).toBe(200);
   });

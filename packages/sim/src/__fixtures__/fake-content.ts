@@ -47,10 +47,10 @@ export const fakeContent = (): InitialContent => ({
     inTraining: 0,
   },
   economy: {
-    funds: { own: 10, state: 10, 'eu-earmarked': 10, private: 0 },
+    funds: { own: 1000, state: 1000, 'eu-earmarked': 1000, private: 0 },
     averageIncome: 50,
     supplierFirms: 10,
-    spendingCapacity: 5,
+    spendingCapacity: 100,
   },
   climate: { co2Emissions: 100, seaLevelRiseCm: 0, summerHeat: 50, waterStress: 50 },
   plantLots: [
