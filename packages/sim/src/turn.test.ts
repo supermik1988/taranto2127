@@ -24,7 +24,7 @@ function scriptedGame(seed: number): GameState {
     2: [
       { kind: 'start-project', definitionId: 'progetto-finto-variabile', lotId: 'lotto-finto-b' },
       { kind: 'set-policy', policyId: 'politica-finta', active: true },
-      { kind: 'answer-dilemma', dilemmaId: 'dilemma-finto', optionId: 'a' },
+      { kind: 'answer-dilemma', dilemmaId: 'dilemma-finto', optionId: 'palese' },
     ],
     5: [{ kind: 'start-project', definitionId: 'progetto-finto-8-anni', district: 'tamburi' }],
   };
@@ -188,7 +188,7 @@ describe('azioni', () => {
     }
     expect(() => applyAction(state, { kind: 'set-policy', policyId: 'troppe', active: true }, rules)).toThrow(ActionError);
     // Le risposte ai dilemmi non consumano azioni libere.
-    state = applyAction(state, { kind: 'answer-dilemma', dilemmaId: 'd', optionId: 'a' }, rules);
+    state = applyAction(state, { kind: 'answer-dilemma', dilemmaId: 'dilemma-finto', optionId: 'palese' }, rules);
     // Il turno dopo il conteggio riparte.
     state = advanceTurn(state, rules);
     expect(() => applyAction(state, { kind: 'set-policy', policyId: 'ok', active: true }, rules)).not.toThrow();

@@ -7,6 +7,15 @@ import {
   pushEffect,
   type EffectSet,
 } from './effects.js';
+import {
+  MoralError,
+  checkScandalsInPlace,
+  readNumber,
+  recordActInPlace,
+  settlePromisesInPlace,
+  type MoralRules,
+  type MoralWeights,
+} from './moral.js';
 import { rngFor } from './rng.js';
 import {
   MAX_FREE_ACTIONS_PER_TURN,
@@ -19,6 +28,7 @@ import {
   type FundKind,
   type GameState,
   type PlantLot,
+  type PromiseCondition,
   type Project,
   type ProjectPhase,
   type Sector,
@@ -103,9 +113,39 @@ export interface EconomyRules {
   bankruptcyAfterDeficitYears: number;
 }
 
+/** Promessa che nasce da un'opzione di dilemma. */
+export interface DilemmaPromise {
+  text: string;
+  /** Turni concessi per mantenerla, a partire dalla risposta. */
+  dueInTurns: number;
+  toDistrict?: DistrictId;
+  toFaction?: string;
+  /** Se presente, alla scadenza decide tra mantenuta e tradita. */
+  condition?: PromiseCondition;
+}
+
+export interface DilemmaOption {
+  /** Effetti applicati subito, alla risposta. */
+  immediate: EffectSet;
+  /** Effetti che arrivano dopo `delayTurns` turni. */
+  delayed: { delayTurns: number; effects: EffectSet }[];
+  /** Peso morale dell'opzione, per dimensione. */
+  moral: MoralWeights;
+  /** true se la scelta resta nascosta ai cittadini: muove solo la coscienza. */
+  hidden: boolean;
+  promise?: DilemmaPromise;
+}
+
+export interface DilemmaDefinition {
+  id: string;
+  options: Record<string, DilemmaOption>;
+}
+
 /** Numeri che il ciclo del turno legge dai dati (CLAUDE.md, regola 4). */
 export interface TurnRules {
   projects: Record<string, ProjectDefinition>;
+  dilemmas: Record<string, DilemmaDefinition>;
+  moral: MoralRules;
   economy: EconomyRules;
   /** Per ogni strada di riconversione, la definizione del progetto che trasforma un lotto. */
   lotConversion: Record<ActivePath, string>;
@@ -141,6 +181,7 @@ const FREE_ACTION_KINDS: ReadonlySet<Action['kind']> = new Set([
   'set-policy',
   'negotiate',
   'make-promise',
+  'shortcut-phase',
 ]);
 
 export const isFreeAction = (action: Action): boolean => FREE_ACTION_KINDS.has(action.kind);
@@ -204,10 +245,15 @@ export function applyAction(state: GameState, action: Action, rules: TurnRules):
       });
       break;
     }
-    case 'negotiate':
     case 'answer-dilemma':
+      answerDilemma(next, action, rules);
+      break;
+    case 'shortcut-phase':
+      shortcutPhase(next, action, rules);
+      break;
+    case 'negotiate':
     case 'answer-protest':
-      // Trattative, dilemmi e proteste arrivano con i task successivi: per ora
+      // Trattative e proteste arrivano con i task successivi: per ora
       // l'azione resta nella storia, così la partita è già rigiocabile.
       break;
   }
@@ -219,6 +265,95 @@ function assertDistrict(district: string | undefined): void {
   if (district !== undefined && !(DISTRICT_IDS as readonly string[]).includes(district)) {
     throw new ActionError(`quartiere inesistente: ${district}`);
   }
+}
+
+/** Identificativo dell'atto morale nato dall'azione che si sta applicando: unico nella partita. */
+const actSourceId = (state: GameState): string => `act-${state.turn}-${state.history.length}`;
+
+/**
+ * Gli effetti dei dati non toccano il contatore morale: si muove solo con i
+ * pesi delle cinque dimensioni (CLAUDE.md, regola 5). Controlla anche che gli
+ * effetti siano applicabili, così un errore nei dati emerge subito.
+ */
+function assertDataEffects(state: GameState, sourceId: string, effects: EffectSet): void {
+  const moralTarget = effects.deltas.find((d) => d.target === 'moral' || d.target.startsWith('moral.'));
+  if (moralTarget !== undefined) {
+    throw new ActionError(`${sourceId}: un effetto non può toccare ${moralTarget.target} (CLAUDE.md, regola 5)`);
+  }
+  try {
+    assertApplicable(state, effects);
+  } catch (error) {
+    if (error instanceof EffectError) throw new ActionError(`${sourceId}: ${error.message}`);
+    throw error;
+  }
+}
+
+function answerDilemma(state: GameState, action: Extract<Action, { kind: 'answer-dilemma' }>, rules: TurnRules): void {
+  const dilemma = Object.hasOwn(rules.dilemmas, action.dilemmaId) ? rules.dilemmas[action.dilemmaId] : undefined;
+  if (dilemma === undefined) throw new ActionError(`dilemma inesistente: ${action.dilemmaId}`);
+  const option = Object.hasOwn(dilemma.options, action.optionId) ? dilemma.options[action.optionId] : undefined;
+  if (option === undefined) throw new ActionError(`opzione inesistente: ${action.dilemmaId}/${action.optionId}`);
+
+  const sourceId = `${dilemma.id}/${action.optionId}`;
+  assertDataEffects(state, sourceId, option.immediate);
+  for (const { delayTurns, effects } of option.delayed) {
+    if (!Number.isInteger(delayTurns) || delayTurns < 1) throw new ActionError(`${sourceId}: ritardo non valido (${delayTurns})`);
+    assertDataEffects(state, sourceId, effects);
+  }
+  const promise = option.promise;
+  if (promise !== undefined) {
+    if (!Number.isInteger(promise.dueInTurns) || promise.dueInTurns < 1) {
+      throw new ActionError(`${sourceId}: scadenza della promessa non valida (${promise.dueInTurns})`);
+    }
+    assertDistrict(promise.toDistrict);
+    if (promise.condition !== undefined) {
+      try {
+        readNumber(state, promise.condition.target);
+      } catch (error) {
+        if (error instanceof MoralError) throw new ActionError(`${sourceId}: ${error.message}`);
+        throw error;
+      }
+    }
+  }
+
+  applyEffectSetInPlace(state, option.immediate);
+  for (const { delayTurns, effects } of option.delayed) pushEffect(state, sourceId, state.turn + delayTurns, effects);
+  recordActInPlace(state, rules.moral, { sourceId: actSourceId(state), weights: option.moral, hidden: option.hidden });
+  if (promise !== undefined) {
+    state.promises.push({
+      id: `promise-${state.turn}-${state.history.length}`,
+      madeOnTurn: state.turn,
+      dueByTurn: Math.min(TOTAL_TURNS, state.turn + promise.dueInTurns),
+      ...(promise.toDistrict !== undefined && { toDistrict: promise.toDistrict }),
+      ...(promise.toFaction !== undefined && { toFaction: promise.toFaction }),
+      text: promise.text,
+      status: 'open',
+      ...(promise.condition !== undefined && { condition: structuredClone(promise.condition) }),
+    });
+  }
+}
+
+/**
+ * Scorciatoia Red: salta la fase di autorizzazione o di gara in corso. Si
+ * guadagnano gli anni che restavano in quella fase e non si paga il suo costo;
+ * resta un atto nascosto sulla legalità.
+ */
+function shortcutPhase(state: GameState, action: Extract<Action, { kind: 'shortcut-phase' }>, rules: TurnRules): void {
+  const project = state.projects.find((p) => p.id === action.projectId);
+  if (project === undefined) throw new ActionError(`progetto inesistente: ${action.projectId}`);
+  if (project.phase !== 'permitting' && project.phase !== 'tender') {
+    throw new ActionError(`si possono saltare solo autorizzazioni e gara, non la fase ${project.phase}`);
+  }
+  const definition = definitionOrThrow(rules, project.definitionId, ActionError);
+  project.shortcutTaken = true;
+  enterPhaseFrom(state, project, definition, BUILD_PHASES.indexOf(project.phase) + 1, state.turn + 1);
+  // enterPhaseFrom cambia la fase: TypeScript non lo vede dal restringimento precedente.
+  if ((project.phase as ProjectPhase) === 'operating') markLotOperating(state, project, rules);
+  recordActInPlace(state, rules.moral, {
+    sourceId: actSourceId(state),
+    weights: { legality: rules.moral.shortcutLegalityWeight },
+    hidden: true,
+  });
 }
 
 function definitionOrThrow(
@@ -257,14 +392,8 @@ function startProject(
   where: { lotId?: string; district?: DistrictId },
 ): void {
   // Un errore negli effetti dei dati emerge all'avvio, non anni dopo all'entrata in esercizio.
-  for (const effects of [definition.operatingEffects.once, definition.operatingEffects.everyYear]) {
-    try {
-      assertApplicable(state, effects);
-    } catch (error) {
-      if (error instanceof EffectError) throw new ActionError(`${definition.id}: ${error.message}`);
-      throw error;
-    }
-  }
+  assertDataEffects(state, definition.id, definition.operatingEffects.once);
+  assertDataEffects(state, definition.id, definition.operatingEffects.everyYear);
   const project: Project = {
     id: `project-${state.turn}-${state.history.length}`,
     definitionId: definition.id,
@@ -415,7 +544,8 @@ export function delayProject(state: GameState, projectId: string, turns: number)
  *    costruzione in ordine di avvio, entro fondi e capacità di spesa; infine
  *    scadono le rate europee non spese;
  * 4. clima secondo lo scenario dell'epoca;
- * 5. effetti in scadenza.
+ * 5. effetti in scadenza;
+ * 6. morale: promesse con condizione in scadenza, poi scoperta degli atti nascosti.
  * Poi il turno avanza. Dopo troppi anni di disavanzo la partita termina con
  * 'ended-bankrupt'; al turno TOTAL_TURNS con 'ended-2127'.
  */
@@ -431,6 +561,8 @@ export function advanceTurn(state: GameState, rules: TurnRules): GameState {
   expireEuTranches(next, closing);
   advanceClimate(next, rules, closing);
   applyDueEffectsInPlace(next, opening);
+  settlePromisesInPlace(next, rules.moral, opening);
+  checkScandalsInPlace(next, rules.moral, closing);
 
   next.economy.deficitYears = next.economy.funds.own < 0 ? next.economy.deficitYears + 1 : 0;
   next.turn = opening;
@@ -551,12 +683,19 @@ function workOneYear(
   const lot = conversionLotOf(state, project, rules);
   if (lot === undefined) return;
   if (project.phase === 'operating') {
-    lot.progress = 1;
-    if (lot.path === 'remediation') lot.remediated = true;
+    markLotOperating(state, project, rules);
   } else {
     // Un anno in più sul totale previsto; i ritardi che allungano una fase allungano anche il totale.
     lot.progress = Math.min(1, lot.progress + (1 - lot.progress) / remainingBefore);
   }
+}
+
+/** Il progetto di riconversione è in esercizio: lotto completato, e bonificato se era una bonifica. */
+function markLotOperating(state: GameState, project: Project, rules: TurnRules): void {
+  const lot = conversionLotOf(state, project, rules);
+  if (lot === undefined) return;
+  lot.progress = 1;
+  if (lot.path === 'remediation') lot.remediated = true;
 }
 
 /** Il lotto trasformato da questo progetto, se è il progetto di riconversione della sua strada. */

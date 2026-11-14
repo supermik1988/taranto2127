@@ -173,6 +173,20 @@ export interface Promise {
   toFaction?: string;
   text: string;
   status: 'open' | 'kept' | 'broken';
+  /**
+   * Condizione verificabile, solo per le promesse nate da un dilemma. Alla
+   * scadenza decide tra 'kept' e 'broken'. Senza condizione la promessa resta
+   * 'open' e la valuteranno le voci.
+   */
+  condition?: PromiseCondition;
+}
+
+/** Confronto tra una variabile dello stato e un valore, es. "districts.tamburi.airQuality >= 60". */
+export interface PromiseCondition {
+  /** Percorso della variabile, come nei Delta. */
+  target: string;
+  comparator: '>=' | '>' | '<=' | '<' | '==';
+  value: number;
 }
 
 // ---------- Consiglio ----------
@@ -236,7 +250,9 @@ export type Action =
   | { kind: 'negotiate'; factionId: string; offerId: string }
   | { kind: 'make-promise'; text: string; dueByTurn: number; toDistrict?: DistrictId; toFaction?: string }
   | { kind: 'answer-dilemma'; dilemmaId: string; optionId: string }
-  | { kind: 'answer-protest'; protestId: string; response: 'meet' | 'ignore' | 'promise' | 'clear' };
+  | { kind: 'answer-protest'; protestId: string; response: 'meet' | 'ignore' | 'promise' | 'clear' }
+  /** Scorciatoia Red: salta la fase di autorizzazione o di gara di un progetto. */
+  | { kind: 'shortcut-phase'; projectId: string };
 
 export const MAX_FREE_ACTIONS_PER_TURN = 3;
 

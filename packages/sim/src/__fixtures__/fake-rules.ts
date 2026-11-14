@@ -61,6 +61,62 @@ export const fakeRules = (): TurnRules => ({
     'lotto-energia': lotProject('lotto-energia', 1),
     'lotto-mare-cultura': lotProject('lotto-mare-cultura', 3),
   },
+  dilemmas: {
+    'dilemma-finto': {
+      id: 'dilemma-finto',
+      options: {
+        // Palese: muove coscienza e reputazione.
+        palese: {
+          immediate: { deltas: [{ target: 'districts.tamburi.trust', amount: 2 }] },
+          delayed: [{ delayTurns: 3, effects: { deltas: [{ target: 'districts.tamburi.health', amount: 1 }] } }],
+          moral: { truth: 5, listening: 3 },
+          hidden: false,
+        },
+        // Nascosta: muove solo la coscienza, due atti nascosti.
+        nascosta: {
+          immediate: { deltas: [{ target: 'economy.funds.own', amount: 5 }] },
+          delayed: [],
+          moral: { truth: -4, legality: -3 },
+          hidden: true,
+        },
+        // Un solo atto nascosto sulla legalità.
+        'nascosta-legalita': {
+          immediate: { deltas: [] },
+          delayed: [],
+          moral: { legality: -3 },
+          hidden: true,
+        },
+        // Promessa con condizione verificabile.
+        promessa: {
+          immediate: { deltas: [] },
+          delayed: [],
+          moral: { listening: 2 },
+          hidden: false,
+          promise: {
+            text: 'Più verde ai Tamburi entro tre anni',
+            dueInTurns: 3,
+            toDistrict: 'tamburi',
+            condition: { target: 'districts.tamburi.greenCover', comparator: '>=', value: 60 },
+          },
+        },
+        // Promessa a testo libero: resta aperta.
+        'promessa-libera': {
+          immediate: { deltas: [] },
+          delayed: [],
+          moral: {},
+          hidden: false,
+          promise: { text: 'Ascolteremo i comitati', dueInTurns: 2 },
+        },
+      },
+    },
+  },
+  moral: {
+    dimensionWeights: { truth: 1, word: 1, care: 1, legality: 1, listening: 1 },
+    scandal: { baseProbability: 0.02, probabilityPerGapPoint: 0.002, maxProbability: 0.5, reputationDropBelowConscience: 10 },
+    shortcutLegalityWeight: -5,
+    promiseKeptWordWeight: 5,
+    promiseBrokenWordWeight: -10,
+  },
   // Economia neutra: nessuna entrata né spesa obbligata, così i test sui
   // progetti contano i fondi in modo esatto. Per l'economia vedi activeEconomy.
   economy: {

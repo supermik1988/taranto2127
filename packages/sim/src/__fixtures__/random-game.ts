@@ -12,6 +12,7 @@ const PATHS: readonly ConversionPath[] = ['idle', 'green-steel', 'remediation', 
 
 export function randomGame(seed: number, rules: TurnRules, check: (s: GameState) => void = () => {}): GameState {
   const definitions = Object.keys(rules.projects);
+  const dilemmaOptions = Object.keys(rules.dilemmas['dilemma-finto']?.options ?? {});
   let state = createInitialState(seed, fakeContent());
   check(state);
   while (state.status === 'running') {
@@ -23,10 +24,13 @@ export function randomGame(seed: number, rules: TurnRules, check: (s: GameState)
         { kind: 'start-project', definitionId: pick(definitions) },
         { kind: 'convert-lot', lotId: pick(state.plantLots).id, path: pick(PATHS) },
         { kind: 'set-policy', policyId: `p${rng.int(0, 3)}`, active: rng.next() < 0.5 },
-        { kind: 'answer-dilemma', dilemmaId: 'd', optionId: 'a' },
+        { kind: 'answer-dilemma', dilemmaId: 'dilemma-finto', optionId: pick(dilemmaOptions) },
         { kind: 'make-promise', text: 'promessa', dueByTurn: Math.min(TOTAL_TURNS, state.turn + rng.int(1, 10)) },
       ];
-      if (state.projects.length > 0) candidates.push({ kind: 'cancel-project', projectId: pick(state.projects).id });
+      if (state.projects.length > 0) {
+        candidates.push({ kind: 'cancel-project', projectId: pick(state.projects).id });
+        candidates.push({ kind: 'shortcut-phase', projectId: pick(state.projects).id });
+      }
       try {
         state = applyAction(state, pick(candidates), rules);
       } catch (error) {
