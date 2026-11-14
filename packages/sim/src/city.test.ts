@@ -224,9 +224,28 @@ describe('C. conseguenze della morale', () => {
     let state = applyAction(withOpenDilemma(initial()), { kind: 'answer-dilemma', dilemmaId: 'dilemma-finto', optionId: 'nascosta' }, rules);
     const own = state.economy.funds.own;
     state = advanceTurn(state, rules);
-    // Due atti nascosti (verità e legalità), due scoperte: la penale vale per ognuna.
+    // Due atti nascosti (verità e legalità) della stessa scelta: penale e calo di fiducia una volta sola.
     expect(state.moral.scandals).toHaveLength(2);
-    expect(state.economy.funds.own).toBe(own - 60);
+    expect(state.economy.funds.own).toBe(own - 30);
+    expect(state.districts.borgo.trust).toBe(46);
+  });
+
+  it('una scelta già scoperta in un anno precedente non paga di nuovo quando ne emerge un’altra dimensione', () => {
+    const rules = exposed();
+    rules.dilemmas['dilemma-finto']!.options['nascosta']!.scandalPenalty = { deltas: [{ target: 'economy.funds.own', amount: -30 }] };
+    let state = applyAction(withOpenDilemma(initial()), { kind: 'answer-dilemma', dilemmaId: 'dilemma-finto', optionId: 'nascosta' }, rules);
+    const [truth, legality] = state.moral.hiddenActs;
+    // Prima esce solo la dimensione verità.
+    state = patch(state, (s) => {
+      s.moral.hiddenActs = [legality!];
+      s.moral.scandals = [{ turn: 0, actId: truth!.id, dimension: truth!.dimension }];
+    });
+    const own = state.economy.funds.own;
+    const trust = state.districts.borgo.trust;
+    state = advanceTurn(state, rules);
+    expect(state.moral.scandals).toHaveLength(2);
+    expect(state.economy.funds.own).toBe(own);
+    expect(state.districts.borgo.trust).toBe(trust);
   });
 
   it('meno fiducia produce meno entrate proprie l’anno dopo', () => {

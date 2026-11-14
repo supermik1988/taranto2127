@@ -114,14 +114,25 @@ export function promiseTrustInPlace(state: GameState, rules: TurnRules, settled:
   }
 }
 
+/** La scelta da cui viene un atto: l'id dell'atto senza la dimensione finale. */
+const choiceOf = (actId: string): string => actId.slice(0, actId.lastIndexOf(':'));
+
 /**
- * Conseguenze di ogni atto scoperto: fiducia giù in tutti i quartieri e nel
- * Consiglio; una scorciatoia rimanda il progetto all'inizio della fase saltata
- * e lo ferma; un'opzione di dilemma applica la sua penale, se i dati ne hanno una.
+ * Conseguenze di una scelta scoperta, una volta sola anche se la scelta aveva
+ * più dimensioni nascoste o se le sue dimensioni vengono scoperte in anni
+ * diversi: fiducia giù in tutti i quartieri e nel Consiglio; una scorciatoia
+ * rimanda il progetto all'inizio della fase saltata e lo ferma; un'opzione di
+ * dilemma applica la sua penale, se i dati ne hanno una.
  */
 export function applyScandalConsequencesInPlace(state: GameState, rules: TurnRules, discovered: readonly HiddenAct[]): void {
   const { districtTrustDrop, councilTrustDrop, shortcutFrozenYears } = rules.city.scandal;
+  const now = new Set(discovered.map((act) => act.id));
+  const alreadyExposed = new Set(state.moral.scandals.filter((s) => !now.has(s.actId)).map((s) => choiceOf(s.actId)));
+  const handled = new Set<string>();
   for (const act of discovered) {
+    const choice = choiceOf(act.id);
+    if (alreadyExposed.has(choice) || handled.has(choice)) continue;
+    handled.add(choice);
     applyDeltasInPlace(state, [
       ...DISTRICT_IDS.map((id) => ({ target: `districts.${id}.trust`, amount: -districtTrustDrop })),
       ...state.council.map((c) => ({ target: `council.${c.id}.trustInPlayer`, amount: -councilTrustDrop })),
