@@ -293,3 +293,51 @@ elencati. Ordine: T01, poi T02, poi T03 e T05a in parallelo, poi T04, poi T06.
   resta attiva ma senza effetti; non si spegne prima degli anni minimi; la forza
   lavoro resta costante; stessa partita identica a parità di seme e storia;
   stato sempre valido in 100 turni di gioco casuale su 5 semi.
+
+---
+
+## T07 — La città reagisce
+
+- **Agenti:** `sim-engineer`, poi `balance-tester` sullo stesso ramo
+- **Dipende da:** T06
+- **File:** `packages/sim/src/` (moduli del turno, `state.ts` solo per le aggiunte
+  indispensabili, elencate nel resoconto), `packages/content/` (nuovi coefficienti
+  come stime dichiarate), `tools/balance/`, `docs/BILANCIAMENTO.md`. Tutti i
+  coefficienti dai dati (regola 4).
+- **Cosa fare:**
+  - **A. Correzioni.** (1) Nessun fondo scende sotto zero per errori di virgola
+    mobile, nella cassa integrazione e negli altri pagamenti. (2) A fine anno la
+    parte del fondo statale oltre un tetto di riporto, dai dati, torna allo Stato.
+  - **B. Dinamica dei quartieri, ogni anno.** (3) Aria: ogni lotto di ILSIDER
+    esercita una pressione sui quartieri vicini secondo il suo stato (fermo e non
+    bonificato, in lavori, in esercizio per ciascuna strada, bonificato), con pesi
+    per quartiere; l'aria si avvicina, di una quota annua, al valore pulito meno la
+    somma delle pressioni. (4) Esposizione accumulata: cresce con l'aria sotto una
+    soglia, cala lentamente sopra. (5) Salute: si avvicina a un valore che dipende
+    da esposizione e servizi. (6) Servizi: calano negli anni di disavanzo dei fondi
+    propri, risalgono lentamente negli anni in attivo. (7) Tensione: si avvicina a
+    un valore che cresce con cassa integrati e disoccupati e con la fiducia bassa.
+    (8) Fiducia: si avvicina a un valore che dipende da reputazione, salute e
+    lavoro; una promessa tradita la abbassa subito nel quartiere a cui era rivolta,
+    una mantenuta la alza.
+  - **C. Conseguenze della morale.** (9) Uno scandalo abbassa subito la fiducia di
+    tutti i quartieri e dei consiglieri; se l'atto era una scorciatoia, il progetto
+    torna all'inizio della fase saltata e resta fermo per anni dai dati; se era
+    un'opzione di dilemma, i dati possono indicare una penale. (10) Senso civico:
+    effetti positivi ricorrenti di politiche e progetti ed entrate proprie
+    moltiplicati per un fattore tra un minimo e 1, che cresce con la fiducia media.
+    (11) Città che si volta: fiducia media sotto soglia per anni consecutivi, dai
+    dati, chiude la partita con `ended-abandoned`.
+  - **D. Bilanciamento** (`balance-tester`): 1.000 partite per bot, tabella degli
+    esiti e delle mediane in `docs/BILANCIAMENTO.md`, distanza dagli obiettivi di
+    arrivo al 2127 (Blu 40-70%, Red 15-45%, casuale 30-60%, ogni strada 40-80% con
+    non più di 25 punti tra migliore e peggiore, prudente 40-70%, nessuna azione
+    0-10%). Nessun valore modificato in questa fase.
+- **Fatto quando:** con tutti i lotti fermi l'aria dei Tamburi migliora fino a un
+  tetto, e dopo la bonifica dei parchi minerali lo supera; l'esposizione comincia a
+  calare dopo l'aria e la salute a migliorare dopo l'esposizione; uno scandalo su
+  una scorciatoia rimanda indietro il progetto; meno fiducia produce meno entrate
+  proprie l'anno dopo; la fiducia sotto soglia per gli anni previsti chiude la
+  partita con `ended-abandoned`; il fondo statale non supera il tetto; 1.000
+  partite per bot senza alcuna interruzione; stessa partita identica a parità di
+  seme e storia; stato sempre valido.
