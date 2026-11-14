@@ -1,0 +1,44 @@
+{
+  "descrizione": "Le frasi con cui la scheda di un quartiere spiega dove vanno le sue grandezze e perché.",
+  "grandezze": {
+    "airQuality": "Aria",
+    "cumulativeExposure": "Esposizione accumulata",
+    "health": "Salute",
+    "services": "Servizi",
+    "tension": "Tensione",
+    "trust": "Fiducia"
+  },
+  "verso": {
+    "equilibrium": "va verso {arrivo}",
+    "next-year": "l'anno prossimo sarà {arrivo}"
+  },
+  "fattori": {
+    "air-clean": "Senza lotti inquinanti l'aria qui sarebbe {peso}.",
+    "air-lot": "Il lotto «{lotto}» ({stato}) toglie {peso}.",
+    "current": "Oggi vale {peso}.",
+    "exposure-grows": "L'aria resta sotto {soglia}: l'esposizione cresce di {peso}.",
+    "exposure-decays": "L'aria è sopra {soglia}: l'esposizione cala di {peso}.",
+    "health-base": "Punto di partenza: {peso}.",
+    "health-exposure": "L'esposizione accumulata negli anni toglie {peso}.",
+    "health-services": "Cure e servizi vicino a casa aggiungono {peso}.",
+    "services-deficit": "Il Comune è in disavanzo: i servizi calano di {peso}.",
+    "services-recovery": "I conti sono in ordine: i servizi risalgono di {peso}.",
+    "services-surplus": "L'avanzo del bilancio speso in servizi aggiunge {peso}.",
+    "tension-base": "Tensione di fondo: {peso}.",
+    "tension-jobless": "Il {quota}% della forza lavoro è in cassa integrazione o senza lavoro: aggiunge {peso}.",
+    "tension-distrust": "La sfiducia nel Comune aggiunge {peso}.",
+    "trust-base": "Punto di partenza: {peso}.",
+    "trust-reputation": "La reputazione di chi governa conta {segno}.",
+    "trust-health": "La salute del quartiere conta {segno}.",
+    "trust-jobless": "Il {quota}% senza lavoro toglie {peso}.",
+    "limit": "Il valore si ferma al limite della scala."
+  },
+  "statiLotto": {
+    "idle-contaminated": "fermo, non bonificato",
+    "works": "cantiere aperto",
+    "remediated": "bonificato",
+    "operating-green-steel": "forno elettrico in funzione",
+    "operating-energy": "impianto di energia in funzione",
+    "operating-sea-culture": "polo del mare in funzione"
+  }
+}

@@ -10,6 +10,7 @@ import citta from '../data/citta.json';
 import clima from '../data/clima.json';
 import consiglio from '../data/consiglio.json';
 import cronaca from '../data/cronaca.json';
+import spiegazioni from '../data/spiegazioni.json';
 import dilemmi from '../data/dilemmi.json';
 import parametri from '../data/parametri.json';
 import partenza from '../data/partenza.json';
@@ -20,6 +21,7 @@ import cittaSchema from '../schema/citta.schema.json';
 import climaSchema from '../schema/clima.schema.json';
 import consiglioSchema from '../schema/consiglio.schema.json';
 import cronacaSchema from '../schema/cronaca.schema.json';
+import spiegazioniSchema from '../schema/spiegazioni.schema.json';
 import comuneSchema from '../schema/comune.schema.json';
 import dilemmiSchema from '../schema/dilemmi.schema.json';
 import parametriSchema from '../schema/parametri.schema.json';
@@ -47,9 +49,22 @@ export interface ContentFiles {
   citta: unknown;
   consiglio: unknown;
   cronaca: unknown;
+  spiegazioni: unknown;
 }
 
-export const CONTENT_FILES: ContentFiles = { quartieri, partenza, clima, progetti, politiche, dilemmi, parametri, citta, consiglio, cronaca };
+export const CONTENT_FILES: ContentFiles = {
+  quartieri,
+  partenza,
+  clima,
+  progetti,
+  politiche,
+  dilemmi,
+  parametri,
+  citta,
+  consiglio,
+  cronaca,
+  spiegazioni,
+};
 
 const SCHEMAS: Record<keyof ContentFiles, object> = {
   quartieri: quartieriSchema,
@@ -62,6 +77,7 @@ const SCHEMAS: Record<keyof ContentFiles, object> = {
   citta: cittaSchema,
   consiglio: consiglioSchema,
   cronaca: cronacaSchema,
+  spiegazioni: spiegazioniSchema,
 };
 
 // strictRequired spento: quartieri e settori sono chiavi obbligatorie elencate con propertyNames, non con properties.
@@ -184,6 +200,14 @@ export interface ChronicleTexts {
   headlines: Record<string, string>;
 }
 
+/** Frasi della spiegazione dei quartieri (vedi explainDistrict nel motore). */
+export interface ExplanationTexts {
+  quantities: Record<string, string>;
+  toward: Record<string, string>;
+  factors: Record<string, string>;
+  lotStates: Record<string, string>;
+}
+
 export interface LoadedContent {
   initialContent: InitialContent;
   rules: TurnRules;
@@ -191,6 +215,7 @@ export interface LoadedContent {
   council: CouncilRules;
   councilLabels: CouncilLabels;
   chronicle: ChronicleTexts;
+  explanations: ExplanationTexts;
 }
 
 /**
@@ -262,5 +287,7 @@ export function loadContent(files: ContentFiles = CONTENT_FILES): LoadedContent 
     thresholds: { trust: k.soglie.fiducia, health: k.soglie.salute, air: k.soglie.aria, tension: k.soglie.tensione },
     headlines: k.titoli,
   };
-  return { initialContent, rules, texts: allTexts, council, councilLabels, chronicle };
+  const sp = files.spiegazioni as { grandezze: Record<string, string>; verso: Record<string, string>; fattori: Record<string, string>; statiLotto: Record<string, string> };
+  const explanations: ExplanationTexts = { quantities: sp.grandezze, toward: sp.verso, factors: sp.fattori, lotStates: sp.statiLotto };
+  return { initialContent, rules, texts: allTexts, council, councilLabels, chronicle, explanations };
 }

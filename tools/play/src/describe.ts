@@ -137,7 +137,9 @@ export function describePolicy(def: PolicyDefinition, content: LoadedContent): s
 /** Un'opzione di dilemma come la vede il giocatore: testo ed effetti dichiarati. Mai se è nascosta, mai i pesi morali. */
 export function describeOption(option: DilemmaOption, label: string, consequences: string, content: LoadedContent): string[] {
   const lines = [label, `     ${consequences}`, `     Effetti subito: ${describeEffects(option.immediate, content)}`];
-  for (const later of option.delayed) lines.push(`     Tra ${later.delayTurns} anni: ${describeEffects(later.effects, content)}`);
+  for (const later of option.delayed) {
+    lines.push(`     Tra ${later.delayTurns} ${later.delayTurns === 1 ? 'anno' : 'anni'}: ${describeEffects(later.effects, content)}`);
+  }
   if (option.promise !== undefined) lines.push(`     Promessa entro ${option.promise.dueInTurns} anni: ${option.promise.text}`);
   return lines;
 }

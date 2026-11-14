@@ -1,7 +1,14 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["packages/*/src", "tools/*/src", "apps/*/src", "*.ts", "eslint.config.js"]
+  "include": [
+    "packages/*/src",
+    "tools/*/src",
+    "*.ts",
+    "eslint.config.js"
+  ]
 }

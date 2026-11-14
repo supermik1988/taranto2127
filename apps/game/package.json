@@ -1,0 +1,31 @@
+{
+  "name": "@taranto2127/game",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Prototipo grafico di TARANTO2127: il motore gira nel browser, senza server.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "verifica": "tsx scripts/verifica.ts"
+  },
+  "dependencies": {
+    "@taranto2127/agents": "workspace:*",
+    "@taranto2127/content": "workspace:*",
+    "@taranto2127/play": "workspace:*",
+    "@taranto2127/sim": "workspace:*",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "playwright-core": "^1.65.0",
+    "vite": "^5.4.21"
+  }
+}

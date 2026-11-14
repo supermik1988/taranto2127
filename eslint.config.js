@@ -10,7 +10,7 @@ export const DETERMINISM_MESSAGE =
 
 export default tseslint.config(
   {
-    ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/coverage/**'],
+    ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/coverage/**', 'docs/schermate/**'],
   },
   ...tseslint.configs.recommended,
   {

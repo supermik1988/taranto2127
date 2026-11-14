@@ -10,5 +10,6 @@ export {
   type ChronicleTexts,
   type ContentFiles,
   type ContentTexts,
+  type ExplanationTexts,
   type LoadedContent,
 } from './load.js';

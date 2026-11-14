@@ -6,7 +6,9 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./chronicle": "./src/chronicle.ts",
+    "./describe": "./src/describe.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

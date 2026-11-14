@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/spiegazioni.json",
+  "title": "Le frasi della spiegazione dei quartieri",
+  "type": "object",
+  "required": [
+    "descrizione",
+    "grandezze",
+    "verso",
+    "fattori",
+    "statiLotto"
+  ],
+  "properties": {
+    "descrizione": {
+      "$ref": "comune.json#/$defs/testo"
+    },
+    "grandezze": {
+      "type": "object",
+      "required": [
+        "airQuality",
+        "cumulativeExposure",
+        "health",
+        "services",
+        "tension",
+        "trust"
+      ],
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "verso": {
+      "type": "object",
+      "required": [
+        "equilibrium",
+        "next-year"
+      ],
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "fattori": {
+      "type": "object",
+      "required": [
+        "air-clean",
+        "air-lot",
+        "current",
+        "exposure-grows",
+        "exposure-decays",
+        "health-base",
+        "health-exposure",
+        "health-services",
+        "services-deficit",
+        "services-recovery",
+        "services-surplus",
+        "tension-base",
+        "tension-jobless",
+        "tension-distrust",
+        "trust-base",
+        "trust-reputation",
+        "trust-health",
+        "trust-jobless",
+        "limit"
+      ],
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "statiLotto": {
+      "type": "object",
+      "required": [
+        "idle-contaminated",
+        "works",
+        "remediated",
+        "operating-green-steel",
+        "operating-energy",
+        "operating-sea-culture"
+      ],
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "additionalProperties": false
+}

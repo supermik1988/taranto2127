@@ -5,6 +5,12 @@ export { createRng, deriveSeed, rngFor, type Rng } from './rng.js';
 export { EffectError, applyDeltas, applyLaborMoves, scaleBeneficial, scheduleEffect, type EffectSet } from './effects.js';
 export { averageTrust, civicFactor, joblessShare, lotPressure } from './city.js';
 export {
+  explainDistrict,
+  type ExplainedQuantity,
+  type ExplanationFactor,
+  type QuantityExplanation,
+} from './explain.js';
+export {
   MoralError,
   conditionHolds,
   conscienceFrom,

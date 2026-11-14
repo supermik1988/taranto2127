@@ -10,7 +10,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json && tsc -p apps/game/tsconfig.json",
     "lint": "eslint .",
     "test": "eslint . && vitest run",
     "balance": "tsx tools/balance/src/cli.ts",
