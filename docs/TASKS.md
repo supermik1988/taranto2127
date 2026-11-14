@@ -454,3 +454,63 @@ elencati. Ordine: T01, poi T02, poi T03 e T05a in parallelo, poi T04, poi T06.
   px nessuna schermata scorre in orizzontale; `explainDistrict` è pura e i suoi
   fattori sommati danno il valore di arrivo (test); nessuna scelta nascosta
   rivelata prima (test); le schermate sono nel repository.
+
+---
+
+## T10 — Esperienza di gioco
+
+- **Agente:** `sim-engineer` per motore e interfaccia, `content-designer` per
+  dilemmi e testi, `balance-tester` per il bilanciamento (su decisione di Michele,
+  dopo la prima partita dal telefono: «gioco poco intuitivo»).
+- **Dipende da:** T09
+- **Ramo:** `task/T10-esperienza`
+- **File:** `apps/game/`; in `packages/sim` turno, dilemmi, una funzione pura per
+  i motivi di fermata, una per la previsione del bilancio e la capacità degli
+  uffici, `state.ts` e `CLAUDE.md` solo dove citano il limite di tre azioni
+  (autorizzato da Michele); `tools/play/` dove usa quel limite; in
+  `packages/content` dilemmi, guida (visita guidata, «Come si gioca», glossario,
+  bilancio, motivi di fermata) con i loro schemi; `tools/balance/`,
+  `docs/BILANCIAMENTO.md`, `docs/schermate/`. Regola 9 sempre valida: prima il telefono.
+- **Cosa fare:**
+  1. *Tempo.* Al posto di «Chiudi l'anno» e «Avanza fino al prossimo evento»:
+     avvia, pausa, tre velocità, e «un anno avanti» in pausa. La partita parte in
+     pausa. Il tempo si ferma da solo, con una riga che dice perché, quando:
+     arriva un dilemma, finisce una fase di un progetto, scoppia uno scandalo,
+     scade una promessa, cambia l'epoca, i conti vanno in disavanzo, finisce la partita.
+  2. *Azioni libere.* Il motore non limita più le azioni per anno: restano i
+     limiti di fondi e capacità di spesa. Nell'interfaccia la capacità di spesa si
+     chiama «capacità degli uffici» e mostra quanta ne resta nell'anno. Poi
+     (`balance-tester`) 1.000 partite per bot; se gli obiettivi di T06b non
+     reggono, si ritoccano i valori e si documenta.
+  3. *Visita guidata.* Al primo avvio, otto passi che si possono saltare:
+     obiettivo, mappa e colori, perché di un quartiere, lotti di ILSIDER e strade,
+     Consiglio, tempo, bilancio, barra Red/Blu. Si riapre dal pulsante «?». Una
+     pagina «Come si gioca» con tutte le funzioni. Ogni termine tecnico ha una
+     spiegazione al tocco. Testi in `packages/content`.
+  4. *Bilancio.* Pannello con «Cassa della città», «Fondi dello Stato», «Fondi
+     europei», ognuno con una riga su cosa può pagare; entrate e uscite
+     dell'ultimo anno voce per voce; previsione dell'anno in corso; avviso di
+     disavanzo con gli anni che mancano al dissesto; scadenze delle rate europee;
+     una nota che dichiara le cifre stime in attesa di verifica.
+  5. *Grafici su telefono.* Scala verticale adattata ai valori, con margine; un
+     quartiere in evidenza, gli altri attenuati, più la media cittadina; nomi solo
+     nella legenda sotto, con la variazione dal 2027 col segno; con meno di cinque
+     anni di dati un messaggio al posto del grafico; un mini andamento nella scheda
+     del quartiere.
+  6. *Dilemmi.* Motore: un dilemma ripetibile non torna prima degli anni indicati
+     nei dati, e mai due volte nella stessa epoca se ne esistono altri ammessi.
+     Contenuti (`content-designer`): ventiquattro dilemmi, distribuiti sulle cinque
+     epoche e sui temi (aria e salute, lavoro, appalti, fondi, quartieri, mare,
+     clima, giovani), con condizioni legate allo stato della città; stesse regole
+     di tono e struttura dei primi sei; valori come stime dichiarate.
+  7. *Partita.* Menu con stato del salvataggio automatico e ora dell'ultimo
+     salvataggio, nuova partita con conferma, tre posti per salvataggi manuali,
+     esporta e importa su file, link che riapre la partita.
+- **Fatto quando:** la partita da copione arriva al finale con i nuovi comandi del
+  tempo, a 390 e 1280 px, senza errori in console; il tempo si ferma per ognuno dei
+  motivi elencati (test); salvare in un posto, cominciare una partita nuova e
+  ricaricare riporta lo stato identico; esportare e importare dà lo stesso stato;
+  in 1.000 partite casuali nessun dilemma torna prima dell'intervallo; i
+  ventiquattro dilemmi passano i controlli di contenuto; la visita guidata si
+  completa e si salta; a 360 px nessuno scorrimento orizzontale; schermate
+  aggiornate in `docs/schermate/`.
