@@ -374,3 +374,41 @@ elencati. Ordine: T01, poi T02, poi T03 e T05a in parallelo, poi T04, poi T06.
 - **Fatto quando:** `docs/BILANCIAMENTO.md` riporta la causa della spirale,
   l'elenco dei valori cambiati con prima e dopo, la tabella finale degli esiti su
   1.000 partite e gli obiettivi mancati.
+
+---
+
+## T08 — Partita dal terminale
+
+- **Agente:** `sim-engineer` per il comando, `citizen-engineer` per il Consiglio
+- **Dipende da:** T06c
+- **File:** `tools/play/`, `packages/agents/src/council/`; testi della Cronaca e
+  pesi del Consiglio in `packages/content/`. Nessuna dipendenza nuova per
+  l'interfaccia: solo Node. Deve funzionare nel terminale di Windows.
+- **Cosa fare:**
+  1. Comando `pnpm play`, con `--seme N` e `--carica file`. Una partita si salva
+     come seme più storia e si ricarica con `replay`.
+  2. Schermata dell'anno, in italiano e in poche righe: anno ed epoca; fondi;
+     lavoro; una riga per quartiere con aria, salute, fiducia, tensione e una
+     freccia rispetto all'anno prima; coscienza e reputazione come barra da Red a
+     Blu; progetti in corso con fase, anni mancanti e ritardi; politiche attive.
+  3. La Cronaca: fino a tre titoli sull'anno appena chiuso, scelti da regole sui
+     cambiamenti più forti. Testi in `packages/content`, tono sobrio.
+  4. Il Consiglio: in `packages/agents`, una funzione pura che dato lo stato
+     restituisce per ciascuno dei sei consiglieri l'azione che propone e il
+     motivo, secondo la sua visione e l'andamento della città; con poca pazienza
+     può proporre una scorciatoia. Regole deterministiche, pesi dai dati. Nel
+     terminale, `c` mostra i sei consigli.
+  5. Azioni dal menu: avviare un progetto, destinare un lotto, accendere o
+     spegnere una politica, saltare una fase, rispondere al dilemma aperto. Ogni
+     scelta mostra prima costo, durata prevista ed effetti dichiarati. Le scelte
+     nascoste sono marcate come tali solo dopo, mai prima.
+  6. Avanzare: `a` chiude l'anno; `aa` avanza fino al prossimo dilemma, alla fine
+     di una fase o a un cambio d'epoca, al massimo 10 anni.
+  7. Fine partita: il ritratto di Taranto nell'anno finale, con la famiglia di
+     finale, gli indicatori iniziali e finali affiancati e la riga di comando per
+     rigiocare lo stesso seme.
+- **Fatto quando:** una partita pilotata da un copione di comandi arriva alla
+  fine e produce il ritratto; salvare e ricaricare dà lo stesso stato; il
+  consiglio è identico a parità di stato; ogni consigliere propone azioni coerenti
+  con la sua visione (test); nessuna scelta nascosta è rivelata prima della scelta
+  (test); le schermate stanno in 100 colonne.
