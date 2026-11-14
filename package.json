@@ -12,11 +12,13 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint .",
-    "test": "eslint . && vitest run"
+    "test": "eslint . && vitest run",
+    "balance": "tsx tools/balance/src/cli.ts"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",
     "eslint": "^9.39.5",
+    "tsx": "^4.23.15",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.72.2",
     "vitest": "^3.2.7"
