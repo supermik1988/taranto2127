@@ -51,17 +51,38 @@ elencati. Ordine: T01, poi T02, poi T03 e T05 in parallelo, poi T04, poi T06.
 ## T04 — Contatore morale
 
 - **Agente:** `sim-engineer`
-- **Dipende da:** T03
-- **File:** `packages/sim/src/moral.ts`, test.
-- **Cosa fare:** aggiornare coscienza e reputazione dalle scelte, per dimensione.
-  Un atto nascosto abbassa solo la coscienza e finisce in `hiddenActs`. A ogni
-  turno, probabilità di scandalo crescente con lo scarto tra reputazione e
-  coscienza; lo scandalo porta la reputazione sotto la coscienza. Le promesse
-  scadute diventano `broken` e pesano sulla dimensione "parola".
-- **Fatto quando:** un test dimostra che nessuna azione `convert-lot` muove il
-  contatore (regola 5 di CLAUDE.md); saltare una fase di un progetto registra un
-  atto nascosto sulla dimensione "legalità"; con dieci atti nascosti lo scandalo avviene
-  entro 20 turni in almeno il 95% di 1.000 semi.
+- **Dipende da:** T03c
+- **File:** `packages/sim/src/moral.ts`, `turn.ts`, test; `state.ts` solo per
+  le aggiunte indispensabili, elencate nel resoconto. Numeri dai dati (regola 4).
+- **Cosa fare:**
+  1. *Dilemmi dai dati.* `rules.dilemmas`: ogni opzione ha effetti immediati,
+     effetti ritardati, pesi morali per dimensione (verità, parola, cura,
+     legalità, ascolto), un indicatore "nascosta" e una eventuale promessa.
+     `answer-dilemma` applica l'opzione scelta. Opzione inesistente: errore.
+  2. *Coscienza e reputazione.* Un atto palese muove entrambe. Un atto nascosto
+     muove solo la coscienza e finisce in `hiddenActs`. La coscienza è la media
+     pesata delle cinque dimensioni, con pesi dai dati.
+  3. *Scandalo.* A ogni turno, per ogni atto nascosto, probabilità di scoperta
+     dai dati, crescente con lo scarto tra reputazione e coscienza. Quando un
+     atto viene scoperto esce da `hiddenActs` e la reputazione scende sotto la
+     coscienza di una quantità presa dai dati. Estrazione con `rngFor`.
+  4. *Scorciatoia.* Nuova azione `shortcut-phase { projectId }`: salta la fase
+     in corso se è `permitting` o `tender`, segna `shortcutTaken` e registra un
+     atto nascosto sulla dimensione legalità. Conta come azione libera.
+  5. *Promesse.* Una promessa nata da un dilemma può avere una condizione
+     `{ target, comparator, value }`. Alla scadenza: condizione vera = `kept`,
+     falsa = `broken`. Entrambe muovono la dimensione parola, in modo palese.
+     Le promesse a testo libero senza condizione restano `open`: le valuteranno
+     le voci in un task successivo.
+  6. *Regola 5 di CLAUDE.md.* Nessuna azione `convert-lot` o `start-project`
+     muove il contatore, qualunque strada o progetto si scelga.
+- **Fatto quando:** un test dimostra il punto 6 su tutte le strade; un atto
+  nascosto lascia ferma la reputazione; con dieci atti nascosti lo scandalo
+  arriva entro 20 turni in almeno il 95% di 1.000 semi, con i dati di prova;
+  dopo uno scandalo la reputazione è sotto la coscienza; saltare una fase fa
+  guadagnare esattamente gli anni di quella fase; una promessa con condizione
+  diventa `kept` o `broken` nel turno di scadenza; stessa partita identica a
+  parità di seme e storia; stato sempre valido in 100 turni di gioco casuale.
 
 ## T05 — Dati dei sei quartieri e durate dei progetti
 
