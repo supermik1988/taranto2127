@@ -249,13 +249,26 @@ describe('C. conseguenze della morale', () => {
   });
 
   it('meno fiducia produce meno entrate proprie l’anno dopo', () => {
-    const rules: TurnRules = { ...fakeRules(), economy: activeEconomy(), city: { ...fakeRules().city, civic: { minFactor: 0.5, fullFactorTrust: 60 } } };
+    const rules: TurnRules = { ...fakeRules(), economy: activeEconomy(), city: { ...fakeRules().city, civic: { minFactor: 0.5, maxFactor: 1, fullFactorTrust: 60 } } };
     const trusting = patch(initial(), (s) => DISTRICT_IDS.forEach((id) => (s.districts[id].trust = 60)));
     const distrustful = patch(initial(), (s) => DISTRICT_IDS.forEach((id) => (s.districts[id].trust = 15)));
     expect(civicFactor(trusting, rules.city)).toBe(1);
     expect(civicFactor(distrustful, rules.city)).toBeCloseTo(0.625, 12);
     const gain = (s: GameState) => advanceTurn(s, rules).economy.funds.own - s.economy.funds.own;
     expect(gain(distrustful)).toBeLessThan(gain(trusting));
+  });
+
+  it('con un tetto sopra 1 una città con molta fiducia rende più della media', () => {
+    const city = { ...fakeRules().city, civic: { minFactor: 0.6, maxFactor: 1.2, fullFactorTrust: 60 } };
+    const high = patch(initial(), (s) => DISTRICT_IDS.forEach((id) => (s.districts[id].trust = 80)));
+    const half = patch(initial(), (s) => DISTRICT_IDS.forEach((id) => (s.districts[id].trust = 30)));
+    expect(civicFactor(high, city)).toBeCloseTo(1.2, 12);
+    expect(civicFactor(half, city)).toBeCloseTo(0.9, 12);
+    const rules: TurnRules = { ...fakeRules(), economy: activeEconomy(), city };
+    const gain = (s: GameState) => advanceTurn(s, rules).economy.funds.own - s.economy.funds.own;
+    const plain: TurnRules = { ...rules, city: { ...city, civic: { minFactor: 1, maxFactor: 1, fullFactorTrust: 60 } } };
+    const plainGain = (s: GameState) => advanceTurn(s, plain).economy.funds.own - s.economy.funds.own;
+    expect(gain(high)).toBeGreaterThan(plainGain(high));
   });
 
   it('il senso civico riduce solo gli effetti positivi', () => {

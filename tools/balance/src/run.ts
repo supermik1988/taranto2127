@@ -3,6 +3,7 @@ import { cpus } from 'node:os';
 import { Worker } from 'node:worker_threads';
 import { loadContent } from '@taranto2127/content';
 import { BOTS, type Bot } from './bots.js';
+import { contentFilesWith, type Patch } from './variant.js';
 import { buildReport, type Report } from './report.js';
 import { InvalidStateError, playGame, type GameFailure, type GameResult } from './simulate.js';
 
@@ -13,12 +14,15 @@ export interface RunOptions {
   botIds?: string[];
   /** Thread di lavoro; 1 = tutto nello stesso processo. */
   threads?: number;
+  /** Modifiche ai valori da provare in memoria. */
+  patches?: Patch[];
 }
 
 /** Un pezzo di lavoro: un bot, un intervallo di semi. */
 export interface Chunk {
   botId: string;
   seeds: number[];
+  patches: Patch[];
 }
 
 export function selectBots(botIds?: string[]): Bot[] {
@@ -38,7 +42,7 @@ export interface ChunkOutcome {
  * valido non ferma le altre: finisce tra i fallimenti, che il rapporto elenca.
  */
 export function playChunk(chunk: Chunk): ChunkOutcome {
-  const { initialContent, rules } = loadContent();
+  const { initialContent, rules } = loadContent(contentFilesWith(chunk.patches));
   const bot = BOTS.find((b) => b.id === chunk.botId)!;
   const outcome: ChunkOutcome = { results: [], failures: [] };
   for (const seed of chunk.seeds) {
@@ -71,7 +75,9 @@ export async function runBalance(options: RunOptions): Promise<Report> {
   const chunkSize = Math.max(1, Math.ceil(options.games / Math.max(1, Math.ceil(threads / bots.length))));
   const chunks: Chunk[] = bots.flatMap((bot) => {
     const out: Chunk[] = [];
-    for (let i = 0; i < seeds.length; i += chunkSize) out.push({ botId: bot.id, seeds: seeds.slice(i, i + chunkSize) });
+    for (let i = 0; i < seeds.length; i += chunkSize) {
+      out.push({ botId: bot.id, seeds: seeds.slice(i, i + chunkSize), patches: options.patches ?? [] });
+    }
     return out;
   });
 
@@ -93,7 +99,7 @@ export async function runBalance(options: RunOptions): Promise<Report> {
   chunks.forEach((chunk, i) => resultsByBot[chunk.botId]!.push(...done[i]!.results));
   for (const results of Object.values(resultsByBot)) results.sort((a, b) => a.seed - b.seed);
   const failures = done.flatMap((d) => d.failures).sort((a, b) => a.botId.localeCompare(b.botId) || a.seed - b.seed);
-  return buildReport(options.seed, options.games, bots, resultsByBot, loadContent().rules, failures);
+  return buildReport(options.seed, options.games, bots, resultsByBot, loadContent(contentFilesWith(options.patches)).rules, failures);
 }
 
 export const defaultThreads = (): number => Math.max(1, cpus().length - 1);

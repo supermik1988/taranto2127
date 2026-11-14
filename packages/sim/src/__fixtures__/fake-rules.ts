@@ -216,7 +216,7 @@ export const neutralCity = (): CityRules => ({
   tension: { base: 0, joblessWeight: 0, distrustWeight: 0, approachShare: 0 },
   trust: { base: 0, reputationWeight: 0, healthWeight: 0, joblessWeight: 0, approachShare: 0, promiseKeptBoost: 0, promiseBrokenDrop: 0 },
   scandal: { districtTrustDrop: 0, councilTrustDrop: 0, shortcutFrozenYears: 0 },
-  civic: { minFactor: 1, fullFactorTrust: 1 },
+  civic: { minFactor: 1, maxFactor: 1, fullFactorTrust: 1 },
   abandonment: { trustThreshold: 0, years: 1000 },
 });
 
@@ -237,6 +237,6 @@ export const activeCity = (): CityRules => ({
   tension: { base: 10, joblessWeight: 0.5, distrustWeight: 0.3, approachShare: 0.2 },
   trust: { base: 50, reputationWeight: 0.3, healthWeight: 0.3, joblessWeight: 0.3, approachShare: 0.2, promiseKeptBoost: 5, promiseBrokenDrop: 8 },
   scandal: { districtTrustDrop: 4, councilTrustDrop: 6, shortcutFrozenYears: 2 },
-  civic: { minFactor: 0.5, fullFactorTrust: 60 },
+  civic: { minFactor: 0.5, maxFactor: 1, fullFactorTrust: 60 },
   abandonment: { trustThreshold: 20, years: 3 },
 });

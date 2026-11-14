@@ -211,7 +211,9 @@ export interface CityRules {
   civic: {
     /** Fattore con fiducia media zero. */
     minFactor: number;
-    /** Fiducia media da cui il fattore vale 1. */
+    /** Fattore con fiducia media pari o superiore a fullFactorTrust; può superare 1. */
+    maxFactor: number;
+    /** Fiducia media da cui il fattore raggiunge il suo tetto. */
     fullFactorTrust: number;
   };
   abandonment: { trustThreshold: number; years: number };

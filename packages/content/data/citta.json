@@ -323,6 +323,11 @@
     }
   },
   "civic": {
+    "maxFactor": {
+      "valore": 1,
+      "stima": true,
+      "motivazione": "Tetto del senso civico: con 1, la fiducia alta non fa rendere più della media. Stima di partenza."
+    },
     "minFactor": {
       "valore": 0.6,
       "stima": true,

@@ -7,6 +7,8 @@ export interface CliOptions {
   botIds: string[];
   threads: number;
   output?: string;
+  /** File JSON di una variante da provare in memoria. */
+  variant?: string;
 }
 
 export function parseArgs(argv: readonly string[]): CliOptions {
@@ -29,6 +31,9 @@ export function parseArgs(argv: readonly string[]): CliOptions {
       i++;
     } else if (flag === '--uscita' && value !== undefined) {
       options.output = value;
+      i++;
+    } else if (flag === '--variante' && value !== undefined) {
+      options.variant = value;
       i++;
     } else throw new Error(`opzione sconosciuta: ${flag}`);
   }

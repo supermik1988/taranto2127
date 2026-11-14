@@ -49,7 +49,7 @@ describe('rapporto', () => {
       expect(text).toContain(heading);
     }
     for (const column of ['Al 2127', 'In dissesto', 'Città che si volta', 'Anno mediano del dissesto', 'Fondi propri', 'Occupati locali', 'Cassa integrati',
-      'Disoccupati', 'Coscienza', 'Reputazione', 'Scandali', 'Aria Tamburi', 'Fiducia Tamburi']) {
+      'Disoccupati', 'Coscienza', 'Reputazione', 'Fiducia media', 'Scandali', 'Aria Tamburi', 'Fiducia Tamburi']) {
       expect(text).toContain(column);
     }
   });
@@ -60,6 +60,20 @@ describe('rapporto', () => {
     const c = formatReport(await runBalance({ games: 2, seed: 6, threads: 1 }));
     expect(b).toBe(a);
     expect(c).not.toBe(a);
+  });
+
+  it('una variante cambia i valori in memoria senza toccare i contenuti', async () => {
+    const { CONTENT_FILES } = await import('@taranto2127/content');
+    const { applyPatches } = await import('./variant.js');
+    const before = JSON.stringify(CONTENT_FILES);
+    const patched = applyPatches(CONTENT_FILES, [
+      { file: 'parametri', path: 'economy.servicesCostPerYear', value: 30 },
+      { file: 'partenza', path: 'council.cons-lavoro.patience', value: 70 },
+    ]);
+    expect((patched.parametri as { economy: { servicesCostPerYear: { valore: number } } }).economy.servicesCostPerYear.valore).toBe(30);
+    expect(loadContent(patched).initialContent.council.find((c) => c.id === 'cons-lavoro')!.patience).toBe(70);
+    expect(JSON.stringify(CONTENT_FILES)).toBe(before);
+    expect(() => applyPatches(CONTENT_FILES, [{ file: 'parametri', path: 'economy.inesistente.x', value: 1 }])).toThrow();
   });
 
   it('la mediana è quella attesa', () => {

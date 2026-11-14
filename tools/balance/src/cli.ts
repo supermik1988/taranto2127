@@ -7,12 +7,19 @@
 import { writeFileSync } from 'node:fs';
 import { parseArgs } from './args.js';
 import { runBalance } from './run.js';
+import { readVariant } from './variant.js';
 import { formatReport } from './report.js';
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   const started = performance.now();
-  const report = await runBalance({ games: options.games, seed: options.seed, botIds: options.botIds, threads: options.threads });
+  const report = await runBalance({
+    games: options.games,
+    seed: options.seed,
+    botIds: options.botIds,
+    threads: options.threads,
+    ...(options.variant !== undefined && { patches: readVariant(options.variant) }),
+  });
   const text = formatReport(report);
   if (options.output !== undefined) writeFileSync(options.output, `${text}\n`, 'utf8');
   process.stdout.write(`${process.stdout.isTTY ? formatReport(report, { color: true }) : text}\n`);

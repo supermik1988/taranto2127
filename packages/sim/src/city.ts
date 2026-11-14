@@ -25,11 +25,15 @@ export function averageTrust(state: GameState): number {
   return people > 0 ? weighted / people : 0;
 }
 
-/** Senso civico: fattore tra il minimo dei dati e 1, che cresce con la fiducia media. */
+/**
+ * Senso civico: fattore tra il minimo e il tetto dei dati, che cresce con la
+ * fiducia media. Il tetto può superare 1: una città con molta fiducia rende
+ * più della media.
+ */
 export function civicFactor(state: GameState, city: CityRules): number {
-  const { minFactor, fullFactorTrust } = city.civic;
+  const { minFactor, maxFactor, fullFactorTrust } = city.civic;
   const share = fullFactorTrust > 0 ? Math.min(1, Math.max(0, averageTrust(state) / fullFactorTrust)) : 1;
-  return minFactor + (1 - minFactor) * share;
+  return minFactor + (maxFactor - minFactor) * share;
 }
 
 // ---------- Aria e quartieri ----------

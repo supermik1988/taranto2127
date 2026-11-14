@@ -2,6 +2,7 @@
 import {
   ActionError,
   DISTRICT_IDS,
+  averageTrust,
   advanceTurn,
   applyAction,
   createInitialState,
@@ -47,6 +48,8 @@ export interface GameResult {
   unemployed: number;
   conscience: number;
   reputation: number;
+  /** Fiducia media della città, pesata sui residenti. */
+  averageTrust: number;
   airQuality: Record<DistrictId, number>;
   trust: Record<DistrictId, number>;
   scandals: number;
@@ -124,6 +127,7 @@ export function playGame(bot: Bot, seed: number, content: InitialContent, rules:
     unemployed: state.labor.unemployed,
     conscience: state.moral.conscience,
     reputation: state.moral.reputation,
+    averageTrust: averageTrust(state),
     airQuality: perDistrict((id) => state.districts[id].airQuality),
     trust: perDistrict((id) => state.districts[id].trust),
     scandals: state.moral.scandals.length,

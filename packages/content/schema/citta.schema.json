@@ -113,9 +113,10 @@
     },
     "civic": {
       "type": "object",
-      "required": ["minFactor", "fullFactorTrust"],
+      "required": ["minFactor", "maxFactor", "fullFactorTrust"],
       "properties": {
         "minFactor": { "$ref": "comune.json#/$defs/quota" },
+        "maxFactor": { "$ref": "comune.json#/$defs/nonNegativo" },
         "fullFactorTrust": { "$ref": "comune.json#/$defs/indice" }
       },
       "additionalProperties": false

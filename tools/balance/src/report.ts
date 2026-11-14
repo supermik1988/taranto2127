@@ -39,6 +39,7 @@ export interface BotSummary {
     unemployed: number;
     conscience: number;
     reputation: number;
+    averageTrust: number;
     scandals: number;
     airQuality: Record<DistrictId, number>;
     trust: Record<DistrictId, number>;
@@ -114,6 +115,7 @@ function summarize(bot: Bot, results: GameResult[]): BotSummary {
       unemployed: median(results.map((r) => r.unemployed)),
       conscience: median(results.map((r) => r.conscience)),
       reputation: median(results.map((r) => r.reputation)),
+      averageTrust: median(results.map((r) => r.averageTrust)),
       scandals: median(results.map((r) => r.scandals)),
       airQuality: perDistrict((r) => r.airQuality),
       trust: perDistrict((r) => r.trust),
@@ -273,12 +275,12 @@ export function formatReport(report: Report, options: { color?: boolean } = {}):
   out();
   out(`Fondi in milioni di euro; lavoro in persone; coscienza e reputazione da -100 a +100.`);
   out();
-  out(`| Bot | Fondi propri | Fondo statale | Fondo europeo | Fondi privati | Occupati locali | Cassa integrati | Disoccupati | Coscienza | Reputazione | Scandali |`);
-  out(`| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |`);
+  out(`| Bot | Fondi propri | Fondo statale | Fondo europeo | Fondi privati | Occupati locali | Cassa integrati | Disoccupati | Coscienza | Reputazione | Fiducia media | Scandali |`);
+  out(`| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |`);
   for (const b of report.bots) {
     const m = b.medians;
     out(
-      `| ${b.nome} | ${num(m.fundsOwn, 1)} | ${num(m.fundsState, 1)} | ${num(m.fundsEu, 1)} | ${num(m.fundsPrivate, 1)} | ${num(m.localEmployed)} | ${num(m.onWageSupport)} | ${num(m.unemployed)} | ${num(m.conscience, 1)} | ${num(m.reputation, 1)} | ${num(m.scandals, 1)} |`,
+      `| ${b.nome} | ${num(m.fundsOwn, 1)} | ${num(m.fundsState, 1)} | ${num(m.fundsEu, 1)} | ${num(m.fundsPrivate, 1)} | ${num(m.localEmployed)} | ${num(m.onWageSupport)} | ${num(m.unemployed)} | ${num(m.conscience, 1)} | ${num(m.reputation, 1)} | ${num(m.averageTrust, 1)} | ${num(m.scandals, 1)} |`,
     );
   }
   out();
