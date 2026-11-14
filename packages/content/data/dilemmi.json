@@ -2,6 +2,7 @@
   "dilemmas": {
     "polveri-giorni-di-vento": {
       "id": "polveri-giorni-di-vento",
+      "tema": "aria e salute",
       "titolo": "I dati dei giorni di vento",
       "testo": "Le centraline dei Tamburi registrano picchi di polveri nei giorni di vento da nord. I dati non sono ancora pubblici. Un albergatore del Borgo chiede di aspettare la fine della stagione.",
       "options": {
@@ -168,6 +169,7 @@
     },
     "affidamento-bonifica": {
       "id": "affidamento-bonifica",
+      "tema": "appalti",
       "titolo": "Una ditta pronta a partire",
       "testo": "Un consorzio di imprese della provincia si offre di cominciare la bonifica dei parchi minerali il mese prossimo, senza gara: i macchinari sono già in zona.",
       "options": {
@@ -339,6 +341,7 @@
     },
     "posti-nuovo-polo": {
       "id": "posti-nuovo-polo",
+      "tema": "lavoro",
       "titolo": "Chi lavora nei nuovi posti",
       "testo": "Si aprono posti stabili nei servizi della città. Arrivano molte domande: ex dipendenti in cassa, giovani, disoccupati di lungo corso. Un consigliere porta una lista di nomi \"affidabili\".",
       "options": {
@@ -523,10 +526,16 @@
         "stima": true,
         "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
       },
-      "repeatable": true
+      "repeatable": true,
+      "repeatAfterTurns": {
+        "valore": 8,
+        "stima": true,
+        "motivazione": "Anni minimi prima che il dilemma possa tornare: scelta di ritmo, stimata."
+      }
     },
     "presidio-ai-cancelli": {
       "id": "presidio-ai-cancelli",
+      "tema": "lavoro",
       "titolo": "Il presidio ai cancelli",
       "testo": "Da settimane un gruppo di ex lavoratori presidia l'ingresso nord dello stabilimento. Blocca i camion dei cantieri. Chiedono un incontro e un impegno sulla cassa integrazione.",
       "options": {
@@ -697,10 +706,16 @@
         "stima": true,
         "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
       },
-      "repeatable": true
+      "repeatable": true,
+      "repeatAfterTurns": {
+        "valore": 6,
+        "stima": true,
+        "motivazione": "Anni minimi prima che il dilemma possa tornare: scelta di ritmo, stimata."
+      }
     },
     "rendiconto-fondi-europei": {
       "id": "rendiconto-fondi-europei",
+      "tema": "fondi",
       "titolo": "Il rendiconto dei fondi europei",
       "testo": "Un cantiere finanziato con fondi europei è in ritardo. Gli uffici propongono di rendicontare come fatte alcune spese non ancora sostenute, \"tanto si recupera\".",
       "options": {
@@ -851,10 +866,16 @@
         "stima": true,
         "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
       },
-      "repeatable": true
+      "repeatable": true,
+      "repeatAfterTurns": {
+        "valore": 6,
+        "stima": true,
+        "motivazione": "Anni minimi prima che il dilemma possa tornare: scelta di ritmo, stimata."
+      }
     },
     "scuole-giorni-di-vento": {
       "id": "scuole-giorni-di-vento",
+      "tema": "aria e salute",
       "titolo": "Le scuole nei giorni di vento",
       "testo": "Le previsioni annunciano una settimana di vento da nord. Nelle scuole dei Tamburi, le più vicine ai parchi minerali, i genitori chiedono cosa fare.",
       "options": {
@@ -988,6 +1009,3461 @@
       },
       "lastTurn": {
         "valore": 60,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": false
+    },
+    "cozze-primo-seno": {
+      "id": "cozze-primo-seno",
+      "tema": "mare",
+      "titolo": "Le cozze del primo seno",
+      "testo": "Le analisi sui mitili del primo seno del Mar Piccolo trovano sostanze oltre i limiti. I mitilicoltori chiedono di spostare gli impianti prima che la notizia esca: temono che nessuno compri più nemmeno le cozze sane.",
+      "options": {
+        "vietare-e-dirlo": {
+          "etichetta": "Vietare la raccolta nel primo seno e dirlo subito",
+          "conseguenze": "Le famiglie sanno cosa mangiano. Una parte dei mitilicoltori resta senza lavoro per qualche stagione.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "districts.citta-vecchia.tension",
+                "amount": {
+                  "valore": 3,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "economy.averageIncome",
+                "amount": {
+                  "valore": -0.3,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ],
+            "laborMoves": [
+              {
+                "from": "sea",
+                "to": "unemployed",
+                "count": {
+                  "valore": 200,
+                  "stima": true,
+                  "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "truth": {
+              "valore": 4,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "spostare-impianti": {
+          "etichetta": "Spostare gli impianti nel secondo seno, con un aiuto",
+          "conseguenze": "Il Comune paga il trasloco. Le cozze sane restano sul mercato, la notizia esce con un piano.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "districts.citta-vecchia.trust",
+                "amount": {
+                  "valore": 2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "care": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "truth": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "aspettare-in-silenzio": {
+          "etichetta": "Aspettare che gli impianti si spostino, senza annunci",
+          "conseguenze": "Il mercato regge e nessuno perde il lavoro. Per qualche mese quelle cozze arrivano ancora sulle tavole.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.averageIncome",
+                "amount": {
+                  "valore": 0.2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "districts.citta-vecchia.tension",
+                "amount": {
+                  "valore": -1,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "truth": {
+              "valore": -5,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": -3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": true,
+          "scandalPenalty": {
+            "deltas": [
+              {
+                "target": "districts.citta-vecchia.trust",
+                "amount": {
+                  "valore": -6,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              },
+              {
+                "target": "economy.averageIncome",
+                "amount": {
+                  "valore": -0.5,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              }
+            ]
+          }
+        }
+      },
+      "conditions": [
+        {
+          "target": "districts.area-industriale.contaminatedSoil",
+          "comparator": ">=",
+          "value": {
+            "valore": 60,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 35,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": false
+    },
+    "ribasso-scuole": {
+      "id": "ribasso-scuole",
+      "tema": "appalti",
+      "titolo": "Il ribasso che non torna",
+      "testo": "La gara per sistemare le scuole di Paolo VI la vince una ditta con il quaranta per cento di sconto. Gli uffici dicono che a quel prezzo non si lavora bene. Per legge l'offerta va verificata, e la verifica richiede mesi.",
+      "options": {
+        "verificare": {
+          "etichetta": "Verificare l'offerta anomala",
+          "conseguenze": "I lavori partono più tardi. Le famiglie di Paolo VI aspettano ancora un anno.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.spendingCapacity",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Milioni di capacità di spesa degli uffici: stima."
+                }
+              },
+              {
+                "target": "districts.paolo-vi.tension",
+                "amount": {
+                  "valore": 2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "legality": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "riassegnare": {
+          "etichetta": "Escludere la ditta e assegnare al secondo classificato",
+          "conseguenze": "Costa di più, ma il secondo ha un prezzo credibile.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.paolo-vi.services",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "legality": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "accettare-subito": {
+          "etichetta": "Firmare subito con la ditta del ribasso",
+          "conseguenze": "Si risparmia e si comincia domani. Tra qualche anno si vedrà come sono stati fatti i lavori.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": 3,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "districts.paolo-vi.tension",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 4,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.paolo-vi.services",
+                    "amount": {
+                      "valore": -4,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.paolo-vi.trust",
+                    "amount": {
+                      "valore": -3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "legality": {
+              "valore": -3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": -2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        }
+      },
+      "conditions": [
+        {
+          "target": "districts.paolo-vi.services",
+          "comparator": "<=",
+          "value": {
+            "valore": 45,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 4,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": false
+    },
+    "cassa-in-rosso": {
+      "id": "cassa-in-rosso",
+      "tema": "fondi",
+      "titolo": "La cassa in rosso",
+      "testo": "La cassa del Comune è quasi vuota. Gli uffici propongono di pagare i fornitori con mesi di ritardo e di non scriverlo nel bilancio: il disavanzo sparirebbe dalla carta.",
+      "options": {
+        "dirlo-in-consiglio": {
+          "etichetta": "Portare i conti veri in Consiglio comunale",
+          "conseguenze": "La notizia preoccupa i quartieri. Ma da domani tutti sanno su cosa si discute.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "districts.borgo.tension",
+                "amount": {
+                  "valore": 2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "districts.paolo-vi.tension",
+                "amount": {
+                  "valore": 2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -1,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "truth": {
+              "valore": 5,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "piano-di-rientro": {
+          "etichetta": "Chiedere allo Stato un anticipo con un piano di rientro",
+          "conseguenze": "L'anticipo arriva subito, ma va restituito: per qualche anno meno servizi.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": 8,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 5,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "economy.funds.own",
+                    "amount": {
+                      "valore": -9,
+                      "stima": true,
+                      "motivazione": "Milioni di euro: stima."
+                    }
+                  },
+                  {
+                    "target": "districts.paolo-vi.services",
+                    "amount": {
+                      "valore": -2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.talsano-lama-san-vito.services",
+                    "amount": {
+                      "valore": -2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "truth": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "word": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "ritardare-i-fornitori": {
+          "etichetta": "Pagare i fornitori in ritardo, senza scriverlo",
+          "conseguenze": "Il bilancio respira e nessuno se ne accorge. Le piccole imprese dell'indotto aspettano i loro soldi.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": 6,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "economy.supplierFirms",
+                    "amount": {
+                      "valore": -15,
+                      "stima": true,
+                      "motivazione": "Imprese dell'indotto: stima."
+                    }
+                  },
+                  {
+                    "target": "economy.averageIncome",
+                    "amount": {
+                      "valore": -0.3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "truth": {
+              "valore": -4,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": -2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": true,
+          "scandalPenalty": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -5,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              },
+              {
+                "target": "districts.borgo.trust",
+                "amount": {
+                  "valore": -4,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              }
+            ]
+          }
+        }
+      },
+      "conditions": [
+        {
+          "target": "economy.funds.own",
+          "comparator": "<=",
+          "value": {
+            "valore": 15,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 10,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 90,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": true,
+      "repeatAfterTurns": {
+        "valore": 12,
+        "stima": true,
+        "motivazione": "Anni minimi prima che il dilemma possa tornare: scelta di ritmo, stimata."
+      }
+    },
+    "cassa-che-finisce": {
+      "id": "cassa-che-finisce",
+      "tema": "lavoro",
+      "titolo": "La cassa integrazione che finisce",
+      "testo": "Per migliaia di ex dipendenti dello stabilimento la cassa integrazione sta per finire. Una società partecipata del Comune potrebbe assumerne qualche centinaio subito, senza concorso.",
+      "options": {
+        "proroga-con-corsi": {
+          "etichetta": "Chiedere una proroga legata ai corsi di riqualificazione",
+          "conseguenze": "La proroga arriva, ma a metà paga lo Stato e a metà il Comune.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.state",
+                "amount": {
+                  "valore": -5,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "districts.tamburi.tension",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "care": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "word": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "assumere-senza-concorso": {
+          "etichetta": "Farli assumere dalla partecipata, senza concorso",
+          "conseguenze": "Quattrocento famiglie respirano subito. Chi aspettava un concorso non saprà mai di essere stato scavalcato.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "districts.tamburi.tension",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ],
+            "laborMoves": [
+              {
+                "from": "onWageSupport",
+                "to": "public",
+                "count": {
+                  "valore": 400,
+                  "stima": true,
+                  "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "legality": {
+              "valore": -5,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": true,
+          "scandalPenalty": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -4,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              },
+              {
+                "target": "districts.tamburi.trust",
+                "amount": {
+                  "valore": -5,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              }
+            ]
+          }
+        },
+        "lasciar-scadere": {
+          "etichetta": "Lasciare che la cassa scada",
+          "conseguenze": "Nessuna spesa. Seicento persone passano dalla cassa alla disoccupazione.",
+          "immediate": {
+            "deltas": [],
+            "laborMoves": [
+              {
+                "from": "onWageSupport",
+                "to": "unemployed",
+                "count": {
+                  "valore": 600,
+                  "stima": true,
+                  "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 1,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.tamburi.tension",
+                    "amount": {
+                      "valore": 4,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.tamburi.trust",
+                    "amount": {
+                      "valore": -3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "care": {
+              "valore": -4,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": -2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        }
+      },
+      "conditions": [
+        {
+          "target": "labor.onWageSupport",
+          "comparator": ">=",
+          "value": {
+            "valore": 3000,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 20,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 55,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": true,
+      "repeatAfterTurns": {
+        "valore": 10,
+        "stima": true,
+        "motivazione": "Anni minimi prima che il dilemma possa tornare: scelta di ritmo, stimata."
+      }
+    },
+    "albergo-lungomare": {
+      "id": "albergo-lungomare",
+      "tema": "quartieri",
+      "titolo": "L'albergo sul lungomare",
+      "testo": "Un gruppo alberghiero vuole costruire sul lungomare del Borgo, più alto di quanto il piano consenta. Promette duecento posti. Basterebbe una variante approvata in giunta, senza passare dai residenti.",
+      "options": {
+        "rispettare-il-piano": {
+          "etichetta": "Rispettare il piano: si costruisce solo entro i limiti",
+          "conseguenze": "Il gruppo ci ripensa e forse va altrove. Il consigliere al mare e alla cultura è deluso.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "council.cons-mare.trustInPlayer",
+                "amount": {
+                  "valore": -4,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "economy.averageIncome",
+                "amount": {
+                  "valore": -0.1,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "legality": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "variante-con-assemblee": {
+          "etichetta": "Discutere una variante nelle assemblee di quartiere",
+          "conseguenze": "Ci vuole un anno di incontri. L'albergo si farà più basso, con meno posti.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -1,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.borgo.belonging",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ],
+                "laborMoves": [
+                  {
+                    "from": "unemployed",
+                    "to": "culture-tourism",
+                    "count": {
+                      "valore": 120,
+                      "stima": true,
+                      "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "listening": {
+              "valore": 4,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "variante-in-giunta": {
+          "etichetta": "Approvare la variante in giunta, subito",
+          "conseguenze": "I cantieri partono e arrivano gli oneri di costruzione. Il Borgo si sveglia con un palazzo davanti al mare.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": 3,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ],
+            "laborMoves": [
+              {
+                "from": "unemployed",
+                "to": "culture-tourism",
+                "count": {
+                  "valore": 200,
+                  "stima": true,
+                  "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.borgo.trust",
+                    "amount": {
+                      "valore": -4,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.borgo.belonging",
+                    "amount": {
+                      "valore": -3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "listening": {
+              "valore": -4,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "legality": {
+              "valore": -2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        }
+      },
+      "conditions": [
+        {
+          "target": "districts.borgo.trust",
+          "comparator": ">=",
+          "value": {
+            "valore": 25,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 22,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": false
+    },
+    "capannone-occupato": {
+      "id": "capannone-occupato",
+      "tema": "giovani",
+      "titolo": "Il capannone occupato",
+      "testo": "Un gruppo di ragazzi di Paolo VI ha occupato un capannone comunale abbandonato. Ci fanno doposcuola, musica, una palestra. Il proprietario di un terreno vicino chiede lo sgombero e offre di comprare l'edificio.",
+      "options": {
+        "affidare-con-bando": {
+          "etichetta": "Regolarizzare: un bando per affidare l'edificio",
+          "conseguenze": "Servono soldi per mettere a norma il capannone. I ragazzi dovranno partecipare al bando come tutti.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.paolo-vi.tension",
+                    "amount": {
+                      "valore": -3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.paolo-vi.belonging",
+                    "amount": {
+                      "valore": 3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "listening": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "legality": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "sgomberare-e-vendere": {
+          "etichetta": "Sgomberare e vendere l'edificio",
+          "conseguenze": "Entrano soldi e il problema sparisce dal giornale. I ragazzi tornano per strada.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": 2,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "districts.paolo-vi.tension",
+                "amount": {
+                  "valore": 4,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 1,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.paolo-vi.trust",
+                    "amount": {
+                      "valore": -3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "listening": {
+              "valore": -5,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": -1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "lasciar-stare": {
+          "etichetta": "Far finta di niente",
+          "conseguenze": "Nessuna spesa. Il capannone resta senza regole e senza sicurezza.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "districts.paolo-vi.tension",
+                "amount": {
+                  "valore": -1,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 3,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.paolo-vi.services",
+                    "amount": {
+                      "valore": -1,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "legality": {
+              "valore": -2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": -1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        }
+      },
+      "conditions": [
+        {
+          "target": "districts.paolo-vi.tension",
+          "comparator": ">=",
+          "value": {
+            "valore": 45,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 25,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 65,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": false
+    },
+    "case-vuote-isola": {
+      "id": "case-vuote-isola",
+      "tema": "quartieri",
+      "titolo": "Le case vuote dell'Isola",
+      "testo": "Nella Città Vecchia decine di case comunali sono vuote da anni. Una società offre di comprarle tutte per farne affitti brevi ai turisti. Le associazioni del quartiere chiedono che tornino ad abitarci famiglie.",
+      "options": {
+        "case-alle-famiglie": {
+          "etichetta": "Restaurarle e affittarle a famiglie a canone basso",
+          "conseguenze": "Costa e richiede anni. Il quartiere torna ad avere bambini e botteghe.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -4,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 3,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.citta-vecchia.belonging",
+                    "amount": {
+                      "valore": 4,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.citta-vecchia.services",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "care": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "vendere-con-vincoli": {
+          "etichetta": "Venderle con un vincolo: metà per residenti",
+          "conseguenze": "Entra qualcosa in cassa, la società accetta a malincuore.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": 3,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "council.cons-mare.trustInPlayer",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "listening": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "vendere-tutto": {
+          "etichetta": "Venderle tutte alla società",
+          "conseguenze": "Entrano soldi e lavoro per il turismo. Tra qualche anno all'Isola si parlerà solo con le valigie.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": 7,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ],
+            "laborMoves": [
+              {
+                "from": "unemployed",
+                "to": "culture-tourism",
+                "count": {
+                  "valore": 120,
+                  "stima": true,
+                  "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 4,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.citta-vecchia.belonging",
+                    "amount": {
+                      "valore": -5,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.citta-vecchia.trust",
+                    "amount": {
+                      "valore": -3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "care": {
+              "valore": -2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": -3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        }
+      },
+      "conditions": [
+        {
+          "target": "districts.citta-vecchia.services",
+          "comparator": "<=",
+          "value": {
+            "valore": 60,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 30,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 75,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": false
+    },
+    "subappalto-scogliere": {
+      "id": "subappalto-scogliere",
+      "tema": "appalti",
+      "titolo": "Il subappalto delle scogliere",
+      "testo": "L'impresa che rinforza le scogliere delle borgate ha subappaltato una parte dei lavori. Un ispettore segnala operai senza contratto. Fermarsi adesso vuol dire perdere la stagione buona per lavorare in mare.",
+      "options": {
+        "fermare-e-verificare": {
+          "etichetta": "Fermare il cantiere e verificare",
+          "conseguenze": "Si perde un anno. Gli operai irregolari vengono assunti o mandati via.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.spendingCapacity",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Milioni di capacità di spesa degli uffici: stima."
+                }
+              },
+              {
+                "target": "districts.talsano-lama-san-vito.floodRisk",
+                "amount": {
+                  "valore": 1,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "legality": {
+              "valore": 4,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "rescindere": {
+          "etichetta": "Rescindere il contratto con l'impresa",
+          "conseguenze": "Una nuova gara, e i soldi già spesi in parte persi.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -4,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "districts.talsano-lama-san-vito.floodRisk",
+                "amount": {
+                  "valore": 2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "legality": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "word": {
+              "valore": -1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "chiudere-un-occhio": {
+          "etichetta": "Chiudere un occhio e finire i lavori",
+          "conseguenze": "Le scogliere sono pronte prima della stagione delle mareggiate. Nessuno chiede come.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.spendingCapacity",
+                "amount": {
+                  "valore": 2,
+                  "stima": true,
+                  "motivazione": "Milioni di capacità di spesa degli uffici: stima."
+                }
+              },
+              {
+                "target": "districts.talsano-lama-san-vito.floodRisk",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "legality": {
+              "valore": -5,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": -2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": true,
+          "scandalPenalty": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -5,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              },
+              {
+                "target": "districts.talsano-lama-san-vito.trust",
+                "amount": {
+                  "valore": -5,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              }
+            ]
+          }
+        }
+      },
+      "conditions": [
+        {
+          "target": "climate.seaLevelRiseCm",
+          "comparator": ">=",
+          "value": {
+            "valore": 15,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 34,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 92,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": true,
+      "repeatAfterTurns": {
+        "valore": 12,
+        "stima": true,
+        "motivazione": "Anni minimi prima che il dilemma possa tornare: scelta di ritmo, stimata."
+      }
+    },
+    "acqua-d-estate": {
+      "id": "acqua-d-estate",
+      "tema": "clima",
+      "titolo": "L'acqua d'estate",
+      "testo": "L'estate è secca e le riserve d'acqua sono basse. Il gestore propone di chiudere l'acqua di notte solo nelle borgate e a Paolo VI, dove la rete perde di più. Il Borgo resterebbe servito.",
+      "options": {
+        "turni-per-tutti": {
+          "etichetta": "Turni uguali per tutta la città",
+          "conseguenze": "Tutti rinunciano a qualcosa. Al Borgo protestano i commercianti.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "districts.borgo.tension",
+                "amount": {
+                  "valore": 2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "districts.talsano-lama-san-vito.tension",
+                "amount": {
+                  "valore": 1,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "economy.averageIncome",
+                "amount": {
+                  "valore": -0.2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "care": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "rifare-le-condotte": {
+          "etichetta": "Turni per tutti e un piano per rifare le condotte",
+          "conseguenze": "Costa caro e i lavori durano anni. Poi la rete perderà meno.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -4,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "economy.funds.eu-earmarked",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 4,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "climate.waterStress",
+                    "amount": {
+                      "valore": -3,
+                      "stima": true,
+                      "motivazione": "Variazione climatica stimata, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "care": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "truth": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "chiudere-in-periferia": {
+          "etichetta": "Chiudere di notte solo in periferia",
+          "conseguenze": "Il centro non se ne accorge e l'economia non si ferma. Nelle borgate e a Paolo VI si riempiono i secchi.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.averageIncome",
+                "amount": {
+                  "valore": 0.2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 1,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.paolo-vi.trust",
+                    "amount": {
+                      "valore": -4,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.talsano-lama-san-vito.trust",
+                    "amount": {
+                      "valore": -3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.paolo-vi.tension",
+                    "amount": {
+                      "valore": 3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "care": {
+              "valore": -4,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": -2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        }
+      },
+      "conditions": [
+        {
+          "target": "climate.waterStress",
+          "comparator": ">=",
+          "value": {
+            "valore": 56,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 40,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 99,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": true,
+      "repeatAfterTurns": {
+        "valore": 10,
+        "stima": true,
+        "motivazione": "Anni minimi prima che il dilemma possa tornare: scelta di ritmo, stimata."
+      }
+    },
+    "chi-vuole-partire": {
+      "id": "chi-vuole-partire",
+      "tema": "giovani",
+      "titolo": "Chi vuole partire",
+      "testo": "Un'indagine nelle scuole superiori dice che sei ragazzi su dieci pensano di lasciare Taranto dopo il diploma. Un investitore in trattativa con il Comune chiede di non pubblicarla prima della firma.",
+      "options": {
+        "pubblicare-e-ascoltare": {
+          "etichetta": "Pubblicare l'indagine e aprire un tavolo con le scuole",
+          "conseguenze": "La notizia fa rumore. L'investitore rallenta, i ragazzi si sentono presi sul serio.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "economy.averageIncome",
+                "amount": {
+                  "valore": -0.2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.paolo-vi.belonging",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.tamburi.belonging",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "truth": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "pubblicare-dopo-la-firma": {
+          "etichetta": "Pubblicarla dopo la firma, dicendolo all'investitore",
+          "conseguenze": "L'indagine esce tra sei mesi, con una data annunciata. Qualcuno parla di censura.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "council.cons-giovani.trustInPlayer",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "truth": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "word": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "chiuderla-in-un-cassetto": {
+          "etichetta": "Chiudere l'indagine in un cassetto",
+          "conseguenze": "La trattativa va avanti tranquilla. I ragazzi che l'hanno compilata non sapranno mai che fine ha fatto.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.averageIncome",
+                "amount": {
+                  "valore": 0.3,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "truth": {
+              "valore": -4,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": -3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": true,
+          "scandalPenalty": {
+            "deltas": [
+              {
+                "target": "council.cons-giovani.trustInPlayer",
+                "amount": {
+                  "valore": -8,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              },
+              {
+                "target": "districts.paolo-vi.trust",
+                "amount": {
+                  "valore": -4,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              }
+            ]
+          }
+        }
+      },
+      "conditions": [
+        {
+          "target": "labor.unemployed",
+          "comparator": ">=",
+          "value": {
+            "valore": 10000,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 42,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 85,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": false
+    },
+    "stanze-fresche": {
+      "id": "stanze-fresche",
+      "tema": "clima",
+      "titolo": "Le stanze fresche",
+      "testo": "Arriva un'ondata di caldo di due settimane. Nella Città Vecchia molti anziani vivono soli in case senza aria condizionata. Aprire stanze fresche giorno e notte in ogni quartiere costa personale e corrente.",
+      "options": {
+        "stanze-in-ogni-quartiere": {
+          "etichetta": "Stanze fresche in ogni quartiere, con chi va a bussare alle porte",
+          "conseguenze": "Volontari e operatori girano casa per casa. Il conto arriva a fine estate.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "districts.citta-vecchia.health",
+                "amount": {
+                  "valore": 1,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "care": {
+              "valore": 4,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "solo-un-centro": {
+          "etichetta": "Un solo centro al Borgo, il più facile da raggiungere",
+          "conseguenze": "Costa meno. Chi non cammina bene resta a casa.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -1,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 1,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.citta-vecchia.trust",
+                    "amount": {
+                      "valore": -2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "care": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "annunciare-senza-personale": {
+          "etichetta": "Annunciare le stanze fresche senza metterci il personale",
+          "conseguenze": "Il comunicato esce e la spesa no. Le porte restano chiuse più spesso di quanto si dica.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "districts.citta-vecchia.tension",
+                "amount": {
+                  "valore": -1,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 1,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.citta-vecchia.health",
+                    "amount": {
+                      "valore": -1,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.citta-vecchia.trust",
+                    "amount": {
+                      "valore": -3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "truth": {
+              "valore": -3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": -3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        }
+      },
+      "conditions": [
+        {
+          "target": "climate.summerHeat",
+          "comparator": ">=",
+          "value": {
+            "valore": 63,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 99,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": true,
+      "repeatAfterTurns": {
+        "valore": 8,
+        "stima": true,
+        "motivazione": "Anni minimi prima che il dilemma possa tornare: scelta di ritmo, stimata."
+      }
+    },
+    "registro-delle-malattie": {
+      "id": "registro-delle-malattie",
+      "tema": "aria e salute",
+      "titolo": "Il registro delle malattie",
+      "testo": "I nuovi dati sanitari dicono che ai Tamburi le malattie respiratorie dei bambini sono calate, ma restano sopra la media regionale. Qualcuno propone di comunicare solo il calo.",
+      "options": {
+        "pubblicare-tutto": {
+          "etichetta": "Pubblicare tutti i dati, il calo e ciò che resta",
+          "conseguenze": "Il quartiere è più arrabbiato che sollevato. Ma i numeri sono quelli.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "districts.tamburi.tension",
+                "amount": {
+                  "valore": 3,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "economy.averageIncome",
+                "amount": {
+                  "valore": -0.2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "truth": {
+              "valore": 5,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "pubblicare-con-medici": {
+          "etichetta": "Pubblicarli con medici e pediatri nei quartieri",
+          "conseguenze": "Servono ambulatori aperti la sera. Le famiglie trovano qualcuno a cui chiedere.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.tamburi.health",
+                    "amount": {
+                      "valore": 1,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.tamburi.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "truth": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "solo-il-calo": {
+          "etichetta": "Comunicare solo il calo",
+          "conseguenze": "Una buona notizia, finalmente. Il resto dei dati resta negli uffici.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "districts.tamburi.trust",
+                "amount": {
+                  "valore": 3,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "economy.averageIncome",
+                "amount": {
+                  "valore": 0.2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "truth": {
+              "valore": -5,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": true,
+          "scandalPenalty": {
+            "deltas": [
+              {
+                "target": "districts.tamburi.trust",
+                "amount": {
+                  "valore": -7,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              },
+              {
+                "target": "districts.tamburi.tension",
+                "amount": {
+                  "valore": 3,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              }
+            ]
+          }
+        }
+      },
+      "conditions": [
+        {
+          "target": "districts.tamburi.health",
+          "comparator": "<=",
+          "value": {
+            "valore": 65,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 50,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 90,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": false
+    },
+    "case-ai-margini": {
+      "id": "case-ai-margini",
+      "tema": "quartieri",
+      "titolo": "Le case ai margini dei parchi",
+      "testo": "Le ultime palazzine dei Tamburi a ridosso dei vecchi parchi minerali sono ancora abitate. Il piano prevede di trasferire le famiglie. Molti anziani non vogliono lasciare la casa dove sono nati.",
+      "options": {
+        "trasferimento-volontario": {
+          "etichetta": "Trasferimento volontario, con case vicine e sostegno",
+          "conseguenze": "Ci vogliono anni e molti soldi. Chi resta viene seguito, chi parte non perde il quartiere.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -4,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "economy.funds.eu-earmarked",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 3,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.tamburi.health",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.tamburi.belonging",
+                    "amount": {
+                      "valore": 1,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "care": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "trasferimento-con-ordinanza": {
+          "etichetta": "Trasferire tutti con un'ordinanza",
+          "conseguenze": "Più rapido e meno caro. Le famiglie se ne vanno con un foglio in mano.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -1,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "districts.tamburi.tension",
+                "amount": {
+                  "valore": 5,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.tamburi.health",
+                    "amount": {
+                      "valore": 1,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.tamburi.belonging",
+                    "amount": {
+                      "valore": -4,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "listening": {
+              "valore": -5,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": -1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "rinviare": {
+          "etichetta": "Rinviare la decisione al prossimo Consiglio",
+          "conseguenze": "Nessuno protesta oggi. Le case restano dove sono.",
+          "immediate": {
+            "deltas": []
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 3,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.tamburi.trust",
+                    "amount": {
+                      "valore": -2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "care": {
+              "valore": -2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "word": {
+              "valore": -1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        }
+      },
+      "conditions": [
+        {
+          "target": "districts.tamburi.cumulativeExposure",
+          "comparator": ">=",
+          "value": {
+            "valore": 25,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 95,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": false
+    },
+    "navi-in-mar-grande": {
+      "id": "navi-in-mar-grande",
+      "tema": "mare",
+      "titolo": "Le navi in Mar Grande",
+      "testo": "Una compagnia di crociere vuole un approdo fisso in Mar Grande. Servirebbe dragare i fondali vicino alla Città Vecchia. La valutazione ambientale richiederebbe due anni: la compagnia ne concede uno.",
+      "options": {
+        "valutazione-completa": {
+          "etichetta": "Fare la valutazione ambientale completa",
+          "conseguenze": "La compagnia potrebbe andare altrove. Il consigliere al mare e alla cultura teme di perdere la stagione.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "council.cons-mare.trustInPlayer",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "economy.averageIncome",
+                "amount": {
+                  "valore": -0.2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "legality": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "approdo-limitato": {
+          "etichetta": "Un approdo più piccolo, senza dragaggio",
+          "conseguenze": "Meno navi, meno turisti, nessun fondale toccato.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": 1,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ],
+            "laborMoves": [
+              {
+                "from": "unemployed",
+                "to": "culture-tourism",
+                "count": {
+                  "valore": 80,
+                  "stima": true,
+                  "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "listening": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "legality": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "dragare-subito": {
+          "etichetta": "Autorizzare il dragaggio senza valutazione",
+          "conseguenze": "Le navi arrivano la prossima estate, con loro lavoro e incassi. Il fango smosso resta in acqua.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": 3,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ],
+            "laborMoves": [
+              {
+                "from": "unemployed",
+                "to": "culture-tourism",
+                "count": {
+                  "valore": 200,
+                  "stima": true,
+                  "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 3,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.citta-vecchia.health",
+                    "amount": {
+                      "valore": -1,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.citta-vecchia.belonging",
+                    "amount": {
+                      "valore": -2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "legality": {
+              "valore": -4,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": -1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        }
+      },
+      "conditions": [
+        {
+          "target": "labor.unemployed",
+          "comparator": ">=",
+          "value": {
+            "valore": 9000,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 63,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 97,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": false
+    },
+    "fondi-dello-stato-avanzati": {
+      "id": "fondi-dello-stato-avanzati",
+      "tema": "fondi",
+      "titolo": "I fondi dello Stato che avanzano",
+      "testo": "A fine anno una parte dei fondi dello Stato tornerà a Roma, se non viene spesa. Gli uffici propongono lavori di somma urgenza senza gara: strade, tetti delle scuole, tutto entro dicembre.",
+      "options": {
+        "restituire": {
+          "etichetta": "Lasciare che tornino allo Stato",
+          "conseguenze": "Soldi persi, conti puliti. Il consigliere al bilancio si arrabbia.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.state",
+                "amount": {
+                  "valore": -10,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "council.cons-conti.trustInPlayer",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "legality": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "truth": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "manutenzione-regolare": {
+          "etichetta": "Spenderli in manutenzione con procedure rapide ma regolari",
+          "conseguenze": "Gli uffici lavorano di notte per farcela. Una parte si spende, il resto torna indietro.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.state",
+                "amount": {
+                  "valore": -6,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "economy.spendingCapacity",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Milioni di capacità di spesa degli uffici: stima."
+                }
+              },
+              {
+                "target": "districts.paolo-vi.services",
+                "amount": {
+                  "valore": 1,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "districts.talsano-lama-san-vito.services",
+                "amount": {
+                  "valore": 1,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "legality": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "somma-urgenza": {
+          "etichetta": "Lavori di somma urgenza, senza gara",
+          "conseguenze": "Tutto speso entro dicembre, cantieri in ogni quartiere. Le ditte le sceglie l'ufficio.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.state",
+                "amount": {
+                  "valore": -10,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "districts.paolo-vi.services",
+                "amount": {
+                  "valore": 2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "districts.talsano-lama-san-vito.services",
+                "amount": {
+                  "valore": 2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "districts.tamburi.services",
+                "amount": {
+                  "valore": 2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "legality": {
+              "valore": -5,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": true,
+          "scandalPenalty": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -6,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              },
+              {
+                "target": "districts.paolo-vi.trust",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              },
+              {
+                "target": "districts.tamburi.trust",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              }
+            ]
+          }
+        }
+      },
+      "conditions": [
+        {
+          "target": "economy.funds.state",
+          "comparator": ">=",
+          "value": {
+            "valore": 150,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 68,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 99,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": true,
+      "repeatAfterTurns": {
+        "valore": 10,
+        "stima": true,
+        "motivazione": "Anni minimi prima che il dilemma possa tornare: scelta di ritmo, stimata."
+      }
+    },
+    "mareggiata-alle-borgate": {
+      "id": "mareggiata-alle-borgate",
+      "tema": "clima",
+      "titolo": "La mareggiata alle borgate",
+      "testo": "Una mareggiata d'inverno allaga decine di case sulla costa di Lama e San Vito. Alcune erano state costruite senza permesso, vicinissime al mare. Tutti chiedono un risarcimento.",
+      "options": {
+        "risarcire-e-arretrare": {
+          "etichetta": "Risarcire tutti e aiutare chi è troppo vicino al mare a spostarsi",
+          "conseguenze": "La spesa è alta e i trasferimenti dividono le famiglie. Le case sulla riva non si ricostruiscono.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -5,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "districts.talsano-lama-san-vito.floodRisk",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "care": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "legality": {
+              "valore": 1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "solo-chi-ha-titolo": {
+          "etichetta": "Risarcire solo le case in regola",
+          "conseguenze": "Costa meno ed è la legge. Chi aveva costruito senza permesso resta con l'acqua in casa.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "districts.talsano-lama-san-vito.tension",
+                "amount": {
+                  "valore": 3,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "legality": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": -1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "sanare-e-ricostruire": {
+          "etichetta": "Sanare tutto e ricostruire dove erano",
+          "conseguenze": "Le borgate applaudono. Alla prossima mareggiata le case saranno ancora lì, sulla riva.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "districts.talsano-lama-san-vito.trust",
+                "amount": {
+                  "valore": 4,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "districts.talsano-lama-san-vito.tension",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              },
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 5,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.talsano-lama-san-vito.floodRisk",
+                    "amount": {
+                      "valore": 3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "economy.funds.own",
+                    "amount": {
+                      "valore": -3,
+                      "stima": true,
+                      "motivazione": "Milioni di euro: stima."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "legality": {
+              "valore": -4,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "care": {
+              "valore": -1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        }
+      },
+      "conditions": [
+        {
+          "target": "climate.seaLevelRiseCm",
+          "comparator": ">=",
+          "value": {
+            "valore": 40,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 80,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 99,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": true,
+      "repeatAfterTurns": {
+        "valore": 10,
+        "stima": true,
+        "motivazione": "Anni minimi prima che il dilemma possa tornare: scelta di ritmo, stimata."
+      }
+    },
+    "memoria-della-fabbrica": {
+      "id": "memoria-della-fabbrica",
+      "tema": "giovani",
+      "titolo": "La memoria della fabbrica",
+      "testo": "Le scuole chiedono di conservare l'ultima torre dello stabilimento come luogo di memoria, con un archivio delle voci di chi ci ha lavorato e di chi ci ha vissuto accanto. Demolirla costa meno e libera il terreno.",
+      "options": {
+        "conservare-e-raccontare": {
+          "etichetta": "Conservare la torre e aprire l'archivio alle scuole",
+          "conseguenze": "Costa restauro e personale. I ragazzi ascoltano le voci dei nonni, anche quelle scomode.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -4,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.tamburi.belonging",
+                    "amount": {
+                      "valore": 3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.paolo-vi.belonging",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "truth": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "solo-archivio": {
+          "etichetta": "Demolire la torre ma raccogliere l'archivio",
+          "conseguenze": "Le voci restano, il luogo no. Qualcuno dice che è meglio così.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -1,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "truth": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "demolire-e-dimenticare": {
+          "etichetta": "Demolire tutto e voltare pagina",
+          "conseguenze": "Il terreno si libera e si vende. Di quegli anni resterà poco più di un nome.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": 3,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.tamburi.belonging",
+                    "amount": {
+                      "valore": -3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "truth": {
+              "valore": -2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "listening": {
+              "valore": -3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        }
+      },
+      "conditions": [
+        {
+          "target": "districts.area-industriale.contaminatedSoil",
+          "comparator": "<=",
+          "value": {
+            "valore": 88,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 82,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 99,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "weight": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+      },
+      "repeatable": false
+    },
+    "mare-caldo": {
+      "id": "mare-caldo",
+      "tema": "mare",
+      "titolo": "Il mare caldo",
+      "testo": "Un'estate lunghissima scalda il Mar Piccolo: i mitili soffrono e il raccolto si dimezza. I mitilicoltori chiedono un indennizzo. Alcuni consiglieri propongono di darlo a tutti, senza controllare chi ha perso davvero.",
+      "options": {
+        "indennizzi-con-controlli": {
+          "etichetta": "Indennizzi a chi ha perso il raccolto, con controlli",
+          "conseguenze": "Ci vogliono mesi per verificare. Alcuni si arrabbiano per i ritardi.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -3,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "districts.citta-vecchia.tension",
+                "amount": {
+                  "valore": 1,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "care": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "legality": {
+              "valore": 2,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "aiutare-a-cambiare": {
+          "etichetta": "Indennizzi e aiuti per spostarsi verso acque più fresche",
+          "conseguenze": "Costa di più. Una parte degli impianti va in Mar Grande, dove l'acqua si rinnova.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -4,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "economy.funds.eu-earmarked",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              }
+            ]
+          },
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 3,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "economy.averageIncome",
+                    "amount": {
+                      "valore": 0.2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "moral": {
+            "care": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        },
+        "a-pioggia": {
+          "etichetta": "Un indennizzo uguale per tutti, subito",
+          "conseguenze": "Tutti contenti e nessuna pratica. Anche chi non ha perso nulla incassa.",
+          "immediate": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -2,
+                  "stima": true,
+                  "motivazione": "Milioni di euro: stima."
+                }
+              },
+              {
+                "target": "districts.citta-vecchia.trust",
+                "amount": {
+                  "valore": 3,
+                  "stima": true,
+                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                }
+              }
+            ]
+          },
+          "delayed": [],
+          "moral": {
+            "legality": {
+              "valore": -3,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            },
+            "truth": {
+              "valore": -1,
+              "stima": true,
+              "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
+            }
+          },
+          "hidden": false
+        }
+      },
+      "conditions": [
+        {
+          "target": "climate.summerHeat",
+          "comparator": ">=",
+          "value": {
+            "valore": 70,
+            "stima": true,
+            "motivazione": "Soglia di comparsa: scelta di progetto, stimata."
+          }
+        }
+      ],
+      "firstTurn": {
+        "valore": 85,
+        "stima": true,
+        "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
+      },
+      "lastTurn": {
+        "valore": 99,
         "stima": true,
         "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
       },

@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/guida.json",
+  "title": "Guida al gioco: visita guidata, come si gioca, glossario, bilancio, fermate del tempo",
+  "type": "object",
+  "required": ["descrizione", "visita", "comeSiGioca", "glossario", "bilancio", "fermate", "tempo"],
+  "properties": {
+    "descrizione": { "$ref": "comune.json#/$defs/testo" },
+    "visita": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["id", "titolo", "testo", "bersaglio"],
+        "properties": {
+          "id": { "$ref": "comune.json#/$defs/id" },
+          "titolo": { "$ref": "comune.json#/$defs/testo" },
+          "testo": { "$ref": "comune.json#/$defs/testo" },
+          "bersaglio": { "$ref": "comune.json#/$defs/id" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "comeSiGioca": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["titolo", "paragrafi"],
+        "properties": {
+          "titolo": { "$ref": "comune.json#/$defs/testo" },
+          "paragrafi": { "type": "array", "minItems": 1, "items": { "$ref": "comune.json#/$defs/testo" } }
+        },
+        "additionalProperties": false
+      }
+    },
+    "glossario": {
+      "type": "object",
+      "propertyNames": { "$ref": "comune.json#/$defs/id" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["termine", "spiegazione"],
+        "properties": {
+          "termine": { "$ref": "comune.json#/$defs/testo" },
+          "spiegazione": { "$ref": "comune.json#/$defs/testo" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "bilancio": {
+      "type": "object",
+      "required": ["fondi", "voci", "nota", "disavanzo", "dissestoOra", "inAttivo", "capacita", "cantieriFermi", "motiviFermo"],
+      "properties": {
+        "fondi": {
+          "type": "object",
+          "required": ["own", "state", "eu-earmarked"],
+          "additionalProperties": {
+            "type": "object",
+            "required": ["nome", "puoPagare"],
+            "properties": { "nome": { "$ref": "comune.json#/$defs/testo" }, "puoPagare": { "$ref": "comune.json#/$defs/testo" } },
+            "additionalProperties": false
+          }
+        },
+        "voci": { "type": "object", "additionalProperties": { "$ref": "comune.json#/$defs/testo" } },
+        "nota": { "$ref": "comune.json#/$defs/testo" },
+        "disavanzo": { "$ref": "comune.json#/$defs/testo" },
+        "dissestoOra": { "$ref": "comune.json#/$defs/testo" },
+        "inAttivo": { "$ref": "comune.json#/$defs/testo" },
+        "capacita": { "$ref": "comune.json#/$defs/testo" },
+        "cantieriFermi": { "$ref": "comune.json#/$defs/testo" },
+        "motiviFermo": {
+          "type": "object",
+          "required": ["funds", "capacity", "frozen"],
+          "additionalProperties": { "$ref": "comune.json#/$defs/testo" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "fermate": {
+      "type": "object",
+      "required": ["prefisso", "dilemma", "phase-end", "operating", "scandal", "promise-due", "epoch", "deficit", "game-over", "esiti"],
+      "properties": {
+        "esiti": {
+          "type": "object",
+          "required": ["kept", "broken", "open"],
+          "additionalProperties": { "$ref": "comune.json#/$defs/testo" }
+        }
+      },
+      "additionalProperties": { "$ref": "comune.json#/$defs/testo" }
+    },
+    "tempo": {
+      "type": "object",
+      "required": ["avvia", "pausa", "unAnno", "velocita", "secondiPerAnno", "inPausa", "inCorso"],
+      "properties": {
+        "avvia": { "$ref": "comune.json#/$defs/testo" },
+        "pausa": { "$ref": "comune.json#/$defs/testo" },
+        "unAnno": { "$ref": "comune.json#/$defs/testo" },
+        "velocita": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "$ref": "comune.json#/$defs/testo" } },
+        "secondiPerAnno": {
+          "description": "Durata di un anno a ogni velocità, in secondi: ritmo dell'interfaccia, non del motore.",
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "$ref": "comune.json#/$defs/nonNegativo" }
+        },
+        "inPausa": { "$ref": "comune.json#/$defs/testo" },
+        "inCorso": { "$ref": "comune.json#/$defs/testo" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -7,7 +7,7 @@
   "properties": {
     "dilemmas": {
       "type": "object",
-      "minProperties": 6,
+      "minProperties": 24,
       "propertyNames": { "$ref": "comune.json#/$defs/id" },
       "additionalProperties": { "$ref": "#/$defs/dilemma" }
     }
@@ -54,9 +54,13 @@
     },
     "dilemma": {
       "type": "object",
-      "required": ["id", "titolo", "testo", "options", "conditions", "firstTurn", "lastTurn", "weight", "repeatable"],
+      "required": ["id", "tema", "titolo", "testo", "options", "conditions", "firstTurn", "lastTurn", "weight", "repeatable"],
       "properties": {
         "id": { "$ref": "comune.json#/$defs/id" },
+        "tema": {
+          "description": "Tema del dilemma, per distribuirli: testo per l'interfaccia, il motore non lo legge.",
+          "enum": ["aria e salute", "lavoro", "appalti", "fondi", "quartieri", "mare", "clima", "giovani"]
+        },
         "titolo": { "$ref": "comune.json#/$defs/testo" },
         "testo": { "$ref": "comune.json#/$defs/testo" },
         "options": {
@@ -69,9 +73,16 @@
         "firstTurn": { "$ref": "comune.json#/$defs/interoNonNegativo" },
         "lastTurn": { "$ref": "comune.json#/$defs/interoNonNegativo" },
         "weight": { "$ref": "comune.json#/$defs/nonNegativo" },
-        "repeatable": { "type": "boolean" }
+        "repeatable": { "type": "boolean" },
+        "repeatAfterTurns": {
+          "description": "Solo per i ripetibili: anni minimi prima che il dilemma possa tornare.",
+          "$ref": "comune.json#/$defs/interoPositivo"
+        }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "if": { "properties": { "repeatable": { "const": true } } },
+      "then": { "required": ["repeatAfterTurns"] },
+      "else": { "not": { "required": ["repeatAfterTurns"] } }
     }
   }
 }

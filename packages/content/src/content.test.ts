@@ -124,10 +124,10 @@ describe('contenuti minimi', () => {
     for (const id of Object.values(rules.lotConversion)) expect(rules.projects[id], id).toBeDefined();
   });
 
-  it('otto politiche, di cui almeno una di formazione; sei dilemmi; cinque epoche di clima', () => {
+  it('otto politiche, di cui almeno una di formazione; ventiquattro dilemmi; cinque epoche di clima', () => {
     expect(Object.keys(rules.policies)).toHaveLength(8);
     expect(Object.values(rules.policies).some((p) => p.training !== undefined)).toBe(true);
-    expect(Object.keys(rules.dilemmas)).toHaveLength(6);
+    expect(Object.keys(rules.dilemmas)).toHaveLength(24);
     expect(rules.climateScenario.annualChangeByEpoch).toHaveLength(5);
   });
 

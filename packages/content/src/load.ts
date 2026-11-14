@@ -11,6 +11,7 @@ import clima from '../data/clima.json';
 import consiglio from '../data/consiglio.json';
 import cronaca from '../data/cronaca.json';
 import spiegazioni from '../data/spiegazioni.json';
+import guida from '../data/guida.json';
 import dilemmi from '../data/dilemmi.json';
 import parametri from '../data/parametri.json';
 import partenza from '../data/partenza.json';
@@ -22,6 +23,7 @@ import climaSchema from '../schema/clima.schema.json';
 import consiglioSchema from '../schema/consiglio.schema.json';
 import cronacaSchema from '../schema/cronaca.schema.json';
 import spiegazioniSchema from '../schema/spiegazioni.schema.json';
+import guidaSchema from '../schema/guida.schema.json';
 import comuneSchema from '../schema/comune.schema.json';
 import dilemmiSchema from '../schema/dilemmi.schema.json';
 import parametriSchema from '../schema/parametri.schema.json';
@@ -50,6 +52,7 @@ export interface ContentFiles {
   consiglio: unknown;
   cronaca: unknown;
   spiegazioni: unknown;
+  guida: unknown;
 }
 
 export const CONTENT_FILES: ContentFiles = {
@@ -64,6 +67,7 @@ export const CONTENT_FILES: ContentFiles = {
   consiglio,
   cronaca,
   spiegazioni,
+  guida,
 };
 
 const SCHEMAS: Record<keyof ContentFiles, object> = {
@@ -78,6 +82,7 @@ const SCHEMAS: Record<keyof ContentFiles, object> = {
   consiglio: consiglioSchema,
   cronaca: cronacaSchema,
   spiegazioni: spiegazioniSchema,
+  guida: guidaSchema,
 };
 
 // strictRequired spento: quartieri e settori sono chiavi obbligatorie elencate con propertyNames, non con properties.
@@ -100,7 +105,7 @@ export function validateContentFiles(files: ContentFiles = CONTENT_FILES): strin
 }
 
 /** Chiavi dei testi in italiano: servono a interfaccia e voci, non al motore. */
-const TEXT_KEYS = new Set(['nome', 'descrizione', 'titolo', 'testo', 'etichetta', 'conseguenze']);
+const TEXT_KEYS = new Set(['nome', 'descrizione', 'titolo', 'testo', 'etichetta', 'conseguenze', 'tema']);
 
 const isAnnotated = (value: unknown): value is { valore: number } =>
   typeof value === 'object' && value !== null && !Array.isArray(value) && typeof (value as { valore?: unknown }).valore === 'number';
@@ -129,7 +134,7 @@ export interface ContentTexts {
   policies: Record<string, { nome: string; descrizione: string }>;
   dilemmas: Record<
     string,
-    { titolo: string; testo: string; options: Record<string, { etichetta: string; conseguenze: string }> }
+    { tema: string; titolo: string; testo: string; options: Record<string, { etichetta: string; conseguenze: string }> }
   >;
 }
 
@@ -142,7 +147,7 @@ function texts(files: ContentFiles): ContentTexts {
   const pr = files.progetti as { projects: Record<string, Named> };
   const po = files.politiche as { policies: Record<string, Named> };
   const d = files.dilemmi as {
-    dilemmas: Record<string, { titolo: string; testo: string; options: Record<string, { etichetta: string; conseguenze: string }> }>;
+    dilemmas: Record<string, { tema: string; titolo: string; testo: string; options: Record<string, { etichetta: string; conseguenze: string }> }>;
   };
   const pick = ({ nome, descrizione }: Named) => ({ nome, descrizione });
   const byKey = (record: Record<string, Named>) =>
@@ -158,6 +163,7 @@ function texts(files: ContentFiles): ContentTexts {
       Object.entries(d.dilemmas).map(([id, dilemma]) => [
         id,
         {
+          tema: dilemma.tema,
           titolo: dilemma.titolo,
           testo: dilemma.testo,
           options: Object.fromEntries(
@@ -208,6 +214,26 @@ export interface ExplanationTexts {
   lotStates: Record<string, string>;
 }
 
+/** Guida al gioco: visita, come si gioca, glossario, bilancio, fermate del tempo. Solo per l'interfaccia. */
+export interface GuideTexts {
+  tour: { id: string; titolo: string; testo: string; bersaglio: string }[];
+  howTo: { titolo: string; paragrafi: string[] }[];
+  glossary: Record<string, { termine: string; spiegazione: string }>;
+  budget: {
+    fondi: Record<'own' | 'state' | 'eu-earmarked', { nome: string; puoPagare: string }>;
+    voci: Record<string, string>;
+    nota: string;
+    disavanzo: string;
+    dissestoOra: string;
+    inAttivo: string;
+    capacita: string;
+    cantieriFermi: string;
+    motiviFermo: Record<'funds' | 'capacity' | 'frozen', string>;
+  };
+  stops: Record<string, string> & { esiti: Record<'kept' | 'broken' | 'open', string> };
+  time: { avvia: string; pausa: string; unAnno: string; velocita: string[]; secondiPerAnno: number[]; inPausa: string; inCorso: string };
+}
+
 export interface LoadedContent {
   initialContent: InitialContent;
   rules: TurnRules;
@@ -216,6 +242,7 @@ export interface LoadedContent {
   councilLabels: CouncilLabels;
   chronicle: ChronicleTexts;
   explanations: ExplanationTexts;
+  guide: GuideTexts;
 }
 
 /**
@@ -289,5 +316,14 @@ export function loadContent(files: ContentFiles = CONTENT_FILES): LoadedContent 
   };
   const sp = files.spiegazioni as { grandezze: Record<string, string>; verso: Record<string, string>; fattori: Record<string, string>; statiLotto: Record<string, string> };
   const explanations: ExplanationTexts = { quantities: sp.grandezze, toward: sp.verso, factors: sp.fattori, lotStates: sp.statiLotto };
-  return { initialContent, rules, texts: allTexts, council, councilLabels, chronicle, explanations };
+  const g = files.guida as {
+    visita: GuideTexts['tour'];
+    comeSiGioca: GuideTexts['howTo'];
+    glossario: GuideTexts['glossary'];
+    bilancio: GuideTexts['budget'];
+    fermate: GuideTexts['stops'];
+    tempo: GuideTexts['time'];
+  };
+  const guide: GuideTexts = { tour: g.visita, howTo: g.comeSiGioca, glossary: g.glossario, budget: g.bilancio, stops: g.fermate, time: toEngineData(g.tempo) as GuideTexts['time'] };
+  return { initialContent, rules, texts: allTexts, council, councilLabels, chronicle, explanations, guide };
 }

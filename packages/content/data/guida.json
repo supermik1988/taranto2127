@@ -1,0 +1,322 @@
+{
+  "descrizione": "Testi che spiegano il gioco: visita guidata, pagina «Come si gioca», glossario, bilancio, motivi per cui il tempo si ferma. Le parentesi graffe sono segnaposti riempiti con i numeri dei dati.",
+  "visita": [
+    {
+      "id": "obiettivo",
+      "titolo": "Sei la coscienza di Taranto",
+      "testo": "Lo stabilimento ILSIDER ha chiuso. Accompagni la città per cento anni, dal 2027 al 2127, mentre sindaci e generazioni passano. Non c'è un futuro giusto da indovinare: conta come governi. Arrivare in fondo al secolo con la città in piedi è già un risultato.",
+      "bersaglio": "barra"
+    },
+    {
+      "id": "mappa",
+      "titolo": "La mappa e i colori",
+      "testo": "Ogni quartiere è colorato secondo l'indicatore scelto sopra la mappa: aria, salute, fiducia e gli altri. Più il colore è scuro, peggio va. Il numero al centro è il valore da 0 a 100; la legenda sotto la mappa spiega la scala.",
+      "bersaglio": "mappa"
+    },
+    {
+      "id": "quartiere",
+      "titolo": "Il perché di un quartiere",
+      "testo": "Tocca un quartiere: la sua scheda dice dove sta andando ogni valore e perché, con i fattori che lo spingono su o giù, e un piccolo grafico dell'andamento. Nessun numero cambia senza una causa che puoi leggere.",
+      "bersaglio": "mappa"
+    },
+    {
+      "id": "lotti",
+      "titolo": "I lotti di ILSIDER e le strade",
+      "testo": "L'area dello stabilimento è divisa in sei lotti. Tocca un lotto per destinarlo a una strada: acciaio con forni nuovi, bonifica, energia, mare e cultura. Nessuna strada è giusta o sbagliata in sé: ognuna ha tempi, costi, posti di lavoro ed effetti sull'aria diversi.",
+      "bersaglio": "mappa"
+    },
+    {
+      "id": "consiglio",
+      "titolo": "Il Consiglio",
+      "testo": "Sei consiglieri, ognuno con la sua delega, ti propongono ogni anno un'azione e il motivo. Puoi seguirli con un tocco, ignorarli o fare di testa tua. Quando la loro causa è alle strette, qualcuno può proporti una scorciatoia.",
+      "bersaglio": "scheda-consiglio"
+    },
+    {
+      "id": "tempo",
+      "titolo": "Il tempo",
+      "testo": "La partita parte in pausa. Avvia il tempo e scegli la velocità, oppure vai avanti un anno alla volta. Il tempo si ferma da solo quando succede qualcosa che richiede la tua attenzione, e una riga ti dice perché. Puoi fare quante azioni vuoi: i limiti sono i soldi e la capacità degli uffici.",
+      "bersaglio": "tempo"
+    },
+    {
+      "id": "bilancio",
+      "titolo": "Il bilancio",
+      "testo": "Tre casse: la cassa della città, i fondi dello Stato e i fondi europei. Ognuna paga cose diverse. Il pannello del bilancio mostra entrate e uscite dell'ultimo anno, la previsione per quello in corso e, se la cassa va in rosso, quanti anni mancano al dissesto.",
+      "bersaglio": "scheda-bilancio"
+    },
+    {
+      "id": "morale",
+      "titolo": "La barra Red e Blu",
+      "testo": "Red e Blu sono i colori della città. La coscienza misura come governi davvero: verità, parola data, cura, legalità, ascolto. La reputazione è ciò che i cittadini credono. Una scelta fatta di nascosto muove solo la coscienza, finché non viene alla luce.",
+      "bersaglio": "morale"
+    }
+  ],
+  "comeSiGioca": [
+    {
+      "titolo": "Lo scopo",
+      "paragrafi": [
+        "Sei la coscienza di Taranto dopo la chiusura dello stabilimento ILSIDER. Accompagni la città dal 2027 al 2127: un anno per turno, cinque epoche da vent'anni.",
+        "La partita finisce nel 2127, oppure prima se la cassa resta in rosso troppo a lungo (dissesto) o se la fiducia dei cittadini resta troppo bassa per troppi anni (la città ti volta le spalle).",
+        "Non c'è una strada di riconversione giusta da scoprire. Il gioco guarda a come governi: con verità, parola, cura, legalità e ascolto."
+      ]
+    },
+    {
+      "titolo": "Il tempo",
+      "paragrafi": [
+        "La partita parte in pausa. «Avvia» fa scorrere gli anni; tre velocità decidono quanto in fretta. In pausa, «Un anno avanti» chiude un solo anno.",
+        "Il tempo si ferma da solo quando arriva un dilemma, quando un progetto finisce una fase, quando scoppia uno scandalo, quando scade una promessa, quando cambia l'epoca, quando la cassa va in rosso e quando la partita finisce. Una riga sotto la barra dice perché.",
+        "Ogni anno chiuso porta la Cronaca dei Due Mari: i titoli dell'anno appena passato."
+      ]
+    },
+    {
+      "titolo": "Le azioni",
+      "paragrafi": [
+        "Non c'è un numero massimo di azioni per anno. I limiti veri sono i soldi delle tre casse e la capacità degli uffici: quanta spesa la macchina comunale riesce a realizzare in un anno. Se gli uffici sono saturi, i cantieri aspettano e accumulano ritardo.",
+        "Ogni scelta mostra prima costo, durata prevista ed effetti dichiarati. Si conferma con un secondo tocco."
+      ]
+    },
+    {
+      "titolo": "La mappa e i quartieri",
+      "paragrafi": [
+        "Sopra la mappa scegli l'indicatore: aria, esposizione accumulata, salute, servizi, tensione, fiducia. I quartieri si colorano di conseguenza; il numero è il valore da 0 a 100.",
+        "Tocca un quartiere per aprire la sua scheda: i sei valori, un piccolo grafico dell'andamento e, per il valore scelto, dove sta andando e perché."
+      ]
+    },
+    {
+      "titolo": "ILSIDER: lotti e strade",
+      "paragrafi": [
+        "L'area industriale è divisa in sei lotti. Toccandone uno lo destini a una strada: acciaio con forni nuovi, bonifica, energia, mare e cultura. Ogni strada è un progetto a fasi che trasforma il lotto.",
+        "Cambiare strada a un lotto annulla il progetto in corso su quel lotto."
+      ]
+    },
+    {
+      "titolo": "Cantieri e fasi",
+      "paragrafi": [
+        "Ogni opera attraversa progettazione, autorizzazioni, gara e lavori prima di entrare in esercizio. Le durate vengono da casi reali comparabili. Nessuna opera produce effetti prima dell'esercizio, tranne i posti di lavoro del cantiere.",
+        "Nella sezione Cantieri vedi la fase di ogni opera, gli anni che mancano, i ritardi e il motivo di un fermo. Da lì puoi avviare un'opera nuova.",
+        "Durante autorizzazioni e gara puoi saltare la fase: guadagni anni e soldi, ma è contro le regole, e prima o poi si può venire a sapere."
+      ]
+    },
+    {
+      "titolo": "Politiche",
+      "paragrafi": [
+        "Le politiche sono scelte che durano: formazione, dati aperti, consulte di quartiere e altre. Costano ogni anno, valgono dall'anno dopo e alcune non si possono spegnere prima di un numero minimo di anni."
+      ]
+    },
+    {
+      "titolo": "Il Consiglio",
+      "paragrafi": [
+        "Sei consiglieri, uno per delega: lavoro e industria, salute e ambiente, mare e cultura, bilancio, giovani e futuro, quartieri e periferie. Ognuno propone un'azione con il suo motivo, guardando lo stato della città e la propria visione.",
+        "Seguire un consiglio è un'azione come le altre: vedi prima che cosa comporta."
+      ]
+    },
+    {
+      "titolo": "I dilemmi",
+      "paragrafi": [
+        "Ogni tanto la città ti mette davanti a un dilemma: una carta con due o tre opzioni, ognuna con le sue conseguenze dichiarate. Finché non rispondi, il tempo non va avanti.",
+        "Alcune scelte restano tra te e la tua coscienza. Lo saprai solo dopo averle fatte."
+      ]
+    },
+    {
+      "titolo": "Il bilancio",
+      "paragrafi": [
+        "Tre casse: la cassa della città, i fondi dello Stato e i fondi europei. Il pannello Bilancio mostra che cosa può pagare ognuna, le entrate e le uscite dell'ultimo anno voce per voce, la previsione dell'anno in corso, le scadenze delle rate europee e la capacità degli uffici.",
+        "Se la cassa della città va in rosso, il pannello dice quanti anni mancano al dissesto. Le cifre sono stime in attesa di verifica."
+      ]
+    },
+    {
+      "titolo": "Red e Blu",
+      "paragrafi": [
+        "La coscienza va da -100 (Red) a +100 (Blu) e misura come governi davvero. La reputazione, sulla stessa scala, è ciò che i cittadini credono di te.",
+        "Una scelta fatta di nascosto muove la coscienza ma non la reputazione. Più la reputazione sta sopra la coscienza, più è probabile uno scandalo: allora la reputazione crolla e i cittadini perdono fiducia."
+      ]
+    },
+    {
+      "titolo": "Grafici",
+      "paragrafi": [
+        "La sezione Grafici mostra l'andamento dal 2027 a oggi. Scegli che cosa guardare e quale quartiere mettere in evidenza: gli altri restano attenuati, la linea tratteggiata è la media della città. Sotto, ogni nome ha la variazione dal 2027."
+      ]
+    },
+    {
+      "titolo": "La partita",
+      "paragrafi": [
+        "Il gioco salva da solo a ogni cambiamento, nel browser. Dal menu puoi salvare in tre posti, caricare, cominciare una partita nuova, esportare la partita su file e importarla, o copiare un link che la riapre.",
+        "Un salvataggio contiene solo il seme e l'elenco delle scelte: rigiocandoli, la partita torna identica."
+      ]
+    }
+  ],
+  "glossario": {
+    "coscienza": {
+      "termine": "Coscienza",
+      "spiegazione": "Come governi davvero, da -100 (Red) a +100 (Blu). È la media delle cinque dimensioni: verità, parola, cura, legalità, ascolto."
+    },
+    "reputazione": {
+      "termine": "Reputazione",
+      "spiegazione": "Ciò che i cittadini credono di te, sulla stessa scala della coscienza. Le scelte fatte di nascosto non la muovono, finché non vengono alla luce."
+    },
+    "red-blu": {
+      "termine": "Red e Blu",
+      "spiegazione": "I colori della bandiera di Taranto. Red sono le scelte scorrette, Blu quelle corrette. Le strade di riconversione non sono né Red né Blu."
+    },
+    "capacita-uffici": {
+      "termine": "Capacità degli uffici",
+      "spiegazione": "Quanta spesa per i cantieri la macchina comunale riesce a realizzare in un anno, in milioni. Se i cantieri aperti ne chiedono di più, alcuni restano fermi e accumulano ritardo."
+    },
+    "fase": {
+      "termine": "Fase",
+      "spiegazione": "Ogni opera passa da progettazione, autorizzazioni, gara e lavori prima di entrare in esercizio. Ogni fase dura anni, costa ogni anno e si paga da una cassa precisa."
+    },
+    "esercizio": {
+      "termine": "Esercizio",
+      "spiegazione": "L'opera è finita e funziona. Solo da qui produce i suoi effetti su aria, servizi, lavoro e conti."
+    },
+    "scorciatoia": {
+      "termine": "Saltare una fase",
+      "spiegazione": "Durante autorizzazioni o gara puoi saltare la fase: si guadagnano anni e non se ne paga il costo. È contro le regole: se si viene a sapere, il progetto si ferma e la fiducia cala."
+    },
+    "disavanzo": {
+      "termine": "Disavanzo",
+      "spiegazione": "La cassa della città chiude l'anno sotto zero. Negli anni di disavanzo i servizi dei quartieri calano."
+    },
+    "dissesto": {
+      "termine": "Dissesto",
+      "spiegazione": "Il Comune non riesce più a pagare: succede dopo troppi anni di fila in disavanzo, e la partita finisce."
+    },
+    "cassa-integrazione": {
+      "termine": "Cassa integrazione",
+      "spiegazione": "Sostegno a chi ha perso il lavoro nello stabilimento, pagato dai fondi dello Stato. Se i fondi non bastano, chi resta scoperto diventa disoccupato."
+    },
+    "esposizione": {
+      "termine": "Esposizione accumulata",
+      "spiegazione": "Quanto inquinamento un quartiere ha respirato negli anni. Sale quando l'aria è cattiva e scende lentamente quando migliora: è lei, più dell'aria di oggi, a pesare sulla salute."
+    },
+    "fiducia": {
+      "termine": "Fiducia",
+      "spiegazione": "Quanto un quartiere si fida del Comune. Dipende dalla reputazione, dalla salute e dal lavoro. Una città con molta fiducia paga più volentieri i tributi."
+    },
+    "tensione": {
+      "termine": "Tensione",
+      "spiegazione": "Rabbia e malessere di un quartiere. Cresce con la disoccupazione e con la sfiducia."
+    },
+    "servizi": {
+      "termine": "Servizi",
+      "spiegazione": "Scuole, cure, trasporti vicino a casa. Calano negli anni di disavanzo e crescono con le opere e con l'avanzo di bilancio."
+    },
+    "lotto": {
+      "termine": "Lotto",
+      "spiegazione": "Una delle sei parti dell'area di ILSIDER. Ogni lotto si destina a una strada e si trasforma con un progetto a fasi."
+    },
+    "strada": {
+      "termine": "Strada",
+      "spiegazione": "Il destino di un lotto: acciaio con forni nuovi, bonifica, energia, mare e cultura. Ognuna ha un punto forte e un punto debole diversi."
+    },
+    "epoca": {
+      "termine": "Epoca",
+      "spiegazione": "Vent'anni, circa una generazione. La partita ne ha cinque."
+    },
+    "dilemma": {
+      "termine": "Dilemma",
+      "spiegazione": "Una scelta che la città ti mette davanti, con opzioni e conseguenze dichiarate. Il tempo aspetta la tua risposta."
+    },
+    "promessa": {
+      "termine": "Promessa",
+      "spiegazione": "Un impegno con una scadenza. Alla scadenza si guarda se è stato mantenuto: mantenere aumenta la fiducia, tradire la toglie, e i figli se lo ricordano."
+    },
+    "scandalo": {
+      "termine": "Scandalo",
+      "spiegazione": "Una scelta fatta di nascosto che viene alla luce. La reputazione scende sotto la coscienza e i quartieri perdono fiducia."
+    },
+    "rata-europea": {
+      "termine": "Rata europea",
+      "spiegazione": "Fondi europei che arrivano in un anno preciso e vanno spesi entro una scadenza. Ciò che non si spende in tempo va perso."
+    }
+  },
+  "bilancio": {
+    "fondi": {
+      "own": {
+        "nome": "Cassa della città",
+        "puoPagare": "Tributi e tasse locali. Paga i servizi ordinari e quasi tutte le politiche. È l'unica cassa che può andare in rosso: {anni} anni di fila in rosso portano al dissesto."
+      },
+      "state": {
+        "nome": "Fondi dello Stato",
+        "puoPagare": "Il trasferimento annuo dello Stato. Paga la cassa integrazione, le fasi delle opere di quartiere, la formazione e il piano caldo. A fine anno ciò che supera {tetto} milioni torna allo Stato."
+      },
+      "eu-earmarked": {
+        "nome": "Fondi europei",
+        "puoPagare": "Rate vincolate: pagano solo i lavori di riconversione dei lotti di ILSIDER. Ogni rata scade, e ciò che non si spende in tempo va perso."
+      }
+    },
+    "voci": {
+      "revenue/own": "Tributi e tasse locali",
+      "revenue/state": "Trasferimento dello Stato",
+      "revenue/eu-earmarked": "Rata europea arrivata",
+      "revenue/private": "Entrate private",
+      "mandatory/state": "Cassa integrazione",
+      "mandatory/own": "Servizi ordinari (scuole, cure, trasporti)",
+      "policy": "Politica: {nome}",
+      "policies": "Effetti delle politiche sui conti",
+      "project": "Cantiere: {nome}",
+      "projects": "Opere in esercizio: entrate e costi",
+      "eu-expired": "Rate europee scadute e perse",
+      "effects": "Conseguenze di scelte passate",
+      "scandals": "Conseguenze degli scandali",
+      "state-returned": "Fondi dello Stato oltre il tetto, restituiti",
+      "surplus": "Avanzo speso in servizi per i quartieri"
+    },
+    "nota": "Le cifre del bilancio sono stime dichiarate, in attesa di verifica sui bilanci reali del Comune. Servono a capire l'ordine di grandezza e le conseguenze delle scelte, non a prevedere i conti veri.",
+    "disavanzo": "La cassa della città chiude in rosso. Se resta così, dissesto tra {anni}.",
+    "dissestoOra": "Se la cassa chiude in rosso anche quest'anno, è il dissesto.",
+    "inAttivo": "La cassa della città chiude in attivo.",
+    "capacita": "Capacità degli uffici: {libera} milioni liberi su {totale} quest'anno.",
+    "cantieriFermi": "Cantieri che quest'anno non avanzano: {elenco}.",
+    "motiviFermo": {
+      "funds": "mancano i soldi",
+      "capacity": "uffici saturi",
+      "frozen": "fermo dopo uno scandalo"
+    }
+  },
+  "fermate": {
+    "prefisso": "Tempo fermo:",
+    "dilemma": "è arrivato un dilemma, «{titolo}».",
+    "phase-end": "«{progetto}» ha finito la fase di {da}, ora {a}.",
+    "operating": "«{progetto}» è in esercizio.",
+    "scandal": "una scelta fatta di nascosto è venuta alla luce.",
+    "promise-due": "è scaduta la promessa «{testo}»: {esito}.",
+    "epoch": "comincia l'epoca {epoca} di {totale}.",
+    "deficit": "la cassa della città è andata in rosso.",
+    "game-over": "la partita è finita.",
+    "esiti": {
+      "kept": "mantenuta",
+      "broken": "tradita",
+      "open": "da giudicare"
+    }
+  },
+  "tempo": {
+    "avvia": "Avvia",
+    "pausa": "Pausa",
+    "unAnno": "Un anno avanti",
+    "velocita": [
+      "Lento",
+      "Medio",
+      "Veloce"
+    ],
+    "inPausa": "In pausa",
+    "inCorso": "Il tempo scorre",
+    "secondiPerAnno": [
+      {
+        "valore": 2.5,
+        "stima": true,
+        "motivazione": "Durata di un anno a questa velocità, in secondi: ritmo dell'interfaccia, scelta di progetto."
+      },
+      {
+        "valore": 1.2,
+        "stima": true,
+        "motivazione": "Durata di un anno a questa velocità, in secondi: ritmo dell'interfaccia, scelta di progetto."
+      },
+      {
+        "valore": 0.5,
+        "stima": true,
+        "motivazione": "Durata di un anno a questa velocità, in secondi: ritmo dell'interfaccia, scelta di progetto."
+      }
+    ]
+  }
+}
