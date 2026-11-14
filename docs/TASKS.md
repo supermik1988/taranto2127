@@ -212,3 +212,39 @@ elencati. Ordine: T01, poi T02, poi T03 e T05 in parallelo, poi T04, poi T06.
   l'anno dopo; una rata europea non spesa scade nell'anno previsto; il
   disavanzo prolungato chiude la partita con `ended-bankrupt`; stessa partita
   identica a parità di seme e storia; stato sempre valido.
+
+---
+
+## T04b — Dilemmi in arrivo e politiche
+
+- **Agente:** `sim-engineer`
+- **Dipende da:** T04
+- **File:** `packages/sim/src/turn.ts`, `moral.ts`, `init.ts`, `index.ts`,
+  `state.ts` (solo aggiunte indispensabili, elencate nel resoconto), test e dati
+  di prova in `packages/sim/src/__fixtures__/`. Numeri dai dati (regola 4).
+- **Cosa fare:**
+  1. *Arrivo dei dilemmi.* Ogni dilemma ha nei dati: condizioni di comparsa
+     sullo stato (come `PromiseCondition`, tutte da soddisfare), primo e ultimo
+     turno ammesso, peso di estrazione, e se è ripetibile. All'apertura di ogni
+     turno il motore decide con `rngFor` se arriva un dilemma (probabilità annua
+     dai dati) e quale, tra quelli ammessi. Al massimo uno aperto.
+  2. *Dilemma aperto.* Sta nello stato. `advanceTurn` rifiuta di avanzare
+     finché non ha risposta. `answer-dilemma` vale solo per il dilemma aperto e
+     lo chiude. Un dilemma non ripetibile non torna più.
+  3. *Politiche.* Ogni politica ha nei dati: costo annuo e fondo, effetti
+     ricorrenti (variazioni e spostamenti di lavoro) finché è attiva, anni
+     minimi prima di poterla spegnere, ed eventuali pesi morali palesi
+     all'attivazione. Vale dal turno dopo l'attivazione (regola 10). Se in un
+     anno il fondo non basta, in quell'anno la politica non produce effetti. Le
+     politiche si pagano dopo le spese obbligate e prima dei progetti.
+  4. *Formazione.* Una politica può spostare persone da disoccupati a
+     `inTraining` e, dopo un numero di anni dai dati, da `inTraining` a
+     disoccupati "formati". Per ora si registra solo quante persone formate ci
+     sono: l'uso arriva con i cittadini.
+- **Fatto quando:** con probabilità annua 1 arriva un dilemma a ogni turno in cui
+  ce n'è uno ammesso; una condizione falsa lo esclude; con un dilemma aperto
+  `advanceTurn` dà errore; un dilemma non ripetibile non torna in 100 turni; una
+  politica attiva al turno T produce il primo effetto al turno T+1; senza fondi
+  resta attiva ma senza effetti; non si spegne prima degli anni minimi; la forza
+  lavoro resta costante; stessa partita identica a parità di seme e storia;
+  stato sempre valido in 100 turni di gioco casuale su 5 semi.
