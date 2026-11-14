@@ -36,7 +36,8 @@ describe('bot', () => {
   });
 });
 
-describe('rapporto', () => {
+// Partite intere di tutti i bot: margine ampio, ora che molte arrivano al 2127.
+describe('rapporto', { timeout: 60_000 }, () => {
   it('contiene i cinque gruppi di informazioni', async () => {
     const text = formatReport(await runBalance({ games: 2, seed: 1, threads: 1 }));
     for (const heading of [

@@ -307,9 +307,9 @@
   },
   "scandal": {
     "districtTrustDrop": {
-      "valore": 3,
+      "valore": 1.5,
       "stima": true,
-      "motivazione": "Calo immediato della fiducia di ogni quartiere per ogni atto scoperto: stima."
+      "motivazione": "Calo immediato della fiducia di ogni quartiere per ogni scelta scoperta. Valore del bilanciamento T06b."
     },
     "councilTrustDrop": {
       "valore": 5,
@@ -324,31 +324,31 @@
   },
   "civic": {
     "maxFactor": {
-      "valore": 1,
+      "valore": 1.15,
       "stima": true,
-      "motivazione": "Tetto del senso civico: con 1, la fiducia alta non fa rendere più della media. Stima di partenza."
+      "motivazione": "Con molta fiducia la città rende il 15% in più della media: più tributi pagati, più partecipazione. Valore del bilanciamento T06b."
     },
     "minFactor": {
-      "valore": 0.6,
+      "valore": 0.7,
       "stima": true,
-      "motivazione": "Con fiducia zero, entrate ed effetti positivi ricorrenti rendono il 60%: stima."
+      "motivazione": "Con fiducia zero, entrate ed effetti positivi ricorrenti rendono il 70%. Valore del bilanciamento T06b."
     },
     "fullFactorTrust": {
-      "valore": 37,
+      "valore": 55.5,
       "stima": true,
-      "motivazione": "Fiducia media di partenza (pesata sui residenti, circa 37): le entrate per occupato sono tarate sul bilancio di oggi, quindi a fiducia invariata il senso civico è pieno. Stima."
+      "motivazione": "Fiducia media a cui il senso civico tocca il tetto; tarata perché alla fiducia di partenza (circa 37) il fattore valga 1. Valore del bilanciamento T06b."
     }
   },
   "abandonment": {
     "trustThreshold": {
-      "valore": 15,
+      "valore": 10,
       "stima": true,
-      "motivazione": "Fiducia media sotto la quale la città si volta: stima."
+      "motivazione": "Fiducia media sotto la quale la città si volta. Valore del bilanciamento T06b."
     },
     "years": {
-      "valore": 5,
+      "valore": 6,
       "stima": true,
-      "motivazione": "Anni consecutivi di fiducia sotto soglia prima che la città si volti: stima."
+      "motivazione": "Anni consecutivi di fiducia sotto soglia prima che la città si volti. Valore del bilanciamento T06b."
     }
   }
 }

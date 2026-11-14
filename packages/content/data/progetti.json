@@ -71,9 +71,9 @@
             "motivazione": "Anni stimati per la fase; da verificare su casi reali comparabili in T05b."
           },
           "annualCost": {
-            "valore": 40.0,
+            "valore": 20,
             "stima": true,
-            "motivazione": "Milioni di euro per anno di fase: stima di ordine di grandezza."
+            "motivazione": "Milioni l'anno a carico della città per i lavori del forno elettrico: quota pubblica locale, il resto è investimento industriale. Valore del bilanciamento T06b."
           },
           "fund": "state"
         }
@@ -132,9 +132,9 @@
             {
               "target": "economy.funds.own",
               "amount": {
-                "valore": 1.2,
+                "valore": 2.0,
                 "stima": true,
-                "motivazione": "Entrate annue stimate per il Comune (canoni, tributi), in milioni."
+                "motivazione": "Entrate annue per il Comune da un impianto industriale in esercizio (tributi e canoni): punto forte dei conti a regime. Valore del bilanciamento T06b."
               }
             }
           ]
@@ -212,11 +212,11 @@
             "motivazione": "Anni stimati per la fase; da verificare su casi reali comparabili in T05b."
           },
           "annualCost": {
-            "valore": 18.0,
+            "valore": 10,
             "stima": true,
-            "motivazione": "Milioni di euro per anno di fase: stima di ordine di grandezza."
+            "motivazione": "Milioni l'anno di lavori di bonifica, finanziati dallo Stato con fondi dedicati ai siti inquinati. Valore del bilanciamento T06b."
           },
-          "fund": "eu-earmarked"
+          "fund": "state"
         }
       },
       "worksJobs": {
@@ -272,6 +272,14 @@
                 "valore": -0.4,
                 "stima": true,
                 "motivazione": "Effetto stimato dell'opera in esercizio, su scala 0-100."
+              }
+            },
+            {
+              "target": "economy.funds.own",
+              "amount": {
+                "valore": 1.0,
+                "stima": true,
+                "motivazione": "Canoni annui delle aree bonificate restituite all'uso. Valore del bilanciamento T06b."
               }
             }
           ]
@@ -393,9 +401,9 @@
             {
               "target": "economy.funds.own",
               "amount": {
-                "valore": 1.0,
+                "valore": 0.3,
                 "stima": true,
-                "motivazione": "Entrate annue stimate per il Comune (canoni, tributi), in milioni."
+                "motivazione": "Entrate annue per il Comune da un impianto di energia rinnovabile: canoni modesti. Valore del bilanciamento T06b."
               }
             }
           ]
@@ -505,9 +513,9 @@
               "from": "unemployed",
               "to": "culture-tourism",
               "count": {
-                "valore": 350,
+                "valore": 250,
                 "stima": true,
-                "motivazione": "Persone stimate che trovano lavoro stabile grazie all'opera."
+                "motivazione": "Posti stabili nel turismo e nella cultura per un polo di questa scala. Valore del bilanciamento T06b."
               }
             }
           ]
@@ -517,9 +525,9 @@
             {
               "target": "economy.funds.own",
               "amount": {
-                "valore": 0.6,
+                "valore": 0.15,
                 "stima": true,
-                "motivazione": "Entrate annue stimate per il Comune (canoni, tributi), in milioni."
+                "motivazione": "Entrate annue per il Comune dal polo del mare e della cultura: basse, l'indotto va soprattutto ai privati. Valore del bilanciamento T06b."
               }
             }
           ]
@@ -643,7 +651,16 @@
           ]
         },
         "everyYear": {
-          "deltas": []
+          "deltas": [
+            {
+              "target": "economy.funds.own",
+              "amount": {
+                "valore": 0.4,
+                "stima": true,
+                "motivazione": "Tributi annui dalle case e dalle botteghe tornate abitate in Città Vecchia. Valore del bilanciamento T06b."
+              }
+            }
+          ]
         }
       }
     },
@@ -881,9 +898,9 @@
               "from": "unemployed",
               "to": "public",
               "count": {
-                "valore": 120,
+                "valore": 300,
                 "stima": true,
-                "motivazione": "Persone stimate che trovano lavoro stabile grazie all'opera."
+                "motivazione": "Persone assunte stabilmente nelle case della salute: medici, infermieri, personale. Valore del bilanciamento T06b."
               }
             }
           ]
@@ -1019,7 +1036,16 @@
           ]
         },
         "everyYear": {
-          "deltas": []
+          "deltas": [
+            {
+              "target": "economy.funds.own",
+              "amount": {
+                "valore": 0.3,
+                "stima": true,
+                "motivazione": "Minori spese e piccoli tributi annui legati al parco lineare. Valore del bilanciamento T06b."
+              }
+            }
+          ]
         }
       }
     },
@@ -1518,7 +1544,16 @@
           ]
         },
         "everyYear": {
-          "deltas": []
+          "deltas": [
+            {
+              "target": "economy.funds.own",
+              "amount": {
+                "valore": 0.6,
+                "stima": true,
+                "motivazione": "Tributi annui da piazze e servizi che attirano residenti e attività nelle borgate. Valore del bilanciamento T06b."
+              }
+            }
+          ]
         }
       }
     },
@@ -1617,9 +1652,9 @@
               "from": "unemployed",
               "to": "sea",
               "count": {
-                "valore": 80,
+                "valore": 200,
                 "stima": true,
-                "motivazione": "Persone stimate che trovano lavoro stabile grazie all'opera."
+                "motivazione": "Ricercatori, tecnici e personale stabile del centro di ricerca. Valore del bilanciamento T06b."
               }
             }
           ]

@@ -67,7 +67,7 @@ describe('schema e caricatore', () => {
       if (typeof value === 'object' && value !== null && 'valore' in value) throw new Error(`annotazione rimasta in ${path}`);
     });
     expect(typeof rules.economy.servicesCostPerYear).toBe('number');
-    expect(initialContent.calibrationVersion).toBe('0.1-stime');
+    expect(initialContent.calibrationVersion).toBe('0.2-stime');
   });
 
   it('i testi restano disponibili per interfaccia e voci', () => {

@@ -5,7 +5,7 @@ con il suo schema in `packages/content/schema/`. Il caricatore
 (`packages/content/src/load.ts`) li valida, toglie annotazioni e testi e consegna al
 motore i numeri nella forma che `packages/sim` si aspetta.
 
-Versione di calibrazione: **`0.1-stime`**. In questa versione **ogni numero è una
+Versione di calibrazione: **`0.2-stime`** (valori ritarati dal bilanciamento T06b, vedi `docs/BILANCIAMENTO.md`). In questa versione **ogni numero è una
 stima dichiarata**: nessuno viene da una fonte verificata. La verifica è il compito
 della scheda T05b.
 
@@ -122,12 +122,12 @@ energia e mare non hanno peso morale (regola 5). Un test lo controlla.
 | Politica | Costo e fondo | Che cosa fa | Peso morale |
 | --- | --- | --- | --- |
 | Formazione per la riconversione | 4 M€/anno, statale | 400 persone l'anno in formazione per due anni, poi tornano disoccupate ma formate | cura, all'attivazione |
-| Dati sull'aria in tempo reale | 0,5 M€/anno, propri | Fiducia in crescita ai Tamburi e a Paolo VI | verità, all'attivazione e ogni anno |
-| Consulte di quartiere | 0,8 M€/anno, propri | Tensione in calo in tre quartieri | ascolto, all'attivazione e ogni anno |
-| Integrazione al reddito delle famiglie in difficoltà | 5 M€/anno, propri | Reddito medio in crescita, tensione in calo | cura, all'attivazione e ogni anno |
+| Dati sull'aria in tempo reale | 0,3 M€/anno, propri | Fiducia in crescita ai Tamburi e a Paolo VI | verità, all'attivazione e ogni anno |
+| Consulte di quartiere | 0,5 M€/anno, propri | Tensione in calo in tre quartieri | ascolto, all'attivazione e ogni anno |
+| Integrazione al reddito delle famiglie in difficoltà | 3 M€/anno, propri | Reddito medio in crescita, tensione in calo | cura, all'attivazione e ogni anno |
 | Sgravi alle imprese dell'indotto | 3 M€/anno, propri | Più imprese dell'indotto, 80 assunzioni l'anno nei servizi | nessuno |
-| Controlli rafforzati sugli appalti | 1,5 M€/anno, propri | Nessun effetto materiale diretto | legalità, all'attivazione e ogni anno |
-| Trasporto gratuito per studenti e giovani | 1 M€/anno, propri | Appartenenza in crescita a Paolo VI e nelle borgate | cura, all'attivazione |
+| Controlli rafforzati sugli appalti | 0,8 M€/anno, propri | Nessun effetto materiale diretto | legalità, all'attivazione e ogni anno |
+| Trasporto gratuito per studenti e giovani | 0,6 M€/anno, propri | Appartenenza in crescita a Paolo VI e nelle borgate | cura, all'attivazione |
 | Piano contro il caldo estivo | 2 M€/anno, statale | Più verde, caldo estivo un po' attenuato | cura, all'attivazione |
 
 ## Persone e nomi

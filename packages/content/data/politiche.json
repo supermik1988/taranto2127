@@ -43,9 +43,9 @@
       "nome": "Dati sull'aria in tempo reale",
       "descrizione": "Pubblicare ogni ora, quartiere per quartiere, quello che misurano le centraline.",
       "annualCost": {
-        "valore": 0.5,
+        "valore": 0.3,
         "stima": true,
-        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+        "motivazione": "Milioni l'anno: misura sostenibile per un bilancio comunale in difficoltà, tarata perché governare con cura non porti da solo al dissesto. Valore del bilanciamento T06b."
       },
       "fund": "own",
       "everyYear": {
@@ -93,9 +93,9 @@
       "nome": "Consulte di quartiere",
       "descrizione": "Assemblee periodiche con poteri di proposta sui progetti che toccano il quartiere.",
       "annualCost": {
-        "valore": 0.8,
+        "valore": 0.5,
         "stima": true,
-        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+        "motivazione": "Milioni l'anno: misura sostenibile per un bilancio comunale in difficoltà, tarata perché governare con cura non porti da solo al dissesto. Valore del bilanciamento T06b."
       },
       "fund": "own",
       "everyYear": {
@@ -151,9 +151,9 @@
       "nome": "Integrazione al reddito delle famiglie in difficoltà",
       "descrizione": "Un contributo mensile per chi ha perso il lavoro e ha figli a carico.",
       "annualCost": {
-        "valore": 5,
+        "valore": 3,
         "stima": true,
-        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+        "motivazione": "Milioni l'anno: misura sostenibile per un bilancio comunale in difficoltà, tarata perché governare con cura non porti da solo al dissesto. Valore del bilanciamento T06b."
       },
       "fund": "own",
       "everyYear": {
@@ -248,9 +248,9 @@
       "nome": "Controlli rafforzati sugli appalti",
       "descrizione": "Un ufficio che verifica gare, subappalti e cantieri, con dati pubblici.",
       "annualCost": {
-        "valore": 1.5,
+        "valore": 0.8,
         "stima": true,
-        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+        "motivazione": "Milioni l'anno: misura sostenibile per un bilancio comunale in difficoltà, tarata perché governare con cura non porti da solo al dissesto. Valore del bilanciamento T06b."
       },
       "fund": "own",
       "everyYear": {
@@ -281,9 +281,9 @@
       "nome": "Trasporto gratuito per studenti e giovani",
       "descrizione": "Abbonamenti gratuiti fino a ventisei anni.",
       "annualCost": {
-        "valore": 1,
+        "valore": 0.6,
         "stima": true,
-        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+        "motivazione": "Milioni l'anno: misura sostenibile per un bilancio comunale in difficoltà, tarata perché governare con cura non porti da solo al dissesto. Valore del bilanciamento T06b."
       },
       "fund": "own",
       "everyYear": {
