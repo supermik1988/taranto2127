@@ -246,6 +246,7 @@ export function loadContent(files: ContentFiles = CONTENT_FILES): LoadedContent 
   const councilErrors = Object.entries(council.visions).flatMap(([vision, v]) => [
     ...v.projects.filter((id) => !Object.hasOwn(rules.projects, id)).map((id) => `consiglio.${vision}: progetto inesistente ${id}`),
     ...v.policies.filter((id) => !Object.hasOwn(rules.policies, id)).map((id) => `consiglio.${vision}: politica inesistente ${id}`),
+    ...(v.lotOrder ?? []).filter((id) => !lotIds.has(id)).map((id) => `consiglio.${vision}: lotto inesistente ${id}`),
   ]);
   if (councilErrors.length > 0) throw new ContentError(councilErrors);
   const names = (record: Record<string, { nome: string }>) => Object.fromEntries(Object.entries(record).map(([id, t]) => [id, t.nome]));

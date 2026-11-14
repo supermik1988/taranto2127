@@ -29,7 +29,11 @@
       "alarmReason": "Troppe persone sono senza lavoro o in cassa integrazione. Propongo di {azione}.",
       "shortcutReason": "Il cantiere «{progetto}» è fermo in {fase} da troppo tempo. Propongo di saltare la fase.",
       "noProposal": "Per ora seguiamo i cantieri aperti: il lavoro arriverà da lì.",
-      "lotPath": "green-steel"
+      "lotPath": "green-steel",
+      "lotOrder": [
+        "lotto-acciaieria",
+        "lotto-altoforni"
+      ]
     },
     "health-environment": {
       "projects": [
@@ -53,7 +57,11 @@
       "alarmReason": "L'aria dei Tamburi è ancora sotto il livello di guardia. Propongo di {azione}.",
       "shortcutReason": "La gente dei Tamburi non può aspettare «{progetto}». Propongo di saltare la fase di {fase}.",
       "noProposal": "Per ora teniamo d'occhio l'aria e i cantieri già aperti.",
-      "lotPath": "remediation"
+      "lotPath": "remediation",
+      "lotOrder": [
+        "lotto-parchi-minerali",
+        "lotto-cokerie"
+      ]
     },
     "sea-culture": {
       "projects": [
@@ -77,7 +85,10 @@
       "alarmReason": "La Città Vecchia è esposta alle mareggiate. Propongo di {azione}.",
       "shortcutReason": "«{progetto}» si è impantanato in {fase}. Propongo di saltare la fase.",
       "noProposal": "Per ora lasciamo lavorare i cantieri sul mare già aperti.",
-      "lotPath": "sea-culture"
+      "lotPath": "sea-culture",
+      "lotOrder": [
+        "lotto-banchine"
+      ]
     },
     "public-accounts": {
       "projects": [],
@@ -95,7 +106,10 @@
       "alarmReason": "I fondi propri sono bassi. L'unica spesa che propongo è {azione}, perché porta entrate.",
       "shortcutReason": "Ogni anno di ritardo su «{progetto}» costa. Propongo di saltare la fase di {fase}.",
       "noProposal": "Nessuna nuova spesa: i conti non lo permettono.",
-      "lotPath": "energy"
+      "lotPath": "energy",
+      "lotOrder": [
+        "lotto-laminatoi"
+      ]
     },
     "youth-future": {
       "projects": [

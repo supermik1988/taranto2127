@@ -109,6 +109,13 @@
             "sea-culture"
           ]
         },
+        "lotOrder": {
+          "type": "array",
+          "items": {
+            "$ref": "comune.json#/$defs/id"
+          },
+          "description": "Lotti preferiti per la strada della visione, in ordine."
+        },
         "alarm": {
           "type": "object",
           "required": [

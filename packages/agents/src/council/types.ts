@@ -19,6 +19,8 @@ export interface VisionRules {
   policies: string[];
   /** Strada preferita per i lotti fermi, se la visione ne ha una. */
   lotPath?: ActivePath;
+  /** Lotti preferiti per la sua strada, in ordine: propone il primo ancora fermo. */
+  lotOrder?: string[];
   alarm: CouncilAlarm;
   /** Testi con {azione}: motivo normale e motivo con l'allarme acceso. */
   reason: string;

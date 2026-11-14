@@ -1,10 +1,11 @@
-import { adviseCouncil, type CouncilAdvice } from '@taranto2127/agents';
-import { applyAction, createInitialState, type GameState } from '@taranto2127/sim';
+import { actionConcerns, adviseCouncil, type CouncilAdvice } from '@taranto2127/agents';
+import { DISTRICT_IDS, applyAction, createInitialState, type Action, type GameState } from '@taranto2127/sim';
 import { describe, expect, it } from 'vitest';
 import { loadContent } from './load.js';
 import { randomGame } from './test-support/random-game.js';
 
-const { initialContent, rules, council, councilLabels } = loadContent();
+const content = loadContent();
+const { initialContent, rules, council, councilLabels } = content;
 const initial = (seed = 1): GameState => createInitialState(seed, initialContent);
 const advise = (state: GameState): CouncilAdvice[] => adviseCouncil(state, rules, council, councilLabels);
 
@@ -63,13 +64,50 @@ describe('il Consiglio', () => {
     expect(health.reason).toContain('Tamburi');
   });
 
-  it('ogni visione propone qualcosa di suo all’inizio della partita', () => {
+  it('ogni visione propone qualcosa di suo all’inizio della partita, e ognuna un lotto diverso', () => {
     const byVision = Object.fromEntries(advise(initial()).map((a) => [a.vision, a.action]));
-    expect(byVision['work-industry']).toMatchObject({ kind: 'convert-lot', path: 'green-steel' });
-    expect(byVision['sea-culture']).toMatchObject({ kind: 'convert-lot', path: 'sea-culture' });
-    expect(byVision['public-accounts']).toMatchObject({ kind: 'convert-lot', path: 'energy' });
+    expect(byVision['work-industry']).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-acciaieria', path: 'green-steel' });
+    expect(byVision['health-environment']).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-parchi-minerali', path: 'remediation' });
+    expect(byVision['sea-culture']).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-banchine', path: 'sea-culture' });
+    expect(byVision['public-accounts']).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-laminatoi', path: 'energy' });
     expect(byVision['youth-future']).toMatchObject({ kind: 'start-project', definitionId: 'centro-ricerca-mare' });
-    expect(byVision['districts-periphery']).toMatchObject({ kind: 'start-project', definitionId: 'riqualificazione-talsano' });
+    // Allarme sui servizi di Paolo VI: l'opera proposta riguarda Paolo VI.
+    expect(byVision['districts-periphery']).toMatchObject({ kind: 'start-project', definitionId: 'scuole-paolo-vi' });
+  });
+
+  it('se il primo lotto preferito non è più fermo, propone il successivo del suo ordine', () => {
+    const state = applyAction(initial(), { kind: 'convert-lot', lotId: 'lotto-parchi-minerali', path: 'energy' }, rules);
+    const health = advise(state).find((a) => a.vision === 'health-environment')!;
+    expect(health.action).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-cokerie', path: 'remediation' });
+  });
+
+  it('se il motivo cita un quartiere, l’azione proposta riguarda quel quartiere', { timeout: 60_000 }, () => {
+    const names = DISTRICT_IDS.map((id) => [id, content.texts.districts[id]!.nome] as const);
+    const concerns = (state: GameState, action: Action, district: string): boolean => {
+      if (action.kind === 'shortcut-phase') {
+        const project = state.projects.find((p) => p.id === action.projectId)!;
+        return actionConcerns({ kind: 'start-project', definitionId: project.definitionId }, district, rules);
+      }
+      return actionConcerns(action, district, rules);
+    };
+    let cited = 0;
+    const check = (s: GameState) => {
+      for (const a of advise(s)) {
+        if (a.action === null || (a.action.kind === 'set-policy' && !a.action.active)) continue;
+        for (const [id, name] of names) {
+          if (!a.reason.includes(name)) continue;
+          cited++;
+          expect(concerns(s, a.action, id), `${a.vision}: «${a.reason}» → ${JSON.stringify(a.action)}`).toBe(true);
+        }
+      }
+    };
+    check(initial());
+    for (const seed of [1, 2, 3]) {
+      randomGame(seed, initialContent, rules, (s) => {
+        if (s.status === 'running' && s.turn % 5 === 0 && s.openDilemmaId === null) check(s);
+      });
+    }
+    expect(cited).toBeGreaterThan(20);
   });
 
   it('un consigliere con poca pazienza propone di saltare la fase di un cantiere che gli sta a cuore', () => {

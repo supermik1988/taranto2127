@@ -47,11 +47,42 @@ interface Candidate {
   label: string;
 }
 
-/** Proposte ordinate di una visione: un lotto fermo verso la sua strada, poi opere, poi politiche. */
+/** Il quartiere citato dall'allarme, se l'allarme guarda un quartiere (es. "districts.paolo-vi.services"). */
+export function alarmDistrict(alarm: CouncilAlarm): string | undefined {
+  const parts = alarm.target.split('.');
+  return parts[0] === 'districts' ? parts[1] : undefined;
+}
+
+/** true se gli effetti dichiarati di un'azione toccano il quartiere. */
+export function actionConcerns(action: Action, district: string, rules: TurnRules): boolean {
+  const touches = (effects: { deltas: { target: string }[] }[]) =>
+    effects.some((e) => e.deltas.some((d) => d.target.startsWith(`districts.${district}.`)));
+  const project = (id: string | undefined) => {
+    const def = id === undefined ? undefined : rules.projects[id];
+    return def !== undefined && touches([def.operatingEffects.once, def.operatingEffects.everyYear]);
+  };
+  switch (action.kind) {
+    case 'start-project':
+      return project(action.definitionId);
+    case 'convert-lot':
+      return action.path !== 'idle' && project(rules.lotConversion[action.path]);
+    case 'set-policy': {
+      const policy = rules.policies[action.policyId];
+      return policy !== undefined && touches([policy.everyYear]);
+    }
+    default:
+      return false;
+  }
+}
+
+/**
+ * Proposte ordinate di una visione: il primo lotto fermo del suo ordine verso
+ * la sua strada, poi opere, poi politiche.
+ */
 function candidates(state: GameState, vision: VisionRules, labels: CouncilLabels): Candidate[] {
   const out: Candidate[] = [];
   if (vision.lotPath !== undefined) {
-    const idle = state.plantLots.find((l) => l.path === 'idle');
+    const idle = (vision.lotOrder ?? []).map((id) => state.plantLots.find((l) => l.id === id)).find((l) => l?.path === 'idle');
     if (idle !== undefined) {
       out.push({
         action: { kind: 'convert-lot', lotId: idle.id, path: vision.lotPath },
@@ -116,11 +147,19 @@ function adviseOne(
     }
   }
 
-  for (const candidate of candidates(state, vision, labels)) {
-    if (allowed(state, candidate.action, rules)) {
-      const reason = fill(urgent ? vision.alarmReason : vision.reason, { azione: candidate.label });
-      return { ...base, action: candidate.action, reason, shortcut: false };
-    }
+  const all = candidates(state, vision, labels).filter((c) => allowed(state, c.action, rules));
+  // Con l'allarme su un quartiere, il motivo cita quel quartiere: la proposta deve riguardarlo.
+  const district = urgent ? alarmDistrict(vision.alarm) : undefined;
+  const focused = district === undefined ? all : all.filter((c) => actionConcerns(c.action, district, rules));
+  const chosen = focused[0];
+  if (urgent && chosen !== undefined) {
+    return { ...base, action: chosen.action, reason: fill(vision.alarmReason, { azione: chosen.label }), shortcut: false };
+  }
+  // Allarme senza proposte per quel quartiere, o nessun allarme: motivo generale, che non cita quartieri.
+  const general = district === undefined ? chosen : all[0];
+  if (general !== undefined) {
+    const text = urgent && district === undefined ? vision.alarmReason : vision.reason;
+    return { ...base, action: general.action, reason: fill(text, { azione: general.label }), shortcut: false };
   }
   return { ...base, action: null, reason: vision.noProposal, shortcut: false };
 }
