@@ -34,8 +34,6 @@ describe('tabella dei limiti', () => {
       'economy.funds.private',
       'climate.waterStress',
       'climate.co2Emissions',
-      'moral.reputation',
-      'moral.byDimension.word',
       'council.0.trustInPlayer',
       'plantLots.0.progress',
     ];

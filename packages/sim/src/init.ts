@@ -77,7 +77,7 @@ export function createInitialState(seed: number, content: InitialContent): GameS
     plantLots: data.plantLots,
     projects: [],
     activePolicies: [],
-    moral: { conscience: 0, reputation: 0, byDimension, hiddenActs: [] },
+    moral: { conscience: 0, reputation: 0, byDimension, hiddenActs: [], scandals: [] },
     promises: [],
     council: data.council.map((c) => ({ ...c, electedInEpoch: 0 })),
     pendingEffects: [],

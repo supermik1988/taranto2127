@@ -271,15 +271,10 @@ function assertDistrict(district: string | undefined): void {
 const actSourceId = (state: GameState): string => `act-${state.turn}-${state.history.length}`;
 
 /**
- * Gli effetti dei dati non toccano il contatore morale: si muove solo con i
- * pesi delle cinque dimensioni (CLAUDE.md, regola 5). Controlla anche che gli
- * effetti siano applicabili, così un errore nei dati emerge subito.
+ * Controlla che gli effetti dei dati siano applicabili, così un errore emerge
+ * subito. effects.ts rifiuta anche ogni bersaglio moral.* (CLAUDE.md, regola 5).
  */
 function assertDataEffects(state: GameState, sourceId: string, effects: EffectSet): void {
-  const moralTarget = effects.deltas.find((d) => d.target === 'moral' || d.target.startsWith('moral.'));
-  if (moralTarget !== undefined) {
-    throw new ActionError(`${sourceId}: un effetto non può toccare ${moralTarget.target} (CLAUDE.md, regola 5)`);
-  }
   try {
     assertApplicable(state, effects);
   } catch (error) {

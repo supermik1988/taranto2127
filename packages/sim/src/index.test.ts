@@ -31,7 +31,11 @@ describe('API del pacchetto', () => {
     for (const name of ['createRng', 'rngFor', 'deriveSeed', 'applyDeltas', 'scheduleEffect', 'applyAction', 'advanceTurn', 'replay']) {
       expect(typeof api[name], name).toBe('function');
     }
+    for (const name of ['conscienceFrom', 'scandalProbability', 'conditionHolds', 'readNumber']) {
+      expect(typeof api[name], name).toBe('function');
+    }
     expect(api.delayProject).toBeUndefined();
+    expect(api.recordActInPlace).toBeUndefined();
     expect(api.applyDeltasInPlace).toBeUndefined();
   });
 });

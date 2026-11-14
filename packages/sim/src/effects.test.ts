@@ -63,14 +63,12 @@ describe('applicazione delle variazioni', () => {
       { target: 'districts.tamburi.health', amount: 500 },
       { target: 'districts.borgo.tension', amount: -500 },
       { target: 'districts.borgo.population.elder', amount: -1e9 },
-      { target: 'moral.byDimension.truth', amount: -300 },
       { target: 'plantLots.0.progress', amount: 3 },
       { target: 'economy.funds.state', amount: -1e6 },
     ]);
     expect(state.districts.tamburi.health).toBe(100);
     expect(state.districts.borgo.tension).toBe(0);
     expect(state.districts.borgo.population.elder).toBe(0);
-    expect(state.moral.byDimension.truth).toBe(-100);
     expect(state.plantLots[0]!.progress).toBe(1);
     expect(state.economy.funds.state).toBe(0);
     expect(validateState(state).ok).toBe(true);

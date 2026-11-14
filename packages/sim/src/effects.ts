@@ -19,10 +19,11 @@ export interface EffectSet {
 
 /**
  * Radici dello stato che una variazione può toccare. Turno, seme, storia e
- * simili no; il lavoro neppure: si muove solo con spostamenti tra categorie,
- * così la forza lavoro resta un bilancio chiuso.
+ * simili no. Il lavoro neppure: si muove solo con spostamenti tra categorie,
+ * così la forza lavoro resta un bilancio chiuso. Il contatore morale neppure:
+ * si muove solo con i pesi delle cinque dimensioni (CLAUDE.md, regola 5).
  */
-const WRITABLE_ROOTS = new Set(['districts', 'economy', 'climate', 'moral', 'council', 'plantLots']);
+const WRITABLE_ROOTS = new Set(['districts', 'economy', 'climate', 'council', 'plantLots']);
 
 const FORBIDDEN_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
 
@@ -54,6 +55,9 @@ export function applyDeltasInPlace(state: GameState, deltas: readonly Delta[]): 
     const root = keys[0] ?? field;
     if (root === 'labor') {
       throw new EffectError(`${target}: il lavoro si cambia solo con uno spostamento tra categorie`);
+    }
+    if (root === 'moral') {
+      throw new EffectError(`${target}: un effetto non può toccare il contatore morale (CLAUDE.md, regola 5)`);
     }
     if (field === undefined || root === undefined || !WRITABLE_ROOTS.has(root)) {
       throw new EffectError(`${target}: variabile non modificabile da un effetto`);

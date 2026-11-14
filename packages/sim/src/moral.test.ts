@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { fakeContent } from './__fixtures__/fake-content.js';
 import { fakeRules, fakeRulesWithEconomy } from './__fixtures__/fake-rules.js';
 import { randomGame } from './__fixtures__/random-game.js';
+import { applyDeltas, scheduleEffect } from './effects.js';
 import { createInitialState } from './init.js';
 import { conscienceFrom, scandalProbability } from './moral.js';
 import { TOTAL_TURNS, type Action, type ConversionPath, type GameState } from './state.js';
@@ -49,6 +50,13 @@ describe('regola 5: le strade di riconversione non hanno peso morale', () => {
       deltas: [{ target: 'moral.byDimension.care', amount: 1 }],
     };
     expect(() => act(initial(), { kind: 'start-project', definitionId: 'progetto-finto-8-anni' }, broken)).toThrow(/regola 5/);
+  });
+
+  it('nessun effetto può toccare il contatore, compresi applyDeltas e scheduleEffect', () => {
+    for (const target of ['moral.conscience', 'moral.reputation', 'moral.byDimension.care']) {
+      expect(() => applyDeltas(initial(), [{ target, amount: 1 }]), target).toThrow(/regola 5/);
+      expect(() => scheduleEffect(initial(), { sourceId: 'x', delayTurns: 2, deltas: [{ target, amount: 1 }] }), target).toThrow(/regola 5/);
+    }
   });
 
   it('anche un dilemma non può toccare il contatore con un effetto: solo con i pesi', () => {
@@ -156,6 +164,21 @@ describe('scandalo', () => {
     expect(state.moral.hiddenActs).toEqual([]);
     expect(state.moral.reputation).toBeLessThan(state.moral.conscience);
     expect(state.moral.reputation).toBeCloseTo(state.moral.conscience - 10, 12);
+  });
+
+  it('ogni atto scoperto entra nel registro degli scandali con turno e dimensione', () => {
+    let state = answer(initial(3), 'nascosta'); // due atti: verità e legalità
+    expect(state.moral.scandals).toEqual([]);
+    const seen: number[] = [];
+    let turns = 0;
+    while (state.moral.hiddenActs.length > 0 && turns++ < 500) {
+      const closing = state.turn;
+      state = advanceTurn(state, rules);
+      if (state.moral.scandals.length > seen.length) seen.push(...state.moral.scandals.slice(seen.length).map(() => closing));
+    }
+    expect(state.moral.scandals.map((s) => s.dimension).sort()).toEqual(['legality', 'truth']);
+    expect(state.moral.scandals.map((s) => s.turn)).toEqual(seen);
+    expect(state.moral.scandals.every((s) => s.actId.endsWith(`:${s.dimension}`))).toBe(true);
   });
 
   it('senza atti nascosti non c’è scandalo', () => {

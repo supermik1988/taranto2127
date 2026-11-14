@@ -155,6 +155,17 @@ export interface MoralState {
   byDimension: Record<MoralDimension, number>;
   /** Atti Red non ancora scoperti: alimentano il rischio di scandalo. */
   hiddenActs: HiddenAct[];
+  /** Registro degli scandali: ogni atto nascosto scoperto, con l'anno della scoperta. */
+  scandals: Scandal[];
+}
+
+/** Un atto nascosto venuto alla luce. */
+export interface Scandal {
+  /** Turno (anno) in cui l'atto è stato scoperto. */
+  turn: number;
+  /** Identificativo dell'atto scoperto (era in hiddenActs). */
+  actId: string;
+  dimension: MoralDimension;
 }
 
 export interface HiddenAct {

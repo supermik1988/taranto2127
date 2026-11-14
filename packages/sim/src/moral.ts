@@ -89,17 +89,18 @@ export function scandalProbability(state: GameState, rules: MoralRules): number 
 /**
  * Per ogni atto nascosto estrae se viene scoperto, con un flusso dedicato a
  * turno e atto. Gli atti scoperti escono da hiddenActs e la reputazione scende
- * sotto la coscienza. Restituisce gli atti scoperti. Uso interno del motore.
+ * sotto la coscienza, e ciascuno entra nel registro degli scandali con il turno
+ * della scoperta. Restituisce gli atti scoperti. Uso interno del motore.
  */
 export function checkScandalsInPlace(state: GameState, rules: MoralRules, turn: number): string[] {
   const { moral } = state;
   if (moral.hiddenActs.length === 0) return [];
   const probability = scandalProbability(state, rules);
-  const discovered = moral.hiddenActs
-    .filter((act) => rngFor(state.seed, 'scandal', turn, act.id).next() < probability)
-    .map((act) => act.id);
-  if (discovered.length === 0) return [];
+  const found = moral.hiddenActs.filter((act) => rngFor(state.seed, 'scandal', turn, act.id).next() < probability);
+  if (found.length === 0) return [];
+  const discovered = found.map((act) => act.id);
   moral.hiddenActs = moral.hiddenActs.filter((act) => !discovered.includes(act.id));
+  for (const act of found) moral.scandals.push({ turn, actId: act.id, dimension: act.dimension });
   const ceiling = moral.conscience - rules.scandal.reputationDropBelowConscience;
   moral.reputation = clampToBounds(Math.min(moral.reputation, ceiling), MORAL);
   return discovered;
