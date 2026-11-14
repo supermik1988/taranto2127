@@ -132,9 +132,15 @@ energia e mare non hanno peso morale (regola 5). Un test lo controlla.
 
 ## Persone e nomi
 
-I luoghi sono reali. Persone, imprese e sigle sono inventate (regola 6). I sei
-consiglieri della prima epoca hanno nomi di fantasia: Nicola Sperti (lavoro e
-industria), Teresa Donvito (salute e ambiente), Marina Scarcia (mare e cultura),
-Franco Licciardi (conti pubblici), Giulia Petrosino (giovani e futuro), Damiano
-Cervellera (quartieri e periferie). Se un nome coincidesse per caso con quello di una
-persona reale della città, va cambiato.
+I luoghi sono reali. Imprese e sigle sono inventate (regola 6). I consiglieri non
+hanno nomi di persona (decisione D17): sono indicati per delega, e la descrizione dice
+soltanto quale visione difendono.
+
+| Consigliere | Visione |
+| --- | --- |
+| Consigliere al lavoro e all'industria | lavoro e industria |
+| Consigliere alla salute e all'ambiente | salute e ambiente |
+| Consigliere al mare e alla cultura | mare e cultura |
+| Consigliere al bilancio | conti pubblici |
+| Consigliere ai giovani e al futuro | giovani e futuro |
+| Consigliere ai quartieri e alle periferie | quartieri e periferie |

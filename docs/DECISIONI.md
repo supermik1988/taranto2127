@@ -21,6 +21,7 @@ di architettura (GDD) non coincidono, vale questo file.
 | D14 | Calibrazione             | In due tempi: prima dati pubblici, in seguito interviste e partner accademico            |
 | D15 | Open source              | Codice AGPL-3.0, contenuti CC BY-SA 4.0                                                  |
 | D16 | Repository               | Pubblico su GitHub: `supermik1988/taranto2127`                                           |
+| D17 | Consiglieri              | Indicati per delega, senza nomi di persona                                               |
 
 ## Cosa ne discende
 

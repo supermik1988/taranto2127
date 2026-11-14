@@ -181,6 +181,24 @@ describe('regole di contenuto', () => {
     }
   });
 
+  it('nessun consigliere ha un nome di persona: delega nel nome, visione nella descrizione (D17)', () => {
+    const DELEGHE = [
+      "Consigliere al lavoro e all'industria",
+      "Consigliere alla salute e all'ambiente",
+      'Consigliere al mare e alla cultura',
+      'Consigliere al bilancio',
+      'Consigliere ai giovani e al futuro',
+      'Consigliere ai quartieri e alle periferie',
+    ];
+    expect(initialContent.council.map((c) => c.name).sort()).toEqual([...DELEGHE].sort());
+    for (const [id, { descrizione }] of Object.entries(texts.council)) {
+      // Una riga sulla visione: nessuna parola con l'iniziale maiuscola oltre la prima, quindi nessun nome proprio.
+      const words = descrizione.split(/\s+/).slice(1);
+      expect(words.filter((w) => /^[A-ZÀ-Ý]/.test(w)), id).toEqual([]);
+      expect(descrizione.includes('\n'), id).toBe(false);
+    }
+  });
+
   it('nessun nome reale di azienda o di stabilimento nei testi (regola 6)', () => {
     const all = JSON.stringify(texts).toLowerCase() + JSON.stringify(initialContent.council).toLowerCase();
     for (const name of ['ilva', 'arcelor', 'mittal', "acciaierie d'italia", 'italsider']) expect(all, name).not.toContain(name);

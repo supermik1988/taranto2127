@@ -192,9 +192,9 @@
   "council": [
     {
       "id": "cons-lavoro",
-      "name": "Nicola Sperti",
+      "name": "Consigliere al lavoro e all'industria",
       "vision": "work-industry",
-      "descrizione": "Ex delegato sindacale, vuole che nessuno resti indietro.",
+      "descrizione": "Difende il lavoro industriale e chi lo ha perso: nessuno deve restare indietro.",
       "trustInPlayer": {
         "valore": 45,
         "stima": true,
@@ -208,9 +208,9 @@
     },
     {
       "id": "cons-salute",
-      "name": "Teresa Donvito",
+      "name": "Consigliere alla salute e all'ambiente",
       "vision": "health-environment",
-      "descrizione": "Medica di base ai Tamburi da trent'anni.",
+      "descrizione": "Difende la salute dei residenti e il risanamento dell'ambiente.",
       "trustInPlayer": {
         "valore": 45,
         "stima": true,
@@ -224,9 +224,9 @@
     },
     {
       "id": "cons-mare",
-      "name": "Marina Scarcia",
+      "name": "Consigliere al mare e alla cultura",
       "vision": "sea-culture",
-      "descrizione": "Biologa marina e guida in Città Vecchia.",
+      "descrizione": "Difende il mare, la costa e la cultura come futuro della città.",
       "trustInPlayer": {
         "valore": 45,
         "stima": true,
@@ -240,9 +240,9 @@
     },
     {
       "id": "cons-conti",
-      "name": "Franco Licciardi",
+      "name": "Consigliere al bilancio",
       "vision": "public-accounts",
-      "descrizione": "Ragioniere in pensione, conta ogni euro.",
+      "descrizione": "Difende l'equilibrio dei conti comunali: ogni euro speso deve rendere.",
       "trustInPlayer": {
         "valore": 45,
         "stima": true,
@@ -256,9 +256,9 @@
     },
     {
       "id": "cons-giovani",
-      "name": "Giulia Petrosino",
+      "name": "Consigliere ai giovani e al futuro",
       "vision": "youth-future",
-      "descrizione": "Rientrata in città dopo dieci anni fuori.",
+      "descrizione": "Difende le possibilità di chi è giovane e vuole restare o tornare.",
       "trustInPlayer": {
         "valore": 45,
         "stima": true,
@@ -272,9 +272,9 @@
     },
     {
       "id": "cons-periferie",
-      "name": "Damiano Cervellera",
+      "name": "Consigliere ai quartieri e alle periferie",
       "vision": "districts-periphery",
-      "descrizione": "Animatore di un centro sociale a Paolo VI.",
+      "descrizione": "Difende i quartieri periferici e i servizi vicino a casa.",
       "trustInPlayer": {
         "valore": 45,
         "stima": true,
