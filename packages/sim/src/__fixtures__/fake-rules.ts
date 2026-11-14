@@ -126,6 +126,7 @@ export const fakeRules = (): TurnRules => ({
       everyYear: { deltas: [{ target: 'districts.tamburi.greenCover', amount: 1 }] },
       minYearsActive: 3,
       activationMoral: { listening: 2 },
+      annualMoral: { care: 1 },
     },
     // Formazione: 10 persone l'anno, 2 anni di corso.
     formazione: {

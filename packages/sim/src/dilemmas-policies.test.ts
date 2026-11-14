@@ -213,6 +213,47 @@ describe('politiche', () => {
   });
 });
 
+describe('pesi morali delle politiche', () => {
+  const rules = fakeRules();
+  const setPolicy = (s: GameState, policyId: string, active: boolean): GameState =>
+    applyAction(s, { kind: 'set-policy', policyId, active }, rules);
+  const advance = (s: GameState, turns: number): GameState => {
+    for (let i = 0; i < turns; i++) s = advanceTurn(s, rules);
+    return s;
+  };
+
+  it('i pesi di attivazione si registrano una sola volta per politica in tutta la partita', () => {
+    let state = setPolicy(initial(), 'politica-verde', true);
+    expect(state.moral.byDimension.listening).toBe(2);
+    state = advance(state, 3);
+    state = setPolicy(state, 'politica-verde', false);
+    state = setPolicy(state, 'politica-verde', true);
+    state = advance(state, 3);
+    state = setPolicy(state, 'politica-verde', false);
+    state = setPolicy(state, 'politica-verde', true);
+    expect(state.moral.byDimension.listening).toBe(2);
+  });
+
+  it('il peso morale annuo si applica, palese, negli anni in cui la politica è attiva e pagata', () => {
+    let state = setPolicy(initial(), 'politica-verde', true);
+    expect(state.moral.byDimension.care).toBe(0); // non all'attivazione
+    state = advance(state, 3);
+    expect(state.moral.byDimension.care).toBe(3);
+    expect(state.moral.reputation).toBeCloseTo(state.moral.conscience, 12);
+    state = structuredClone(state);
+    state.economy.funds.state = 0; // non pagata: nessun peso
+    state = advance(state, 2);
+    expect(state.moral.byDimension.care).toBe(3);
+  });
+
+  it('spenta, il peso morale annuo non si applica più', () => {
+    let state = advance(setPolicy(initial(), 'politica-verde', true), 3);
+    state = setPolicy(state, 'politica-verde', false);
+    state = advance(state, 4);
+    expect(state.moral.byDimension.care).toBe(3);
+  });
+});
+
 describe('formazione', () => {
   const rules = fakeRules();
   const advance = (s: GameState, turns: number): GameState => {
