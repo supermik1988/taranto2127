@@ -7,13 +7,12 @@ import { loadContent, type LoadedContent } from '@taranto2127/content';
 import {
   ActionError,
   BUILD_PHASES,
-  MAX_FREE_ACTIONS_PER_TURN,
   TurnError,
   advanceTurn,
   applyAction,
   createInitialState,
   epochOfTurn,
-  freeActionsUsed,
+  officeCapacity,
   yearOfTurn,
   type Action,
   type ActivePath,
@@ -112,8 +111,8 @@ export class PlaySession {
       this.mode = { kind: 'main' };
       if (line !== 's' && line !== 'si' && line !== 'sì') return ['Annullato.'];
       this.state = applyAction(this.state, mode.action, this.content.rules);
-      const left = MAX_FREE_ACTIONS_PER_TURN - freeActionsUsed(this.state);
-      return ['Fatto.', ...mode.after, `Azioni libere rimaste quest'anno: ${Math.max(0, left)}.`];
+      const capacity = officeCapacity(this.state, this.content.rules);
+      return ['Fatto.', ...mode.after, `Capacità degli uffici libera quest'anno: ${fmt(capacity.free, 1)} di ${fmt(capacity.total, 1)} M€.`];
     }
 
     const [command, ...rest] = line.split(/\s+/);

@@ -290,7 +290,8 @@ export type Action =
   /** Scorciatoia Red: salta la fase di autorizzazione o di gara di un progetto. */
   | { kind: 'shortcut-phase'; projectId: string };
 
-export const MAX_FREE_ACTIONS_PER_TURN = 3;
+// Nessun limite al numero di azioni per anno (T10): i limiti sono fondi e
+// capacità di spesa degli uffici.
 
 // ---------- Cervello dei cittadini ----------
 

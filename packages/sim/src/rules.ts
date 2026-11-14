@@ -127,6 +127,11 @@ export interface DilemmaDefinition {
   weight: number;
   /** false: dopo la prima risposta non torna più. */
   repeatable: boolean;
+  /**
+   * Solo per i ripetibili: anni minimi tra un arrivo e il successivo. In più,
+   * un dilemma non torna nella stessa epoca se ce ne sono altri ammessi.
+   */
+  repeatAfterTurns?: number;
 }
 
 /** Formazione offerta da una politica, ogni anno in cui la politica è pagata. */

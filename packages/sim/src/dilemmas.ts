@@ -5,7 +5,7 @@ import { ActionError } from './errors.js';
 import { MoralError, conditionHolds, readNumber, recordActInPlace } from './moral.js';
 import { rngFor } from './rng.js';
 import type { DilemmaDefinition, TurnRules } from './rules.js';
-import { TOTAL_TURNS, type Action, type GameState } from './state.js';
+import { TOTAL_TURNS, epochOfTurn, type Action, type GameState } from './state.js';
 
 export function answerDilemma(state: GameState, action: Extract<Action, { kind: 'answer-dilemma' }>, rules: TurnRules): void {
   if (state.openDilemmaId !== action.dilemmaId) {
@@ -66,22 +66,30 @@ export function answerDilemma(state: GameState, action: Extract<Action, { kind: 
   }
 }
 
-/** Dilemmi che possono arrivare al turno `turn`: finestra, condizioni, ripetibilità. */
+/**
+ * Dilemmi che possono arrivare al turno `turn`: finestra, condizioni,
+ * ripetibilità. Un ripetibile non torna prima di `repeatAfterTurns` anni
+ * dall'ultima volta; e nessun dilemma torna nella stessa epoca se ce ne sono
+ * altri ammessi che in quell'epoca non sono ancora arrivati.
+ */
 export function eligibleDilemmas(state: GameState, rules: TurnRules, turn: number): DilemmaDefinition[] {
-  const answered = new Set(
-    state.history.flatMap((h) => (h.action.kind === 'answer-dilemma' ? [h.action.dilemmaId] : [])),
-  );
-  return Object.keys(rules.dilemmas)
+  const lastTurn = new Map<string, number>();
+  for (const h of state.history) if (h.action.kind === 'answer-dilemma') lastTurn.set(h.action.dilemmaId, h.turn);
+  const allowed = Object.keys(rules.dilemmas)
     .sort()
     .map((id) => rules.dilemmas[id]!)
-    .filter(
-      (d) =>
-        d.weight > 0 &&
-        d.firstTurn <= turn &&
-        turn <= d.lastTurn &&
-        (d.repeatable || !answered.has(d.id)) &&
-        d.conditions.every((c) => conditionHolds(state, c)),
-    );
+    .filter((d) => {
+      if (!(d.weight > 0 && d.firstTurn <= turn && turn <= d.lastTurn)) return false;
+      const last = lastTurn.get(d.id);
+      if (last !== undefined && (!d.repeatable || turn - last < (d.repeatAfterTurns ?? 0))) return false;
+      return d.conditions.every((c) => conditionHolds(state, c));
+    });
+  const epoch = epochOfTurn(turn);
+  const fresh = allowed.filter((d) => {
+    const last = lastTurn.get(d.id);
+    return last === undefined || epochOfTurn(last) !== epoch;
+  });
+  return fresh.length > 0 ? fresh : allowed;
 }
 
 /** All'apertura del turno: con la probabilità annua dei dati arriva un dilemma, estratto per peso. */

@@ -5,6 +5,7 @@ import { applyEffectSetInPlace, pushEffect, scaleBeneficial } from './effects.js
 import { ActionError, TurnError } from './errors.js';
 import { recordActInPlace } from './moral.js';
 import { rngFor } from './rng.js';
+import type { YearLedger } from './ledger.js';
 import { BUILD_PHASES, type BuildPhase, type ProjectDefinition, type TurnRules } from './rules.js';
 import type { Action, DistrictId, GameState, PlantLot, Project, ProjectPhase } from './state.js';
 
@@ -252,7 +253,7 @@ export function rewindProjectInPlace(
 
 // ---------- Avanzamento annuale ----------
 
-export function advanceProjects(state: GameState, rules: TurnRules, opening: number, civic = 1): void {
+export function advanceProjects(state: GameState, rules: TurnRules, opening: number, civic = 1, ledger?: YearLedger): void {
   for (const project of state.projects) {
     if (project.phase === 'operating') {
       const everyYear = definitionOrThrow(rules, project.definitionId, TurnError).operatingEffects.everyYear;
@@ -270,6 +271,7 @@ export function advanceProjects(state: GameState, rules: TurnRules, opening: num
       // Fermo dopo uno scandalo: nessun costo, nessun avanzamento, un anno di ritardo.
       project.frozenTurns -= 1;
       project.delayTurns += 1;
+      ledger?.stalled.push({ projectId: project.id, reason: 'frozen' });
       continue;
     }
     const { annualCost, fund } = definition.phases[project.phase as BuildPhase];
@@ -277,12 +279,17 @@ export function advanceProjects(state: GameState, rules: TurnRules, opening: num
       throw new TurnError(`costo non valido per ${definition.id}.${project.phase}: ${annualCost}`);
     }
     if (state.economy.funds[fund] < annualCost || capacityLeft < annualCost) {
+      ledger?.stalled.push({ projectId: project.id, reason: state.economy.funds[fund] < annualCost ? 'funds' : 'capacity' });
       project.delayTurns += 1;
       if (project.phase === 'works') stallWorks(state, project, definition);
       continue;
     }
     payFrom(state, fund, annualCost);
     capacityLeft -= annualCost;
+    if (ledger !== undefined) {
+      ledger.entries.push({ key: 'project', fund, amount: -annualCost, ref: project.id });
+      ledger.capacityUsed += annualCost;
+    }
     if (project.phase === 'works') resumeWorks(state, project, definition);
     workOneYear(state, project, definition, rules, opening);
   }

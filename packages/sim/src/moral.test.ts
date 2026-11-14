@@ -250,12 +250,12 @@ describe('scorciatoia', () => {
     expect(() => act(state, { kind: 'shortcut-phase', projectId: 'nessuno' })).toThrow(ActionError);
   });
 
-  it('conta come azione libera', () => {
+  it('si somma ad altre azioni nello stesso anno, senza limite di numero (T10)', () => {
     let state = advance(start(), 1);
     state = act(state, { kind: 'set-policy', policyId: 'p1', active: true });
     state = act(state, { kind: 'set-policy', policyId: 'p2', active: true });
     state = act(state, { kind: 'shortcut-phase', projectId: state.projects[0]!.id });
-    expect(() => act(state, { kind: 'set-policy', policyId: 'p3', active: true })).toThrow(ActionError);
+    expect(() => act(state, { kind: 'set-policy', policyId: 'p3', active: true })).not.toThrow();
   });
 });
 

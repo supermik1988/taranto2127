@@ -3,6 +3,9 @@ export { createInitialState, type InitialContent } from './init.js';
 export { DISTRICT_IDS, validateState, type ValidationResult } from './validate.js';
 export { createRng, deriveSeed, rngFor, type Rng } from './rng.js';
 export { EffectError, applyDeltas, applyLaborMoves, scaleBeneficial, scheduleEffect, type EffectSet } from './effects.js';
+export { forecastYear, officeCapacity, type YearBudget } from './budget.js';
+export { STOP_KINDS, stopReasons, type StopKind, type StopReason } from './events.js';
+export type { LedgerEntry, LedgerKey, StalledProject } from './ledger.js';
 export { averageTrust, civicFactor, joblessShare, lotPressure } from './city.js';
 export {
   explainDistrict,
@@ -27,8 +30,6 @@ export {
   advanceTurn,
   applyAction,
   eligibleDilemmas,
-  freeActionsUsed,
-  isFreeAction,
   replay,
   type ActivePath,
   type BuildPhase,

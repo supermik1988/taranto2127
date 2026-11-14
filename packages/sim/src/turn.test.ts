@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { fakeContent } from './__fixtures__/fake-content.js';
 import { fakeRules, withOpenDilemma } from './__fixtures__/fake-rules.js';
 import { createInitialState } from './init.js';
-import { MAX_FREE_ACTIONS_PER_TURN, TOTAL_TURNS, type Action, type GameState } from './state.js';
+import { TOTAL_TURNS, type Action, type GameState } from './state.js';
 import { ActionError, TurnError, advanceTurn, applyAction, delayProject, replay, type TurnRules } from './turn.js';
 import { validateState } from './validate.js';
 
@@ -188,17 +188,13 @@ describe('lotti di ILSIDER e clima', () => {
 });
 
 describe('azioni', () => {
-  it(`massimo ${MAX_FREE_ACTIONS_PER_TURN} azioni libere per turno`, () => {
+  it('nessun limite al numero di azioni in un anno: restano fondi e capacità di spesa (T10)', () => {
     let state = initial();
-    for (let i = 0; i < MAX_FREE_ACTIONS_PER_TURN; i++) {
-      state = applyAction(state, { kind: 'set-policy', policyId: `p${i}`, active: true }, rules);
+    for (const policyId of ['p0', 'p1', 'p2', 'p3', 'ok', 'troppe']) {
+      state = applyAction(state, { kind: 'set-policy', policyId, active: true }, rules);
     }
-    expect(() => applyAction(state, { kind: 'set-policy', policyId: 'troppe', active: true }, rules)).toThrow(ActionError);
-    // Le risposte ai dilemmi non consumano azioni libere.
-    state = applyAction(withOpenDilemma(state), { kind: 'answer-dilemma', dilemmaId: 'dilemma-finto', optionId: 'palese' }, rules);
-    // Il turno dopo il conteggio riparte.
-    state = advanceTurn(state, rules);
-    expect(() => applyAction(state, { kind: 'set-policy', policyId: 'ok', active: true }, rules)).not.toThrow();
+    expect(state.activePolicies).toHaveLength(6);
+    expect(state.history.filter((h) => h.turn === 0)).toHaveLength(6);
   });
 
   it('ogni azione finisce nella storia con il suo turno', () => {

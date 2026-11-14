@@ -4,6 +4,7 @@ import { payFrom } from './economy.js';
 import { applyEffectSetInPlace, scaleBeneficial } from './effects.js';
 import { ActionError, TurnError } from './errors.js';
 import { recordActInPlace } from './moral.js';
+import type { YearLedger } from './ledger.js';
 import type { PolicyDefinition, TurnRules } from './rules.js';
 import type { Action, GameState } from './state.js';
 
@@ -56,7 +57,7 @@ export function setPolicy(state: GameState, action: Extract<Action, { kind: 'set
  * effetti e il suo peso morale annuo. Senza fondi resta attiva ma per
  * quell'anno non produce nulla.
  */
-export function advancePolicies(state: GameState, rules: TurnRules, closing: number, civic = 1): void {
+export function advancePolicies(state: GameState, rules: TurnRules, closing: number, civic = 1, ledger?: YearLedger): void {
   const { labor } = state;
   for (const cohort of state.trainingCohorts.filter((c) => c.completesOnTurn <= closing)) {
     const moved = Math.min(cohort.count, labor.inTraining);
@@ -73,6 +74,7 @@ export function advancePolicies(state: GameState, rules: TurnRules, closing: num
     }
     if (state.economy.funds[policy.fund] < policy.annualCost) continue;
     payFrom(state, policy.fund, policy.annualCost);
+    ledger?.entries.push({ key: 'policy', fund: policy.fund, amount: -policy.annualCost, ref: policy.id });
     applyEffectSetInPlace(state, scaleBeneficial(policy.everyYear, civic));
     if (policy.annualMoral !== undefined) {
       recordActInPlace(state, rules.moral, { sourceId: `policy:${policy.id}:${closing}`, weights: policy.annualMoral, hidden: false });

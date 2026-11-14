@@ -18,7 +18,8 @@ import { checkScandalsInPlace, settlePromisesInPlace } from './moral.js';
 import { advancePolicies, setPolicy, syncTrained } from './policies.js';
 import { advanceProjects, cancelProject, convertLot, definitionOrThrow, shortcutPhase, startProject } from './projects.js';
 import type { TurnRules } from './rules.js';
-import { MAX_FREE_ACTIONS_PER_TURN, TOTAL_TURNS, epochOfTurn, type Action, type GameState } from './state.js';
+import { trackStep, type YearLedger } from './ledger.js';
+import { TOTAL_TURNS, epochOfTurn, type Action, type GameState } from './state.js';
 
 export * from './rules.js';
 export { ActionError, TurnError } from './errors.js';
@@ -28,34 +29,11 @@ export { eligibleDilemmas } from './dilemmas.js';
 // ---------- Azioni ----------
 
 /**
- * Azioni che consumano una delle azioni libere del turno. Le risposte a
- * dilemmi e proteste no: arrivano dalla città, non dall'iniziativa del giocatore.
- */
-const FREE_ACTION_KINDS: ReadonlySet<Action['kind']> = new Set([
-  'convert-lot',
-  'start-project',
-  'cancel-project',
-  'set-policy',
-  'negotiate',
-  'make-promise',
-  'shortcut-phase',
-]);
-
-export const isFreeAction = (action: Action): boolean => FREE_ACTION_KINDS.has(action.kind);
-
-/** Azioni libere già usate nel turno corrente. */
-export const freeActionsUsed = (state: GameState): number =>
-  state.history.filter((h) => h.turn === state.turn && isFreeAction(h.action)).length;
-
-/**
  * Applica un'azione del giocatore. Funzione pura: restituisce un nuovo stato
  * e registra l'azione nella storia. Lancia `ActionError` se l'azione non è ammessa.
  */
 export function applyAction(state: GameState, action: Action, rules: TurnRules): GameState {
   if (state.status !== 'running') throw new ActionError(`partita conclusa (${state.status})`);
-  if (isFreeAction(action) && freeActionsUsed(state) >= MAX_FREE_ACTIONS_PER_TURN) {
-    throw new ActionError(`massimo ${MAX_FREE_ACTIONS_PER_TURN} azioni libere per turno`);
-  }
 
   const next = structuredClone(state);
   switch (action.kind) {
@@ -146,22 +124,34 @@ export function advanceTurn(state: GameState, rules: TurnRules): GameState {
   if (state.status !== 'running') throw new TurnError(`partita conclusa (${state.status})`);
   if (state.openDilemmaId !== null) throw new TurnError(`il dilemma ${state.openDilemmaId} attende una risposta`);
   const next = structuredClone(state);
+  closeYearInPlace(next, rules);
+  return next;
+}
+
+/**
+ * Il corpo di advanceTurn, sullo stato già copiato. Con un registro annota
+ * ogni movimento dei fondi, voce per voce (vedi forecastYear); il risultato
+ * sullo stato non cambia.
+ */
+export function closeYearInPlace(next: GameState, rules: TurnRules, ledger?: YearLedger): void {
   const closing = next.turn;
   const opening = closing + 1;
 
   const civic = civicFactor(next, rules.city);
-  collectRevenue(next, rules.economy, closing, civic);
-  payMandatorySpending(next, rules.economy);
-  advancePolicies(next, rules, closing, civic);
-  advanceProjects(next, rules, opening, civic);
-  expireEuTranches(next, closing);
+  trackStep(next, ledger, 'revenue', () => collectRevenue(next, rules.economy, closing, civic));
+  trackStep(next, ledger, 'mandatory', () => payMandatorySpending(next, rules.economy));
+  trackStep(next, ledger, 'policies', () => advancePolicies(next, rules, closing, civic, ledger));
+  trackStep(next, ledger, 'projects', () => advanceProjects(next, rules, opening, civic, ledger));
+  trackStep(next, ledger, 'eu-expired', () => expireEuTranches(next, closing));
   advanceClimate(next, rules, closing);
-  applyDueEffectsInPlace(next, opening);
+  trackStep(next, ledger, 'effects', () => applyDueEffectsInPlace(next, opening));
   advanceDistrictsInPlace(next, rules);
-  promiseTrustInPlace(next, rules, settlePromisesInPlace(next, rules.moral, opening));
-  applyScandalConsequencesInPlace(next, rules, checkScandalsInPlace(next, rules.moral, closing));
-  capStateFund(next, rules.economy);
-  spendOwnSurplus(next, rules.economy);
+  trackStep(next, ledger, 'effects', () => promiseTrustInPlace(next, rules, settlePromisesInPlace(next, rules.moral, opening)));
+  trackStep(next, ledger, 'scandals', () =>
+    applyScandalConsequencesInPlace(next, rules, checkScandalsInPlace(next, rules.moral, closing)),
+  );
+  trackStep(next, ledger, 'state-returned', () => capStateFund(next, rules.economy));
+  trackStep(next, ledger, 'surplus', () => spendOwnSurplus(next, rules.economy));
 
   next.economy.deficitYears = next.economy.funds.own < 0 ? next.economy.deficitYears + 1 : 0;
   const abandoned = updateAbandonmentInPlace(next, rules);
@@ -171,7 +161,6 @@ export function advanceTurn(state: GameState, rules: TurnRules): GameState {
   else if (opening >= TOTAL_TURNS) next.status = 'ended-2127';
   if (next.status === 'running') maybeOpenDilemma(next, rules, opening);
   syncTrained(next);
-  return next;
 }
 
 function advanceClimate(state: GameState, rules: TurnRules, closing: number): void {
