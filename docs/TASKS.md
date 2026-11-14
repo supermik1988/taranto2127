@@ -341,3 +341,36 @@ elencati. Ordine: T01, poi T02, poi T03 e T05a in parallelo, poi T04, poi T06.
   partita con `ended-abandoned`; il fondo statale non supera il tetto; 1.000
   partite per bot senza alcuna interruzione; stessa partita identica a parità di
   seme e storia; stato sempre valido.
+
+---
+
+## T06b — Bilanciamento
+
+- **Agente:** `balance-tester`
+- **Dipende da:** T07
+- **File:** valori in `packages/content/` (ogni valore cambiato resta una stima
+  dichiarata, con motivazione aggiornata; `calibrationVersion` diventa
+  `"0.2-stime"`), `tools/balance/`, `docs/BILANCIAMENTO.md`. Logica di
+  `packages/sim` invariata, con una sola eccezione: il tetto del fattore di senso
+  civico diventa un valore dei dati e può superare 1.
+- **Obiettivi** (arrivo al 2127, 1.000 partite per bot): Blu 40-70%; Red 15-45%;
+  casuale 30-60%; ognuna delle quattro strade 40-80%, con non più di 25 punti tra
+  la migliore e la peggiore; prudente 40-70%; nessuna azione 0-10%, con dissesto
+  mediano tra il 2045 e il 2065.
+- **Vincoli di disegno**, da rispettare anche a costo di mancare un obiettivo:
+  1. Blu fa meglio di Red, sia negli arrivi al 2127 sia nella fiducia media finale.
+  2. Le scelte scorrette restano convenienti nell'immediato; il costo arriva dopo,
+     con scandali e fiducia.
+  3. La spirale disavanzo-servizi-fiducia-entrate resta possibile, ma evitabile con
+     scelte sensate.
+  4. Nessuna strada è migliore su tutti gli indicatori: ognuna ha un punto forte e
+     un punto debole diversi (lavoro, conti, aria, tempi).
+  5. Almeno una partita su venti del bot Red finisce con la città che si volta.
+  6. Durate e costi dei progetti restano plausibili.
+- **Metodo:** verificare prima la causa della spirale con un esperimento; poi
+  procedere per passi, misurando ogni modifica in memoria su 150 partite per bot
+  prima di applicarla; fermarsi agli obiettivi o a un conflitto tra obiettivo e
+  vincolo, da spiegare all'architetto.
+- **Fatto quando:** `docs/BILANCIAMENTO.md` riporta la causa della spirale,
+  l'elenco dei valori cambiati con prima e dopo, la tabella finale degli esiti su
+  1.000 partite e gli obiettivi mancati.
