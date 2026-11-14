@@ -1,7 +1,7 @@
 # Schede dei task — tappe M0 e M1
 
 Ogni scheda si passa così com'è a un agente. Un agente lavora solo sui file
-elencati. Ordine: T01, poi T02, poi T03 e T05 in parallelo, poi T04, poi T06.
+elencati. Ordine: T01, poi T02, poi T03 e T05a in parallelo, poi T04, poi T06.
 
 ---
 
@@ -84,20 +84,51 @@ elencati. Ordine: T01, poi T02, poi T03 e T05 in parallelo, poi T04, poi T06.
   diventa `kept` o `broken` nel turno di scadenza; stessa partita identica a
   parità di seme e storia; stato sempre valido in 100 turni di gioco casuale.
 
-## T05 — Dati dei sei quartieri e durate dei progetti
+## T05a — Contenuti di gioco con stime dichiarate
 
-- **Agenti:** `content-designer` scrive, `fact-checker` verifica
-- **Dipende da:** T01
-- **File:** `packages/content/districts.json`, `packages/content/projects.json`,
-  `packages/content/schema/`, `docs/FONTI.md`.
-- **Cosa fare:** schema JSON dei quartieri e valori di partenza al 2027. Ogni
-  valore reale ha un campo `fonte` con indirizzo e data di consultazione (ISTAT,
-  ARPA Puglia, studi epidemiologici pubblici). Dove manca un dato, usare una
-  stima marcata `"stima": true` con la motivazione. In `projects.json`, le
-  prime dieci definizioni di progetto con la durata minima e massima di ogni
-  fase, ricavate da casi reali comparabili in Italia o in Europa.
-- **Fatto quando:** i file passano la validazione dello schema; `fact-checker`
-  ha aperto ogni fonte e firmato `docs/FONTI.md`; nessun valore è senza `fonte` o `stima`.
+- **Agente:** `content-designer`
+- **Dipende da:** T04b
+- **File:** `packages/content/`, `docs/CONTENUTI.md`. Non si modifica `packages/sim`.
+- **Cosa fare:**
+  1. *Schema e caricatore.* I contenuti stanno in file JSON in
+     `packages/content`, con uno schema validato. Un caricatore restituisce
+     `InitialContent` e `TurnRules` esattamente nella forma che `packages/sim`
+     si aspetta.
+  2. Ogni valore numerico porta accanto `"stima": true` e una riga di
+     motivazione, oppure una `"fonte"`. In T05a sono ammesse solo stime: non si
+     inventano fonti, indirizzi o citazioni. `calibrationVersion: "0.1-stime"`.
+  3. *Contenuti minimi:* i sei quartieri; lavoro, economia e clima di partenza;
+     scenario climatico per le cinque epoche; sei lotti di ILSIDER; sei
+     consiglieri con nomi inventati, uno per visione; almeno dodici progetti,
+     compresi quelli delle quattro strade dei lotti; otto politiche, di cui una
+     di formazione; sei dilemmi; parametri morali ed economici.
+  4. Testi in italiano, tono sobrio (regola 8). Luoghi reali; persone, sigle,
+     aziende e stabilimento inventati (regola 6). Nessuna morte o malattia usata
+     come punteggio. Ogni dilemma ha almeno un'opzione scorretta con un
+     vantaggio vero e un'opzione corretta con un prezzo vero. Nessuna strada di
+     riconversione è presentata come giusta o sbagliata in sé (regola 5).
+  5. Durate dei progetti plausibili e in anni interi, con minimo e massimo per
+     fase. Sono stime: le verificherà T05b su casi reali.
+  6. `docs/CONTENUTI.md`: per ogni indice da 0 a 100, cosa rappresenta e come si
+     leggerà il dato reale che lo sostituirà.
+- **Fatto quando:** i file passano lo schema; lo stato iniziale costruito dai
+  contenuti veri passa `validateState`; 100 turni di gioco casuale su 20 semi
+  con i contenuti veri restano validi, con forza lavoro costante; almeno una
+  partita casuale su 20 arriva al 2127 e almeno una finisce in dissesto, oppure
+  il resoconto spiega perché no; nessun valore numerico è privo di `stima` o
+  `fonte` (test); la stessa partita è identica a parità di seme e storia.
+
+## T05b — Verifica delle fonti
+
+- **Agenti:** `fact-checker`, con `content-designer` per le correzioni
+- **Dipende da:** T05a
+- **Stato:** scheda da scrivere dopo T05a, quando sarà chiaro quali stime
+  pesano di più sull'andamento delle partite.
+- **Traccia:** sostituire le stime con dati reali dotati di `fonte` (indirizzo
+  e data di consultazione), a partire dai quartieri (ISTAT, ARPA Puglia, studi
+  epidemiologici pubblici) e dalle durate delle fasi dei progetti (casi reali
+  comparabili in Italia o in Europa); `docs/FONTI.md` firmato da chi ha aperto
+  ogni fonte.
 
 ## T06 — Bot di bilanciamento
 
