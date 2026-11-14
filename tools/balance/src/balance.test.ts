@@ -48,7 +48,7 @@ describe('rapporto', () => {
     ]) {
       expect(text).toContain(heading);
     }
-    for (const column of ['Al 2127', 'In dissesto', 'Anno mediano del dissesto', 'Fondi propri', 'Occupati locali', 'Cassa integrati',
+    for (const column of ['Al 2127', 'In dissesto', 'Città che si volta', 'Anno mediano del dissesto', 'Fondi propri', 'Occupati locali', 'Cassa integrati',
       'Disoccupati', 'Coscienza', 'Reputazione', 'Scandali', 'Aria Tamburi', 'Fiducia Tamburi']) {
       expect(text).toContain(column);
     }

@@ -26,6 +26,8 @@ export interface BotSummary {
   games: number;
   share2127: number;
   shareBankrupt: number;
+  /** Partite chiuse perché la città si è voltata (fiducia sotto soglia troppo a lungo). */
+  shareAbandoned: number;
   medianBankruptYear: number | null;
   medians: {
     fundsOwn: number;
@@ -92,7 +94,7 @@ function summarize(bot: Bot, results: GameResult[]): BotSummary {
   const bankrupt = results.filter((r) => r.status === 'ended-bankrupt');
   const perDistrict = (read: (r: GameResult) => Record<DistrictId, number>) =>
     Object.fromEntries(DISTRICT_IDS.map((id) => [id, median(results.map((r) => read(r)[id]))])) as Record<DistrictId, number>;
-  const statuses = ['ended-2127', 'ended-bankrupt'];
+  const statuses = ['ended-2127', 'ended-bankrupt', 'ended-abandoned'];
   const top = statuses.map((status) => ({ status, share: share(status) })).sort((a, b) => b.share - a.share)[0]!;
   return {
     botId: bot.id,
@@ -100,6 +102,7 @@ function summarize(bot: Bot, results: GameResult[]): BotSummary {
     games: n,
     share2127: share('ended-2127'),
     shareBankrupt: share('ended-bankrupt'),
+    shareAbandoned: share('ended-abandoned'),
     medianBankruptYear: bankrupt.length === 0 ? null : median(bankrupt.map((r) => r.endYear)),
     medians: {
       fundsOwn: median(results.map((r) => r.funds.own)),
@@ -259,9 +262,11 @@ export function formatReport(report: Report, options: { color?: boolean } = {}):
   out();
   out(`Quote calcolate sulle partite giocate fino in fondo.`);
   out();
-  out(`| Bot | Partite | Al 2127 | In dissesto | Anno mediano del dissesto |`);
-  out(`| --- | ---: | ---: | ---: | ---: |`);
-  for (const b of report.bots) out(`| ${b.nome} | ${b.games} | ${pct(b.share2127)} | ${pct(b.shareBankrupt)} | ${b.medianBankruptYear ?? '—'} |`);
+  out(`| Bot | Partite | Al 2127 | In dissesto | Città che si volta | Anno mediano del dissesto |`);
+  out(`| --- | ---: | ---: | ---: | ---: | ---: |`);
+  for (const b of report.bots) {
+    out(`| ${b.nome} | ${b.games} | ${pct(b.share2127)} | ${pct(b.shareBankrupt)} | ${pct(b.shareAbandoned)} | ${b.medianBankruptYear ?? '—'} |`);
+  }
   out();
 
   out(`## 2. Valori mediani a fine partita`);
@@ -293,7 +298,12 @@ export function formatReport(report: Report, options: { color?: boolean } = {}):
   const same = report.bots.filter((b) => b.sameOutcome !== null);
   if (same.length === 0) out(`Nessuno.`);
   for (const b of same) {
-    const label = b.sameOutcome!.status === 'ended-2127' ? 'arriva al 2127' : 'finisce in dissesto';
+    const labels: Record<string, string> = {
+      'ended-2127': 'arriva al 2127',
+      'ended-bankrupt': 'finisce in dissesto',
+      'ended-abandoned': 'finisce con la città che si volta',
+    };
+    const label = labels[b.sameOutcome!.status] ?? b.sameOutcome!.status;
     out(`- ${alert(`${b.nome}: ${label} nel ${pct(b.sameOutcome!.share)} delle partite.`)}`);
   }
   out();

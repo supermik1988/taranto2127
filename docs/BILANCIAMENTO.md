@@ -1,7 +1,7 @@
 # Bilanciamento
 
-Rapporto dei bot di bilanciamento sui contenuti `0.1-stime` e proposte di
-modifica ai valori. Le proposte **non sono applicate**: i valori di
+Rapporto dei bot di bilanciamento sui contenuti `0.1-stime`, aggiornato al motore
+del T07, e proposte di modifica ai valori. Le proposte **non sono applicate**: i valori di
 `packages/content` restano quelli attuali finché l'architetto non decide.
 
 ## Come si rifà
@@ -43,38 +43,96 @@ si è interrotta per uno stato non valido del motore.
   il confronto è con chi ha scelto un'altra opzione dello stesso dilemma. Resta una
   correlazione, non una prova di causa.
 
-## Rapporto di 1.000 partite per bot
+## Situazione dopo il T07
+
+Il motore ora fa reagire la città: aria, esposizione, salute, servizi, tensione e
+fiducia cambiano ogni anno, gli scandali hanno conseguenze, il senso civico pesa
+sulle entrate, e la città può voltarsi. **I valori dei contenuti non sono stati
+toccati** in questa fase: le proposte del T06 restano in sospeso (vedi in fondo).
+I nuovi coefficienti di `citta.json` sono stime dichiarate, tarate solo perché
+all'inizio la città sia vicina all'equilibrio (fiducia e salute di partenza).
+
+1.000 partite per bot, semi da 1 a 1.000: **nessuna partita interrotta** (l'errore
+di arrotondamento della cassa integrazione è corretto).
+
+### Distanza dagli obiettivi di arrivo al 2127
+
+| Bot | Obiettivo | Oggi | Distanza |
+| --- | ---: | ---: | --- |
+| Tutto Blu | 40-70% | 0% | 40 punti sotto |
+| Tutto Red | 15-45% | 0% | 15 punti sotto |
+| Casuale | 30-60% | 16% | 14 punti sotto |
+| Una sola strada: acciaio verde | 40-80% | 1% | 39 punti sotto |
+| Una sola strada: bonifica | 40-80% | 0% | 40 punti sotto |
+| Una sola strada: energia | 40-80% | 84% | 4 punti sopra |
+| Una sola strada: mare e cultura | 40-80% | 86% | 6 punti sopra |
+| Scarto tra la strada migliore e la peggiore | al massimo 25 punti | 86 punti | 61 punti di troppo |
+| Prudente sui conti | 40-70% | 0% | 40 punti sotto |
+| Nessuna azione | 0-10% | 0% | dentro l'obiettivo |
+
+Un solo obiettivo su dieci è raggiunto ("nessuna azione"). Sono vicine al bersaglio
+le strade energia e mare e cultura, poco sopra il massimo.
+
+### Che cosa è cambiato rispetto al T06
+
+| Bot | Al 2127, T06 | Al 2127, T07 |
+| --- | ---: | ---: |
+| Tutto Blu | 0% | 0% |
+| Tutto Red | 100% | 0% |
+| Casuale | 45% | 16% |
+| Acciaio verde | 6% | 1% |
+| Bonifica | 2% | 0% |
+| Energia | 98% | 84% |
+| Mare e cultura | 100% | 86% |
+| Prudente sui conti | 55% | 0% |
+| Nessuna azione | 0% | 0% |
+
+- **La scorrettezza ora costa.** Tutto Red passa dal 100% allo 0% di partite al 2127:
+  gli scandali (6 in mediana) abbassano la fiducia di quartieri e Consiglio, la
+  fiducia bassa riduce il senso civico e quindi le entrate, e il dissesto arriva in
+  mediana nel 2047. La richiesta R2 del T06 è soddisfatta; ora l'effetto è troppo
+  forte, perché il Red non arriva mai al 2127 (obiettivo 15-45%).
+- **Quasi tutti peggiorano.** Il casuale scende dal 45% al 16% e il prudente dal 55%
+  allo 0%. Il disavanzo strutturale di partenza resta (proposta 1 del T06 non
+  applicata). La spiegazione probabile, da verificare con un'analisi mirata: negli
+  anni di disavanzo i servizi calano, la salute e poi la fiducia ne risentono, il
+  senso civico scende e le entrate calano ancora. Il prudente si reggeva sulla
+  truffa del rendiconto europeo, che ora, se scoperta, comporta anche una penale.
+- **Il fondo statale ha un tetto.** Non cresce più senza limite: nelle partite che
+  arrivano al 2127 si ferma a 300 milioni. Restano senza limite solo i fondi propri
+  delle strade energia e mare e cultura.
+- **L'aria migliora per tutti.** Con lo stabilimento chiuso, i Tamburi passano da 35
+  a 55-82 a seconda di che cosa si fa dei lotti; il massimo arriva con le strade
+  energia e mare e cultura, che lasciano lotti quasi senza pressione.
+- **Nessuna città si volta.** La fiducia media non resta mai sotto 15 per cinque anni:
+  il dissesto arriva sempre prima.
+
+### Prossimo passo suggerito
+
+Ricalcolare le proposte del T06 sul motore nuovo prima di applicarle. La leva più
+forte resta il disavanzo strutturale (costo dei servizi rispetto alle entrate di
+partenza): con il T07 un disavanzo innesca anche la spirale servizi-fiducia-entrate,
+quindi la soglia è ancora più netta di prima.
+
+## Rapporto di 1.000 partite per bot (motore del T07)
 
 1000 partite per bot, semi da 1 a 1000, contenuti veri.
-
-### Errori del motore
-
-**ATTENZIONE** 4 partite interrotte da uno stato non valido; sono escluse da tutte le statistiche.
-
-- Una sola strada: green-steel: 4
-
-Primi casi:
-
-- strada-green-steel, seme 8, turno 20: economy.funds.state = -7.105427357601002e-15: non può essere negativo
-- strada-green-steel, seme 541, turno 19: economy.funds.state = -7.105427357601002e-15: non può essere negativo
-- strada-green-steel, seme 813, turno 19: economy.funds.state = -7.105427357601002e-15: non può essere negativo
-- strada-green-steel, seme 856, turno 20: economy.funds.state = -7.105427357601002e-15: non può essere negativo
 
 ### 1. Esiti
 
 Quote calcolate sulle partite giocate fino in fondo.
 
-| Bot | Partite | Al 2127 | In dissesto | Anno mediano del dissesto |
-| --- | ---: | ---: | ---: | ---: |
-| Tutto Blu | 1000 | 0% | 100% | 2037 |
-| Tutto Red | 1000 | 100% | 1% | 2063 |
-| Casuale | 1000 | 45% | 56% | 2043 |
-| Una sola strada: green-steel | 996 | 6% | 94% | 2058 |
-| Una sola strada: remediation | 1000 | 2% | 98% | 2059 |
-| Una sola strada: energy | 1000 | 98% | 2% | 2065 |
-| Una sola strada: sea-culture | 1000 | 100% | 0% | 2069 |
-| Prudente sui conti | 1000 | 55% | 45% | 2056 |
-| Nessuna azione | 1000 | 0% | 100% | 2050 |
+| Bot | Partite | Al 2127 | In dissesto | Città che si volta | Anno mediano del dissesto |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Tutto Blu | 1000 | 0% | 100% | 0% | 2037 |
+| Tutto Red | 1000 | 0% | 100% | 0% | 2047 |
+| Casuale | 1000 | 16% | 85% | 0% | 2044 |
+| Una sola strada: green-steel | 1000 | 1% | 100% | 0% | 2053 |
+| Una sola strada: remediation | 1000 | 0% | 100% | 0% | 2054 |
+| Una sola strada: energy | 1000 | 84% | 16% | 0% | 2058 |
+| Una sola strada: sea-culture | 1000 | 86% | 14% | 0% | 2074 |
+| Prudente sui conti | 1000 | 0% | 100% | 0% | 2050 |
+| Nessuna azione | 1000 | 0% | 100% | 0% | 2050 |
 
 ### 2. Valori mediani a fine partita
 
@@ -82,60 +140,45 @@ Fondi in milioni di euro; lavoro in persone; coscienza e reputazione da -100 a +
 
 | Bot | Fondi propri | Fondo statale | Fondo europeo | Fondi privati | Occupati locali | Cassa integrati | Disoccupati | Coscienza | Reputazione | Scandali |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Tutto Blu | -3,9 | 0,4 | 136,0 | 0,0 | 52.900 | 6270 | 13.430 | 6,7 | 6,7 | 0,0 |
-| Tutto Red | 486,3 | 3968,4 | 3,0 | 0,0 | 57.680 | 0 | 15.720 | -32,0 | -47,0 | 48,0 |
-| Casuale | -0,8 | 118,3 | 5,0 | 0,0 | 54.200 | 4180 | 13.392 | 2,3 | -5,9 | 2,0 |
-| Una sola strada: green-steel | -4,1 | 9,3 | 72,0 | 0,0 | 52.900 | 6516 | 14.034 | -2,6 | -16,4 | 1,0 |
-| Una sola strada: remediation | -3,8 | 135,3 | 6,0 | 0,0 | 53.000 | 6500 | 13.850 | -2,8 | -16,8 | 1,0 |
-| Una sola strada: energy | 465,9 | 1295,4 | 28,0 | 0,0 | 55.200 | 4200 | 14.000 | -6,9 | -21,8 | 12,0 |
-| Una sola strada: sea-culture | 262,5 | 1822,6 | 2,0 | 0,0 | 57.000 | 3550 | 12.900 | -4,2 | -19,2 | 9,0 |
-| Prudente sui conti | 233,0 | 129,8 | 43,0 | 0,0 | 54.500 | 6100 | 12.800 | -4,4 | -19,0 | 10,5 |
-| Nessuna azione | -5,9 | 50,0 | 64,0 | 0,0 | 52.550 | 7000 | 13.850 | 3,8 | 3,8 | 0,0 |
+| Tutto Blu | -3,9 | 0,4 | 134,0 | 0,0 | 52.900 | 6270 | 13.430 | 6,7 | 6,7 | 0,0 |
+| Tutto Red | -13,5 | 28,4 | 4,0 | 0,0 | 54.370 | 3386 | 15.490 | -24,2 | -38,5 | 6,0 |
+| Casuale | -3,5 | 57,3 | 32,0 | 0,0 | 53.700 | 4950 | 14.129 | 0,4 | -12,9 | 1,0 |
+| Una sola strada: green-steel | -6,6 | 7,7 | 68,0 | 0,0 | 52.850 | 6600 | 14.000 | -1,4 | -15,4 | 1,0 |
+| Una sola strada: remediation | -6,7 | 134,0 | 2,0 | 0,0 | 52.950 | 6600 | 13.850 | -1,7 | -15,8 | 1,0 |
+| Una sola strada: energy | 261,8 | 300,0 | 0,0 | 0,0 | 55.350 | 4108 | 14.000 | -4,8 | -19,7 | 10,0 |
+| Una sola strada: sea-culture | 152,1 | 300,0 | 2,0 | 0,0 | 56.950 | 3600 | 12.900 | -3,8 | -18,6 | 9,0 |
+| Prudente sui conti | -8,1 | 42,5 | 60,0 | 0,0 | 53.050 | 6670 | 13.680 | -3,0 | -17,6 | 2,0 |
+| Nessuna azione | -5,6 | 50,0 | 64,0 | 0,0 | 52.700 | 7000 | 13.700 | 3,6 | 3,6 | 0,0 |
 
 Qualità dell'aria (100 = aria pulita) e fiducia, per quartiere:
 
 | Bot | Aria Tamburi | Aria Paolo VI | Aria Città Vecchia | Aria Borgo | Aria Talsano | Aria Area ind. | Fiducia Tamburi | Fiducia Paolo VI | Fiducia Città Vecchia | Fiducia Borgo | Fiducia Talsano | Fiducia Area ind. |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Tutto Blu | 35,0 | 50,0 | 55,0 | 60,0 | 70,0 | 20,0 | 29,8 | 29,2 | 30,0 | 40,0 | 45,0 | 15,0 |
-| Tutto Red | 34,0 | 50,0 | 55,0 | 60,0 | 70,0 | 20,0 | 12,0 | 28,0 | 30,0 | 40,0 | 45,0 | 15,0 |
-| Casuale | 35,0 | 50,0 | 55,0 | 60,0 | 70,0 | 20,0 | 27,0 | 28,0 | 30,0 | 40,0 | 45,0 | 15,0 |
-| Una sola strada: green-steel | 35,0 | 50,0 | 55,0 | 60,0 | 70,0 | 20,0 | 21,0 | 25,0 | 30,0 | 40,0 | 45,0 | 15,0 |
-| Una sola strada: remediation | 35,0 | 50,0 | 55,0 | 60,0 | 70,0 | 20,0 | 21,0 | 25,0 | 30,0 | 40,0 | 45,0 | 15,0 |
-| Una sola strada: energy | 35,0 | 50,0 | 55,0 | 60,0 | 70,0 | 20,0 | 20,0 | 25,0 | 30,0 | 40,0 | 45,0 | 15,0 |
-| Una sola strada: sea-culture | 35,0 | 50,0 | 55,0 | 60,0 | 70,0 | 20,0 | 17,0 | 25,0 | 30,0 | 40,0 | 45,0 | 15,0 |
-| Prudente sui conti | 38,0 | 50,0 | 55,0 | 60,0 | 70,0 | 20,0 | 28,0 | 28,0 | 30,0 | 40,0 | 45,0 | 15,0 |
-| Nessuna azione | 35,0 | 50,0 | 55,0 | 60,0 | 70,0 | 20,0 | 28,0 | 25,0 | 30,0 | 40,0 | 45,0 | 15,0 |
+| Tutto Blu | 55,0 | 71,7 | 75,3 | 77,4 | 82,0 | 44,4 | 34,0 | 36,1 | 35,2 | 40,8 | 43,7 | 26,9 |
+| Tutto Red | 62,3 | 77,2 | 79,9 | 81,4 | 84,4 | 54,5 | 12,6 | 19,2 | 19,0 | 22,8 | 24,9 | 12,3 |
+| Casuale | 57,3 | 75,4 | 78,8 | 80,5 | 84,2 | 48,4 | 30,1 | 32,2 | 32,4 | 36,6 | 38,9 | 25,5 |
+| Una sola strada: green-steel | 63,4 | 77,9 | 80,7 | 82,0 | 84,8 | 56,3 | 28,0 | 31,3 | 32,1 | 35,2 | 37,1 | 25,7 |
+| Una sola strada: remediation | 63,7 | 78,1 | 80,8 | 82,1 | 84,8 | 56,7 | 28,0 | 31,2 | 32,0 | 35,2 | 37,0 | 25,7 |
+| Una sola strada: energy | 81,5 | 83,9 | 84,3 | 84,5 | 85,0 | 80,3 | 29,4 | 32,1 | 33,4 | 34,5 | 35,1 | 26,5 |
+| Una sola strada: sea-culture | 79,7 | 83,4 | 83,6 | 84,0 | 85,0 | 75,8 | 32,0 | 34,6 | 35,9 | 36,7 | 37,2 | 29,0 |
+| Prudente sui conti | 56,7 | 75,6 | 79,2 | 80,9 | 84,6 | 47,1 | 28,4 | 31,0 | 29,8 | 33,5 | 35,6 | 23,2 |
+| Nessuna azione | 56,5 | 75,6 | 79,2 | 80,9 | 84,6 | 47,1 | 34,0 | 35,8 | 36,6 | 39,9 | 41,8 | 30,0 |
 
 ### 3. Bot con lo stesso esito in più del 90% delle partite
 
 - **ATTENZIONE** Tutto Blu: finisce in dissesto nel 100% delle partite.
-- **ATTENZIONE** Tutto Red: arriva al 2127 nel 100% delle partite.
-- **ATTENZIONE** Una sola strada: green-steel: finisce in dissesto nel 94% delle partite.
-- **ATTENZIONE** Una sola strada: remediation: finisce in dissesto nel 98% delle partite.
-- **ATTENZIONE** Una sola strada: energy: arriva al 2127 nel 98% delle partite.
-- **ATTENZIONE** Una sola strada: sea-culture: arriva al 2127 nel 100% delle partite.
+- **ATTENZIONE** Tutto Red: finisce in dissesto nel 100% delle partite.
+- **ATTENZIONE** Una sola strada: green-steel: finisce in dissesto nel 100% delle partite.
+- **ATTENZIONE** Una sola strada: remediation: finisce in dissesto nel 100% delle partite.
+- **ATTENZIONE** Prudente sui conti: finisce in dissesto nel 100% delle partite.
 - **ATTENZIONE** Nessuna azione: finisce in dissesto nel 100% delle partite.
 
 ### 4. Variabili che crescono o calano senza limite
 
 Mediane ai turni 25, 50, 75, 100 (anni 2052, 2077, 2102, 2127), tra le partite ancora in corso.
 
-- **ATTENZIONE** Tutto Red: fondi propri cresce senza rallentare (37,6 → 168,5 → 328,0 → 486,4).
-- **ATTENZIONE** Tutto Red: fondo statale cresce senza rallentare (18,0 → 973,6 → 2471,3 → 3971,3).
-- **ATTENZIONE** Casuale: fondi propri cresce senza rallentare (3,2 → 21,3 → 148,3 → 430,7).
-- **ATTENZIONE** Casuale: fondo statale cresce senza rallentare (56,5 → 681,3 → 1610,5 → 2527,9).
-- **ATTENZIONE** Casuale: imprese dell'indotto cresce senza rallentare (350,0 → 374,0 → 422,0 → 464,0).
-- **ATTENZIONE** Casuale: disoccupati cala senza rallentare (14.840,0 → 14.650,0 → 11.880,0 → 9140,0).
-- **ATTENZIONE** Casuale: emissioni cresce senza rallentare (42,0 → 49,0 → 59,0 → 65,0).
-- **ATTENZIONE** Casuale: coscienza cresce senza rallentare (-2,0 → 1,7 → 6,0 → 9,7).
-- **ATTENZIONE** Casuale: reputazione cresce senza rallentare (-15,9 → -12,7 → -8,1 → -5,3).
-- **ATTENZIONE** Una sola strada: energy: fondi propri cresce senza rallentare (55,7 → 178,9 → 317,4 → 467,3).
-- **ATTENZIONE** Una sola strada: energy: fondo statale cresce senza rallentare (8,5 → 293,2 → 751,9 → 1305,1).
-- **ATTENZIONE** Una sola strada: energy: fondo europeo cala senza rallentare (72,0 → 64,0 → 44,0 → 28,0).
-- **ATTENZIONE** Una sola strada: sea-culture: fondi propri cresce senza rallentare (56,7 → 105,5 → 174,5 → 262,5).
-- **ATTENZIONE** Una sola strada: sea-culture: fondo statale cresce senza rallentare (272,6 → 595,3 → 1113,6 → 1824,5).
-- **ATTENZIONE** Prudente sui conti: fondi propri cresce senza rallentare (6,6 → 19,9 → 103,6 → 270,9).
-- **ATTENZIONE** Prudente sui conti: fondo statale cresce senza rallentare (32,4 → 61,8 → 99,6 → 243,0).
+- **ATTENZIONE** Una sola strada: energy: fondi propri cresce senza rallentare (44,8 → 120,0 → 196,1 → 285,3).
+- **ATTENZIONE** Una sola strada: sea-culture: fondi propri cresce senza rallentare (48,4 → 70,8 → 110,2 → 171,0).
 
 ### 5. Leve mai usate o sempre convenienti
 
@@ -143,64 +186,67 @@ Nessuna leva è rimasta inutilizzata da tutti i bot.
 
 Confronto nelle partite del bot casuale tra chi ha usato la leva nei primi 10 anni e chi no (per i dilemmi: chi ha scelto un'altra opzione dello stesso dilemma).
 
-- **ATTENZIONE** progetto:lotto-bonifica: sempre conveniente per il bot casuale. Con la leva (711 partite): 47% al 2127, fondi propri -0,5, occupati 54.520, reputazione -5,8. Senza (289): 39%, -1,5, 53.680, -5,9.
-- **ATTENZIONE** progetto:lotto-energia: sempre conveniente per il bot casuale. Con la leva (692 partite): 49% al 2127, fondi propri -0,1, occupati 55.120, reputazione -5,5. Senza (308): 33%, -2,1, 53.650, -8,5.
-- **ATTENZIONE** progetto:lotto-mare-cultura: sempre conveniente per il bot casuale. Con la leva (681 partite): 52% al 2127, fondi propri 66,6, occupati 59.440, reputazione -5,6. Senza (319): 29%, -2,0, 53.520, -7,1.
-- **ATTENZIONE** progetto:banchine-logistica: sempre conveniente per il bot casuale. Con la leva (251 partite): 53% al 2127, fondi propri 135,6, occupati 59.800, reputazione -5,5. Senza (749): 42%, -1,0, 53.990, -6,3.
-- **ATTENZIONE** progetto:centro-ricerca-mare: sempre conveniente per il bot casuale. Con la leva (262 partite): 57% al 2127, fondi propri 337,5, occupati 60.940, reputazione -4,7. Senza (738): 40%, -1,3, 53.910, -6,9.
-- **ATTENZIONE** strada:remediation: sempre conveniente per il bot casuale. Con la leva (577 partite): 48% al 2127, fondi propri -0,4, occupati 54.810, reputazione -5,6. Senza (423): 40%, -1,3, 53.780, -6,3.
-- **ATTENZIONE** strada:energy: sempre conveniente per il bot casuale. Con la leva (580 partite): 49% al 2127, fondi propri -0,2, occupati 54.915, reputazione -5,5. Senza (420): 39%, -1,6, 53.720, -6,6.
-- **ATTENZIONE** strada:sea-culture: sempre conveniente per il bot casuale. Con la leva (570 partite): 51% al 2127, fondi propri 57,1, occupati 58.460, reputazione -5,5. Senza (430): 37%, -1,5, 53.720, -7,1.
+- **ATTENZIONE** progetto:lotto-bonifica: sempre conveniente per il bot casuale. Con la leva (711 partite): 17% al 2127, fondi propri -3,4, occupati 53.790, reputazione -12,9. Senza (289): 11%, -3,9, 53.490, -13,0.
+- **ATTENZIONE** progetto:lotto-energia: sempre conveniente per il bot casuale. Con la leva (692 partite): 18% al 2127, fondi propri -3,2, occupati 53.820, reputazione -12,8. Senza (308): 9%, -4,1, 53.495, -13,4.
+- **ATTENZIONE** progetto:trasporto-rapido: sempre conveniente per il bot casuale. Con la leva (298 partite): 19% al 2127, fondi propri -3,3, occupati 53.820, reputazione -12,8. Senza (702): 14%, -3,5, 53.660, -12,9.
+- **ATTENZIONE** progetto:centro-ricerca-mare: sempre conveniente per il bot casuale. Con la leva (262 partite): 24% al 2127, fondi propri -2,8, occupati 53.828, reputazione -11,9. Senza (738): 12%, -3,8, 53.670, -13,0.
+- **ATTENZIONE** dilemma:affidamento-bonifica/gara-regolare: sempre conveniente per il bot casuale. Con la leva (168 partite): 19% al 2127, fondi propri -2,9, occupati 53.810, reputazione -11,8. Senza (321): 10%, -4,1, 53.700, -14,0.
+- **ATTENZIONE** dilemma:rendiconto-fondi-europei/chiedere-proroga: sempre conveniente per il bot casuale. Con la leva (195 partite): 16% al 2127, fondi propri -3,3, occupati 53.730, reputazione -11,6. Senza (287): 10%, -4,1, 53.650, -14,2.
+- **ATTENZIONE** strada:energy: sempre conveniente per il bot casuale. Con la leva (580 partite): 18% al 2127, fondi propri -3,2, occupati 53.830, reputazione -12,8. Senza (420): 12%, -3,8, 53.550, -13,2.
 
 Quota di partite in cui ogni leva è stata usata, per bot:
 
 | Leva | blu | red | casuale | strada-green-steel | strada-remediation | strada-energy | strada-sea-culture | prudente | nessuna |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| progetto:lotto-acciaio-verde | 100% | 100% | 90% | 100% | 0% | 0% | 0% | 0% | 0% |
-| progetto:lotto-bonifica | 100% | 100% | 91% | 0% | 100% | 0% | 0% | 0% | 0% |
-| progetto:lotto-energia | 24% | 100% | 90% | 0% | 0% | 100% | 0% | 0% | 0% |
-| progetto:lotto-mare-cultura | 0% | 100% | 89% | 0% | 0% | 0% | 100% | 0% | 0% |
-| progetto:risanamento-citta-vecchia | 100% | 100% | 66% | 0% | 0% | 0% | 0% | 35% | 0% |
-| progetto:scuole-paolo-vi | 100% | 100% | 65% | 0% | 0% | 0% | 0% | 100% | 0% |
-| progetto:medicina-territorio | 53% | 95% | 65% | 0% | 0% | 0% | 0% | 100% | 0% |
-| progetto:fascia-verde-tamburi | 0% | 86% | 66% | 0% | 0% | 0% | 0% | 100% | 0% |
-| progetto:banchine-logistica | 0% | 83% | 62% | 0% | 0% | 0% | 0% | 54% | 0% |
-| progetto:difese-costiere | 0% | 81% | 63% | 0% | 0% | 0% | 0% | 77% | 0% |
-| progetto:trasporto-rapido | 0% | 81% | 66% | 0% | 0% | 0% | 0% | 56% | 0% |
-| progetto:riqualificazione-talsano | 0% | 35% | 65% | 0% | 0% | 0% | 0% | 100% | 0% |
-| progetto:centro-ricerca-mare | 0% | 35% | 63% | 0% | 0% | 0% | 0% | 93% | 0% |
-| politica:formazione-riconversione | 100% | 0% | 65% | 0% | 0% | 0% | 0% | 0% | 0% |
-| politica:dati-aperti-aria | 100% | 0% | 67% | 0% | 0% | 0% | 0% | 0% | 0% |
-| politica:consulte-quartiere | 100% | 0% | 68% | 0% | 0% | 0% | 0% | 0% | 0% |
-| politica:integrazione-reddito | 100% | 0% | 69% | 0% | 0% | 0% | 0% | 0% | 0% |
-| politica:sgravi-indotto | 0% | 0% | 70% | 0% | 0% | 0% | 0% | 0% | 0% |
-| politica:controlli-appalti | 100% | 0% | 67% | 0% | 0% | 0% | 0% | 0% | 0% |
-| politica:trasporto-giovani | 100% | 0% | 68% | 0% | 0% | 0% | 0% | 0% | 0% |
-| politica:piano-caldo | 80% | 0% | 67% | 0% | 0% | 0% | 0% | 0% | 0% |
-| dilemma:polveri-giorni-di-vento/pubblica-subito | 60% | 0% | 30% | 34% | 33% | 35% | 33% | 98% | 93% |
-| dilemma:polveri-giorni-di-vento/pubblica-con-piano | 0% | 0% | 29% | 34% | 32% | 33% | 34% | 0% | 0% |
-| dilemma:polveri-giorni-di-vento/rinvia | 0% | 99% | 29% | 29% | 32% | 31% | 32% | 0% | 0% |
-| dilemma:affidamento-bonifica/gara-regolare | 49% | 0% | 27% | 30% | 29% | 32% | 33% | 0% | 82% |
-| dilemma:affidamento-bonifica/affidamento-diretto | 0% | 100% | 27% | 30% | 32% | 33% | 32% | 92% | 0% |
-| dilemma:affidamento-bonifica/studio-preliminare | 0% | 0% | 29% | 31% | 32% | 34% | 36% | 0% | 0% |
-| dilemma:posti-nuovo-polo/selezione-pubblica | 34% | 0% | 61% | 58% | 65% | 95% | 100% | 94% | 80% |
-| dilemma:posti-nuovo-polo/lista-segnalata | 0% | 100% | 58% | 53% | 65% | 95% | 100% | 0% | 0% |
-| dilemma:posti-nuovo-polo/priorita-ex-lavoratori | 0% | 0% | 61% | 58% | 64% | 96% | 100% | 0% | 0% |
-| dilemma:presidio-ai-cancelli/incontrare | 49% | 0% | 53% | 61% | 71% | 81% | 89% | 0% | 88% |
-| dilemma:presidio-ai-cancelli/sgomberare | 0% | 96% | 46% | 64% | 69% | 80% | 89% | 0% | 0% |
-| dilemma:presidio-ai-cancelli/lasciar-correre | 0% | 0% | 48% | 60% | 70% | 81% | 89% | 98% | 0% |
-| dilemma:rendiconto-fondi-europei/dichiarare-ritardo | 49% | 0% | 40% | 60% | 42% | 98% | 32% | 0% | 85% |
-| dilemma:rendiconto-fondi-europei/chiedere-proroga | 0% | 0% | 37% | 63% | 44% | 98% | 25% | 0% | 0% |
-| dilemma:rendiconto-fondi-europei/spese-anticipate | 0% | 82% | 34% | 57% | 35% | 97% | 26% | 90% | 0% |
-| dilemma:scuole-giorni-di-vento/chiudere | 49% | 0% | 27% | 29% | 30% | 35% | 33% | 97% | 82% |
-| dilemma:scuole-giorni-di-vento/spazi-sicuri | 0% | 0% | 26% | 30% | 30% | 31% | 35% | 0% | 0% |
-| dilemma:scuole-giorni-di-vento/lasciare-aperte | 0% | 100% | 31% | 31% | 33% | 34% | 33% | 0% | 0% |
-| strada:green-steel | 100% | 100% | 83% | 100% | 0% | 0% | 0% | 0% | 0% |
-| strada:remediation | 100% | 100% | 84% | 0% | 100% | 0% | 0% | 0% | 0% |
-| strada:energy | 24% | 100% | 85% | 0% | 0% | 100% | 0% | 0% | 0% |
-| strada:sea-culture | 0% | 100% | 84% | 0% | 0% | 0% | 100% | 0% | 0% |
+| progetto:lotto-acciaio-verde | 100% | 100% | 86% | 100% | 0% | 0% | 0% | 0% | 0% |
+| progetto:lotto-bonifica | 100% | 100% | 87% | 0% | 100% | 0% | 0% | 0% | 0% |
+| progetto:lotto-energia | 25% | 99% | 86% | 0% | 0% | 100% | 0% | 0% | 0% |
+| progetto:lotto-mare-cultura | 0% | 91% | 85% | 0% | 0% | 0% | 100% | 0% | 0% |
+| progetto:risanamento-citta-vecchia | 100% | 100% | 50% | 0% | 0% | 0% | 0% | 0% | 0% |
+| progetto:scuole-paolo-vi | 100% | 100% | 51% | 0% | 0% | 0% | 0% | 97% | 0% |
+| progetto:medicina-territorio | 53% | 89% | 52% | 0% | 0% | 0% | 0% | 100% | 0% |
+| progetto:fascia-verde-tamburi | 0% | 55% | 51% | 0% | 0% | 0% | 0% | 100% | 0% |
+| progetto:banchine-logistica | 0% | 24% | 49% | 0% | 0% | 0% | 0% | 0% | 0% |
+| progetto:difese-costiere | 0% | 6% | 49% | 0% | 0% | 0% | 0% | 35% | 0% |
+| progetto:trasporto-rapido | 0% | 1% | 52% | 0% | 0% | 0% | 0% | 5% | 0% |
+| progetto:riqualificazione-talsano | 0% | 0% | 50% | 0% | 0% | 0% | 0% | 100% | 0% |
+| progetto:centro-ricerca-mare | 0% | 0% | 48% | 0% | 0% | 0% | 0% | 63% | 0% |
+| politica:formazione-riconversione | 100% | 0% | 51% | 0% | 0% | 0% | 0% | 0% | 0% |
+| politica:dati-aperti-aria | 100% | 0% | 53% | 0% | 0% | 0% | 0% | 0% | 0% |
+| politica:consulte-quartiere | 100% | 0% | 52% | 0% | 0% | 0% | 0% | 0% | 0% |
+| politica:integrazione-reddito | 100% | 0% | 52% | 0% | 0% | 0% | 0% | 0% | 0% |
+| politica:sgravi-indotto | 0% | 0% | 54% | 0% | 0% | 0% | 0% | 0% | 0% |
+| politica:controlli-appalti | 100% | 0% | 51% | 0% | 0% | 0% | 0% | 0% | 0% |
+| politica:trasporto-giovani | 100% | 0% | 51% | 0% | 0% | 0% | 0% | 0% | 0% |
+| politica:piano-caldo | 80% | 0% | 53% | 0% | 0% | 0% | 0% | 0% | 0% |
+| dilemma:polveri-giorni-di-vento/pubblica-subito | 61% | 0% | 30% | 33% | 33% | 35% | 34% | 91% | 94% |
+| dilemma:polveri-giorni-di-vento/pubblica-con-piano | 0% | 0% | 28% | 33% | 33% | 32% | 33% | 0% | 0% |
+| dilemma:polveri-giorni-di-vento/rinvia | 0% | 87% | 27% | 28% | 31% | 32% | 32% | 0% | 0% |
+| dilemma:affidamento-bonifica/gara-regolare | 51% | 0% | 25% | 30% | 28% | 33% | 33% | 0% | 83% |
+| dilemma:affidamento-bonifica/affidamento-diretto | 0% | 80% | 25% | 29% | 33% | 33% | 32% | 84% | 0% |
+| dilemma:affidamento-bonifica/studio-preliminare | 0% | 0% | 28% | 29% | 31% | 33% | 35% | 0% | 0% |
+| dilemma:posti-nuovo-polo/selezione-pubblica | 36% | 0% | 43% | 50% | 58% | 91% | 97% | 80% | 84% |
+| dilemma:posti-nuovo-polo/lista-segnalata | 0% | 77% | 43% | 47% | 63% | 90% | 98% | 0% | 0% |
+| dilemma:posti-nuovo-polo/priorita-ex-lavoratori | 0% | 0% | 44% | 51% | 58% | 90% | 97% | 0% | 0% |
+| dilemma:presidio-ai-cancelli/incontrare | 51% | 0% | 45% | 53% | 60% | 80% | 90% | 0% | 89% |
+| dilemma:presidio-ai-cancelli/sgomberare | 0% | 82% | 40% | 59% | 65% | 80% | 89% | 0% | 0% |
+| dilemma:presidio-ai-cancelli/lasciar-correre | 0% | 0% | 42% | 55% | 64% | 80% | 89% | 86% | 0% |
+| dilemma:rendiconto-fondi-europei/dichiarare-ritardo | 50% | 0% | 36% | 54% | 39% | 92% | 28% | 0% | 86% |
+| dilemma:rendiconto-fondi-europei/chiedere-proroga | 0% | 0% | 35% | 55% | 36% | 90% | 26% | 0% | 0% |
+| dilemma:rendiconto-fondi-europei/spese-anticipate | 0% | 78% | 34% | 54% | 36% | 96% | 27% | 87% | 0% |
+| dilemma:scuole-giorni-di-vento/chiudere | 34% | 0% | 12% | 9% | 9% | 10% | 11% | 35% | 38% |
+| dilemma:scuole-giorni-di-vento/spazi-sicuri | 0% | 0% | 10% | 12% | 10% | 10% | 10% | 0% | 0% |
+| dilemma:scuole-giorni-di-vento/lasciare-aperte | 0% | 30% | 13% | 12% | 11% | 11% | 9% | 0% | 0% |
+| strada:green-steel | 100% | 100% | 78% | 100% | 0% | 0% | 0% | 0% | 0% |
+| strada:remediation | 100% | 100% | 79% | 0% | 100% | 0% | 0% | 0% | 0% |
+| strada:energy | 25% | 99% | 78% | 0% | 0% | 100% | 0% | 0% | 0% |
+| strada:sea-culture | 0% | 91% | 77% | 0% | 0% | 0% | 100% | 0% | 0% |
 
-## Che cosa dice il rapporto
+## Analisi e proposte del T06 (in sospeso)
+
+Quanto segue è stato calcolato **prima del T07**, sul motore senza dinamica dei quartieri e senza conseguenze degli scandali. I numeri degli esperimenti non valgono più e vanno ricalcolati; le proposte restano come traccia, nessuna è stata applicata.
+
+### Che cosa dice il rapporto
 
 1. **Essere corretti porta al dissesto, essere scorretti no.** Tutto Blu va in
    dissesto nel 100% delle partite, in mediana nel 2037; Tutto Red arriva al 2127 in
@@ -232,7 +278,7 @@ Quota di partite in cui ogni leva è stata usata, per bot:
    tre strade energia, mare e cultura e bonifica (in parte perché i cantieri
    assumono), le banchine nel porto e il centro di ricerca sul mare.
 
-## Errore del motore trovato
+### Errore del motore trovato (corretto nel T07)
 
 In 4 partite su 9.000 (tutte del bot "una sola strada: acciaio verde") il motore
 produce un fondo statale negativo di -7·10⁻¹⁵, cioè un errore di arrotondamento.
@@ -243,7 +289,7 @@ in virgola mobile può superare il fondo di un'inezia (per esempio 63 / 0,009 d�
 statistiche e il rapporto le elenca. La correzione spetta a `sim-engineer`: questo
 task non può toccare `packages/sim`.
 
-## Esperimenti sulle proposte
+### Esperimenti sulle proposte
 
 Prima di proporre, ogni modifica è stata provata in memoria, senza toccare i dati,
 su 150 partite per bot (semi da 1 a 150). Quota di partite arrivate al 2127:
@@ -264,7 +310,7 @@ su 150 partite per bot (semi da 1 a 150). Quota di partite arrivate al 2127:
 Nessuna combinazione di valori toglie al Red la certezza di arrivare al 2127: per
 quello serve una regola nel motore (vedi sotto).
 
-## Proposte di modifica ai valori, in ordine di importanza
+### Proposte di modifica ai valori, in ordine di importanza
 
 1. **Costo annuo dei servizi da 37 a 36 milioni** (`parametri.json`,
    `economy.servicesCostPerYear`).
@@ -315,7 +361,7 @@ le segnalazioni tranne la certezza del Red, che dipende dal motore. Il pacchetto
 è più generoso: quasi tutti i bot superano il 90% di partite al 2127, quindi
 riaccende la segnalazione "stesso esito".
 
-## Richieste al motore (fuori da questo task)
+### Richieste al motore (fuori da questo task)
 
 Non sono valori dei contenuti: servono task per `sim-engineer`.
 
