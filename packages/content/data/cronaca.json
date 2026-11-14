@@ -1,0 +1,43 @@
+{
+  "descrizione": "La Cronaca: titoli sobri sull'anno appena chiuso, scelti dai cambiamenti più forti.",
+  "soglie": {
+    "fiducia": {
+      "valore": 3,
+      "stima": true,
+      "motivazione": "Variazione minima in un anno perché la Cronaca ne parli: scelta di gioco."
+    },
+    "salute": {
+      "valore": 2,
+      "stima": true,
+      "motivazione": "Variazione minima in un anno perché la Cronaca ne parli: scelta di gioco."
+    },
+    "aria": {
+      "valore": 3,
+      "stima": true,
+      "motivazione": "Variazione minima in un anno perché la Cronaca ne parli: scelta di gioco."
+    },
+    "tensione": {
+      "valore": 4,
+      "stima": true,
+      "motivazione": "Variazione minima in un anno perché la Cronaca ne parli: scelta di gioco."
+    }
+  },
+  "titoli": {
+    "dissesto": "Il Comune dichiara il dissesto finanziario.",
+    "abbandono": "La città volta le spalle al Comune: la fiducia non c'è più.",
+    "fine": "Si chiude il secolo di Taranto.",
+    "scandalo-scorciatoia": "Scoperta una scorciatoia sul cantiere «{progetto}»: lavori fermi e fiducia in calo.",
+    "scandalo-dilemma": "Viene alla luce una scelta tenuta nascosta: «{dilemma}».",
+    "scandalo": "Uno scandalo scuote il Comune.",
+    "promessa-mantenuta": "Promessa mantenuta: {promessa}",
+    "promessa-tradita": "Promessa tradita: {promessa}",
+    "in-esercizio": "Entra in funzione: {progetto}.",
+    "cantiere-apre": "Aprono i lavori: {progetto}.",
+    "cantiere-fermo": "Cantiere fermo per mancanza di fondi: {progetto}.",
+    "quartiere-fiducia": "{quartiere}: cala la fiducia nel Comune.",
+    "quartiere-salute": "{quartiere}: peggiorano le condizioni di salute.",
+    "quartiere-aria": "{quartiere}: l'aria torna a peggiorare.",
+    "quartiere-tensione": "{quartiere}: cresce la tensione.",
+    "nessuna": "Un anno senza grandi notizie."
+  }
+}

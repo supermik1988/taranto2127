@@ -7,6 +7,7 @@ export {
   loadContent,
   toEngineData,
   validateContentFiles,
+  type ChronicleTexts,
   type ContentFiles,
   type ContentTexts,
   type LoadedContent,

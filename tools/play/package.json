@@ -1,0 +1,20 @@
+{
+  "name": "@taranto2127/play",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Partita dal terminale: schermata dell'anno, Cronaca, Consiglio, azioni e ritratto finale.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@taranto2127/agents": "workspace:*",
+    "@taranto2127/content": "workspace:*",
+    "@taranto2127/sim": "workspace:*"
+  }
+}

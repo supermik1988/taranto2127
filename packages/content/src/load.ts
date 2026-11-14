@@ -3,10 +3,13 @@
  * contro gli schemi di `schema/`, toglie le annotazioni (stima o fonte) e i
  * testi, e restituisce i dati nella forma che `packages/sim` si aspetta.
  */
-import type { DistrictId, InitialContent, TurnRules } from '@taranto2127/sim';
+import type { CouncilLabels, CouncilRules } from '@taranto2127/agents';
+import type { ActivePath, DistrictId, InitialContent, ProjectPhase, TurnRules } from '@taranto2127/sim';
 import Ajv from 'ajv';
 import citta from '../data/citta.json';
 import clima from '../data/clima.json';
+import consiglio from '../data/consiglio.json';
+import cronaca from '../data/cronaca.json';
 import dilemmi from '../data/dilemmi.json';
 import parametri from '../data/parametri.json';
 import partenza from '../data/partenza.json';
@@ -15,6 +18,8 @@ import progetti from '../data/progetti.json';
 import quartieri from '../data/quartieri.json';
 import cittaSchema from '../schema/citta.schema.json';
 import climaSchema from '../schema/clima.schema.json';
+import consiglioSchema from '../schema/consiglio.schema.json';
+import cronacaSchema from '../schema/cronaca.schema.json';
 import comuneSchema from '../schema/comune.schema.json';
 import dilemmiSchema from '../schema/dilemmi.schema.json';
 import parametriSchema from '../schema/parametri.schema.json';
@@ -40,9 +45,11 @@ export interface ContentFiles {
   dilemmi: unknown;
   parametri: unknown;
   citta: unknown;
+  consiglio: unknown;
+  cronaca: unknown;
 }
 
-export const CONTENT_FILES: ContentFiles = { quartieri, partenza, clima, progetti, politiche, dilemmi, parametri, citta };
+export const CONTENT_FILES: ContentFiles = { quartieri, partenza, clima, progetti, politiche, dilemmi, parametri, citta, consiglio, cronaca };
 
 const SCHEMAS: Record<keyof ContentFiles, object> = {
   quartieri: quartieriSchema,
@@ -53,6 +60,8 @@ const SCHEMAS: Record<keyof ContentFiles, object> = {
   dilemmi: dilemmiSchema,
   parametri: parametriSchema,
   citta: cittaSchema,
+  consiglio: consiglioSchema,
+  cronaca: cronacaSchema,
 };
 
 // strictRequired spento: quartieri e settori sono chiavi obbligatorie elencate con propertyNames, non con properties.
@@ -169,10 +178,19 @@ export function checkConsistency(rules: TurnRules): string[] {
   return errors;
 }
 
+/** Titoli della Cronaca e soglie di variazione oltre le quali se ne parla. */
+export interface ChronicleTexts {
+  thresholds: { trust: number; health: number; air: number; tension: number };
+  headlines: Record<string, string>;
+}
+
 export interface LoadedContent {
   initialContent: InitialContent;
   rules: TurnRules;
   texts: ContentTexts;
+  council: CouncilRules;
+  councilLabels: CouncilLabels;
+  chronicle: ChronicleTexts;
 }
 
 /**
@@ -219,5 +237,29 @@ export function loadContent(files: ContentFiles = CONTENT_FILES): LoadedContent 
     ...[...lotIds].filter((id) => !(id in rules.city.air.lotWeights)).map((id) => `citta.air.lotWeights: manca il lotto ${id}`),
   ];
   if (consistencyErrors.length > 0) throw new ContentError(consistencyErrors);
-  return { initialContent, rules, texts: texts(files) };
+  const allTexts = texts(files);
+  const cons = toEngineData(files.consiglio) as CouncilRules & {
+    pathNames: Record<ActivePath, string>;
+    phaseNames: Partial<Record<ProjectPhase, string>>;
+  };
+  const council: CouncilRules = { patienceForShortcut: cons.patienceForShortcut, savingReason: cons.savingReason, visions: cons.visions };
+  const councilErrors = Object.entries(council.visions).flatMap(([vision, v]) => [
+    ...v.projects.filter((id) => !Object.hasOwn(rules.projects, id)).map((id) => `consiglio.${vision}: progetto inesistente ${id}`),
+    ...v.policies.filter((id) => !Object.hasOwn(rules.policies, id)).map((id) => `consiglio.${vision}: politica inesistente ${id}`),
+  ]);
+  if (councilErrors.length > 0) throw new ContentError(councilErrors);
+  const names = (record: Record<string, { nome: string }>) => Object.fromEntries(Object.entries(record).map(([id, t]) => [id, t.nome]));
+  const councilLabels: CouncilLabels = {
+    projects: names(allTexts.projects),
+    policies: names(allTexts.policies),
+    lots: names(allTexts.plantLots),
+    paths: cons.pathNames,
+    phases: cons.phaseNames,
+  };
+  const k = toEngineData(files.cronaca) as { soglie: { fiducia: number; salute: number; aria: number; tensione: number }; titoli: Record<string, string> };
+  const chronicle: ChronicleTexts = {
+    thresholds: { trust: k.soglie.fiducia, health: k.soglie.salute, air: k.soglie.aria, tension: k.soglie.tensione },
+    headlines: k.titoli,
+  };
+  return { initialContent, rules, texts: allTexts, council, councilLabels, chronicle };
 }

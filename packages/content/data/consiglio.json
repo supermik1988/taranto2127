@@ -1,0 +1,164 @@
+{
+  "descrizione": "Il Consiglio: che cosa sostiene ogni visione, quando si allarma e con quali parole lo dice.",
+  "patienceForShortcut": {
+    "valore": 35,
+    "stima": true,
+    "motivazione": "Sotto questa pazienza un consigliere propone di saltare una fase: scelta di gioco."
+  },
+  "savingReason": "I fondi propri sono quasi finiti. Propongo di spegnere «{politica}» per evitare il disavanzo.",
+  "visions": {
+    "work-industry": {
+      "projects": [
+        "banchine-logistica",
+        "centro-ricerca-mare"
+      ],
+      "policies": [
+        "formazione-riconversione",
+        "sgravi-indotto"
+      ],
+      "alarm": {
+        "target": "@jobless",
+        "comparator": ">",
+        "value": {
+          "valore": 25,
+          "stima": true,
+          "motivazione": "Soglia di allarme del consigliere: scelta di gioco, stimata sui valori di partenza."
+        }
+      },
+      "reason": "Per dare lavoro stabile alla città propongo di {azione}.",
+      "alarmReason": "Troppe persone sono senza lavoro o in cassa integrazione. Propongo di {azione}.",
+      "shortcutReason": "Il cantiere «{progetto}» è fermo in {fase} da troppo tempo. Propongo di saltare la fase.",
+      "noProposal": "Per ora seguiamo i cantieri aperti: il lavoro arriverà da lì.",
+      "lotPath": "green-steel"
+    },
+    "health-environment": {
+      "projects": [
+        "fascia-verde-tamburi",
+        "medicina-territorio"
+      ],
+      "policies": [
+        "dati-aperti-aria",
+        "piano-caldo"
+      ],
+      "alarm": {
+        "target": "districts.tamburi.airQuality",
+        "comparator": "<",
+        "value": {
+          "valore": 50,
+          "stima": true,
+          "motivazione": "Soglia di allarme del consigliere: scelta di gioco, stimata sui valori di partenza."
+        }
+      },
+      "reason": "Per la salute di chi vive vicino ai lotti propongo di {azione}.",
+      "alarmReason": "L'aria dei Tamburi è ancora sotto il livello di guardia. Propongo di {azione}.",
+      "shortcutReason": "La gente dei Tamburi non può aspettare «{progetto}». Propongo di saltare la fase di {fase}.",
+      "noProposal": "Per ora teniamo d'occhio l'aria e i cantieri già aperti.",
+      "lotPath": "remediation"
+    },
+    "sea-culture": {
+      "projects": [
+        "risanamento-citta-vecchia",
+        "difese-costiere",
+        "centro-ricerca-mare"
+      ],
+      "policies": [
+        "piano-caldo"
+      ],
+      "alarm": {
+        "target": "districts.citta-vecchia.floodRisk",
+        "comparator": ">",
+        "value": {
+          "valore": 30,
+          "stima": true,
+          "motivazione": "Soglia di allarme del consigliere: scelta di gioco, stimata sui valori di partenza."
+        }
+      },
+      "reason": "Per riportare la città verso il mare propongo di {azione}.",
+      "alarmReason": "La Città Vecchia è esposta alle mareggiate. Propongo di {azione}.",
+      "shortcutReason": "«{progetto}» si è impantanato in {fase}. Propongo di saltare la fase.",
+      "noProposal": "Per ora lasciamo lavorare i cantieri sul mare già aperti.",
+      "lotPath": "sea-culture"
+    },
+    "public-accounts": {
+      "projects": [],
+      "policies": [],
+      "alarm": {
+        "target": "economy.funds.own",
+        "comparator": "<",
+        "value": {
+          "valore": 20,
+          "stima": true,
+          "motivazione": "Soglia di allarme del consigliere: scelta di gioco, stimata sui valori di partenza."
+        }
+      },
+      "reason": "Per tenere in ordine i conti propongo di {azione}: costa poco e porta entrate.",
+      "alarmReason": "I fondi propri sono bassi. L'unica spesa che propongo è {azione}, perché porta entrate.",
+      "shortcutReason": "Ogni anno di ritardo su «{progetto}» costa. Propongo di saltare la fase di {fase}.",
+      "noProposal": "Nessuna nuova spesa: i conti non lo permettono.",
+      "lotPath": "energy"
+    },
+    "youth-future": {
+      "projects": [
+        "centro-ricerca-mare",
+        "trasporto-rapido",
+        "scuole-paolo-vi"
+      ],
+      "policies": [
+        "trasporto-giovani",
+        "formazione-riconversione"
+      ],
+      "alarm": {
+        "target": "districts.paolo-vi.belonging",
+        "comparator": "<",
+        "value": {
+          "valore": 45,
+          "stima": true,
+          "motivazione": "Soglia di allarme del consigliere: scelta di gioco, stimata sui valori di partenza."
+        }
+      },
+      "reason": "Per dare a chi è giovane un motivo per restare propongo di {azione}.",
+      "alarmReason": "A Paolo VI i ragazzi pensano ad andarsene. Propongo di {azione}.",
+      "shortcutReason": "I ragazzi non possono aspettare «{progetto}». Propongo di saltare la fase di {fase}.",
+      "noProposal": "Per ora non ho proposte nuove: i progetti per i giovani sono già avviati."
+    },
+    "districts-periphery": {
+      "projects": [
+        "riqualificazione-talsano",
+        "scuole-paolo-vi",
+        "trasporto-rapido",
+        "medicina-territorio"
+      ],
+      "policies": [
+        "consulte-quartiere",
+        "integrazione-reddito"
+      ],
+      "alarm": {
+        "target": "districts.paolo-vi.services",
+        "comparator": "<",
+        "value": {
+          "valore": 35,
+          "stima": true,
+          "motivazione": "Soglia di allarme del consigliere: scelta di gioco, stimata sui valori di partenza."
+        }
+      },
+      "reason": "Per i quartieri lontani dal centro propongo di {azione}.",
+      "alarmReason": "A Paolo VI mancano servizi essenziali. Propongo di {azione}.",
+      "shortcutReason": "Nei quartieri aspettano «{progetto}» da troppo. Propongo di saltare la fase di {fase}.",
+      "noProposal": "Per ora non ho proposte nuove per i quartieri."
+    }
+  },
+  "pathNames": {
+    "green-steel": "l'acciaio verde",
+    "remediation": "la bonifica",
+    "energy": "l'energia rinnovabile",
+    "sea-culture": "il mare e la cultura"
+  },
+  "phaseNames": {
+    "design": "progettazione",
+    "permitting": "autorizzazioni",
+    "tender": "gara",
+    "works": "lavori",
+    "operating": "esercizio",
+    "cancelled": "annullato"
+  }
+}

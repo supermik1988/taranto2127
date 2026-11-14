@@ -185,10 +185,17 @@ importers:
         specifier: ^3.2.7
         version: 3.2.7(@types/node@22.20.5)(supports-color@7.2.0)(tsx@4.23.15)
 
-  packages/agents: {}
+  packages/agents:
+    dependencies:
+      '@taranto2127/sim':
+        specifier: workspace:*
+        version: link:../sim
 
   packages/content:
     dependencies:
+      '@taranto2127/agents':
+        specifier: workspace:*
+        version: link:../agents
       '@taranto2127/sim':
         specifier: workspace:*
         version: link:../sim
@@ -202,6 +209,18 @@ importers:
 
   tools/balance:
     dependencies:
+      '@taranto2127/content':
+        specifier: workspace:*
+        version: link:../../packages/content
+      '@taranto2127/sim':
+        specifier: workspace:*
+        version: link:../../packages/sim
+
+  tools/play:
+    dependencies:
+      '@taranto2127/agents':
+        specifier: workspace:*
+        version: link:../../packages/agents
       '@taranto2127/content':
         specifier: workspace:*
         version: link:../../packages/content

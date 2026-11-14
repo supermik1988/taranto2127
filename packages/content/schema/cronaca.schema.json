@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/cronaca.json",
+  "title": "La Cronaca: soglie e titoli",
+  "type": "object",
+  "required": [
+    "descrizione",
+    "soglie",
+    "titoli"
+  ],
+  "properties": {
+    "descrizione": {
+      "$ref": "comune.json#/$defs/testo"
+    },
+    "soglie": {
+      "type": "object",
+      "required": [
+        "fiducia",
+        "salute",
+        "aria",
+        "tensione"
+      ],
+      "properties": {
+        "fiducia": {
+          "$ref": "comune.json#/$defs/nonNegativo"
+        },
+        "salute": {
+          "$ref": "comune.json#/$defs/nonNegativo"
+        },
+        "aria": {
+          "$ref": "comune.json#/$defs/nonNegativo"
+        },
+        "tensione": {
+          "$ref": "comune.json#/$defs/nonNegativo"
+        }
+      },
+      "additionalProperties": false
+    },
+    "titoli": {
+      "type": "object",
+      "required": [
+        "dissesto",
+        "abbandono",
+        "fine",
+        "scandalo-scorciatoia",
+        "scandalo-dilemma",
+        "scandalo",
+        "promessa-mantenuta",
+        "promessa-tradita",
+        "in-esercizio",
+        "cantiere-apre",
+        "cantiere-fermo",
+        "quartiere-fiducia",
+        "quartiere-salute",
+        "quartiere-aria",
+        "quartiere-tensione",
+        "nessuna"
+      ],
+      "properties": {
+        "dissesto": {
+          "type": "string",
+          "minLength": 1
+        },
+        "abbandono": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fine": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scandalo-scorciatoia": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scandalo-dilemma": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scandalo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "promessa-mantenuta": {
+          "type": "string",
+          "minLength": 1
+        },
+        "promessa-tradita": {
+          "type": "string",
+          "minLength": 1
+        },
+        "in-esercizio": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cantiere-apre": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cantiere-fermo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quartiere-fiducia": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quartiere-salute": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quartiere-aria": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quartiere-tensione": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nessuna": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

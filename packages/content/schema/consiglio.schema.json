@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/consiglio.json",
+  "title": "Il Consiglio: visioni, allarmi e testi dei consigli",
+  "type": "object",
+  "required": [
+    "descrizione",
+    "patienceForShortcut",
+    "savingReason",
+    "visions",
+    "pathNames",
+    "phaseNames"
+  ],
+  "properties": {
+    "descrizione": {
+      "$ref": "comune.json#/$defs/testo"
+    },
+    "patienceForShortcut": {
+      "$ref": "comune.json#/$defs/indice"
+    },
+    "savingReason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "visions": {
+      "type": "object",
+      "required": [
+        "work-industry",
+        "health-environment",
+        "sea-culture",
+        "public-accounts",
+        "youth-future",
+        "districts-periphery"
+      ],
+      "properties": {
+        "work-industry": {
+          "$ref": "#/$defs/visione"
+        },
+        "health-environment": {
+          "$ref": "#/$defs/visione"
+        },
+        "sea-culture": {
+          "$ref": "#/$defs/visione"
+        },
+        "public-accounts": {
+          "$ref": "#/$defs/visione"
+        },
+        "youth-future": {
+          "$ref": "#/$defs/visione"
+        },
+        "districts-periphery": {
+          "$ref": "#/$defs/visione"
+        }
+      },
+      "additionalProperties": false
+    },
+    "pathNames": {
+      "type": "object",
+      "required": [
+        "green-steel",
+        "remediation",
+        "energy",
+        "sea-culture"
+      ],
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "phaseNames": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "visione": {
+      "type": "object",
+      "required": [
+        "projects",
+        "policies",
+        "alarm",
+        "reason",
+        "alarmReason",
+        "shortcutReason",
+        "noProposal"
+      ],
+      "properties": {
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "comune.json#/$defs/id"
+          }
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "$ref": "comune.json#/$defs/id"
+          }
+        },
+        "lotPath": {
+          "enum": [
+            "green-steel",
+            "remediation",
+            "energy",
+            "sea-culture"
+          ]
+        },
+        "alarm": {
+          "type": "object",
+          "required": [
+            "target",
+            "comparator",
+            "value"
+          ],
+          "properties": {
+            "target": {
+              "type": "string",
+              "minLength": 3
+            },
+            "comparator": {
+              "enum": [
+                "<",
+                ">"
+              ]
+            },
+            "value": {
+              "$ref": "comune.json#/$defs/numero"
+            }
+          },
+          "additionalProperties": false
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "alarmReason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shortcutReason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "noProposal": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

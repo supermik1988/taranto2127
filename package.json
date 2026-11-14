@@ -13,7 +13,8 @@
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint .",
     "test": "eslint . && vitest run",
-    "balance": "tsx tools/balance/src/cli.ts"
+    "balance": "tsx tools/balance/src/cli.ts",
+    "play": "tsx tools/play/src/cli.ts"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",
