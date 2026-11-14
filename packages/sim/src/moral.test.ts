@@ -190,10 +190,14 @@ describe('scandalo', () => {
 
 describe('scorciatoia', () => {
   const start = (): GameState => act(initial(), { kind: 'start-project', definitionId: 'progetto-finto-8-anni' });
+  // Per misurare gli anni guadagnati la scorciatoia non deve essere scoperta: dal T07 uno scandalo rimanda indietro il progetto.
+  const quiet: TurnRules = structuredClone(rules);
+  quiet.moral.scandal.baseProbability = 0;
+  quiet.moral.scandal.probabilityPerGapPoint = 0;
   const turnsToOperating = (state: GameState): number => {
     let turns = 0;
     while (state.projects[0]!.phase !== 'operating') {
-      state = advanceTurn(state, rules);
+      state = advanceTurn(state, quiet);
       turns++;
     }
     return turns + 1; // contando il primo turno già giocato prima della scorciatoia
@@ -214,7 +218,7 @@ describe('scorciatoia', () => {
     expect(state.projects[0]!.phase).toBe('works');
     let turns = 3;
     while (state.projects[0]!.phase !== 'operating') {
-      state = advanceTurn(state, rules);
+      state = advanceTurn(state, quiet);
       turns++;
     }
     expect(turns).toBe(8 - 1);
@@ -223,7 +227,15 @@ describe('scorciatoia', () => {
   it('registra un atto nascosto sulla legalità e lascia ferma la reputazione', () => {
     let state = advance(start(), 1);
     state = act(state, { kind: 'shortcut-phase', projectId: state.projects[0]!.id });
-    expect(state.moral.hiddenActs).toEqual([{ id: expect.any(String), turn: 1, dimension: 'legality', weight: -5 }]);
+    expect(state.moral.hiddenActs).toEqual([
+      {
+        id: expect.any(String),
+        turn: 1,
+        dimension: 'legality',
+        weight: -5,
+        source: { kind: 'shortcut', projectId: state.projects[0]!.id, skippedPhase: 'permitting' },
+      },
+    ]);
     expect(state.moral.byDimension.legality).toBe(-5);
     expect(state.moral.conscience).toBe(-1);
     expect(state.moral.reputation).toBe(0);

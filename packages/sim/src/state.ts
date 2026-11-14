@@ -153,6 +153,10 @@ export interface Project {
   worksStalled: boolean;
   /** Posti del cantiere coperti da lavoratori di fuori città: non entrano nella forza lavoro locale. */
   outsideHires: number;
+  /** Anni in cui il progetto resta fermo, per esempio dopo uno scandalo su una scorciatoia. */
+  frozenTurns: number;
+  /** true quando gli effetti "una volta" dell'esercizio sono già stati programmati: non si ripetono. */
+  onceEffectsApplied: boolean;
 }
 
 // ---------- Morale ----------
@@ -179,13 +183,21 @@ export interface Scandal {
   /** Identificativo dell'atto scoperto (era in hiddenActs). */
   actId: string;
   dimension: MoralDimension;
+  /** Da dove veniva l'atto, se noto. */
+  source?: ActSource;
 }
+
+/** Origine di un atto nascosto: decide le conseguenze quando viene scoperto. */
+export type ActSource =
+  | { kind: 'shortcut'; projectId: string; skippedPhase: 'permitting' | 'tender' }
+  | { kind: 'dilemma'; dilemmaId: string; optionId: string };
 
 export interface HiddenAct {
   id: string;
   turn: number;
   dimension: MoralDimension;
   weight: number;
+  source?: ActSource;
 }
 
 /** Promessa fatta dal giocatore, ricordata dai cittadini e dai loro figli. */
@@ -319,6 +331,8 @@ export interface GameState {
   trainingCohorts: TrainingCohort[];
   /** Dilemma arrivato e in attesa di risposta: finché c'è, il turno non avanza. */
   openDilemmaId: string | null;
+  /** Anni consecutivi con la fiducia media della città sotto la soglia di abbandono. */
+  lowTrustYears: number;
   moral: MoralState;
   promises: Promise[];
   council: Councillor[];

@@ -133,7 +133,19 @@
               "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
             }
           },
-          "hidden": true
+          "hidden": true,
+          "scandalPenalty": {
+            "deltas": [
+              {
+                "target": "districts.tamburi.trust",
+                "amount": {
+                  "valore": -5,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              }
+            ]
+          }
         }
       },
       "conditions": [],
@@ -242,7 +254,19 @@
               "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
             }
           },
-          "hidden": true
+          "hidden": true,
+          "scandalPenalty": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -6,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima. Contenzioso e lavori da rifare."
+                }
+              }
+            ]
+          }
         },
         "studio-preliminare": {
           "etichetta": "Prima uno studio pubblico sui terreni",
@@ -409,7 +433,19 @@
               "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
             }
           },
-          "hidden": true
+          "hidden": true,
+          "scandalPenalty": {
+            "deltas": [
+              {
+                "target": "council.cons-lavoro.trustInPlayer",
+                "amount": {
+                  "valore": -10,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima."
+                }
+              }
+            ]
+          }
         },
         "priorita-ex-lavoratori": {
           "etichetta": "Precedenza a chi è in cassa integrazione",
@@ -766,7 +802,27 @@
               "motivazione": "Peso morale stimato dell'opzione: misura come si governa."
             }
           },
-          "hidden": true
+          "hidden": true,
+          "scandalPenalty": {
+            "deltas": [
+              {
+                "target": "economy.funds.own",
+                "amount": {
+                  "valore": -8,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima. Restituzione e sanzione."
+                }
+              },
+              {
+                "target": "economy.funds.eu-earmarked",
+                "amount": {
+                  "valore": -10,
+                  "stima": true,
+                  "motivazione": "Penale se la scelta nascosta viene scoperta: stima. Revoca dei fondi."
+                }
+              }
+            ]
+          }
         }
       },
       "conditions": [

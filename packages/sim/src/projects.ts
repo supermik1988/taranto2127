@@ -1,7 +1,7 @@
 /** Progetti a fasi, cantieri, lotti di ILSIDER e scorciatoie. */
 import { actSourceId, assertDataEffects } from './common.js';
 import { payFrom } from './economy.js';
-import { applyEffectSetInPlace, pushEffect } from './effects.js';
+import { applyEffectSetInPlace, pushEffect, scaleBeneficial } from './effects.js';
 import { ActionError, TurnError } from './errors.js';
 import { recordActInPlace } from './moral.js';
 import { rngFor } from './rng.js';
@@ -30,6 +30,7 @@ export function shortcutPhase(state: GameState, action: Extract<Action, { kind: 
     throw new ActionError(`si possono saltare solo autorizzazioni e gara, non la fase ${project.phase}`);
   }
   const definition = definitionOrThrow(rules, project.definitionId, ActionError);
+  const skippedPhase = project.phase;
   project.shortcutTaken = true;
   enterPhaseFrom(state, project, definition, BUILD_PHASES.indexOf(project.phase) + 1, state.turn + 1);
   // enterPhaseFrom cambia la fase: TypeScript non lo vede dal restringimento precedente.
@@ -38,6 +39,7 @@ export function shortcutPhase(state: GameState, action: Extract<Action, { kind: 
     sourceId: actSourceId(state),
     weights: { legality: rules.moral.shortcutLegalityWeight },
     hidden: true,
+    source: { kind: 'shortcut', projectId: project.id, skippedPhase },
   });
 }
 
@@ -85,6 +87,8 @@ export function startProject(
     localHires: 0,
     worksStalled: false,
     outsideHires: 0,
+    frozenTurns: 0,
+    onceEffectsApplied: false,
   };
   state.projects.push(project);
   // Se tutte le fasi durano 0, gli effetti arrivano dal turno dopo, mai nello stesso.
@@ -129,7 +133,11 @@ function enterPhaseFrom(
   }
   project.phase = 'operating';
   project.turnsLeftInPhase = 0;
-  pushEffect(state, project.id, effectsTurn, definition.operatingEffects.once);
+  // Un progetto rimandato indietro da uno scandalo non riceve due volte gli effetti "una volta".
+  if (!project.onceEffectsApplied) {
+    pushEffect(state, project.id, effectsTurn, definition.operatingEffects.once);
+    project.onceEffectsApplied = true;
+  }
 }
 
 // ---------- Lavoro di cantiere (bilancio chiuso) ----------
@@ -212,12 +220,43 @@ export function delayProject(state: GameState, projectId: string, turns: number)
   return next;
 }
 
+/**
+ * Uno scandalo su una scorciatoia: il progetto torna all'inizio della fase
+ * saltata, con la sua durata prevista, e resta fermo per `frozenYears` anni.
+ * Se era in lavori, gli assunti tornano disoccupati; se era in esercizio, smette
+ * di produrre effetti finché non ci torna. Il lotto collegato arretra di
+ * conseguenza e, se era una bonifica, non è più considerato bonificato.
+ */
+export function rewindProjectInPlace(
+  state: GameState,
+  project: Project,
+  rules: TurnRules,
+  phase: 'permitting' | 'tender',
+  frozenYears: number,
+): void {
+  if (project.phase === 'cancelled') return;
+  const definition = definitionOrThrow(rules, project.definitionId, TurnError);
+  if (project.phase === 'works') releaseWorks(state, project, definition);
+  project.phase = phase;
+  project.turnsLeftInPhase = Math.max(1, plannedTurns(state, project, definition, phase));
+  project.frozenTurns = frozenYears;
+  project.worksStalled = false;
+  const lot = state.plantLots.find((l) => l.id === project.lotId);
+  if (lot !== undefined && lot.path !== 'idle' && rules.lotConversion[lot.path] === project.definitionId) {
+    const total = BUILD_PHASES.reduce((sum, p) => sum + plannedTurns(state, project, definition, p), 0);
+    const share = total > 0 ? 1 - remainingTurns(state, project, definition) / total : 0;
+    lot.progress = Math.min(lot.progress, Math.max(0, share));
+    if (lot.path === 'remediation') lot.remediated = false;
+  }
+}
+
 // ---------- Avanzamento annuale ----------
 
-export function advanceProjects(state: GameState, rules: TurnRules, opening: number): void {
+export function advanceProjects(state: GameState, rules: TurnRules, opening: number, civic = 1): void {
   for (const project of state.projects) {
     if (project.phase === 'operating') {
-      applyEffectSetInPlace(state, definitionOrThrow(rules, project.definitionId, TurnError).operatingEffects.everyYear);
+      const everyYear = definitionOrThrow(rules, project.definitionId, TurnError).operatingEffects.everyYear;
+      applyEffectSetInPlace(state, scaleBeneficial(everyYear, civic));
     }
   }
 
@@ -227,6 +266,12 @@ export function advanceProjects(state: GameState, rules: TurnRules, opening: num
     .sort((a, b) => a.startedOnTurn - b.startedOnTurn); // stabile: a parità di turno, ordine di creazione
   for (const project of inProgress) {
     const definition = definitionOrThrow(rules, project.definitionId, TurnError);
+    if (project.frozenTurns > 0) {
+      // Fermo dopo uno scandalo: nessun costo, nessun avanzamento, un anno di ritardo.
+      project.frozenTurns -= 1;
+      project.delayTurns += 1;
+      continue;
+    }
     const { annualCost, fund } = definition.phases[project.phase as BuildPhase];
     if (!Number.isFinite(annualCost) || annualCost < 0) {
       throw new TurnError(`costo non valido per ${definition.id}.${project.phase}: ${annualCost}`);

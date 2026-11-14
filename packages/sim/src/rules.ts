@@ -82,6 +82,8 @@ export interface EconomyRules {
   servicesCostPerYear: number;
   /** Anni consecutivi di disavanzo dei fondi propri che portano al dissesto. */
   bankruptcyAfterDeficitYears: number;
+  /** Tetto di riporto del fondo statale: a fine anno la parte oltre il tetto torna allo Stato. */
+  stateCarryOverCap: number;
 }
 
 /** Promessa che nasce da un'opzione di dilemma. */
@@ -105,6 +107,8 @@ export interface DilemmaOption {
   /** true se la scelta resta nascosta ai cittadini: muove solo la coscienza. */
   hidden: boolean;
   promise?: DilemmaPromise;
+  /** Penale applicata se la scelta, nascosta, viene scoperta. */
+  scandalPenalty?: EffectSet;
 }
 
 export interface DilemmaDefinition {
@@ -145,8 +149,77 @@ export interface PolicyDefinition {
   training?: TrainingSpec;
 }
 
+/** Stato di un lotto di ILSIDER ai fini dell'aria. */
+export interface LotPressures {
+  /** Fermo e non bonificato (anche durante progettazione, autorizzazioni e gara). */
+  idleContaminated: number;
+  /** Con un cantiere aperto. */
+  works: number;
+  /** Bonificato e senza altra attività. */
+  remediated: number;
+  /** In esercizio, per ciascuna strada. */
+  operating: Record<ActivePath, number>;
+}
+
+/** Come la città reagisce ogni anno. Le quote "approachShare" vanno da 0 (fermo) a 1 (subito). */
+export interface CityRules {
+  air: {
+    /** Aria che un quartiere avrebbe senza alcuna pressione dai lotti. */
+    cleanValue: number;
+    approachShare: number;
+    pressures: LotPressures;
+    /** Peso di ogni lotto (per id) su ogni quartiere; un quartiere assente non risente del lotto. */
+    lotWeights: Record<string, Partial<Record<DistrictId, number>>>;
+  };
+  exposure: {
+    /** Sotto questa qualità dell'aria l'esposizione cresce. */
+    airThreshold: number;
+    /** Aumento annuo per ogni punto di aria sotto la soglia. */
+    growthPerPointBelow: number;
+    /** Calo annuo con l'aria sopra la soglia. */
+    decayPerYear: number;
+  };
+  health: { base: number; exposureWeight: number; servicesWeight: number; approachShare: number };
+  services: {
+    /** Calo annuo dei servizi in ogni quartiere negli anni di disavanzo dei fondi propri. */
+    deficitDropPerYear: number;
+    /** Risalita annua negli anni in attivo, fino al tetto. */
+    recoveryPerYear: number;
+    recoveryCeiling: number;
+  };
+  tension: { base: number; joblessWeight: number; distrustWeight: number; approachShare: number };
+  trust: {
+    base: number;
+    /** Peso della reputazione (da -100 a +100). */
+    reputationWeight: number;
+    /** Peso della salute rispetto a 50. */
+    healthWeight: number;
+    /** Peso della quota di cassa integrati e disoccupati sulla forza lavoro (0-100). */
+    joblessWeight: number;
+    approachShare: number;
+    promiseKeptBoost: number;
+    promiseBrokenDrop: number;
+  };
+  scandal: {
+    /** Calo immediato della fiducia di ogni quartiere per ogni atto scoperto. */
+    districtTrustDrop: number;
+    /** Calo immediato della fiducia di ogni consigliere per ogni atto scoperto. */
+    councilTrustDrop: number;
+    /** Anni di fermo di un progetto la cui scorciatoia è stata scoperta. */
+    shortcutFrozenYears: number;
+  };
+  civic: {
+    /** Fattore con fiducia media zero. */
+    minFactor: number;
+    /** Fiducia media da cui il fattore vale 1. */
+    fullFactorTrust: number;
+  };
+  abandonment: { trustThreshold: number; years: number };
+}
+
 /** Numeri che il ciclo del turno legge dai dati (CLAUDE.md, regola 4). */
 export interface TurnRules {
+  city: CityRules;
   projects: Record<string, ProjectDefinition>;
   dilemmas: Record<string, DilemmaDefinition>;
   /** Probabilità che in un anno arrivi un dilemma, se ce n'è almeno uno ammesso. */

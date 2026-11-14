@@ -4,7 +4,14 @@
  */
 import { assertDistrict } from './common.js';
 import { answerDilemma, maybeOpenDilemma } from './dilemmas.js';
-import { collectRevenue, expireEuTranches, payMandatorySpending } from './economy.js';
+import {
+  advanceDistrictsInPlace,
+  applyScandalConsequencesInPlace,
+  civicFactor,
+  promiseTrustInPlace,
+  updateAbandonmentInPlace,
+} from './city.js';
+import { capStateFund, collectRevenue, expireEuTranches, payMandatorySpending } from './economy.js';
 import { applyDeltasInPlace, applyDueEffectsInPlace } from './effects.js';
 import { ActionError, TurnError } from './errors.js';
 import { checkScandalsInPlace, settlePromisesInPlace } from './moral.js';
@@ -123,10 +130,16 @@ export function applyAction(state: GameState, action: Action, rules: TurnRules):
  *    scadono le rate europee non spese;
  * 4. clima secondo lo scenario dell'epoca;
  * 5. effetti in scadenza;
- * 6. morale: promesse con condizione in scadenza, poi scoperta degli atti nascosti.
- * Poi il turno avanza. Dopo troppi anni di disavanzo la partita termina con
- * 'ended-bankrupt'; al turno TOTAL_TURNS con 'ended-2127'. Se la partita
- * continua, all'apertura del nuovo turno può arrivare un dilemma.
+ * 6. quartieri: aria, esposizione, salute, servizi, tensione, fiducia;
+ * 7. morale: promesse con condizione in scadenza (e fiducia del quartiere a cui
+ *    erano rivolte), poi scoperta degli atti nascosti e loro conseguenze;
+ * 8. il fondo statale oltre il tetto di riporto torna allo Stato.
+ * Entrate proprie ed effetti positivi ricorrenti sono moltiplicati per il senso
+ * civico, calcolato sulla fiducia a inizio anno. Poi il turno avanza. Dopo
+ * troppi anni di disavanzo la partita termina con 'ended-bankrupt'; dopo troppi
+ * anni di fiducia sotto soglia con 'ended-abandoned'; al turno TOTAL_TURNS con
+ * 'ended-2127'. Se la partita continua, all'apertura del nuovo turno può
+ * arrivare un dilemma.
  */
 export function advanceTurn(state: GameState, rules: TurnRules): GameState {
   if (state.status !== 'running') throw new TurnError(`partita conclusa (${state.status})`);
@@ -135,19 +148,24 @@ export function advanceTurn(state: GameState, rules: TurnRules): GameState {
   const closing = next.turn;
   const opening = closing + 1;
 
-  collectRevenue(next, rules.economy, closing);
+  const civic = civicFactor(next, rules.city);
+  collectRevenue(next, rules.economy, closing, civic);
   payMandatorySpending(next, rules.economy);
-  advancePolicies(next, rules, closing);
-  advanceProjects(next, rules, opening);
+  advancePolicies(next, rules, closing, civic);
+  advanceProjects(next, rules, opening, civic);
   expireEuTranches(next, closing);
   advanceClimate(next, rules, closing);
   applyDueEffectsInPlace(next, opening);
-  settlePromisesInPlace(next, rules.moral, opening);
-  checkScandalsInPlace(next, rules.moral, closing);
+  advanceDistrictsInPlace(next, rules);
+  promiseTrustInPlace(next, rules, settlePromisesInPlace(next, rules.moral, opening));
+  applyScandalConsequencesInPlace(next, rules, checkScandalsInPlace(next, rules.moral, closing));
+  capStateFund(next, rules.economy);
 
   next.economy.deficitYears = next.economy.funds.own < 0 ? next.economy.deficitYears + 1 : 0;
+  const abandoned = updateAbandonmentInPlace(next, rules);
   next.turn = opening;
   if (next.economy.deficitYears >= rules.economy.bankruptcyAfterDeficitYears) next.status = 'ended-bankrupt';
+  else if (abandoned) next.status = 'ended-abandoned';
   else if (opening >= TOTAL_TURNS) next.status = 'ended-2127';
   if (next.status === 'running') maybeOpenDilemma(next, rules, opening);
   syncTrained(next);

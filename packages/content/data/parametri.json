@@ -169,6 +169,11 @@
       "valore": 3,
       "stima": true,
       "motivazione": "Anni consecutivi di disavanzo che portano al dissesto: scelta di gioco."
+    },
+    "stateCarryOverCap": {
+      "valore": 300,
+      "stima": true,
+      "motivazione": "Milioni di fondi statali che si possono riportare all'anno dopo; il resto torna allo Stato. Stima."
     }
   }
 }

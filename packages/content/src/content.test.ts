@@ -264,6 +264,59 @@ describe('i contenuti funzionano nel motore', () => {
   });
 });
 
+describe('la città reagisce, con i contenuti veri', () => {
+  /** Gioca senza azioni con i fondi sempre disponibili, per guardare solo aria, esposizione e salute. */
+  function quietYears(state: GameState, years: number, onYear: (s: GameState) => void = () => {}): GameState {
+    for (let i = 0; i < years; i++) {
+      state = structuredClone(state);
+      state.economy.funds.own = Math.max(state.economy.funds.own, 1000);
+      state.economy.funds.state = Math.max(state.economy.funds.state, 200);
+      state.economy.funds['eu-earmarked'] = Math.max(state.economy.funds['eu-earmarked'], 200);
+      if (state.openDilemmaId !== null) {
+        const optionId = Object.keys(rules.dilemmas[state.openDilemmaId]!.options)[0]!;
+        state = applyAction(state, { kind: 'answer-dilemma', dilemmaId: state.openDilemmaId, optionId }, rules);
+      }
+      state = advanceTurn(state, rules);
+      onYear(state);
+    }
+    return state;
+  }
+
+  it('ogni lotto ha i suoi pesi sui quartieri', () => {
+    expect(Object.keys(rules.city.air.lotWeights).sort()).toEqual(initialContent.plantLots.map((l) => l.id).sort());
+  });
+
+  it('con tutti i lotti fermi l’aria dei Tamburi migliora fino a un tetto, e dopo la bonifica dei parchi minerali lo supera', () => {
+    const { cleanValue, pressures, lotWeights } = rules.city.air;
+    const cap = cleanValue - Object.values(lotWeights).reduce((sum, w) => sum + (w.tamburi ?? 0) * pressures.idleContaminated, 0);
+    const air: number[] = [];
+    let state = quietYears(initial(), 60, (s) => air.push(s.districts.tamburi.airQuality));
+    expect(air[0]!).toBeGreaterThan(initialContent.districts.tamburi.airQuality);
+    expect(Math.max(...air)).toBeLessThanOrEqual(cap + 1e-9);
+    expect(air.at(-1)!).toBeGreaterThan(cap - 1);
+    state = applyAction(state, { kind: 'convert-lot', lotId: 'lotto-parchi-minerali', path: 'remediation' }, rules);
+    state = quietYears(state, 30);
+    expect(state.plantLots.find((l) => l.id === 'lotto-parchi-minerali')!.remediated).toBe(true);
+    expect(state.districts.tamburi.airQuality).toBeGreaterThan(cap + 5);
+  });
+
+  it('ai Tamburi l’esposizione comincia a calare dopo l’aria, e la salute a migliorare dopo l’esposizione', () => {
+    const series: { air: number; exposure: number; health: number }[] = [];
+    let prev = initial().districts.tamburi;
+    quietYears(initial(), 60, (s) => {
+      const d = s.districts.tamburi;
+      series.push({ air: d.airQuality - prev.airQuality, exposure: d.cumulativeExposure - prev.cumulativeExposure, health: d.health - prev.health });
+      prev = d;
+    });
+    const firstAirUp = series.findIndex((x) => x.air > 0);
+    const firstExposureDown = series.findIndex((x) => x.exposure < 0);
+    const firstHealthUp = series.findIndex((x) => x.health > 0);
+    expect(firstAirUp).toBe(0);
+    expect(firstExposureDown).toBeGreaterThan(firstAirUp);
+    expect(firstHealthUp).toBeGreaterThan(firstExposureDown);
+  });
+});
+
 describe('partite casuali con i contenuti veri', { timeout: 120_000 }, () => {
   const seeds = Array.from({ length: 20 }, (_, i) => i + 1);
   const finals = new Map<number, GameState>();

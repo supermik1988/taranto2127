@@ -2,7 +2,8 @@ export * from './state.js';
 export { createInitialState, type InitialContent } from './init.js';
 export { DISTRICT_IDS, validateState, type ValidationResult } from './validate.js';
 export { createRng, deriveSeed, rngFor, type Rng } from './rng.js';
-export { EffectError, applyDeltas, applyLaborMoves, scheduleEffect, type EffectSet } from './effects.js';
+export { EffectError, applyDeltas, applyLaborMoves, scaleBeneficial, scheduleEffect, type EffectSet } from './effects.js';
+export { averageTrust, civicFactor, joblessShare, lotPressure } from './city.js';
 export {
   MoralError,
   conditionHolds,
@@ -25,6 +26,7 @@ export {
   replay,
   type ActivePath,
   type BuildPhase,
+  type CityRules,
   type ClimateAnnualChange,
   type ClimateScenario,
   type DilemmaDefinition,
@@ -32,6 +34,7 @@ export {
   type DilemmaPromise,
   type EconomyRules,
   type EuTrancheSpec,
+  type LotPressures,
   type PhaseDuration,
   type PhaseSpec,
   type PolicyDefinition,

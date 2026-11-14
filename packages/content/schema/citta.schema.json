@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/citta.json",
+  "title": "Come la città reagisce ogni anno",
+  "type": "object",
+  "required": ["descrizione", "air", "exposure", "health", "services", "tension", "trust", "scandal", "civic", "abandonment"],
+  "properties": {
+    "descrizione": { "$ref": "comune.json#/$defs/testo" },
+    "air": {
+      "type": "object",
+      "required": ["cleanValue", "approachShare", "pressures", "lotWeights"],
+      "properties": {
+        "cleanValue": { "$ref": "comune.json#/$defs/indice" },
+        "approachShare": { "$ref": "comune.json#/$defs/quota" },
+        "pressures": {
+          "type": "object",
+          "required": ["idleContaminated", "works", "remediated", "operating"],
+          "properties": {
+            "idleContaminated": { "$ref": "comune.json#/$defs/nonNegativo" },
+            "works": { "$ref": "comune.json#/$defs/nonNegativo" },
+            "remediated": { "$ref": "comune.json#/$defs/nonNegativo" },
+            "operating": {
+              "type": "object",
+              "required": ["green-steel", "remediation", "energy", "sea-culture"],
+              "properties": {
+                "green-steel": { "$ref": "comune.json#/$defs/nonNegativo" },
+                "remediation": { "$ref": "comune.json#/$defs/nonNegativo" },
+                "energy": { "$ref": "comune.json#/$defs/nonNegativo" },
+                "sea-culture": { "$ref": "comune.json#/$defs/nonNegativo" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "lotWeights": {
+          "type": "object",
+          "propertyNames": { "$ref": "comune.json#/$defs/id" },
+          "additionalProperties": {
+            "type": "object",
+            "propertyNames": { "$ref": "comune.json#/$defs/quartiere" },
+            "additionalProperties": { "$ref": "comune.json#/$defs/nonNegativo" }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "exposure": {
+      "type": "object",
+      "required": ["airThreshold", "growthPerPointBelow", "decayPerYear"],
+      "properties": {
+        "airThreshold": { "$ref": "comune.json#/$defs/indice" },
+        "growthPerPointBelow": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "decayPerYear": { "$ref": "comune.json#/$defs/nonNegativo" }
+      },
+      "additionalProperties": false
+    },
+    "health": {
+      "type": "object",
+      "required": ["base", "exposureWeight", "servicesWeight", "approachShare"],
+      "properties": {
+        "base": { "$ref": "comune.json#/$defs/numero" },
+        "exposureWeight": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "servicesWeight": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "approachShare": { "$ref": "comune.json#/$defs/quota" }
+      },
+      "additionalProperties": false
+    },
+    "services": {
+      "type": "object",
+      "required": ["deficitDropPerYear", "recoveryPerYear", "recoveryCeiling"],
+      "properties": {
+        "deficitDropPerYear": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "recoveryPerYear": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "recoveryCeiling": { "$ref": "comune.json#/$defs/indice" }
+      },
+      "additionalProperties": false
+    },
+    "tension": {
+      "type": "object",
+      "required": ["base", "joblessWeight", "distrustWeight", "approachShare"],
+      "properties": {
+        "base": { "$ref": "comune.json#/$defs/numero" },
+        "joblessWeight": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "distrustWeight": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "approachShare": { "$ref": "comune.json#/$defs/quota" }
+      },
+      "additionalProperties": false
+    },
+    "trust": {
+      "type": "object",
+      "required": ["base", "reputationWeight", "healthWeight", "joblessWeight", "approachShare", "promiseKeptBoost", "promiseBrokenDrop"],
+      "properties": {
+        "base": { "$ref": "comune.json#/$defs/numero" },
+        "reputationWeight": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "healthWeight": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "joblessWeight": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "approachShare": { "$ref": "comune.json#/$defs/quota" },
+        "promiseKeptBoost": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "promiseBrokenDrop": { "$ref": "comune.json#/$defs/nonNegativo" }
+      },
+      "additionalProperties": false
+    },
+    "scandal": {
+      "type": "object",
+      "required": ["districtTrustDrop", "councilTrustDrop", "shortcutFrozenYears"],
+      "properties": {
+        "districtTrustDrop": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "councilTrustDrop": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "shortcutFrozenYears": { "$ref": "comune.json#/$defs/interoNonNegativo" }
+      },
+      "additionalProperties": false
+    },
+    "civic": {
+      "type": "object",
+      "required": ["minFactor", "fullFactorTrust"],
+      "properties": {
+        "minFactor": { "$ref": "comune.json#/$defs/quota" },
+        "fullFactorTrust": { "$ref": "comune.json#/$defs/indice" }
+      },
+      "additionalProperties": false
+    },
+    "abandonment": {
+      "type": "object",
+      "required": ["trustThreshold", "years"],
+      "properties": {
+        "trustThreshold": { "$ref": "comune.json#/$defs/indice" },
+        "years": { "$ref": "comune.json#/$defs/interoPositivo" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

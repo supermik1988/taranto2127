@@ -6,7 +6,7 @@
  * fonte, arrivano con la scheda T05 in packages/content.
  */
 import type { FundKind, GameState } from '../state.js';
-import type { EconomyRules, PhaseSpec, ProjectDefinition, TurnRules } from '../turn.js';
+import type { CityRules, EconomyRules, PhaseSpec, ProjectDefinition, TurnRules } from '../turn.js';
 
 const phase = (minTurns: number, maxTurns = minTurns, annualCost = 1, fund: FundKind = 'state'): PhaseSpec => ({
   minTurns,
@@ -23,6 +23,8 @@ const lotProject = (id: string, works: number): ProjectDefinition => ({
 });
 
 export const fakeRules = (): TurnRules => ({
+  // Città neutra: nessuna dinamica dei quartieri, così i test più vecchi contano i valori in modo esatto.
+  city: neutralCity(),
   projects: {
     // Fasi di 1, 2, 1 e 4 anni: entra in esercizio 8 turni dopo l'avvio.
     'progetto-finto-8-anni': {
@@ -161,6 +163,7 @@ export const fakeRules = (): TurnRules => ({
     wageSupportCostPerPerson: 0,
     servicesCostPerYear: 0,
     bankruptcyAfterDeficitYears: 5,
+    stateCarryOverCap: 1e12,
   },
   lotConversion: {
     'green-steel': 'lotto-acciaio-verde',
@@ -191,9 +194,49 @@ export const activeEconomy = (): EconomyRules => ({
   wageSupportCostPerPerson: 0.01,
   servicesCostPerYear: 2,
   bankruptcyAfterDeficitYears: 3,
+  stateCarryOverCap: 1e12,
 });
 
 export const fakeRulesWithEconomy = (): TurnRules => ({ ...fakeRules(), economy: activeEconomy() });
 
 /** Apre a mano un dilemma, come farebbe il motore all'apertura del turno. Solo per i test. */
 export const withOpenDilemma = (state: GameState, dilemmaId = 'dilemma-finto'): GameState => ({ ...state, openDilemmaId: dilemmaId });
+
+/** Città che non reagisce: quote a zero, senso civico sempre 1, nessun abbandono. */
+export const neutralCity = (): CityRules => ({
+  air: {
+    cleanValue: 85,
+    approachShare: 0,
+    pressures: { idleContaminated: 0, works: 0, remediated: 0, operating: { 'green-steel': 0, remediation: 0, energy: 0, 'sea-culture': 0 } },
+    lotWeights: {},
+  },
+  exposure: { airThreshold: 0, growthPerPointBelow: 0, decayPerYear: 0 },
+  health: { base: 50, exposureWeight: 0, servicesWeight: 0, approachShare: 0 },
+  services: { deficitDropPerYear: 0, recoveryPerYear: 0, recoveryCeiling: 0 },
+  tension: { base: 0, joblessWeight: 0, distrustWeight: 0, approachShare: 0 },
+  trust: { base: 0, reputationWeight: 0, healthWeight: 0, joblessWeight: 0, approachShare: 0, promiseKeptBoost: 0, promiseBrokenDrop: 0 },
+  scandal: { districtTrustDrop: 0, councilTrustDrop: 0, shortcutFrozenYears: 0 },
+  civic: { minFactor: 1, fullFactorTrust: 1 },
+  abandonment: { trustThreshold: 0, years: 1000 },
+});
+
+/** Città che reagisce, con numeri inventati per i test. */
+export const activeCity = (): CityRules => ({
+  air: {
+    cleanValue: 80,
+    approachShare: 0.2,
+    pressures: { idleContaminated: 10, works: 6, remediated: 0, operating: { 'green-steel': 8, remediation: 0, energy: 1, 'sea-culture': 1 } },
+    lotWeights: {
+      'lotto-finto-a': { tamburi: 3, 'area-industriale': 2 },
+      'lotto-finto-b': { tamburi: 1, 'area-industriale': 2, 'paolo-vi': 1 },
+    },
+  },
+  exposure: { airThreshold: 50, growthPerPointBelow: 0.1, decayPerYear: 1 },
+  health: { base: 70, exposureWeight: 0.4, servicesWeight: 0.1, approachShare: 0.1 },
+  services: { deficitDropPerYear: 2, recoveryPerYear: 0.5, recoveryCeiling: 60 },
+  tension: { base: 10, joblessWeight: 0.5, distrustWeight: 0.3, approachShare: 0.2 },
+  trust: { base: 50, reputationWeight: 0.3, healthWeight: 0.3, joblessWeight: 0.3, approachShare: 0.2, promiseKeptBoost: 5, promiseBrokenDrop: 8 },
+  scandal: { districtTrustDrop: 4, councilTrustDrop: 6, shortcutFrozenYears: 2 },
+  civic: { minFactor: 0.5, fullFactorTrust: 60 },
+  abandonment: { trustThreshold: 20, years: 3 },
+});

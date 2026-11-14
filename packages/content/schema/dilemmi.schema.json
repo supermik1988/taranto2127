@@ -47,7 +47,8 @@
         },
         "moral": { "$ref": "comune.json#/$defs/pesiMorali" },
         "hidden": { "type": "boolean" },
-        "promise": { "$ref": "#/$defs/promessa" }
+        "promise": { "$ref": "#/$defs/promessa" },
+        "scandalPenalty": { "$ref": "comune.json#/$defs/effetti" }
       },
       "additionalProperties": false
     },

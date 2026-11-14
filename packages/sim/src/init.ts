@@ -81,6 +81,7 @@ export function createInitialState(seed: number, content: InitialContent): GameS
     policySince: {},
     trainingCohorts: [],
     openDilemmaId: null,
+    lowTrustYears: 0,
     moral: { conscience: 0, reputation: 0, byDimension, hiddenActs: [], scandals: [] },
     promises: [],
     council: data.council.map((c) => ({ ...c, electedInEpoch: 0 })),

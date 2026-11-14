@@ -1,0 +1,349 @@
+{
+  "descrizione": "Come la città reagisce ogni anno: aria, esposizione, salute, servizi, tensione, fiducia, senso civico. Tutti i coefficienti sono stime dichiarate.",
+  "air": {
+    "cleanValue": {
+      "valore": 85,
+      "stima": true,
+      "motivazione": "Aria di un quartiere senza alcuna pressione dai lotti: buona ma non perfetta, per traffico e porto. Stima."
+    },
+    "approachShare": {
+      "valore": 0.15,
+      "stima": true,
+      "motivazione": "Quota annua di avvicinamento all'equilibrio: i cambiamenti arrivano in anni, non subito. Stima."
+    },
+    "pressures": {
+      "idleContaminated": {
+        "valore": 4,
+        "stima": true,
+        "motivazione": "Pressione sull'aria di un lotto in questo stato, prima del peso per quartiere: stima. Polveri dai cumuli e dai terreni scoperti."
+      },
+      "works": {
+        "valore": 3,
+        "stima": true,
+        "motivazione": "Pressione sull'aria di un lotto in questo stato, prima del peso per quartiere: stima. Polveri di cantiere."
+      },
+      "remediated": {
+        "valore": 0,
+        "stima": true,
+        "motivazione": "Pressione sull'aria di un lotto in questo stato, prima del peso per quartiere: stima. Un lotto bonificato non pesa più sull'aria."
+      },
+      "operating": {
+        "green-steel": {
+          "valore": 5,
+          "stima": true,
+          "motivazione": "Pressione sull'aria di un lotto in questo stato, prima del peso per quartiere: stima. Un forno elettrico emette molto meno di un altoforno, ma non nulla."
+        },
+        "remediation": {
+          "valore": 0,
+          "stima": true,
+          "motivazione": "Pressione sull'aria di un lotto in questo stato, prima del peso per quartiere: stima. Bonifica conclusa."
+        },
+        "energy": {
+          "valore": 0.5,
+          "stima": true,
+          "motivazione": "Pressione sull'aria di un lotto in questo stato, prima del peso per quartiere: stima. Pannelli e accumuli: quasi nulla."
+        },
+        "sea-culture": {
+          "valore": 0.5,
+          "stima": true,
+          "motivazione": "Pressione sull'aria di un lotto in questo stato, prima del peso per quartiere: stima. Traffico di visitatori: quasi nulla."
+        }
+      }
+    },
+    "lotWeights": {
+      "lotto-parchi-minerali": {
+        "tamburi": {
+          "valore": 3.0,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "area-industriale": {
+          "valore": 2.5,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "paolo-vi": {
+          "valore": 0.8,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "citta-vecchia": {
+          "valore": 0.5,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "borgo": {
+          "valore": 0.3,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        }
+      },
+      "lotto-cokerie": {
+        "tamburi": {
+          "valore": 1.5,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "area-industriale": {
+          "valore": 2.0,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "paolo-vi": {
+          "valore": 0.5,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "citta-vecchia": {
+          "valore": 0.3,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "borgo": {
+          "valore": 0.2,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        }
+      },
+      "lotto-altoforni": {
+        "tamburi": {
+          "valore": 1.0,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "area-industriale": {
+          "valore": 1.5,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "paolo-vi": {
+          "valore": 0.4,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "citta-vecchia": {
+          "valore": 0.2,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "borgo": {
+          "valore": 0.2,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        }
+      },
+      "lotto-acciaieria": {
+        "tamburi": {
+          "valore": 0.8,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "area-industriale": {
+          "valore": 1.5,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "paolo-vi": {
+          "valore": 0.3,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        }
+      },
+      "lotto-laminatoi": {
+        "tamburi": {
+          "valore": 0.4,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "area-industriale": {
+          "valore": 1.0,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "paolo-vi": {
+          "valore": 0.2,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        }
+      },
+      "lotto-banchine": {
+        "tamburi": {
+          "valore": 0.3,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "area-industriale": {
+          "valore": 0.8,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "citta-vecchia": {
+          "valore": 0.3,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        },
+        "borgo": {
+          "valore": 0.2,
+          "stima": true,
+          "motivazione": "Peso del lotto sul quartiere: vicinanza e venti dominanti, stima da verificare con le mappe di ricaduta."
+        }
+      }
+    }
+  },
+  "exposure": {
+    "airThreshold": {
+      "valore": 50,
+      "stima": true,
+      "motivazione": "Qualità dell'aria sotto la quale l'esposizione accumulata cresce: stima."
+    },
+    "growthPerPointBelow": {
+      "valore": 0.05,
+      "stima": true,
+      "motivazione": "Crescita annua dell'esposizione per ogni punto d'aria sotto la soglia: stima."
+    },
+    "decayPerYear": {
+      "valore": 0.5,
+      "stima": true,
+      "motivazione": "Calo annuo dell'esposizione con l'aria sopra la soglia: lento, come l'eredità dell'inquinamento. Stima."
+    }
+  },
+  "health": {
+    "base": {
+      "valore": 63.5,
+      "stima": true,
+      "motivazione": "Tarato perché all'inizio la salute di ogni quartiere sia vicina all'equilibrio: stima."
+    },
+    "exposureWeight": {
+      "valore": 0.3,
+      "stima": true,
+      "motivazione": "Peso dell'esposizione accumulata sulla salute: stima."
+    },
+    "servicesWeight": {
+      "valore": 0.1,
+      "stima": true,
+      "motivazione": "Peso dei servizi (cure, prevenzione) sulla salute: stima."
+    },
+    "approachShare": {
+      "valore": 0.05,
+      "stima": true,
+      "motivazione": "La salute cambia molto lentamente: quota annua stimata."
+    }
+  },
+  "services": {
+    "deficitDropPerYear": {
+      "valore": 1.5,
+      "stima": true,
+      "motivazione": "Calo dei servizi in un anno di disavanzo: tagli a scuole, trasporti, assistenza. Stima."
+    },
+    "recoveryPerYear": {
+      "valore": 0.3,
+      "stima": true,
+      "motivazione": "Risalita annua dei servizi negli anni in attivo: lenta. Stima."
+    },
+    "recoveryCeiling": {
+      "valore": 60,
+      "stima": true,
+      "motivazione": "Fin dove i servizi risalgono da soli; oltre servono opere. Stima."
+    }
+  },
+  "tension": {
+    "base": {
+      "valore": 10,
+      "stima": true,
+      "motivazione": "Tensione di fondo di una città in pace: stima."
+    },
+    "joblessWeight": {
+      "valore": 0.8,
+      "stima": true,
+      "motivazione": "Peso della quota di cassa integrati e disoccupati: stima tarata sui valori di partenza."
+    },
+    "distrustWeight": {
+      "valore": 0.4,
+      "stima": true,
+      "motivazione": "Peso della sfiducia (100 meno fiducia): stima."
+    },
+    "approachShare": {
+      "valore": 0.1,
+      "stima": true,
+      "motivazione": "Quota annua di avvicinamento all'equilibrio: i cambiamenti arrivano in anni, non subito. Stima."
+    }
+  },
+  "trust": {
+    "base": {
+      "valore": 52,
+      "stima": true,
+      "motivazione": "Tarata perché la fiducia di equilibrio media della città, con la disoccupazione di partenza, sia vicina a quella di partenza: stima."
+    },
+    "reputationWeight": {
+      "valore": 0.3,
+      "stima": true,
+      "motivazione": "Peso della reputazione (da -100 a +100): stima."
+    },
+    "healthWeight": {
+      "valore": 0.4,
+      "stima": true,
+      "motivazione": "Peso della salute rispetto a 50: stima."
+    },
+    "joblessWeight": {
+      "valore": 0.6,
+      "stima": true,
+      "motivazione": "Peso della quota di cassa integrati e disoccupati: stima."
+    },
+    "approachShare": {
+      "valore": 0.1,
+      "stima": true,
+      "motivazione": "Quota annua di avvicinamento all'equilibrio: i cambiamenti arrivano in anni, non subito. Stima."
+    },
+    "promiseKeptBoost": {
+      "valore": 5,
+      "stima": true,
+      "motivazione": "Aumento immediato della fiducia del quartiere per una promessa mantenuta: stima."
+    },
+    "promiseBrokenDrop": {
+      "valore": 8,
+      "stima": true,
+      "motivazione": "Calo immediato per una promessa tradita: pesa più di una mantenuta. Stima."
+    }
+  },
+  "scandal": {
+    "districtTrustDrop": {
+      "valore": 3,
+      "stima": true,
+      "motivazione": "Calo immediato della fiducia di ogni quartiere per ogni atto scoperto: stima."
+    },
+    "councilTrustDrop": {
+      "valore": 5,
+      "stima": true,
+      "motivazione": "Calo immediato della fiducia di ogni consigliere per ogni atto scoperto: stima."
+    },
+    "shortcutFrozenYears": {
+      "valore": 2,
+      "stima": true,
+      "motivazione": "Anni di fermo di un cantiere la cui scorciatoia è stata scoperta: sequestro e verifiche. Stima."
+    }
+  },
+  "civic": {
+    "minFactor": {
+      "valore": 0.6,
+      "stima": true,
+      "motivazione": "Con fiducia zero, entrate ed effetti positivi ricorrenti rendono il 60%: stima."
+    },
+    "fullFactorTrust": {
+      "valore": 37,
+      "stima": true,
+      "motivazione": "Fiducia media di partenza (pesata sui residenti, circa 37): le entrate per occupato sono tarate sul bilancio di oggi, quindi a fiducia invariata il senso civico è pieno. Stima."
+    }
+  },
+  "abandonment": {
+    "trustThreshold": {
+      "valore": 15,
+      "stima": true,
+      "motivazione": "Fiducia media sotto la quale la città si volta: stima."
+    },
+    "years": {
+      "valore": 5,
+      "stima": true,
+      "motivazione": "Anni consecutivi di fiducia sotto soglia prima che la città si volti: stima."
+    }
+  }
+}

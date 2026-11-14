@@ -5,6 +5,7 @@
  */
 import type { DistrictId, InitialContent, TurnRules } from '@taranto2127/sim';
 import Ajv from 'ajv';
+import citta from '../data/citta.json';
 import clima from '../data/clima.json';
 import dilemmi from '../data/dilemmi.json';
 import parametri from '../data/parametri.json';
@@ -12,6 +13,7 @@ import partenza from '../data/partenza.json';
 import politiche from '../data/politiche.json';
 import progetti from '../data/progetti.json';
 import quartieri from '../data/quartieri.json';
+import cittaSchema from '../schema/citta.schema.json';
 import climaSchema from '../schema/clima.schema.json';
 import comuneSchema from '../schema/comune.schema.json';
 import dilemmiSchema from '../schema/dilemmi.schema.json';
@@ -37,9 +39,10 @@ export interface ContentFiles {
   politiche: unknown;
   dilemmi: unknown;
   parametri: unknown;
+  citta: unknown;
 }
 
-export const CONTENT_FILES: ContentFiles = { quartieri, partenza, clima, progetti, politiche, dilemmi, parametri };
+export const CONTENT_FILES: ContentFiles = { quartieri, partenza, clima, progetti, politiche, dilemmi, parametri, citta };
 
 const SCHEMAS: Record<keyof ContentFiles, object> = {
   quartieri: quartieriSchema,
@@ -49,6 +52,7 @@ const SCHEMAS: Record<keyof ContentFiles, object> = {
   politiche: politicheSchema,
   dilemmi: dilemmiSchema,
   parametri: parametriSchema,
+  citta: cittaSchema,
 };
 
 // strictRequired spento: quartieri e settori sono chiavi obbligatorie elencate con propertyNames, non con properties.
@@ -186,6 +190,7 @@ export function loadContent(files: ContentFiles = CONTENT_FILES): LoadedContent 
   const po = toEngineData(files.politiche) as Pick<TurnRules, 'policies'>;
   const d = toEngineData(files.dilemmi) as Pick<TurnRules, 'dilemmas'>;
   const pa = toEngineData(files.parametri) as Pick<TurnRules, 'dilemmaArrivalProbability' | 'moral' | 'economy'>;
+  const city = toEngineData(files.citta) as TurnRules['city'];
 
   const initialContent: InitialContent = {
     calibrationVersion: p.calibrationVersion,
@@ -197,6 +202,7 @@ export function loadContent(files: ContentFiles = CONTENT_FILES): LoadedContent 
     council: p.council,
   };
   const rules: TurnRules = {
+    city,
     projects: pr.projects,
     dilemmas: d.dilemmas,
     dilemmaArrivalProbability: pa.dilemmaArrivalProbability,
@@ -206,7 +212,12 @@ export function loadContent(files: ContentFiles = CONTENT_FILES): LoadedContent 
     lotConversion: pr.lotConversion,
     climateScenario: c.climateScenario,
   };
-  const consistencyErrors = checkConsistency(rules);
+  const lotIds = new Set(initialContent.plantLots.map((l) => l.id));
+  const consistencyErrors = [
+    ...checkConsistency(rules),
+    ...Object.keys(rules.city.air.lotWeights).filter((id) => !lotIds.has(id)).map((id) => `citta.air.lotWeights: lotto inesistente ${id}`),
+    ...[...lotIds].filter((id) => !(id in rules.city.air.lotWeights)).map((id) => `citta.air.lotWeights: manca il lotto ${id}`),
+  ];
   if (consistencyErrors.length > 0) throw new ContentError(consistencyErrors);
   return { initialContent, rules, texts: texts(files) };
 }

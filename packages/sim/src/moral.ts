@@ -7,7 +7,7 @@ import { MORAL_DIMENSIONS } from './init.js';
 import { MORAL, clampToBounds } from './limits.js';
 import { PathError, readPath } from './paths.js';
 import { rngFor } from './rng.js';
-import type { GameState, MoralDimension, PromiseCondition } from './state.js';
+import type { ActSource, GameState, HiddenAct, MoralDimension, Promise as CityPromise, PromiseCondition } from './state.js';
 
 export class MoralError extends Error {
   constructor(message: string) {
@@ -63,7 +63,7 @@ export function conscienceFrom(byDimension: Record<MoralDimension, number>, weig
 export function recordActInPlace(
   state: GameState,
   rules: MoralRules,
-  act: { sourceId: string; weights: MoralWeights; hidden: boolean },
+  act: { sourceId: string; weights: MoralWeights; hidden: boolean; source?: ActSource },
 ): void {
   const { moral } = state;
   const before = moral.conscience;
@@ -73,7 +73,13 @@ export function recordActInPlace(
     if (weight === 0) continue;
     moral.byDimension[dimension] = clampToBounds(moral.byDimension[dimension] + weight, MORAL);
     if (act.hidden && weight < 0) {
-      moral.hiddenActs.push({ id: `${act.sourceId}:${dimension}`, turn: state.turn, dimension, weight });
+      moral.hiddenActs.push({
+        id: `${act.sourceId}:${dimension}`,
+        turn: state.turn,
+        dimension,
+        weight,
+        ...(act.source !== undefined && { source: structuredClone(act.source) }),
+      });
     }
   }
   moral.conscience = conscienceFrom(moral.byDimension, rules.dimensionWeights);
@@ -93,7 +99,7 @@ export function scandalProbability(state: GameState, rules: MoralRules): number 
  * sotto la coscienza, e ciascuno entra nel registro degli scandali con il turno
  * della scoperta. Restituisce gli atti scoperti. Uso interno del motore.
  */
-export function checkScandalsInPlace(state: GameState, rules: MoralRules, turn: number): string[] {
+export function checkScandalsInPlace(state: GameState, rules: MoralRules, turn: number): HiddenAct[] {
   const { moral } = state;
   if (moral.hiddenActs.length === 0) return [];
   const probability = scandalProbability(state, rules);
@@ -101,10 +107,17 @@ export function checkScandalsInPlace(state: GameState, rules: MoralRules, turn: 
   if (found.length === 0) return [];
   const discovered = found.map((act) => act.id);
   moral.hiddenActs = moral.hiddenActs.filter((act) => !discovered.includes(act.id));
-  for (const act of found) moral.scandals.push({ turn, actId: act.id, dimension: act.dimension });
+  for (const act of found) {
+    moral.scandals.push({
+      turn,
+      actId: act.id,
+      dimension: act.dimension,
+      ...(act.source !== undefined && { source: structuredClone(act.source) }),
+    });
+  }
   const ceiling = moral.conscience - rules.scandal.reputationDropBelowConscience;
   moral.reputation = clampToBounds(Math.min(moral.reputation, ceiling), MORAL);
-  return discovered;
+  return found;
 }
 
 /**
@@ -144,7 +157,8 @@ export function conditionHolds(state: GameState, condition: PromiseCondition): b
  * 'broken' e muovono la parola, in modo palese. Quelle senza condizione restano
  * 'open'. Uso interno del motore.
  */
-export function settlePromisesInPlace(state: GameState, rules: MoralRules, turn: number): void {
+export function settlePromisesInPlace(state: GameState, rules: MoralRules, turn: number): CityPromise[] {
+  const settled: CityPromise[] = [];
   for (const promise of state.promises) {
     if (promise.status !== 'open' || promise.condition === undefined || promise.dueByTurn > turn) continue;
     const kept = conditionHolds(state, promise.condition);
@@ -154,5 +168,7 @@ export function settlePromisesInPlace(state: GameState, rules: MoralRules, turn:
       weights: { word: kept ? rules.promiseKeptWordWeight : rules.promiseBrokenWordWeight },
       hidden: false,
     });
+    settled.push(promise);
   }
+  return settled;
 }

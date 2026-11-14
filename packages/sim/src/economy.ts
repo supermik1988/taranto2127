@@ -1,13 +1,32 @@
 /** Entrate, spese obbligate, pagamenti dai fondi e rate europee. */
+import { TurnError } from './errors.js';
 import type { EconomyRules } from './rules.js';
 import { yearOfTurn, type FundKind, type GameState } from './state.js';
 
 const totalEmployed = (state: GameState): number =>
   Object.values(state.labor.employed).reduce((sum, n) => sum + n, 0);
 
-export function collectRevenue(state: GameState, economy: EconomyRules, closing: number): void {
+/** Tolleranza per i residui della virgola mobile nei pagamenti (milioni). */
+const ROUNDING_TOLERANCE = 1e-6;
+
+/**
+ * Toglie `amount` da un fondo. Solo i fondi propri possono andare in
+ * disavanzo: per gli altri un residuo negativo dovuto alla virgola mobile si
+ * azzera, mentre uno scoperto vero è un errore del motore.
+ */
+export function debit(state: GameState, fund: FundKind, amount: number): void {
   const { funds } = state.economy;
-  funds.own += economy.ownRevenuePerWorker * totalEmployed(state) * (state.economy.averageIncome / 100);
+  funds[fund] -= amount;
+  if (fund !== 'own' && funds[fund] < 0) {
+    if (funds[fund] > -ROUNDING_TOLERANCE) funds[fund] = 0;
+    else throw new TurnError(`fondo ${fund} scoperto di ${-funds[fund]} milioni`);
+  }
+}
+
+/** Entrate dell'anno. Le entrate proprie sono moltiplicate per il senso civico. */
+export function collectRevenue(state: GameState, economy: EconomyRules, closing: number, civic = 1): void {
+  const { funds } = state.economy;
+  funds.own += economy.ownRevenuePerWorker * totalEmployed(state) * (state.economy.averageIncome / 100) * civic;
   funds.state += economy.stateTransferPerYear;
   const year = yearOfTurn(closing);
   for (const tranche of economy.euTranches) {
@@ -32,7 +51,7 @@ export function payMandatorySpending(state: GameState, economy: EconomyRules): v
   if (costPerPerson > 0) {
     const covered = Math.min(labor.onWageSupport, Math.floor(funds.state / costPerPerson));
     const uncovered = labor.onWageSupport - covered;
-    funds.state -= covered * costPerPerson;
+    debit(state, 'state', covered * costPerPerson);
     labor.onWageSupport = covered;
     labor.unemployed += uncovered;
   }
@@ -41,7 +60,7 @@ export function payMandatorySpending(state: GameState, economy: EconomyRules): v
 
 /** Paga da un fondo; per il fondo europeo consuma prima le rate che scadono prima. */
 export function payFrom(state: GameState, fund: FundKind, amount: number): void {
-  state.economy.funds[fund] -= amount;
+  debit(state, fund, amount);
   if (fund !== 'eu-earmarked') return;
   let left = amount;
   const tranches = [...state.economy.euTranches].sort((a, b) => a.expiresOnTurn - b.expiresOnTurn);
@@ -51,6 +70,11 @@ export function payFrom(state: GameState, fund: FundKind, amount: number): void 
     tranche.remaining -= used;
     left -= used;
   }
+}
+
+/** A fine anno la parte del fondo statale oltre il tetto di riporto torna allo Stato. */
+export function capStateFund(state: GameState, economy: EconomyRules): void {
+  state.economy.funds.state = Math.min(state.economy.funds.state, economy.stateCarryOverCap);
 }
 
 /** A fine anno la parte non spesa delle rate in scadenza viene tolta dal fondo europeo. */

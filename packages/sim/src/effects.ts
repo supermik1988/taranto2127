@@ -169,3 +169,35 @@ export function applyDueEffectsInPlace(state: GameState, turn: number): void {
   state.pendingEffects = state.pendingEffects.filter((e) => e.dueOnTurn > turn);
   for (const effect of due) applyEffectSetInPlace(state, effect);
 }
+
+/** Variabili per cui un valore più basso è un miglioramento. */
+const LOWER_IS_BETTER = new Set([
+  'contaminatedSoil',
+  'cumulativeExposure',
+  'floodRisk',
+  'tension',
+  'co2Emissions',
+  'summerHeat',
+  'waterStress',
+  'seaLevelRiseCm',
+]);
+const WORKLESS = new Set(['onWageSupport', 'unemployed']);
+
+/**
+ * Moltiplica per `factor` gli effetti positivi di un insieme: le variazioni che
+ * migliorano la città e gli spostamenti che portano persone dalla cassa o dalla
+ * disoccupazione al lavoro o alla formazione. Gli effetti negativi restano interi.
+ */
+export function scaleBeneficial(effects: EffectSet, factor: number): EffectSet {
+  if (factor === 1) return effects;
+  const field = (target: string) => target.slice(target.lastIndexOf('.') + 1);
+  return {
+    deltas: effects.deltas.map((d) => {
+      const beneficial = LOWER_IS_BETTER.has(field(d.target)) ? d.amount < 0 : d.amount > 0;
+      return beneficial ? { target: d.target, amount: d.amount * factor } : d;
+    }),
+    laborMoves: (effects.laborMoves ?? []).map((m) =>
+      WORKLESS.has(m.from) && !WORKLESS.has(m.to) ? { ...m, count: Math.floor(m.count * factor) } : m,
+    ),
+  };
+}

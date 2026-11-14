@@ -22,6 +22,7 @@ export function answerDilemma(state: GameState, action: Extract<Action, { kind: 
 
   const sourceId = `${dilemma.id}/${action.optionId}`;
   assertDataEffects(state, sourceId, option.immediate);
+  if (option.scandalPenalty !== undefined) assertDataEffects(state, sourceId, option.scandalPenalty);
   for (const { delayTurns, effects } of option.delayed) {
     if (!Number.isInteger(delayTurns) || delayTurns < 1) throw new ActionError(`${sourceId}: ritardo non valido (${delayTurns})`);
     assertDataEffects(state, sourceId, effects);
@@ -45,7 +46,12 @@ export function answerDilemma(state: GameState, action: Extract<Action, { kind: 
   state.openDilemmaId = null;
   applyEffectSetInPlace(state, option.immediate);
   for (const { delayTurns, effects } of option.delayed) pushEffect(state, sourceId, state.turn + delayTurns, effects);
-  recordActInPlace(state, rules.moral, { sourceId: actSourceId(state), weights: option.moral, hidden: option.hidden });
+  recordActInPlace(state, rules.moral, {
+    sourceId: actSourceId(state),
+    weights: option.moral,
+    hidden: option.hidden,
+    source: { kind: 'dilemma', dilemmaId: dilemma.id, optionId: action.optionId },
+  });
   if (promise !== undefined) {
     state.promises.push({
       id: `promise-${state.turn}-${state.history.length}`,
