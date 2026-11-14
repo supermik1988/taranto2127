@@ -43,6 +43,9 @@ export interface BotSummary {
     scandals: number;
     airQuality: Record<DistrictId, number>;
     trust: Record<DistrictId, number>;
+    exposure: Record<DistrictId, number>;
+    health: Record<DistrictId, number>;
+    industrialSoil: number;
   };
   /** Esito ripetuto in più del 90% delle partite, se c'è. */
   sameOutcome: { status: string; share: number } | null;
@@ -119,6 +122,9 @@ function summarize(bot: Bot, results: GameResult[]): BotSummary {
       scandals: median(results.map((r) => r.scandals)),
       airQuality: perDistrict((r) => r.airQuality),
       trust: perDistrict((r) => r.trust),
+      exposure: perDistrict((r) => r.exposure),
+      health: perDistrict((r) => r.health),
+      industrialSoil: median(results.map((r) => r.industrialSoil)),
     },
     sameOutcome: top.share > 0.9 ? top : null,
   };
@@ -292,6 +298,16 @@ export function formatReport(report: Report, options: { color?: boolean } = {}):
     const air = DISTRICT_IDS.map((id) => num(b.medians.airQuality[id], 1)).join(' | ');
     const trust = DISTRICT_IDS.map((id) => num(b.medians.trust[id], 1)).join(' | ');
     out(`| ${b.nome} | ${air} | ${trust} |`);
+  }
+  out();
+  out(`Esposizione accumulata (100 = massima) e salute, per quartiere, e terreni contaminati dell'area industriale:`);
+  out();
+  out(`| Bot | ${DISTRICT_IDS.map((id) => `Esposizione ${SHORT[id]}`).join(' | ')} | ${DISTRICT_IDS.map((id) => `Salute ${SHORT[id]}`).join(' | ')} | Terreni area ind. |`);
+  out(`| --- |${' ---: |'.repeat(DISTRICT_IDS.length * 2 + 1)}`);
+  for (const b of report.bots) {
+    const exposure = DISTRICT_IDS.map((id) => num(b.medians.exposure[id], 1)).join(' | ');
+    const health = DISTRICT_IDS.map((id) => num(b.medians.health[id], 1)).join(' | ');
+    out(`| ${b.nome} | ${exposure} | ${health} | ${num(b.medians.industrialSoil, 1)} |`);
   }
   out();
 

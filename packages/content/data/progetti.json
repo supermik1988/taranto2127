@@ -253,6 +253,22 @@
                 "stima": true,
                 "motivazione": "Effetto stimato dell'opera in esercizio, su scala 0-100."
               }
+            },
+            {
+              "target": "districts.tamburi.cumulativeExposure",
+              "amount": {
+                "valore": -15,
+                "stima": true,
+                "motivazione": "Esposizione che cala subito quando la fonte (terreni e cumuli contaminati) viene rimossa, per lotto bonificato. Valore della rifinitura T06c."
+              }
+            },
+            {
+              "target": "districts.area-industriale.cumulativeExposure",
+              "amount": {
+                "valore": -12,
+                "stima": true,
+                "motivazione": "Come sopra, nell'area industriale, la più vicina ai lotti. Valore della rifinitura T06c."
+              }
             }
           ]
         },
@@ -261,17 +277,25 @@
             {
               "target": "districts.tamburi.cumulativeExposure",
               "amount": {
-                "valore": -0.3,
+                "valore": -3.0,
                 "stima": true,
-                "motivazione": "Effetto stimato dell'opera in esercizio, su scala 0-100."
+                "motivazione": "Calo annuo dell'esposizione ai Tamburi dopo la bonifica: il punto forte di questa strada. Valore della rifinitura T06c."
               }
             },
             {
               "target": "districts.area-industriale.cumulativeExposure",
               "amount": {
-                "valore": -0.4,
+                "valore": -3.0,
                 "stima": true,
-                "motivazione": "Effetto stimato dell'opera in esercizio, su scala 0-100."
+                "motivazione": "Calo annuo dell'esposizione nell'area industriale dopo la bonifica. Valore della rifinitura T06c."
+              }
+            },
+            {
+              "target": "districts.paolo-vi.cumulativeExposure",
+              "amount": {
+                "valore": -0.5,
+                "stima": true,
+                "motivazione": "Calo annuo dell'esposizione a Paolo VI dopo la bonifica. Valore della rifinitura T06c."
               }
             },
             {

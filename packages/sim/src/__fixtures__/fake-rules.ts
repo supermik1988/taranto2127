@@ -164,6 +164,8 @@ export const fakeRules = (): TurnRules => ({
     servicesCostPerYear: 0,
     bankruptcyAfterDeficitYears: 5,
     stateCarryOverCap: 1e12,
+    ownSurplusReserve: 1e12,
+    servicesPerSurplusMillion: 0,
   },
   lotConversion: {
     'green-steel': 'lotto-acciaio-verde',
@@ -195,6 +197,8 @@ export const activeEconomy = (): EconomyRules => ({
   servicesCostPerYear: 2,
   bankruptcyAfterDeficitYears: 3,
   stateCarryOverCap: 1e12,
+  ownSurplusReserve: 1e12,
+  servicesPerSurplusMillion: 0,
 });
 
 export const fakeRulesWithEconomy = (): TurnRules => ({ ...fakeRules(), economy: activeEconomy() });

@@ -58,6 +58,18 @@ describe('A. correzioni sui fondi', () => {
     debit(state, 'own', 5000); // i fondi propri possono andare in disavanzo
   });
 
+  it('l’avanzo dei fondi propri oltre la riserva si spende in servizi, in proporzione alla spesa', () => {
+    const rules = { ...fakeRules(), economy: { ...fakeRules().economy, ownSurplusReserve: 100, servicesPerSurplusMillion: 0.05 } };
+    const rich = advanceTurn(patch(initial(), (s) => (s.economy.funds.own = 300)), rules);
+    expect(rich.economy.funds.own).toBe(100);
+    for (const id of DISTRICT_IDS) expect(rich.districts[id].services).toBeCloseTo(initial().districts[id].services + 10, 9);
+    const richer = advanceTurn(patch(initial(), (s) => (s.economy.funds.own = 500)), rules);
+    expect(richer.districts.borgo.services).toBeCloseTo(initial().districts.borgo.services + 20, 9);
+    const modest = advanceTurn(patch(initial(), (s) => (s.economy.funds.own = 80)), rules);
+    expect(modest.economy.funds.own).toBe(80);
+    expect(modest.districts.borgo.services).toBe(initial().districts.borgo.services);
+  });
+
   it('il fondo statale non supera il tetto di riporto', () => {
     const rules = { ...fakeRules(), economy: { ...fakeRules().economy, stateTransferPerYear: 80, stateCarryOverCap: 250 } };
     let state = initial();

@@ -1,7 +1,9 @@
 /** Entrate, spese obbligate, pagamenti dai fondi e rate europee. */
 import { TurnError } from './errors.js';
+import { INDEX, clampToBounds } from './limits.js';
 import type { EconomyRules } from './rules.js';
 import { yearOfTurn, type FundKind, type GameState } from './state.js';
+import { DISTRICT_IDS } from './validate.js';
 
 const totalEmployed = (state: GameState): number =>
   Object.values(state.labor.employed).reduce((sum, n) => sum + n, 0);
@@ -75,6 +77,21 @@ export function payFrom(state: GameState, fund: FundKind, amount: number): void 
 /** A fine anno la parte del fondo statale oltre il tetto di riporto torna allo Stato. */
 export function capStateFund(state: GameState, economy: EconomyRules): void {
   state.economy.funds.state = Math.min(state.economy.funds.state, economy.stateCarryOverCap);
+}
+
+/**
+ * A fine anno l'avanzo dei fondi propri oltre la riserva si spende in servizi:
+ * ogni quartiere guadagna punti in proporzione ai milioni spesi.
+ */
+export function spendOwnSurplus(state: GameState, economy: EconomyRules): void {
+  const surplus = state.economy.funds.own - economy.ownSurplusReserve;
+  if (!(surplus > 0)) return;
+  state.economy.funds.own = economy.ownSurplusReserve;
+  const gain = surplus * economy.servicesPerSurplusMillion;
+  for (const id of DISTRICT_IDS) {
+    const district = state.districts[id];
+    district.services = clampToBounds(district.services + gain, INDEX);
+  }
 }
 
 /** A fine anno la parte non spesa delle rate in scadenza viene tolta dal fondo europeo. */

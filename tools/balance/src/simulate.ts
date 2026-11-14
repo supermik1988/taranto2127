@@ -52,6 +52,10 @@ export interface GameResult {
   averageTrust: number;
   airQuality: Record<DistrictId, number>;
   trust: Record<DistrictId, number>;
+  exposure: Record<DistrictId, number>;
+  health: Record<DistrictId, number>;
+  /** Terreni contaminati dell'area industriale (0-100). */
+  industrialSoil: number;
   scandals: number;
   /** Valori delle variabili osservate ai turni di controllo raggiunti. */
   checkpoints: Partial<Record<(typeof CHECKPOINTS)[number], Record<TrackedName, number>>>;
@@ -130,6 +134,9 @@ export function playGame(bot: Bot, seed: number, content: InitialContent, rules:
     averageTrust: averageTrust(state),
     airQuality: perDistrict((id) => state.districts[id].airQuality),
     trust: perDistrict((id) => state.districts[id].trust),
+    exposure: perDistrict((id) => state.districts[id].cumulativeExposure),
+    health: perDistrict((id) => state.districts[id].health),
+    industrialSoil: state.districts['area-industriale'].contaminatedSoil,
     scandals: state.moral.scandals.length,
     checkpoints,
     levers: Object.keys(firstTurn).sort(),

@@ -50,7 +50,7 @@ describe('rapporto', { timeout: 60_000 }, () => {
       expect(text).toContain(heading);
     }
     for (const column of ['Al 2127', 'In dissesto', 'Città che si volta', 'Anno mediano del dissesto', 'Fondi propri', 'Occupati locali', 'Cassa integrati',
-      'Disoccupati', 'Coscienza', 'Reputazione', 'Fiducia media', 'Scandali', 'Aria Tamburi', 'Fiducia Tamburi']) {
+      'Disoccupati', 'Coscienza', 'Reputazione', 'Fiducia media', 'Scandali', 'Aria Tamburi', 'Fiducia Tamburi', 'Esposizione Tamburi', 'Salute Tamburi', 'Terreni area ind.']) {
       expect(text).toContain(column);
     }
   });

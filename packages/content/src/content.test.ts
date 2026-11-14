@@ -269,7 +269,8 @@ describe('la città reagisce, con i contenuti veri', () => {
   function quietYears(state: GameState, years: number, onYear: (s: GameState) => void = () => {}): GameState {
     for (let i = 0; i < years; i++) {
       state = structuredClone(state);
-      state.economy.funds.own = Math.max(state.economy.funds.own, 1000);
+      // Alla riserva esatta: niente dissesto e niente avanzo speso in servizi, che falserebbe la salute.
+      state.economy.funds.own = rules.economy.ownSurplusReserve;
       state.economy.funds.state = Math.max(state.economy.funds.state, 200);
       state.economy.funds['eu-earmarked'] = Math.max(state.economy.funds['eu-earmarked'], 200);
       if (state.openDilemmaId !== null) {

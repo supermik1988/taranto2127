@@ -43,7 +43,8 @@
       "type": "object",
       "required": [
         "ownRevenuePerWorker", "stateTransferPerYear", "euTranches", "wageSupportCostPerPerson",
-        "servicesCostPerYear", "bankruptcyAfterDeficitYears", "stateCarryOverCap"
+        "servicesCostPerYear", "bankruptcyAfterDeficitYears", "stateCarryOverCap",
+        "ownSurplusReserve", "servicesPerSurplusMillion"
       ],
       "properties": {
         "ownRevenuePerWorker": { "$ref": "comune.json#/$defs/nonNegativo" },
@@ -65,7 +66,9 @@
         "wageSupportCostPerPerson": { "$ref": "comune.json#/$defs/nonNegativo" },
         "servicesCostPerYear": { "$ref": "comune.json#/$defs/nonNegativo" },
         "bankruptcyAfterDeficitYears": { "$ref": "comune.json#/$defs/interoPositivo" },
-        "stateCarryOverCap": { "$ref": "comune.json#/$defs/nonNegativo" }
+        "stateCarryOverCap": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "ownSurplusReserve": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "servicesPerSurplusMillion": { "$ref": "comune.json#/$defs/nonNegativo" }
       },
       "additionalProperties": false
     }

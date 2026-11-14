@@ -11,7 +11,7 @@ import {
   promiseTrustInPlace,
   updateAbandonmentInPlace,
 } from './city.js';
-import { capStateFund, collectRevenue, expireEuTranches, payMandatorySpending } from './economy.js';
+import { capStateFund, collectRevenue, expireEuTranches, payMandatorySpending, spendOwnSurplus } from './economy.js';
 import { applyDeltasInPlace, applyDueEffectsInPlace } from './effects.js';
 import { ActionError, TurnError } from './errors.js';
 import { checkScandalsInPlace, settlePromisesInPlace } from './moral.js';
@@ -133,7 +133,8 @@ export function applyAction(state: GameState, action: Action, rules: TurnRules):
  * 6. quartieri: aria, esposizione, salute, servizi, tensione, fiducia;
  * 7. morale: promesse con condizione in scadenza (e fiducia del quartiere a cui
  *    erano rivolte), poi scoperta degli atti nascosti e loro conseguenze;
- * 8. il fondo statale oltre il tetto di riporto torna allo Stato.
+ * 8. il fondo statale oltre il tetto di riporto torna allo Stato; l'avanzo dei
+ *    fondi propri oltre la riserva si spende in servizi.
  * Entrate proprie ed effetti positivi ricorrenti sono moltiplicati per il senso
  * civico, calcolato sulla fiducia a inizio anno. Poi il turno avanza. Dopo
  * troppi anni di disavanzo la partita termina con 'ended-bankrupt'; dopo troppi
@@ -160,6 +161,7 @@ export function advanceTurn(state: GameState, rules: TurnRules): GameState {
   promiseTrustInPlace(next, rules, settlePromisesInPlace(next, rules.moral, opening));
   applyScandalConsequencesInPlace(next, rules, checkScandalsInPlace(next, rules.moral, closing));
   capStateFund(next, rules.economy);
+  spendOwnSurplus(next, rules.economy);
 
   next.economy.deficitYears = next.economy.funds.own < 0 ? next.economy.deficitYears + 1 : 0;
   const abandoned = updateAbandonmentInPlace(next, rules);

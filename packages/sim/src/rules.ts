@@ -84,6 +84,10 @@ export interface EconomyRules {
   bankruptcyAfterDeficitYears: number;
   /** Tetto di riporto del fondo statale: a fine anno la parte oltre il tetto torna allo Stato. */
   stateCarryOverCap: number;
+  /** Riserva dei fondi propri: a fine anno l'avanzo oltre la riserva si spende in servizi. */
+  ownSurplusReserve: number;
+  /** Punti di servizi guadagnati da ogni quartiere per ogni milione di avanzo speso. */
+  servicesPerSurplusMillion: number;
 }
 
 /** Promessa che nasce da un'opzione di dilemma. */
