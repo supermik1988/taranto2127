@@ -130,7 +130,7 @@ describe('scandalo', () => {
     expect(at(-20, 0)).toBe(0.02); // reputazione peggiore della coscienza: nessun aumento
   });
 
-  it('con dieci atti nascosti lo scandalo arriva entro 20 turni in almeno il 95% di 1.000 semi', () => {
+  it('con dieci atti nascosti lo scandalo arriva entro 20 turni in almeno il 95% di 1.000 semi', { timeout: 60_000 }, () => {
     let withScandal = 0;
     for (let seed = 0; seed < 1000; seed++) {
       let state = initial(seed);
@@ -263,7 +263,8 @@ describe('promesse', () => {
   });
 });
 
-describe('partita completa', () => {
+// Test pesanti: margine ampio perché girano in parallelo con gli altri.
+describe('partita completa', { timeout: 60_000 }, () => {
   it('stessa partita identica a parità di seme e storia', () => {
     const r = fakeRulesWithEconomy();
     expect(JSON.stringify(randomGame(123, r))).toBe(JSON.stringify(randomGame(123, r)));

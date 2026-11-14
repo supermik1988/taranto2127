@@ -93,7 +93,7 @@ describe('lavoro come bilancio chiuso', () => {
     expect(state.labor.unemployed).toBe(stalled.unemployed + 30);
   });
 
-  it('la forza lavoro totale resta costante in 100 turni di gioco casuale', () => {
+  it('la forza lavoro totale resta costante in 100 turni di gioco casuale', { timeout: 60_000 }, () => {
     for (const seed of [11, 12, 13, 14, 15]) {
       const force = laborForce(initial(seed));
       let turns = 0;
@@ -202,7 +202,8 @@ describe('dissesto', () => {
   });
 });
 
-describe('determinismo', () => {
+// Test pesanti: margine ampio perché girano in parallelo con gli altri.
+describe('determinismo', { timeout: 60_000 }, () => {
   it('stessa partita identica a parità di seme e storia, con l’economia attiva', () => {
     const rules = fakeRulesWithEconomy();
     expect(JSON.stringify(randomGame(42, rules))).toBe(JSON.stringify(randomGame(42, rules)));

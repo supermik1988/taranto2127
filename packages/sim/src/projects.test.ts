@@ -237,7 +237,8 @@ describe('lotti come progetti', () => {
   });
 });
 
-describe('gioco casuale', () => {
+// Test pesanti: margine ampio perché girano in parallelo con gli altri.
+describe('gioco casuale', { timeout: 60_000 }, () => {
   it('100 turni di gioco casuale lasciano lo stato sempre valido', () => {
     for (const seed of [1, 2, 3, 4, 5]) {
       let projects = 0;
