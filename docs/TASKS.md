@@ -133,14 +133,28 @@ elencati. Ordine: T01, poi T02, poi T03 e T05a in parallelo, poi T04, poi T06.
 ## T06 — Bot di bilanciamento
 
 - **Agente:** `balance-tester`
-- **Dipende da:** T04
-- **File:** `tools/balance/`.
-- **Cosa fare:** comando `pnpm balance -- --partite N` che fa giocare quattro
-  bot (tutto Blu, tutto Red, casuale, "una sola strada") e stampa per ciascuno
-  la distribuzione dei finali e gli indicatori medi al 2127.
-- **Fatto quando:** 1.000 partite terminano senza errori in meno di due minuti;
-  il rapporto segnala in rosso ogni strategia che ottiene lo stesso finale in
-  più del 90% dei casi.
+- **Dipende da:** T05c
+- **File:** `tools/balance/`, `docs/BILANCIAMENTO.md`. Non si modificano
+  `packages/sim` né i valori in `packages/content`: si propone, non si cambia.
+- **Cosa fare:**
+  1. Comando `pnpm balance -- --partite N` che gioca N partite per ciascun bot
+     con i contenuti veri e stampa un rapporto.
+  2. Sei bot: tutto Blu; tutto Red; casuale; una sola strada per ciascuna delle
+     quattro (acciaio verde, bonifica, energia, mare e cultura), anche come un
+     unico bot parametrico; prudente sui conti; nessuna azione.
+  3. Per ogni bot: quota di partite arrivate al 2127 e in dissesto, anno mediano
+     del dissesto, e al termine i valori mediani di fondi, occupati locali, cassa
+     integrati, disoccupati, coscienza, reputazione, qualità dell'aria e fiducia
+     per quartiere, numero di scandali.
+  4. Segnalare in evidenza: ogni bot con lo stesso esito in più del 90% delle
+     partite; ogni variabile che cresce o cala senza limite; ogni leva (progetto,
+     politica, opzione di dilemma) mai usata o sempre conveniente.
+  5. `docs/BILANCIAMENTO.md`: il rapporto di 1.000 partite per bot e un elenco
+     ordinato di proposte di modifica ai valori, ognuna con il problema che
+     risolve e l'effetto atteso.
+- **Fatto quando:** 1.000 partite per bot terminano senza errori; il rapporto è
+  identico a parità di seme; il test del comando gira su poche partite in pochi
+  secondi; il rapporto contiene i cinque gruppi di informazioni sopra.
 
 ---
 
