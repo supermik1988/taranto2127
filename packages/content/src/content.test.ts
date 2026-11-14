@@ -46,6 +46,21 @@ describe('schema e caricatore', () => {
     expect(() => loadContent(broken)).toThrow(ContentError);
   });
 
+  it('un consigliere indicato per posizione nei dati viene rifiutato dallo schema', () => {
+    const broken: ContentFiles = structuredClone(CONTENT_FILES);
+    const text = JSON.stringify(broken.dilemmi).replace('council.cons-lavoro.trustInPlayer', 'council.0.trustInPlayer');
+    broken.dilemmi = JSON.parse(text);
+    expect(validateContentFiles(broken).some((e) => e.startsWith('dilemmi.json'))).toBe(true);
+    const condition: ContentFiles = structuredClone(CONTENT_FILES);
+    condition.dilemmi = JSON.parse(JSON.stringify(condition.dilemmi).replace('"labor.unemployed"', '"council.2.patience"'));
+    expect(validateContentFiles(condition).some((e) => e.startsWith('dilemmi.json'))).toBe(true);
+  });
+
+  it('nessun riferimento per posizione ai consiglieri nei dati', () => {
+    expect(JSON.stringify(CONTENT_FILES)).not.toMatch(/council\.[0-9]+\./);
+    expect(JSON.stringify(rules.dilemmas)).toContain('council.cons-lavoro.trustInPlayer');
+  });
+
   it('il caricatore toglie annotazioni e testi: restano solo numeri, chiavi e identificativi del motore', () => {
     walk(rules, 'rules', (value, path, _parent, key) => {
       expect(['nome', 'descrizione', 'titolo', 'testo', 'etichetta', 'conseguenze', 'stima', 'motivazione', 'valore'], path).not.toContain(key);
@@ -114,6 +129,27 @@ describe('contenuti minimi', () => {
     expect(Object.values(rules.policies).some((p) => p.training !== undefined)).toBe(true);
     expect(Object.keys(rules.dilemmas)).toHaveLength(6);
     expect(rules.climateScenario.annualChangeByEpoch).toHaveLength(5);
+  });
+
+  it('le opere di quartiere sono uniche; i progetti di riconversione dei lotti no', () => {
+    const unique = Object.values(rules.projects).filter((p) => p.unique === true).map((p) => p.id).sort();
+    expect(unique).toEqual([
+      'banchine-logistica',
+      'centro-ricerca-mare',
+      'difese-costiere',
+      'fascia-verde-tamburi',
+      'medicina-territorio',
+      'riqualificazione-talsano',
+      'risanamento-citta-vecchia',
+      'scuole-paolo-vi',
+      'trasporto-rapido',
+    ]);
+    for (const id of Object.values(rules.lotConversion)) expect(rules.projects[id]!.unique, id).not.toBe(true);
+  });
+
+  it('un progetto unico dei contenuti non si avvia due volte', () => {
+    const once = applyAction(initial(), { kind: 'start-project', definitionId: 'scuole-paolo-vi' }, rules);
+    expect(() => applyAction(once, { kind: 'start-project', definitionId: 'scuole-paolo-vi' }, rules)).toThrow();
   });
 
   it('durate in anni interi, con minimo e massimo per ogni fase', () => {

@@ -530,6 +530,7 @@
       "id": "risanamento-citta-vecchia",
       "nome": "Risanamento della Città Vecchia",
       "descrizione": "Consolidare i palazzi vuoti e riportarci case, botteghe e servizi.",
+      "unique": true,
       "phases": {
         "design": {
           "minTurns": {
@@ -650,6 +651,7 @@
       "id": "scuole-paolo-vi",
       "nome": "Scuole nuove a Paolo VI",
       "descrizione": "Due plessi scolastici al posto di edifici vecchi e insicuri.",
+      "unique": true,
       "phases": {
         "design": {
           "minTurns": {
@@ -771,6 +773,7 @@
       "id": "medicina-territorio",
       "nome": "Case della salute ai Tamburi e a Paolo VI",
       "descrizione": "Ambulatori, consultori e prevenzione vicino a casa, aperti tutto il giorno.",
+      "unique": true,
       "phases": {
         "design": {
           "minTurns": {
@@ -911,6 +914,7 @@
       "id": "fascia-verde-tamburi",
       "nome": "Fascia verde tra i Tamburi e le aree industriali",
       "descrizione": "Alberi, terrapieni e un parco lineare tra le case e i lotti.",
+      "unique": true,
       "phases": {
         "design": {
           "minTurns": {
@@ -1023,6 +1027,7 @@
       "id": "banchine-logistica",
       "nome": "Banchine per la logistica nel porto",
       "descrizione": "Rinnovare moli e piazzali per traffici che non siano più legati all'acciaio.",
+      "unique": true,
       "phases": {
         "design": {
           "minTurns": {
@@ -1147,6 +1152,7 @@
       "id": "difese-costiere",
       "nome": "Difese costiere sul Mar Piccolo e sul Mar Grande",
       "descrizione": "Banchine rialzate, scogliere e drenaggi contro mareggiate e acqua alta.",
+      "unique": true,
       "phases": {
         "design": {
           "minTurns": {
@@ -1267,6 +1273,7 @@
       "id": "trasporto-rapido",
       "nome": "Linee di autobus rapidi tra quartieri",
       "descrizione": "Corsie riservate e mezzi elettrici che collegano Paolo VI, Talsano, i Tamburi e il centro.",
+      "unique": true,
       "phases": {
         "design": {
           "minTurns": {
@@ -1398,6 +1405,7 @@
       "id": "riqualificazione-talsano",
       "nome": "Piazze e servizi a Talsano, Lama e San Vito",
       "descrizione": "Piazze, biblioteche di quartiere e campi sportivi nelle borgate.",
+      "unique": true,
       "phases": {
         "design": {
           "minTurns": {
@@ -1518,6 +1526,7 @@
       "id": "centro-ricerca-mare",
       "nome": "Centro di ricerca sui due mari",
       "descrizione": "Laboratori sulla qualità delle acque, la mitilicoltura e il clima.",
+      "unique": true,
       "phases": {
         "design": {
           "minTurns": {

@@ -66,6 +66,9 @@ export function startProject(
   definition: ProjectDefinition,
   where: { lotId?: string; district?: DistrictId },
 ): void {
+  if (definition.unique === true && state.projects.some((p) => p.definitionId === definition.id && p.phase !== 'cancelled')) {
+    throw new ActionError(`${definition.id}: progetto unico, già avviato in questa partita`);
+  }
   // Un errore negli effetti dei dati emerge all'avvio, non anni dopo all'entrata in esercizio.
   assertDataEffects(state, definition.id, definition.operatingEffects.once);
   assertDataEffects(state, definition.id, definition.operatingEffects.everyYear);

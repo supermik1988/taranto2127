@@ -324,7 +324,7 @@
           "immediate": {
             "deltas": [
               {
-                "target": "council.0.trustInPlayer",
+                "target": "council.cons-lavoro.trustInPlayer",
                 "amount": {
                   "valore": -5,
                   "stima": true,
@@ -376,7 +376,7 @@
           "immediate": {
             "deltas": [
               {
-                "target": "council.0.trustInPlayer",
+                "target": "council.cons-lavoro.trustInPlayer",
                 "amount": {
                   "valore": 5,
                   "stima": true,
@@ -425,7 +425,7 @@
                 }
               },
               {
-                "target": "council.4.trustInPlayer",
+                "target": "council.cons-giovani.trustInPlayer",
                 "amount": {
                   "valore": -5,
                   "stima": true,

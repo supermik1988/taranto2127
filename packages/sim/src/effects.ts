@@ -1,4 +1,5 @@
 import { boundsFor, clampToBounds } from './limits.js';
+import { PathError, resolveContainer } from './paths.js';
 import type { Delta, GameState, LaborCategory, LaborMove, Sector } from './state.js';
 
 export class EffectError extends Error {
@@ -25,7 +26,6 @@ export interface EffectSet {
  */
 const WRITABLE_ROOTS = new Set(['districts', 'economy', 'climate', 'council', 'plantLots']);
 
-const FORBIDDEN_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
 
 const SECTORS = Object.keys({
   steel: true,
@@ -62,21 +62,17 @@ export function applyDeltasInPlace(state: GameState, deltas: readonly Delta[]): 
     if (field === undefined || root === undefined || !WRITABLE_ROOTS.has(root)) {
       throw new EffectError(`${target}: variabile non modificabile da un effetto`);
     }
-    let node: unknown = state;
-    for (const key of keys) {
-      node = ownChild(node, key, target);
+    let resolved: ReturnType<typeof resolveContainer>;
+    try {
+      resolved = resolveContainer(state, target);
+    } catch (error) {
+      if (error instanceof PathError) throw new EffectError(error.message);
+      throw error;
     }
-    const current = ownChild(node, field, target);
+    const current = resolved.container[resolved.field];
     if (typeof current !== 'number') throw new EffectError(`${target}: non è un numero`);
-    (node as Record<string, number>)[field] = clampToBounds(current + amount, boundsFor(target));
+    resolved.container[resolved.field] = clampToBounds(current + amount, boundsFor(target));
   }
-}
-
-function ownChild(node: unknown, key: string, target: string): unknown {
-  if (FORBIDDEN_KEYS.has(key) || typeof node !== 'object' || node === null || !Object.hasOwn(node, key)) {
-    throw new EffectError(`${target}: percorso inesistente`);
-  }
-  return (node as Record<string, unknown>)[key];
 }
 
 function readCategory(state: GameState, category: LaborCategory): number {

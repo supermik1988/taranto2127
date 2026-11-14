@@ -5,6 +5,7 @@
  */
 import { MORAL_DIMENSIONS } from './init.js';
 import { MORAL, clampToBounds } from './limits.js';
+import { PathError, readPath } from './paths.js';
 import { rngFor } from './rng.js';
 import type { GameState, MoralDimension, PromiseCondition } from './state.js';
 
@@ -106,17 +107,20 @@ export function checkScandalsInPlace(state: GameState, rules: MoralRules, turn: 
   return discovered;
 }
 
-/** Legge una variabile numerica dello stato dal suo percorso (es. "districts.tamburi.health"). */
+/**
+ * Legge una variabile numerica dello stato dal suo percorso (es.
+ * "districts.tamburi.health", "council.cons-lavoro.trustInPlayer").
+ */
 export function readNumber(state: GameState, path: string): number {
-  let node: unknown = state;
-  for (const key of path.split('.')) {
-    if (key === '__proto__' || typeof node !== 'object' || node === null || !Object.hasOwn(node, key)) {
-      throw new MoralError(`${path}: percorso inesistente`);
-    }
-    node = (node as Record<string, unknown>)[key];
+  let value: unknown;
+  try {
+    value = readPath(state, path);
+  } catch (error) {
+    if (error instanceof PathError) throw new MoralError(error.message);
+    throw error;
   }
-  if (typeof node !== 'number') throw new MoralError(`${path}: non è un numero`);
-  return node;
+  if (typeof value !== 'number') throw new MoralError(`${path}: non è un numero`);
+  return value;
 }
 
 export function conditionHolds(state: GameState, condition: PromiseCondition): boolean {

@@ -26,6 +26,8 @@ export interface PhaseSpec extends PhaseDuration {
 
 export interface ProjectDefinition {
   id: string;
+  /** true: si avvia una sola volta nella partita, salvo annullamento. */
+  unique?: boolean;
   phases: Record<BuildPhase, PhaseSpec>;
   /**
    * Posti di cantiere nella fase 'works'. Si coprono prima con i cassa

@@ -34,7 +34,7 @@ describe('tabella dei limiti', () => {
       'economy.funds.private',
       'climate.waterStress',
       'climate.co2Emissions',
-      'council.0.trustInPlayer',
+      'council.consigliere-finto-1.trustInPlayer',
       'plantLots.0.progress',
     ];
     for (const amount of [1e9, -1e9]) {

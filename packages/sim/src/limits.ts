@@ -30,7 +30,8 @@ const RULES: readonly (readonly [RegExp, Bounds])[] = [
   [/^climate\./, INDEX],
   [/^moral\.(conscience|reputation)$/, MORAL],
   [/^moral\.byDimension\.[^.]+$/, MORAL],
-  [/^council\.\d+\.(trustInPlayer|patience)$/, INDEX],
+  // Nello stato il Consiglio si visita per posizione; negli effetti si indica per id.
+  [/^council\.[^.]+\.(trustInPlayer|patience)$/, INDEX],
   [/^plantLots\.\d+\.progress$/, SHARE],
 ];
 

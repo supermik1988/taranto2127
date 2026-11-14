@@ -43,6 +43,7 @@
         "id": { "$ref": "comune.json#/$defs/id" },
         "nome": { "$ref": "comune.json#/$defs/testo" },
         "descrizione": { "$ref": "comune.json#/$defs/testo" },
+        "unique": { "type": "boolean", "description": "Si avvia una sola volta nella partita, salvo annullamento." },
         "phases": {
           "type": "object",
           "required": ["design", "permitting", "tender", "works"],

@@ -66,8 +66,9 @@
       "additionalProperties": false
     },
     "variazione": {
-      "description": "Variazione di una variabile della città. Lavoro e contatore morale non si toccano così (regola 5 e bilancio del lavoro).",
+      "description": "Variazione di una variabile della città. Lavoro e contatore morale non si toccano così (regola 5 e bilancio del lavoro). Un consigliere si indica con il suo id (council.<id>.campo), mai per posizione.",
       "type": "object",
+      "not": { "type": "object", "required": ["target"], "properties": { "target": { "type": "string", "pattern": "^council\\.[0-9]+\\." } } },
       "required": ["target", "amount"],
       "properties": {
         "target": { "type": "string", "pattern": "^(districts|economy|climate|council|plantLots)\\.[A-Za-z0-9.-]+$" },
@@ -95,7 +96,9 @@
       "additionalProperties": false
     },
     "condizione": {
+      "description": "Confronto su una variabile dello stato. Un consigliere si indica con il suo id, mai per posizione.",
       "type": "object",
+      "not": { "type": "object", "required": ["target"], "properties": { "target": { "type": "string", "pattern": "^council\\.[0-9]+\\." } } },
       "required": ["target", "comparator", "value"],
       "properties": {
         "target": { "type": "string", "minLength": 3 },
