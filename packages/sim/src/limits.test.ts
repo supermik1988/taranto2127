@@ -31,7 +31,6 @@ describe('tabella dei limiti', () => {
     const paths = [
       'districts.borgo.trust',
       'districts.borgo.population.young',
-      'labor.unemployed',
       'economy.funds.private',
       'climate.waterStress',
       'climate.co2Emissions',

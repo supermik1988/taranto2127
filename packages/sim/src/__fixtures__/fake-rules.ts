@@ -19,7 +19,7 @@ const lotProject = (id: string, works: number): ProjectDefinition => ({
   id,
   phases: { design: phase(1), permitting: phase(1), tender: phase(0), works: phase(works, works, 2, 'eu-earmarked') },
   worksJobs: { sector: 'remediation', count: 50 },
-  operatingEffects: { once: [], everyYear: [] },
+  operatingEffects: { once: { deltas: [] }, everyYear: { deltas: [] } },
 });
 
 export const fakeRules = (): TurnRules => ({
@@ -30,8 +30,8 @@ export const fakeRules = (): TurnRules => ({
       phases: { design: phase(1), permitting: phase(2), tender: phase(1), works: phase(4, 4, 5) },
       worksJobs: { sector: 'services', count: 30 },
       operatingEffects: {
-        once: [{ target: 'districts.tamburi.greenCover', amount: 10 }],
-        everyYear: [{ target: 'districts.tamburi.trust', amount: 1 }],
+        once: { deltas: [{ target: 'districts.tamburi.greenCover', amount: 10 }] },
+        everyYear: { deltas: [{ target: 'districts.tamburi.trust', amount: 1 }] },
       },
     },
     // Durate variabili: il generatore con seme sceglie tra minimo e massimo.
@@ -39,21 +39,21 @@ export const fakeRules = (): TurnRules => ({
       id: 'progetto-finto-variabile',
       phases: { design: phase(1, 3), permitting: phase(1, 4), tender: phase(0, 2), works: phase(2, 6, 3) },
       worksJobs: { sector: 'energy', count: 20 },
-      operatingEffects: { once: [{ target: 'districts.borgo.services', amount: 5 }], everyYear: [] },
+      operatingEffects: { once: { deltas: [{ target: 'districts.borgo.services', amount: 5 }] }, everyYear: { deltas: [] } },
     },
     // Senza gara: la fase con durata 0 viene saltata. Gratuito, senza cantiere.
     'progetto-finto-senza-gara': {
       id: 'progetto-finto-senza-gara',
       phases: { design: phase(1, 1, 0), permitting: phase(1, 1, 0), tender: phase(0, 0, 0), works: phase(1, 1, 0) },
       worksJobs: { sector: 'public', count: 0 },
-      operatingEffects: { once: [{ target: 'economy.averageIncome', amount: 1 }], everyYear: [] },
+      operatingEffects: { once: { deltas: [{ target: 'economy.averageIncome', amount: 1 }] }, everyYear: { deltas: [] } },
     },
     // Costo fisso: 2 milioni l'anno in ogni fase da un anno.
     'progetto-finto-costo-fisso': {
       id: 'progetto-finto-costo-fisso',
       phases: { design: phase(1, 1, 2), permitting: phase(1, 1, 2), tender: phase(1, 1, 2), works: phase(1, 1, 2) },
       worksJobs: { sector: 'public', count: 5 },
-      operatingEffects: { once: [], everyYear: [] },
+      operatingEffects: { once: { deltas: [] }, everyYear: { deltas: [] } },
     },
     // Riconversione dei lotti: 2 anni di preparazione più i lavori.
     'lotto-acciaio-verde': lotProject('lotto-acciaio-verde', 1),

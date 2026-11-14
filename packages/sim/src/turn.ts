@@ -1,4 +1,12 @@
-import { applyDueEffectsInPlace, applyDeltasInPlace, pushEffect } from './effects.js';
+import {
+  applyDeltasInPlace,
+  applyDueEffectsInPlace,
+  applyEffectSetInPlace,
+  assertApplicable,
+  EffectError,
+  pushEffect,
+  type EffectSet,
+} from './effects.js';
 import { rngFor } from './rng.js';
 import {
   MAX_FREE_ACTIONS_PER_TURN,
@@ -7,7 +15,6 @@ import {
   yearOfTurn,
   type Action,
   type ConversionPath,
-  type Delta,
   type DistrictId,
   type FundKind,
   type GameState,
@@ -49,9 +56,9 @@ export interface ProjectDefinition {
   /** Effetti di esercizio: mai prima dell'entrata in esercizio. */
   operatingEffects: {
     /** Una volta sola, nel turno in cui il progetto entra in esercizio. */
-    once: Delta[];
+    once: EffectSet;
     /** Ogni anno successivo, finché il progetto resta in esercizio. */
-    everyYear: Delta[];
+    everyYear: EffectSet;
   };
 }
 
@@ -249,6 +256,15 @@ function startProject(
   definition: ProjectDefinition,
   where: { lotId?: string; district?: DistrictId },
 ): void {
+  // Un errore negli effetti dei dati emerge all'avvio, non anni dopo all'entrata in esercizio.
+  for (const effects of [definition.operatingEffects.once, definition.operatingEffects.everyYear]) {
+    try {
+      assertApplicable(state, effects);
+    } catch (error) {
+      if (error instanceof EffectError) throw new ActionError(`${definition.id}: ${error.message}`);
+      throw error;
+    }
+  }
   const project: Project = {
     id: `project-${state.turn}-${state.history.length}`,
     definitionId: definition.id,
@@ -261,6 +277,7 @@ function startProject(
     shortcutTaken: false,
     localHires: 0,
     worksStalled: false,
+    outsideHires: 0,
   };
   state.projects.push(project);
   // Se tutte le fasi durano 0, gli effetti arrivano dal turno dopo, mai nello stesso.
@@ -323,6 +340,7 @@ function hireLocal(state: GameState, need: number): number {
 function startWorks(state: GameState, project: Project, definition: ProjectDefinition): void {
   const { sector, count } = definition.worksJobs;
   project.localHires = hireLocal(state, count);
+  project.outsideHires = count - project.localHires;
   project.worksStalled = false;
   state.labor.employed[sector] += project.localHires;
 }
@@ -360,6 +378,7 @@ function releaseWorks(state: GameState, project: Project, definition: ProjectDef
     state.labor.unemployed += moved;
   }
   project.localHires = 0;
+  project.outsideHires = 0;
   project.worksStalled = false;
 }
 
@@ -487,7 +506,7 @@ function expireEuTranches(state: GameState, closing: number): void {
 function advanceProjects(state: GameState, rules: TurnRules, opening: number): void {
   for (const project of state.projects) {
     if (project.phase === 'operating') {
-      applyDeltasInPlace(state, definitionOrThrow(rules, project.definitionId, TurnError).operatingEffects.everyYear);
+      applyEffectSetInPlace(state, definitionOrThrow(rules, project.definitionId, TurnError).operatingEffects.everyYear);
     }
   }
 

@@ -1,5 +1,5 @@
 import { boundsFor, clampToBounds } from './limits.js';
-import type { Delta, GameState } from './state.js';
+import type { Delta, GameState, LaborCategory, LaborMove, Sector } from './state.js';
 
 export class EffectError extends Error {
   constructor(message: string) {
@@ -8,10 +8,39 @@ export class EffectError extends Error {
   }
 }
 
-/** Radici dello stato che un effetto può toccare. Turno, seme, storia e simili no. */
-const WRITABLE_ROOTS = new Set(['districts', 'labor', 'economy', 'climate', 'moral', 'council', 'plantLots']);
+/**
+ * Un insieme di effetti dai dati: variazioni di variabili e spostamenti di
+ * lavoro. Il lavoro non si tocca con variazioni dirette, solo con spostamenti.
+ */
+export interface EffectSet {
+  deltas: Delta[];
+  laborMoves?: LaborMove[];
+}
+
+/**
+ * Radici dello stato che una variazione può toccare. Turno, seme, storia e
+ * simili no; il lavoro neppure: si muove solo con spostamenti tra categorie,
+ * così la forza lavoro resta un bilancio chiuso.
+ */
+const WRITABLE_ROOTS = new Set(['districts', 'economy', 'climate', 'moral', 'council', 'plantLots']);
 
 const FORBIDDEN_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
+
+const SECTORS = Object.keys({
+  steel: true,
+  remediation: true,
+  energy: true,
+  sea: true,
+  'culture-tourism': true,
+  services: true,
+  public: true,
+} satisfies Record<Sector, true>) as readonly Sector[];
+
+const NON_SECTOR_CATEGORIES = ['onWageSupport', 'unemployed', 'inTraining'] as const satisfies readonly LaborCategory[];
+
+const isSector = (category: string): category is Sector => (SECTORS as readonly string[]).includes(category);
+const isLaborCategory = (category: string): category is LaborCategory =>
+  isSector(category) || (NON_SECTOR_CATEGORIES as readonly string[]).includes(category);
 
 /**
  * Applica le variazioni direttamente su `state`. Uso interno del motore, che
@@ -22,7 +51,11 @@ export function applyDeltasInPlace(state: GameState, deltas: readonly Delta[]): 
     if (!Number.isFinite(amount)) throw new EffectError(`${target}: variazione non finita (${amount})`);
     const keys = target.split('.');
     const field = keys.pop();
-    if (field === undefined || !WRITABLE_ROOTS.has(keys[0] ?? field)) {
+    const root = keys[0] ?? field;
+    if (root === 'labor') {
+      throw new EffectError(`${target}: il lavoro si cambia solo con uno spostamento tra categorie`);
+    }
+    if (field === undefined || root === undefined || !WRITABLE_ROOTS.has(root)) {
       throw new EffectError(`${target}: variabile non modificabile da un effetto`);
     }
     let node: unknown = state;
@@ -42,6 +75,47 @@ function ownChild(node: unknown, key: string, target: string): unknown {
   return (node as Record<string, unknown>)[key];
 }
 
+function readCategory(state: GameState, category: LaborCategory): number {
+  return isSector(category) ? state.labor.employed[category] : state.labor[category];
+}
+
+function writeCategory(state: GameState, category: LaborCategory, value: number): void {
+  if (isSector(category)) state.labor.employed[category] = value;
+  else state.labor[category] = value;
+}
+
+/**
+ * Sposta persone tra categorie della forza lavoro, al massimo quante ce ne
+ * sono nella categoria di partenza. Uso interno del motore.
+ */
+export function applyLaborMovesInPlace(state: GameState, moves: readonly LaborMove[]): void {
+  for (const { from, to, count } of moves) {
+    if (!isLaborCategory(from) || !isLaborCategory(to)) {
+      throw new EffectError(`spostamento di lavoro con categoria inesistente: ${from} → ${to}`);
+    }
+    if (!Number.isInteger(count) || count < 0) {
+      throw new EffectError(`spostamento di lavoro ${from} → ${to}: il numero deve essere un intero >= 0 (è ${count})`);
+    }
+    const moved = Math.min(count, readCategory(state, from));
+    writeCategory(state, from, readCategory(state, from) - moved);
+    writeCategory(state, to, readCategory(state, to) + moved);
+  }
+}
+
+/** Applica variazioni e spostamenti di lavoro di un insieme di effetti. Uso interno del motore. */
+export function applyEffectSetInPlace(state: GameState, effects: EffectSet): void {
+  applyDeltasInPlace(state, effects.deltas);
+  applyLaborMovesInPlace(state, effects.laborMoves ?? []);
+}
+
+/**
+ * Controlla che un insieme di effetti dai dati sia applicabile allo stato,
+ * provandolo su una copia. Così un errore nei dati emerge subito, non anni dopo.
+ */
+export function assertApplicable(state: GameState, effects: EffectSet): void {
+  applyEffectSetInPlace(structuredClone(state), effects);
+}
+
 /** Restituisce un nuovo stato con le variazioni applicate. */
 export function applyDeltas(state: GameState, deltas: readonly Delta[]): GameState {
   const next = structuredClone(state);
@@ -49,8 +123,15 @@ export function applyDeltas(state: GameState, deltas: readonly Delta[]): GameSta
   return next;
 }
 
+/** Restituisce un nuovo stato con gli spostamenti di lavoro applicati. */
+export function applyLaborMoves(state: GameState, moves: readonly LaborMove[]): GameState {
+  const next = structuredClone(state);
+  applyLaborMovesInPlace(next, moves);
+  return next;
+}
+
 /** Aggiunge un effetto in scadenza al turno `dueOnTurn`. Uso interno del motore. */
-export function pushEffect(state: GameState, sourceId: string, dueOnTurn: number, deltas: readonly Delta[]): void {
+export function pushEffect(state: GameState, sourceId: string, dueOnTurn: number, effects: EffectSet): void {
   // Gli effetti già applicati avevano dueOnTurn <= turno corrente, quindi
   // sorgente + scadenza + contatore resta unico per tutta la partita.
   const sameSlot = state.pendingEffects.filter((e) => e.sourceId === sourceId && e.dueOnTurn === dueOnTurn).length;
@@ -58,7 +139,8 @@ export function pushEffect(state: GameState, sourceId: string, dueOnTurn: number
     id: `${sourceId}@${dueOnTurn}#${sameSlot}`,
     sourceId,
     dueOnTurn,
-    deltas: structuredClone([...deltas]),
+    deltas: structuredClone(effects.deltas),
+    laborMoves: structuredClone(effects.laborMoves ?? []),
   });
 }
 
@@ -69,13 +151,15 @@ export function pushEffect(state: GameState, sourceId: string, dueOnTurn: number
  */
 export function scheduleEffect(
   state: GameState,
-  effect: { sourceId: string; delayTurns: number; deltas: readonly Delta[] },
+  effect: { sourceId: string; delayTurns: number; deltas: readonly Delta[]; laborMoves?: readonly LaborMove[] },
 ): GameState {
   if (!Number.isInteger(effect.delayTurns) || effect.delayTurns < 1) {
     throw new EffectError(`${effect.sourceId}: il ritardo deve essere un intero >= 1 (è ${effect.delayTurns})`);
   }
+  const effects: EffectSet = { deltas: [...effect.deltas], laborMoves: [...(effect.laborMoves ?? [])] };
+  assertApplicable(state, effects);
   const next = structuredClone(state);
-  pushEffect(next, effect.sourceId, next.turn + effect.delayTurns, effect.deltas);
+  pushEffect(next, effect.sourceId, next.turn + effect.delayTurns, effects);
   return next;
 }
 
@@ -83,5 +167,5 @@ export function scheduleEffect(
 export function applyDueEffectsInPlace(state: GameState, turn: number): void {
   const due = state.pendingEffects.filter((e) => e.dueOnTurn <= turn);
   state.pendingEffects = state.pendingEffects.filter((e) => e.dueOnTurn > turn);
-  for (const effect of due) applyDeltasInPlace(state, effect.deltas);
+  for (const effect of due) applyEffectSetInPlace(state, effect);
 }

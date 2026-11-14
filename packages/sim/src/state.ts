@@ -138,6 +138,8 @@ export interface Project {
   localHires: number;
   /** true se il cantiere è fermo per mancanza di fondi o capacità: gli assunti locali sono in cassa. */
   worksStalled: boolean;
+  /** Posti del cantiere coperti da lavoratori di fuori città: non entrano nella forza lavoro locale. */
+  outsideHires: number;
 }
 
 // ---------- Morale ----------
@@ -202,11 +204,26 @@ export interface Delta {
   amount: number;
 }
 
+/** Categoria della forza lavoro: un settore di occupazione o una delle altre condizioni. */
+export type LaborCategory = Sector | 'onWageSupport' | 'unemployed' | 'inTraining';
+
+/**
+ * Spostamento di persone tra due categorie della forza lavoro. È l'unico modo
+ * in cui un effetto tocca il lavoro: la forza lavoro totale non cambia, e si
+ * sposta al massimo chi c'è nella categoria di partenza.
+ */
+export interface LaborMove {
+  from: LaborCategory;
+  to: LaborCategory;
+  count: number;
+}
+
 export interface PendingEffect {
   id: string;
   sourceId: string; // azione o dilemma che lo ha generato
   dueOnTurn: number;
   deltas: Delta[];
+  laborMoves: LaborMove[];
 }
 
 // ---------- Azioni del giocatore ----------

@@ -33,7 +33,7 @@ describe('effetti ritardati', () => {
     const rules = fakeRules();
     let state = initial();
     for (let t = 0; t < 10; t++) state = advanceTurn(state, rules);
-    state = scheduleEffect(state, { sourceId: 'prova', delayTurns: 5, deltas: [{ target: 'labor.unemployed', amount: 7 }] });
+    state = scheduleEffect(state, { sourceId: 'prova', delayTurns: 5, deltas: [{ target: 'districts.borgo.trust', amount: 7 }] });
     expect(state.pendingEffects[0]!.dueOnTurn).toBe(15);
   });
 

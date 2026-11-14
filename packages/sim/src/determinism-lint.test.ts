@@ -10,7 +10,8 @@ async function restrictedErrors(code: string, filePath: string): Promise<number>
   return (result?.messages ?? []).filter((m) => m.ruleId === 'no-restricted-properties').length;
 }
 
-describe('regola di lint sul determinismo (CLAUDE.md, regola 3)', () => {
+// ESLint impiega qualche secondo ad avviarsi, di più quando la macchina è carica.
+describe('regola di lint sul determinismo (CLAUDE.md, regola 3)', { timeout: 30_000 }, () => {
   for (const pkg of ['sim', 'agents']) {
     it(`vieta Math.random e Date.now in ${pkg}`, async () => {
       const file = `${root}packages/${pkg}/src/esempio.ts`;
