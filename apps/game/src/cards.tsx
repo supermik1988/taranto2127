@@ -5,6 +5,7 @@ import {
   BUILD_PHASES,
   averageTrust,
   explainDistrict,
+  officeCapacity,
   type ExplainedQuantity,
   yearOfTurn,
   type Action,
@@ -14,8 +15,10 @@ import {
   type Project,
   type ProjectPhase,
 } from '@taranto2127/sim';
-import { useState } from 'react';
-import { content } from './engine.js';
+import { useMemo, useState } from 'react';
+import { Sparkline } from './charts.js';
+import { content, type Snapshot } from './engine.js';
+import { Term, fill as fillText } from './guide.js';
 
 export type Request = (action: Action, title: string, lines: string[]) => void;
 
@@ -42,7 +45,14 @@ const arrow = (before: number | undefined, now: number) =>
   before === undefined ? '' : now - before > 0.05 ? '↑' : before - now > 0.05 ? '↓' : '=';
 const projectName = (id: string) => content.texts.projects[id]?.nome ?? id;
 const lotName = (id: string) => content.texts.plantLots[id]?.nome ?? id;
-const fill = (t: string, values: Record<string, string>) => t.replace(/\{(\w+)\}/g, (m, k: string) => values[k] ?? m);
+const fill = (t: string, values: Record<string, string>) => fillText(t, values);
+/** Voce del glossario per ogni grandezza del quartiere. */
+const QUANTITY_TERMS: Partial<Record<ExplainedQuantity, string>> = {
+  cumulativeExposure: 'esposizione',
+  trust: 'fiducia',
+  tension: 'tensione',
+  services: 'servizi',
+};
 
 // ---------- Conferma ----------
 
@@ -70,11 +80,14 @@ export function DistrictCard({
   prev,
   id,
   initial = 'airQuality',
+  timeline = [],
   onClose,
 }: {
   state: GameState;
   prev: GameState | undefined;
   id: DistrictId;
+  /** Linea del tempo, per il mini andamento. */
+  timeline?: Snapshot[];
   /** Indicatore di cui mostrare per primo i fattori: quello scelto sulla mappa. */
   initial?: ExplainedQuantity;
   onClose: () => void;
@@ -113,9 +126,15 @@ export function DistrictCard({
       {shown.map((q) => (
         <div key={q.quantity} className="quantity" data-testid="fattori">
           <h3>
-            {texts.quantities[q.quantity]}: {Math.round(q.current)} {arrow(prev?.districts[id][q.quantity], q.current)}
+            {QUANTITY_TERMS[q.quantity] !== undefined ? (
+              <Term id={QUANTITY_TERMS[q.quantity]!}>{texts.quantities[q.quantity]}</Term>
+            ) : (
+              texts.quantities[q.quantity]
+            )}
+            : {Math.round(q.current)} {arrow(prev?.districts[id][q.quantity], q.current)}
             <span className="toward"> — {fill(texts.toward[q.kind] ?? '', { arrivo: String(Math.round(q.target)) })}</span>
           </h3>
+          <Sparkline values={timeline.map((snap) => snap.districts[id][q.quantity])} label={texts.quantities[q.quantity] ?? q.quantity} />
           <ul>
             {q.factors.map((f, i) => (
               <li key={i}>
@@ -149,7 +168,7 @@ export function LotCard({ state, lotId, onRequest, onClose }: { state: GameState
       </header>
       <p className="note">{content.texts.plantLots[lot.id]?.descrizione}</p>
       <p>
-        Strada: <strong>{PATH_NAMES[lot.path]}</strong>
+        <Term id="strada">Strada</Term>: <strong>{PATH_NAMES[lot.path]}</strong>
         {lot.path !== 'idle' && ` · avanzamento ${Math.round(lot.progress * 100)}%`}
         {lot.remediated && ' · bonificato'}
       </p>
@@ -223,9 +242,17 @@ export function ProjectsView({ state, prev, onRequest }: { state: GameState; pre
   const lotDefs = new Set(Object.values(content.rules.lotConversion));
   const started = new Set(active.map((p) => p.definitionId));
   const available = Object.values(content.rules.projects).filter((d) => !lotDefs.has(d.id) && !(d.unique === true && started.has(d.id)));
+  const capacity = useMemo(() => officeCapacity(state, content.rules), [state]);
   return (
     <section className="panel" data-testid="cantieri">
       <h2>Cantieri</h2>
+      <p data-testid="capacita-cantieri">
+        <Term id="capacita-uffici">Capacità degli uffici</Term>: {fmt(capacity.free, 1)} M€ liberi su {fmt(capacity.total, 1)} quest'anno.
+        {capacity.free <= 0 && ' Gli uffici sono saturi: un cantiere nuovo partirà in ritardo.'}
+      </p>
+      <p className="note">
+        Ogni opera passa per quattro <Term id="fase">fasi</Term> prima dell'<Term id="esercizio">esercizio</Term>.
+      </p>
       {active.length === 0 && <p>Nessun cantiere: avvia un progetto o destina un lotto dalla mappa.</p>}
       {active.map((p) => (
         <div key={p.id}>
@@ -244,6 +271,9 @@ export function ProjectsView({ state, prev, onRequest }: { state: GameState; pre
             >
               Salta questa fase
             </button>
+          )}
+          {(p.phase === 'permitting' || p.phase === 'tender') && (
+            <Term id="scorciatoia">Che cosa vuol dire saltare una fase?</Term>
           )}
         </div>
       ))}
@@ -383,6 +413,17 @@ export function CronacaPaper({ year, headlines, onClose }: { year: number; headl
         </div>
       </div>
     </div>
+  );
+}
+
+/** La Cronaca in breve, dentro la pagina: il primo titolo dell'ultimo anno chiuso e il giornale al tocco. */
+export function CronacaStrip({ year, headlines, onOpen }: { year: number; headlines: string[]; onOpen: () => void }) {
+  return (
+    <aside className="cronaca-strip" data-testid="cronaca-breve">
+      <span className="masthead-small">La Cronaca dei Due Mari · {year}</span>
+      <span className="strip-headline">{headlines[0]}</span>
+      <button type="button" onClick={onOpen} data-testid="leggi-cronaca">Leggi</button>
+    </aside>
   );
 }
 

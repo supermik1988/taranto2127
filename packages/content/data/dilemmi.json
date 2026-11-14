@@ -522,9 +522,9 @@
         "motivazione": "Finestra di turni in cui il dilemma può arrivare: scelta di progetto."
       },
       "weight": {
-        "valore": 2,
+        "valore": 3,
         "stima": true,
-        "motivazione": "Peso relativo nell'estrazione: scelta di progetto."
+        "motivazione": "Peso relativo nell'estrazione: scelta di progetto. Alzato da 2 a 3 nel T10, perché tra ventiquattro dilemmi torni con la frequenza di prima."
       },
       "repeatable": true,
       "repeatAfterTurns": {
@@ -1039,11 +1039,11 @@
                 }
               },
               {
-                "target": "economy.averageIncome",
+                "target": "economy.funds.own",
                 "amount": {
-                  "valore": -0.3,
+                  "valore": -1,
                   "stima": true,
-                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                  "motivazione": "Milioni di euro: stima."
                 }
               }
             ],
@@ -1052,14 +1052,45 @@
                 "from": "sea",
                 "to": "unemployed",
                 "count": {
-                  "valore": 200,
+                  "valore": 120,
                   "stima": true,
                   "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
                 }
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 3,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.citta-vecchia.trust",
+                    "amount": {
+                      "valore": 3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ],
+                "laborMoves": [
+                  {
+                    "from": "unemployed",
+                    "to": "sea",
+                    "count": {
+                      "valore": 160,
+                      "stima": true,
+                      "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "truth": {
               "valore": 4,
@@ -1211,11 +1242,11 @@
           "immediate": {
             "deltas": [
               {
-                "target": "economy.spendingCapacity",
+                "target": "economy.funds.own",
                 "amount": {
-                  "valore": -2,
+                  "valore": -1,
                   "stima": true,
-                  "motivazione": "Milioni di capacità di spesa degli uffici: stima."
+                  "motivazione": "Milioni di euro: stima."
                 }
               },
               {
@@ -1228,7 +1259,35 @@
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 3,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.paolo-vi.services",
+                    "amount": {
+                      "valore": 3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.paolo-vi.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "legality": {
               "valore": 3,
@@ -1420,7 +1479,43 @@
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.borgo.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.paolo-vi.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.tamburi.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "truth": {
               "valore": 5,
@@ -1627,7 +1722,7 @@
               {
                 "target": "economy.funds.state",
                 "amount": {
-                  "valore": -5,
+                  "valore": -4,
                   "stima": true,
                   "motivazione": "Milioni di euro: stima."
                 }
@@ -1635,7 +1730,7 @@
               {
                 "target": "economy.funds.own",
                 "amount": {
-                  "valore": -2,
+                  "valore": -1,
                   "stima": true,
                   "motivazione": "Milioni di euro: stima."
                 }
@@ -1650,7 +1745,29 @@
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 3,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [],
+                "laborMoves": [
+                  {
+                    "from": "onWageSupport",
+                    "to": "services",
+                    "count": {
+                      "valore": 250,
+                      "stima": true,
+                      "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "care": {
               "valore": 3,
@@ -1846,18 +1963,38 @@
                   "stima": true,
                   "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
                 }
-              },
-              {
-                "target": "economy.averageIncome",
-                "amount": {
-                  "valore": -0.1,
-                  "stima": true,
-                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
-                }
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 3,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.borgo.belonging",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.borgo.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "legality": {
               "valore": 3,
@@ -2071,6 +2208,14 @@
                       "stima": true,
                       "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
                     }
+                  },
+                  {
+                    "target": "districts.paolo-vi.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
                   }
                 ]
               }
@@ -2241,7 +2386,7 @@
               {
                 "target": "economy.funds.own",
                 "amount": {
-                  "valore": -4,
+                  "valore": -3,
                   "stima": true,
                   "motivazione": "Milioni di euro: stima."
                 }
@@ -2271,6 +2416,25 @@
                       "valore": 2,
                       "stima": true,
                       "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.citta-vecchia.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ],
+                "laborMoves": [
+                  {
+                    "from": "unemployed",
+                    "to": "culture-tourism",
+                    "count": {
+                      "valore": 60,
+                      "stima": true,
+                      "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
                     }
                   }
                 ]
@@ -2439,11 +2603,11 @@
           "immediate": {
             "deltas": [
               {
-                "target": "economy.spendingCapacity",
+                "target": "economy.funds.own",
                 "amount": {
-                  "valore": -3,
+                  "valore": -2,
                   "stima": true,
-                  "motivazione": "Milioni di capacità di spesa degli uffici: stima."
+                  "motivazione": "Milioni di euro: stima."
                 }
               },
               {
@@ -2456,7 +2620,27 @@
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.talsano-lama-san-vito.trust",
+                    "amount": {
+                      "valore": 3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "legality": {
               "valore": 4,
@@ -2515,11 +2699,11 @@
           "immediate": {
             "deltas": [
               {
-                "target": "economy.spendingCapacity",
+                "target": "economy.funds.own",
                 "amount": {
                   "valore": 2,
                   "stima": true,
-                  "motivazione": "Milioni di capacità di spesa degli uffici: stima."
+                  "motivazione": "Milioni di euro: stima."
                 }
               },
               {
@@ -2629,16 +2813,44 @@
                 }
               },
               {
-                "target": "economy.averageIncome",
+                "target": "economy.funds.own",
                 "amount": {
-                  "valore": -0.2,
+                  "valore": -1,
                   "stima": true,
-                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                  "motivazione": "Milioni di euro: stima."
                 }
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 1,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.paolo-vi.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.talsano-lama-san-vito.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "care": {
               "valore": 2,
@@ -2829,14 +3041,6 @@
                   "stima": true,
                   "motivazione": "Milioni di euro: stima."
                 }
-              },
-              {
-                "target": "economy.averageIncome",
-                "amount": {
-                  "valore": -0.2,
-                  "stima": true,
-                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
-                }
               }
             ]
           },
@@ -2863,6 +3067,17 @@
                       "valore": 2,
                       "stima": true,
                       "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ],
+                "laborMoves": [
+                  {
+                    "from": "unemployed",
+                    "to": "services",
+                    "count": {
+                      "valore": 100,
+                      "stima": true,
+                      "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
                     }
                   }
                 ]
@@ -3006,7 +3221,7 @@
               {
                 "target": "economy.funds.own",
                 "amount": {
-                  "valore": -3,
+                  "valore": -2,
                   "stima": true,
                   "motivazione": "Milioni di euro: stima."
                 }
@@ -3021,7 +3236,27 @@
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 1,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.citta-vecchia.trust",
+                    "amount": {
+                      "valore": 3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "care": {
               "valore": 4,
@@ -3193,16 +3428,36 @@
                 }
               },
               {
-                "target": "economy.averageIncome",
+                "target": "districts.tamburi.trust",
                 "amount": {
-                  "valore": -0.2,
+                  "valore": -1,
                   "stima": true,
                   "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
                 }
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.tamburi.trust",
+                    "amount": {
+                      "valore": 4,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "truth": {
               "valore": 5,
@@ -3366,7 +3621,7 @@
               {
                 "target": "economy.funds.own",
                 "amount": {
-                  "valore": -4,
+                  "valore": -3,
                   "stima": true,
                   "motivazione": "Milioni di euro: stima."
                 }
@@ -3374,7 +3629,7 @@
               {
                 "target": "economy.funds.eu-earmarked",
                 "amount": {
-                  "valore": -3,
+                  "valore": -2,
                   "stima": true,
                   "motivazione": "Milioni di euro: stima."
                 }
@@ -3402,6 +3657,14 @@
                     "target": "districts.tamburi.belonging",
                     "amount": {
                       "valore": 1,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.tamburi.trust",
+                    "amount": {
+                      "valore": 2,
                       "stima": true,
                       "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
                     }
@@ -3580,16 +3843,47 @@
                 }
               },
               {
-                "target": "economy.averageIncome",
+                "target": "economy.funds.own",
                 "amount": {
-                  "valore": -0.2,
+                  "valore": -1,
                   "stima": true,
-                  "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                  "motivazione": "Milioni di euro: stima."
                 }
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 3,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.citta-vecchia.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ],
+                "laborMoves": [
+                  {
+                    "from": "unemployed",
+                    "to": "culture-tourism",
+                    "count": {
+                      "valore": 100,
+                      "stima": true,
+                      "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "legality": {
               "valore": 3,
@@ -3772,7 +4066,35 @@
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 1,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.borgo.trust",
+                    "amount": {
+                      "valore": 1,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.paolo-vi.trust",
+                    "amount": {
+                      "valore": 1,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "legality": {
               "valore": 2,
@@ -3798,14 +4120,6 @@
                   "valore": -6,
                   "stima": true,
                   "motivazione": "Milioni di euro: stima."
-                }
-              },
-              {
-                "target": "economy.spendingCapacity",
-                "amount": {
-                  "valore": -2,
-                  "stima": true,
-                  "motivazione": "Milioni di capacità di spesa degli uffici: stima."
                 }
               },
               {
@@ -3966,7 +4280,7 @@
               {
                 "target": "economy.funds.own",
                 "amount": {
-                  "valore": -5,
+                  "valore": -4,
                   "stima": true,
                   "motivazione": "Milioni di euro: stima."
                 }
@@ -3981,7 +4295,27 @@
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.talsano-lama-san-vito.trust",
+                    "amount": {
+                      "valore": 3,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "care": {
               "valore": 3,
@@ -4156,7 +4490,7 @@
               {
                 "target": "economy.funds.own",
                 "amount": {
-                  "valore": -4,
+                  "valore": -3,
                   "stima": true,
                   "motivazione": "Milioni di euro: stima."
                 }
@@ -4186,6 +4520,25 @@
                       "valore": 2,
                       "stima": true,
                       "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  },
+                  {
+                    "target": "districts.tamburi.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ],
+                "laborMoves": [
+                  {
+                    "from": "unemployed",
+                    "to": "culture-tourism",
+                    "count": {
+                      "valore": 40,
+                      "stima": true,
+                      "motivazione": "Persone che cambiano condizione di lavoro per effetto dell'opzione: stima."
                     }
                   }
                 ]
@@ -4339,7 +4692,27 @@
               }
             ]
           },
-          "delayed": [],
+          "delayed": [
+            {
+              "delayTurns": {
+                "valore": 2,
+                "stima": true,
+                "motivazione": "Anni prima che la conseguenza si veda: stima."
+              },
+              "effects": {
+                "deltas": [
+                  {
+                    "target": "districts.citta-vecchia.trust",
+                    "amount": {
+                      "valore": 2,
+                      "stima": true,
+                      "motivazione": "Conseguenza stimata dell'opzione, su scala 0-100."
+                    }
+                  }
+                ]
+              }
+            }
+          ],
           "moral": {
             "care": {
               "valore": 2,

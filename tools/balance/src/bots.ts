@@ -1,6 +1,6 @@
 /**
  * I bot di bilanciamento. Ogni bot, a ogni turno, propone un elenco ordinato di
- * azioni (il motore ne accetta al massimo tre libere) e, se c'è un dilemma
+ * azioni e, se c'è un dilemma
  * aperto, sceglie un'opzione. Tutto il caso passa da rngFor: stesso seme,
  * stessa partita.
  */

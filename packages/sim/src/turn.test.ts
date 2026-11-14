@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { fakeContent } from './__fixtures__/fake-content.js';
-import { fakeRules, withOpenDilemma } from './__fixtures__/fake-rules.js';
+import { fakeRules } from './__fixtures__/fake-rules.js';
 import { createInitialState } from './init.js';
 import { TOTAL_TURNS, type Action, type GameState } from './state.js';
 import { ActionError, TurnError, advanceTurn, applyAction, delayProject, replay, type TurnRules } from './turn.js';

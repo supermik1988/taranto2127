@@ -41,7 +41,7 @@ elencati. Ordine: T01, poi T02, poi T03 e T05a in parallelo, poi T04, poi T06.
   ILSIDER e le fasi dei progetti (`projects`), aggiorna il clima secondo lo
   scenario, chiude la partita al turno 100. Un progetto passa alla fase
   successiva solo quando `turnsLeftInPhase` arriva a zero; i ritardi lo allungano.
-  Massimo 3 azioni libere per turno.
+  Massimo 3 azioni libere per turno (limite tolto dal T10).
 - **Fatto quando:** stesso seme e stessa storia producono uno stato identico
   byte per byte (test); un effetto con ritardo di 5 turni compare esattamente al
   turno previsto; un progetto con fasi di 1, 2, 1 e 4 anni entra in esercizio
@@ -432,7 +432,7 @@ elencati. Ordine: T01, poi T02, poi T03 e T05a in parallelo, poi T04, poi T06.
      l'indicatore scelto, con legenda e numero; lotti con colore e sigla secondo
      strada e fase; toccare un'area apre la sua scheda.
   3. *Tempo.* Barra con anno, epoca, fondi, coscienza e reputazione; pulsanti
-     "chiudi l'anno" e "avanza fino al prossimo evento"; azioni libere sempre visibili.
+     "chiudi l'anno" e "avanza fino al prossimo evento"; azioni libere sempre visibili (comandi del tempo sostituiti dal T10).
   4. *Grafici* dal 2027 all'anno corrente, con i cambi d'epoca.
   5. *Il perché.* `explainDistrict(state, rules, id)`: per aria, esposizione,
      salute, servizi, tensione e fiducia, il valore di arrivo e i fattori con il

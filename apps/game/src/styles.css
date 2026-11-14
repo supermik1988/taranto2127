@@ -40,23 +40,140 @@ button:disabled { opacity: 0.5; cursor: default; }
 button.primary, .button.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
 button:focus-visible, .area:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
 
-.app { max-width: 1280px; margin: 0 auto; padding: 0 12px 24px; }
+.app { max-width: 1280px; margin: 0 auto; padding: 0 12px 190px; }
 
-/* Barra del tempo */
+/* Barra in alto */
 .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 5;
   background: var(--paper);
   border-bottom: 1px solid var(--line);
   padding: 8px 0;
   display: grid;
   gap: 4px;
 }
+.top-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.top-buttons { display: flex; gap: 6px; }
+button.round { width: 44px; padding: 0; border-radius: 22px; font-weight: 700; font-size: 1.15rem; }
 .when strong { font-size: 1.4rem; }
-.funds, .free, .note, .legend-note { color: var(--muted); font-size: 1rem; }
-.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.controls .free { width: 100%; }
+.funds, .note, .legend-note, .capacity { color: var(--muted); font-size: 1rem; }
+button.funds { justify-content: flex-start; flex-wrap: wrap; gap: 4px 12px; min-height: 36px; padding: 2px 8px; text-align: left; }
+.negative { color: var(--red); font-weight: 600; }
+.morals { display: grid; gap: 4px; }
+
+/* Barra del tempo, in basso: a portata di pollice */
+.timebar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  background: var(--card);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -2px 10px rgba(29, 29, 31, 0.08);
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+}
+.time-controls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; max-width: 1280px; margin: 0 auto; }
+.time-controls .play { flex: 1 1 8em; font-weight: 600; }
+.speeds { display: flex; gap: 4px; }
+.speed { width: 48px; padding: 0; }
+.speed.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.time-controls .step { flex: 1 1 100%; }
+.stop { margin: 0 auto 6px; max-width: 1280px; padding: 6px 10px; border-left: 4px solid var(--red); background: #fbf2ef; border-radius: 4px; }
+@media (min-width: 600px) { .time-controls .step { flex: 1 1 10em; } }
+
+/* Termini spiegati al tocco */
+button.term {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: help;
+}
+.tip {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 40;
+  max-width: 640px;
+  margin: 0 auto;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+.tip p { margin: 4px 0 0; }
+
+/* Visita guidata */
+.tour {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 30;
+  max-width: 640px;
+  margin: 0 auto;
+  background: var(--card);
+  border: 2px solid var(--blue);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.tour .kicker { color: var(--blue); font-weight: 600; margin: 0; }
+.tour-target { outline: 4px solid var(--blue) !important; outline-offset: 3px; border-radius: 8px; }
+
+/* Cronaca in breve */
+.cronaca-strip { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 8px 0 0; padding: 6px 10px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; font-family: Georgia, 'Times New Roman', serif; }
+.masthead-small { font-weight: 700; font-size: 1rem; }
+.strip-headline { flex: 1 1 12em; min-width: 0; }
+
+/* Aiuto */
+.buttons.column { flex-direction: column; align-items: stretch; }
+.howto { border-top: 1px solid var(--line); padding-top: 6px; margin-top: 8px; }
+.glossary div { margin: 6px 0; }
+.glossary dt { font-weight: 600; }
+.glossary dd { margin: 0; color: var(--muted); }
+
+/* Bilancio */
+.estimate { background: #fff4d6; border: 1px solid #e3cf8f; border-radius: 8px; padding: 8px 12px; }
+.funds-grid { display: grid; gap: 8px; grid-template-columns: 1fr; margin: 8px 0; }
+.fund { border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+.fund h3 { margin-top: 0; }
+.fund-amount { font-size: 1.3rem; font-weight: 700; margin: 0; font-variant-numeric: tabular-nums; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+.warning.box { border-color: var(--red); background: #fbf2ef; }
+.ledger { display: grid; gap: 8px; grid-template-columns: 1fr; }
+.ledger-fund h4 { margin: 6px 0 2px; }
+.ledger table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.ledger th, .ledger td { padding: 3px 4px; border-bottom: 1px solid #eee9de; vertical-align: top; }
+.ledger th { text-align: left; font-weight: 400; overflow-wrap: anywhere; }
+.ledger td { text-align: right; white-space: nowrap; width: 5.5em; }
+.ledger .out td { color: var(--red); }
+.ledger .in td { color: #1f6b4f; }
+.ledger-start th, .ledger-end th { color: var(--muted); }
+.ledger-end th, .ledger-end td { font-weight: 700; border-bottom: 2px solid var(--line); }
+.muted { color: var(--muted); }
+.tranches { padding-left: 1.2em; }
+@media (min-width: 900px) { .funds-grid, .ledger { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* Menu della partita */
+.slots { list-style: none; padding: 0; margin: 0; }
+.slot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; border-top: 1px solid var(--line); padding: 6px 0; }
+.slot .buttons { margin-top: 0; }
+button.danger { background: var(--red); border-color: var(--red); }
+.link-line { overflow-wrap: anywhere; }
 .moral { display: grid; grid-template-columns: 6.5em auto 1fr auto 3.2em; gap: 6px; align-items: center; }
 .moral-label { font-size: 1rem; }
 .moral .red { color: var(--red); font-weight: 600; }
@@ -133,10 +250,18 @@ button:focus-visible, .area:focus-visible { outline: 3px solid var(--red); outli
 .subhead { font-size: 1.1rem; border-top: 1px solid var(--line); padding-top: 6px; }
 
 /* Grafici */
-.chart { width: 100%; height: auto; display: block; }
-.axis { font-size: 11px; fill: var(--muted); }
-.chart-legend { list-style: none; padding: 0; margin: 6px 0; display: grid; gap: 2px; }
-.chart-legend li { display: flex; gap: 6px; align-items: center; }
+.chart { width: 100%; max-width: 720px; height: auto; display: block; }
+.axis { font-size: 12px; fill: var(--muted); }
+.chart-legend { list-style: none; padding: 0; margin: 6px 0; display: grid; gap: 4px; }
+.chart-legend li { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.chart-legend li.muted { color: var(--muted); }
+.legend-name { overflow-wrap: anywhere; }
+.legend-value { text-align: right; font-variant-numeric: tabular-nums; }
+.legend-change { color: var(--muted); }
+.select { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
+.select select { font: inherit; min-height: 44px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); max-width: 100%; }
+.empty-chart { padding: 24px 12px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; }
+.spark { display: flex; align-items: center; gap: 10px; margin: 4px 0 6px; }
 
 /* Finale */
 .portrait table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
@@ -145,8 +270,8 @@ button:focus-visible, .area:focus-visible { outline: 3px solid var(--red); outli
 
 /* Schermi larghi: mappa e scheda affiancate. */
 @media (min-width: 900px) {
-  .topbar { grid-template-columns: auto 1fr; column-gap: 24px; }
-  .controls .free { width: auto; }
+  .topbar { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 24px; }
+  .topbar .top-row { grid-column: 1 / -1; }
   .layout-map { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .overlay { align-items: center; }

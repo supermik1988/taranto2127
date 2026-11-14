@@ -10,10 +10,11 @@ import {
   advanceTurn,
   applyAction,
   createInitialState,
-  epochOfTurn,
+  stopReasons,
   type Action,
   type DistrictId,
   type GameState,
+  type StopReason,
 } from '@taranto2127/sim';
 
 export const content = loadContent();
@@ -25,6 +26,8 @@ export type Quantity = (typeof QUANTITIES)[number];
 export interface Snapshot {
   turn: number;
   districts: Record<DistrictId, Record<Quantity, number>>;
+  /** Residenti per quartiere, per la media cittadina pesata. */
+  residents: Record<DistrictId, number>;
   employed: number;
   onWageSupport: number;
   unemployed: number;
@@ -54,6 +57,9 @@ export function snapshot(s: GameState): Snapshot {
     districts: Object.fromEntries(
       DISTRICT_IDS.map((id) => [id, Object.fromEntries(QUANTITIES.map((q) => [q, s.districts[id][q]]))]),
     ) as Snapshot['districts'],
+    residents: Object.fromEntries(
+      DISTRICT_IDS.map((id) => [id, s.districts[id].population.young + s.districts[id].population.adult + s.districts[id].population.elder]),
+    ) as Snapshot['residents'],
     employed: Object.values(s.labor.employed).reduce((a, b) => a + b, 0),
     onWageSupport: s.labor.onWageSupport,
     unemployed: s.labor.unemployed,
@@ -93,6 +99,8 @@ export interface YearResult {
   headlines: string[];
   /** Anno chiuso a cui si riferiscono i titoli. */
   year: number;
+  /** Perché il tempo deve fermarsi dopo questo anno; vuoto se può continuare. */
+  stops: StopReason[];
 }
 
 export function closeYear(game: Game): YearResult {
@@ -102,49 +110,135 @@ export function closeYear(game: Game): YearResult {
     game: { state: after, prev: before, timeline: [...game.timeline, snapshot(after)] },
     headlines: chronicle(before, after, content),
     year: 2027 + before.turn,
+    stops: stopReasons(before, after),
   };
 }
 
-/** Avanza fino al prossimo dilemma, a una fase che finisce o a un cambio d'epoca, al massimo 10 anni. */
-export function advanceToEvent(game: Game): YearResult {
-  let result = closeYear(game);
-  for (let i = 1; i < 10 && result.game.state.status === 'running'; i++) {
-    const before = result.game.prev!;
-    const after = result.game.state;
-    const phaseChanged = after.projects.some((p) => before.projects.find((q) => q.id === p.id)?.phase !== p.phase);
-    const epochChanged = epochOfTurn(Math.min(after.turn, 99)) !== epochOfTurn(before.turn);
-    if (after.openDilemmaId !== null || phaseChanged || epochChanged) break;
-    result = closeYear(result.game);
+/** Media cittadina di una grandezza in un anno, pesata sui residenti. */
+export function cityAverage(snap: Snapshot, quantity: Quantity): number {
+  let sum = 0;
+  let people = 0;
+  for (const id of DISTRICT_IDS) {
+    sum += snap.districts[id][quantity] * snap.residents[id];
+    people += snap.residents[id];
   }
-  return result;
+  return people > 0 ? sum / people : 0;
 }
 
-// ---------- Salvataggio nel browser e link ----------
+// ---------- Salvataggio nel browser, posti, file e link ----------
 
 const STORAGE_KEY = 'taranto2127:partita';
+const SAVED_AT_KEY = 'taranto2127:partita:ora';
+const SLOT_KEY = (slot: number) => `taranto2127:posto:${slot}`;
+const TOUR_KEY = 'taranto2127:visita-fatta';
+export const SLOTS = [1, 2, 3] as const;
 
-export function saveLocal(state: GameState): void {
+/** L'archivio del browser, se c'è: in un test o in una finestra privata può mancare o rifiutare. */
+type Store = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+const browserStore = (): Store | undefined => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSaved(state)));
+    return globalThis.localStorage;
   } catch {
-    // Archivio del browser non disponibile: si gioca lo stesso.
+    return undefined;
   }
-}
+};
 
-export function loadLocal(): SavedGame | null {
+function read(key: string, store: Store | undefined): string | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw === null ? null : (JSON.parse(raw) as SavedGame);
+    return store?.getItem(key) ?? null;
   } catch {
     return null;
   }
 }
 
-export function clearLocal(): void {
+function write(key: string, value: string, store: Store | undefined): boolean {
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    if (store === undefined) return false;
+    store.setItem(key, value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Salvataggio automatico. Restituisce l'ora del salvataggio, o null se il browser non lo permette. */
+export function saveLocal(state: GameState, now = new Date(), store = browserStore()): Date | null {
+  if (!write(STORAGE_KEY, JSON.stringify(toSaved(state)), store)) return null;
+  write(SAVED_AT_KEY, now.toISOString(), store);
+  return now;
+}
+
+export function loadLocal(store = browserStore()): SavedGame | null {
+  return parseSaved(read(STORAGE_KEY, store));
+}
+
+/** Ora dell'ultimo salvataggio automatico, se c'è. */
+export function lastLocalSave(store = browserStore()): Date | null {
+  const raw = read(SAVED_AT_KEY, store);
+  return raw === null ? null : new Date(raw);
+}
+
+export function clearLocal(store = browserStore()): void {
+  try {
+    store?.removeItem(STORAGE_KEY);
+    store?.removeItem(SAVED_AT_KEY);
   } catch {
     // niente da fare
+  }
+}
+
+/** Un posto di salvataggio manuale: la partita e quando è stata salvata. */
+export interface SlotInfo {
+  slot: number;
+  saved: SavedGame;
+  at: string;
+}
+
+export function saveSlot(slot: number, state: GameState, now = new Date(), store = browserStore()): boolean {
+  return write(SLOT_KEY(slot), JSON.stringify({ partita: toSaved(state), ora: now.toISOString() }), store);
+}
+
+export function readSlot(slot: number, store = browserStore()): SlotInfo | null {
+  const raw = read(SLOT_KEY(slot), store);
+  if (raw === null) return null;
+  try {
+    const parsed = JSON.parse(raw) as { partita: unknown; ora: string };
+    const saved = parseSaved(JSON.stringify(parsed.partita));
+    return saved === null ? null : { slot, saved, at: parsed.ora };
+  } catch {
+    return null;
+  }
+}
+
+export function tourDone(store = browserStore()): boolean {
+  return read(TOUR_KEY, store) === 'si';
+}
+
+export function markTourDone(store = browserStore()): void {
+  write(TOUR_KEY, 'si', store);
+}
+
+/** Testo del file esportato: lo stesso formato del salvataggio, leggibile. */
+export function exportText(state: GameState): string {
+  return `${JSON.stringify(toSaved(state), null, 2)}\n`;
+}
+
+export const exportFileName = (state: GameState): string => `taranto2127-seme-${state.seed}-anno-${2027 + state.turn}.json`;
+
+/** Legge un salvataggio da testo (file, archivio del browser). null se non è una partita di TARANTO2127. */
+export function parseSaved(text: string | null): SavedGame | null {
+  if (text === null) return null;
+  try {
+    const saved = JSON.parse(text) as Partial<SavedGame>;
+    const ok =
+      saved.formato === 'taranto2127-partita' &&
+      saved.versione === 1 &&
+      Number.isInteger(saved.seme) &&
+      Number.isInteger(saved.turno) &&
+      Array.isArray(saved.storia);
+    return ok ? (saved as SavedGame) : null;
+  } catch {
+    return null;
   }
 }
 
@@ -157,12 +251,14 @@ export function savedFromHash(hash: string): SavedGame | null {
   const match = /#partita=(.+)$/.exec(hash);
   if (match === null) return null;
   try {
-    const saved = JSON.parse(decodeURIComponent(match[1]!)) as SavedGame;
-    return saved.formato === 'taranto2127-partita' ? saved : null;
+    return parseSaved(decodeURIComponent(match[1]!));
   } catch {
     return null;
   }
 }
+
+/** Seme per una partita nuova. Il caso dell'interfaccia non entra mai nel motore: il motore riceve solo il seme. */
+export const freshSeed = (): number => Date.now() % 1_000_000;
 
 /** La partita da aprire: dal link, poi dal browser, poi dal seme dell'indirizzo, altrimenti una nuova. */
 export function startingGame(location: { hash: string; search: string }): Game {
@@ -171,6 +267,6 @@ export function startingGame(location: { hash: string; search: string }): Game {
   const seedParam = new URLSearchParams(location.search).get('seme');
   const local = loadLocal();
   if (local !== null && (seedParam === null || Number(seedParam) === local.seme)) return restoreGame(local);
-  const seed = seedParam !== null && /^\d+$/.test(seedParam) ? Number(seedParam) : Date.now() % 1_000_000;
+  const seed = seedParam !== null && /^\d+$/.test(seedParam) ? Number(seedParam) : freshSeed();
   return newGame(seed);
 }
