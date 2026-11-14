@@ -51,15 +51,18 @@ const SEAS = {
 
 /** Lotti dentro l'area industriale, tre colonne per due righe: i parchi minerali verso i Tamburi, le banchine verso il mare. */
 const LOTS: { id: string; x: number; y: number }[] = [
-  { id: 'lotto-laminatoi', x: 18, y: 98 },
-  { id: 'lotto-altoforni', x: 66, y: 98 },
-  { id: 'lotto-cokerie', x: 114, y: 98 },
-  { id: 'lotto-banchine', x: 18, y: 158 },
-  { id: 'lotto-acciaieria', x: 66, y: 158 },
-  { id: 'lotto-parchi-minerali', x: 114, y: 158 },
+  { id: 'lotto-laminatoi', x: 14, y: 94 },
+  { id: 'lotto-altoforni', x: 62, y: 94 },
+  { id: 'lotto-cokerie', x: 110, y: 94 },
+  { id: 'lotto-banchine', x: 14, y: 160 },
+  { id: 'lotto-acciaieria', x: 62, y: 160 },
+  { id: 'lotto-parchi-minerali', x: 110, y: 160 },
 ];
-const LOT_W = 44;
-const LOT_H = 54;
+const LOT_W = 46;
+const LOT_H = 60;
+
+/** Nome abbreviato di un lotto: la prima parola del suo nome ("Parchi minerali" → "Parchi"). */
+export const lotShortName = (lotId: string): string => (content.texts.plantLots[lotId]?.nome ?? lotId).split(' ')[0]!;
 
 const PATH_STYLE: Record<ActivePath | 'idle', { fill: string; code: string }> = {
   idle: { fill: '#9a958a', code: 'F' },
@@ -148,8 +151,9 @@ export function TarantoMap({ state, indicator, selected, onSelect }: MapProps) {
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect('lot', lot.id)}
           >
             <rect x={lot.x} y={lot.y} width={LOT_W} height={LOT_H} rx="3" fill={info.fill} stroke={isSelected ? '#1d1d1f' : '#f7f5f0'} strokeWidth={isSelected ? 3 : 1.5} />
-            <text x={lot.x + LOT_W / 2} y={lot.y + 20} className="lot-code">{info.code}</text>
-            <text x={lot.x + LOT_W / 2} y={lot.y + 36} className="lot-detail">{info.detail}</text>
+            <text x={lot.x + LOT_W / 2} y={lot.y + 13} className="lot-name">{lotShortName(lot.id)}</text>
+            <text x={lot.x + LOT_W / 2} y={lot.y + 33} className="lot-code">{info.code}</text>
+            <text x={lot.x + LOT_W / 2} y={lot.y + 50} className="lot-detail">{info.detail}</text>
           </g>
         );
       })}

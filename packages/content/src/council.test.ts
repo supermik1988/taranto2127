@@ -1,4 +1,4 @@
-import { actionConcerns, adviseCouncil, type CouncilAdvice } from '@taranto2127/agents';
+import { actionConcerns, adviseCouncil, alarmRelief, type CouncilAdvice } from '@taranto2127/agents';
 import { DISTRICT_IDS, applyAction, createInitialState, type Action, type GameState } from '@taranto2127/sim';
 import { describe, expect, it } from 'vitest';
 import { loadContent } from './load.js';
@@ -57,11 +57,29 @@ describe('il Consiglio', () => {
     expect(checked).toBeGreaterThan(100);
   });
 
-  it('salute e ambiente, con l’aria dei Tamburi sotto guardia, chiede con urgenza un’opera che migliora quell’aria', () => {
+  it('salute e ambiente, con l’aria dei Tamburi sotto guardia, propone di bonificare il lotto che pesa di più su quell’aria', () => {
     const health = advise(initial()).find((a) => a.vision === 'health-environment')!;
     expect(health.urgent).toBe(true);
-    expect(health.action).toMatchObject({ kind: 'start-project', definitionId: 'fascia-verde-tamburi' });
+    expect(health.action).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-parchi-minerali', path: 'remediation' });
     expect(health.reason).toContain('Tamburi');
+    // Il lotto proposto è quello con il peso più alto sull'aria dei Tamburi.
+    const weights = rules.city.air.lotWeights;
+    const heaviest = Object.keys(weights).sort((a, b) => (weights[b]!.tamburi ?? 0) - (weights[a]!.tamburi ?? 0))[0];
+    expect(heaviest).toBe('lotto-parchi-minerali');
+  });
+
+  it('l’effetto stimato dal motore: la bonifica dei parchi minerali batte la fascia verde sull’aria dei Tamburi', () => {
+    const alarm = council.visions['health-environment'].alarm;
+    const state = initial();
+    const remediation = alarmRelief({ kind: 'convert-lot', lotId: 'lotto-parchi-minerali', path: 'remediation' }, alarm, rules, state);
+    const greenBelt = alarmRelief({ kind: 'start-project', definitionId: 'fascia-verde-tamburi' }, alarm, rules, state);
+    // Bonificare toglie la pressione del lotto: l'equilibrio dell'aria sale di peso × pressione.
+    expect(remediation).toBeCloseTo(rules.city.air.lotWeights['lotto-parchi-minerali']!.tamburi! * rules.city.air.pressures.idleContaminated, 9);
+    // La fascia verde dichiara +3 una volta sola: il motore lo riassorbe, l'equilibrio non si sposta.
+    expect(greenBelt).toBeCloseTo(0, 9);
+    expect(remediation).toBeGreaterThan(greenBelt);
+    // Senza stato si torna agli effetti dichiarati, e lì la fascia verde sembrerebbe migliore.
+    expect(alarmRelief({ kind: 'start-project', definitionId: 'fascia-verde-tamburi' }, alarm, rules)).toBe(3);
   });
 
   it('con l’allarme mareggiate propone le difese costiere, prima del lotto delle banchine', () => {
@@ -78,7 +96,7 @@ describe('il Consiglio', () => {
   it('ogni visione propone qualcosa di suo all’inizio della partita, e i lotti proposti sono diversi', () => {
     const byVision = Object.fromEntries(advise(initial()).map((a) => [a.vision, a.action]));
     expect(byVision['work-industry']).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-acciaieria', path: 'green-steel' });
-    expect(byVision['health-environment']).toMatchObject({ kind: 'start-project', definitionId: 'fascia-verde-tamburi' });
+    expect(byVision['health-environment']).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-parchi-minerali', path: 'remediation' });
     expect(byVision['sea-culture']).toMatchObject({ kind: 'start-project', definitionId: 'difese-costiere' });
     expect(byVision['public-accounts']).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-laminatoi', path: 'energy' });
     expect(byVision['youth-future']).toMatchObject({ kind: 'start-project', definitionId: 'centro-ricerca-mare' });

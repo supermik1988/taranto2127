@@ -88,6 +88,7 @@ button:focus-visible, .area:focus-visible { outline: 3px solid var(--red); outli
 .area-value { font-size: 16px; font-weight: 700; text-anchor: middle; fill: var(--ink); pointer-events: none; }
 .sea-label { font-size: 13px; font-style: italic; fill: #4a6f80; }
 .small-label { font-size: 11px; fill: var(--muted); }
+.lot-name { font-size: 9px; text-anchor: middle; fill: #fff; pointer-events: none; }
 .lot-code { font-size: 15px; font-weight: 700; text-anchor: middle; fill: #fff; pointer-events: none; }
 .lot-detail { font-size: 11px; text-anchor: middle; fill: #fff; pointer-events: none; }
 .legend-scale { display: flex; }
@@ -95,6 +96,12 @@ button:focus-visible, .area:focus-visible { outline: 3px solid var(--red); outli
 .side { min-width: 0; }
 
 /* Quartiere */
+.values { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 8px 0; }
+.value { flex-direction: column; align-items: flex-start; justify-content: flex-start; padding: 4px 6px; min-height: 52px; }
+.value.on { border: 2px solid var(--blue); }
+.value-name { font-size: 1rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.value-number { font-size: 1.15rem; font-weight: 700; }
+@media (min-width: 600px) { .values { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 .quantity { border-top: 1px solid var(--line); padding-top: 6px; margin-top: 6px; }
 .quantity ul { margin: 0.2em 0 0.4em; padding-left: 1.2em; }
 .toward { font-weight: 400; color: var(--muted); }

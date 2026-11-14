@@ -72,6 +72,20 @@ describe('schermate', () => {
     }
   });
 
+  it('la scheda del quartiere mostra i sei valori in riga e i fattori di un solo indicatore, quello scelto sulla mappa', () => {
+    for (const initial of ['airQuality', 'health', 'trust', 'tension'] as const) {
+      const html = renderToString(<DistrictCard state={game.state} prev={game.prev} id="tamburi" initial={initial} onClose={noop} />);
+      expect(html.match(/data-testid="fattori"/g)).toHaveLength(1);
+      expect(html.match(/role="tab"/g)).toHaveLength(6);
+      expect(html).toMatch(new RegExp(`aria-selected="true"[^>]*>(<[^>]+>)*${content.explanations.quantities[initial]}`));
+    }
+  });
+
+  it('ogni lotto sulla mappa mostra il suo nome abbreviato', () => {
+    const html = renderToString(<TarantoMap state={game.state} indicator="airQuality" selected={null} onSelect={noop} />);
+    for (const name of ['Parchi', 'Cokerie', 'Altoforni', 'Acciaieria', 'Laminatoi', 'Banchine']) expect(html).toContain(`>${name}<`);
+  });
+
   it('la mappa mostra ogni quartiere e ogni lotto con il suo numero o la sua sigla', () => {
     const html = renderToString(<TarantoMap state={game.state} indicator="airQuality" selected={null} onSelect={noop} />);
     for (const id of DISTRICT_IDS) {

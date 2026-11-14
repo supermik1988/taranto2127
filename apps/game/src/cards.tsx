@@ -5,6 +5,7 @@ import {
   BUILD_PHASES,
   averageTrust,
   explainDistrict,
+  type ExplainedQuantity,
   yearOfTurn,
   type Action,
   type ActivePath,
@@ -64,10 +65,25 @@ export function ConfirmSheet(props: { title: string; lines: string[]; onConfirm:
 
 // ---------- Quartiere ----------
 
-export function DistrictCard({ state, prev, id, onClose }: { state: GameState; prev: GameState | undefined; id: DistrictId; onClose: () => void }) {
+export function DistrictCard({
+  state,
+  prev,
+  id,
+  initial = 'airQuality',
+  onClose,
+}: {
+  state: GameState;
+  prev: GameState | undefined;
+  id: DistrictId;
+  /** Indicatore di cui mostrare per primo i fattori: quello scelto sulla mappa. */
+  initial?: ExplainedQuantity;
+  onClose: () => void;
+}) {
   const texts = content.explanations;
   const d = state.districts[id];
   const explanation = explainDistrict(state, content.rules, id);
+  const [open, setOpen] = useState<ExplainedQuantity>(initial);
+  const shown = explanation.filter((q) => q.quantity === open);
   return (
     <section className="card" data-testid="scheda-quartiere">
       <header className="card-head">
@@ -76,8 +92,26 @@ export function DistrictCard({ state, prev, id, onClose }: { state: GameState; p
       </header>
       <p className="note">{content.texts.districts[id]?.descrizione}</p>
       <p className="note">Residenti: {fmt(d.population.young + d.population.adult + d.population.elder)}</p>
-      {explanation.map((q) => (
-        <div key={q.quantity} className="quantity">
+      <div className="values" role="tablist" aria-label="I sei indicatori del quartiere" data-testid="valori-quartiere">
+        {explanation.map((q) => (
+          <button
+            key={q.quantity}
+            type="button"
+            role="tab"
+            aria-selected={q.quantity === open}
+            className={q.quantity === open ? 'value on' : 'value'}
+            title={texts.quantities[q.quantity]}
+            onClick={() => setOpen(q.quantity)}
+          >
+            <span className="value-name">{(texts.quantities[q.quantity] ?? q.quantity).split(' ')[0]}</span>
+            <span className="value-number">
+              {Math.round(q.current)} {arrow(prev?.districts[id][q.quantity], q.current)}
+            </span>
+          </button>
+        ))}
+      </div>
+      {shown.map((q) => (
+        <div key={q.quantity} className="quantity" data-testid="fattori">
           <h3>
             {texts.quantities[q.quantity]}: {Math.round(q.current)} {arrow(prev?.districts[id][q.quantity], q.current)}
             <span className="toward"> — {fill(texts.toward[q.kind] ?? '', { arrivo: String(Math.round(q.target)) })}</span>

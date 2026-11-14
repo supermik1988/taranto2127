@@ -179,7 +179,14 @@ export function App() {
                 <aside className="side">
                   {selected === null && <p className="panel note">Tocca un quartiere o un lotto per aprire la sua scheda.</p>}
                   {selected?.kind === 'district' && (
-                    <DistrictCard state={state} prev={game.prev} id={selected.id as DistrictId} onClose={() => setSelected(null)} />
+                    <DistrictCard
+                      key={selected.id}
+                      state={state}
+                      prev={game.prev}
+                      id={selected.id as DistrictId}
+                      initial={indicator}
+                      onClose={() => setSelected(null)}
+                    />
                   )}
                   {selected?.kind === 'lot' && <LotCard state={state} lotId={selected.id} onRequest={request} onClose={() => setSelected(null)} />}
                 </aside>

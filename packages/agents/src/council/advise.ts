@@ -5,12 +5,17 @@
  */
 import {
   ActionError,
+  EffectError,
   applyAction,
+  applyDeltas,
   averageTrust,
+  explainDistrict,
   joblessShare,
   readNumber,
   type Action,
   type Councillor,
+  type DistrictId,
+  type EffectSet,
   type GameState,
   type TurnRules,
 } from '@taranto2127/sim';
@@ -75,23 +80,81 @@ export function actionConcerns(action: Action, district: string, rules: TurnRule
   }
 }
 
-/**
- * Di quanto un'azione migliora proprio la grandezza in allarme, secondo i suoi
- * effetti dichiarati: positivo se la sposta nella direzione giusta, 0 se non la tocca.
- */
-export function alarmRelief(action: Action, alarm: CouncilAlarm, rules: TurnRules): number {
-  const sum = (effects: { deltas: { target: string; amount: number }[] }[]) =>
-    effects.flatMap((e) => e.deltas).filter((d) => d.target === alarm.target).reduce((a, d) => a + d.amount, 0);
+/** Effetti dichiarati di un'azione: all'entrata in esercizio (o subito) e ogni anno. */
+function declaredEffects(action: Action, rules: TurnRules): { once: EffectSet; everyYear: EffectSet } | undefined {
   const project = (id: string | undefined) => {
     const def = id === undefined ? undefined : rules.projects[id];
-    return def === undefined ? 0 : sum([def.operatingEffects.once, def.operatingEffects.everyYear]);
+    return def === undefined ? undefined : def.operatingEffects;
   };
-  let amount = 0;
-  if (action.kind === 'start-project') amount = project(action.definitionId);
-  else if (action.kind === 'convert-lot' && action.path !== 'idle') amount = project(rules.lotConversion[action.path]);
-  else if (action.kind === 'set-policy' && action.active) {
+  if (action.kind === 'start-project') return project(action.definitionId);
+  if (action.kind === 'convert-lot' && action.path !== 'idle') return project(rules.lotConversion[action.path]);
+  if (action.kind === 'set-policy' && action.active) {
     const policy = rules.policies[action.policyId];
-    amount = policy === undefined ? 0 : sum([policy.everyYear]);
+    return policy === undefined ? undefined : { once: { deltas: [] }, everyYear: policy.everyYear };
+  }
+  return undefined;
+}
+
+/** Grandezze che il motore porta ogni anno verso un equilibrio: un effetto una tantum su di loro svanisce. */
+const EQUILIBRIUM: Record<string, { share: (rules: TurnRules) => number }> = {
+  airQuality: { share: (r) => r.city.air.approachShare },
+  health: { share: (r) => r.city.health.approachShare },
+  tension: { share: (r) => r.city.tension.approachShare },
+  trust: { share: (r) => r.city.trust.approachShare },
+};
+
+/**
+ * La città dopo che l'azione ha fatto il suo effetto a regime: il lotto
+ * trasformato e in esercizio, gli effetti "una volta" applicati. Serve solo a
+ * stimare dove andrà l'equilibrio; non è uno stato di gioco.
+ */
+function settledAfter(state: GameState, action: Action, effects: { once: EffectSet } | undefined): GameState {
+  let after = structuredClone(state);
+  if (action.kind === 'convert-lot' && action.path !== 'idle') {
+    const lot = after.plantLots.find((l) => l.id === action.lotId);
+    if (lot !== undefined) {
+      lot.path = action.path;
+      lot.progress = 1;
+      if (action.path === 'remediation') lot.remediated = true;
+      for (const p of after.projects) if (p.lotId === lot.id) p.phase = 'cancelled';
+    }
+  }
+  if (effects !== undefined) {
+    try {
+      after = applyDeltas(after, effects.once.deltas);
+    } catch (error) {
+      if (!(error instanceof EffectError)) throw error;
+    }
+  }
+  return after;
+}
+
+/**
+ * Di quanto un'azione migliora la grandezza in allarme, secondo il motore:
+ * positivo se la sposta nella direzione giusta, 0 se non la tocca.
+ *
+ * Per le grandezze di quartiere che tendono a un equilibrio (aria, salute,
+ * tensione, fiducia) conta lo spostamento dell'equilibrio stimato con
+ * explainDistrict, più lo spostamento a regime degli effetti annui; un effetto
+ * una tantum, che il motore riassorbe, non conta. Per tutte le altre grandezze
+ * (rischio allagamenti, esposizione, fondi, …) contano gli effetti dichiarati.
+ */
+export function alarmRelief(action: Action, alarm: CouncilAlarm, rules: TurnRules, state?: GameState): number {
+  const effects = declaredEffects(action, rules);
+  const onTarget = (set: EffectSet | undefined) =>
+    (set?.deltas ?? []).filter((d) => d.target === alarm.target).reduce((a, d) => a + d.amount, 0);
+  const [root, district, quantity] = alarm.target.split('.');
+  const equilibrium = root === 'districts' && quantity !== undefined ? EQUILIBRIUM[quantity] : undefined;
+  let amount: number;
+  if (equilibrium !== undefined && state !== undefined && district !== undefined) {
+    const targetOf = (s: GameState) =>
+      explainDistrict(s, rules, district as DistrictId).find((q) => q.quantity === quantity)?.target ?? 0;
+    const shift = targetOf(settledAfter(state, action, effects)) - targetOf(state);
+    // Un effetto annuo costante su una grandezza che si avvicina all'equilibrio di una quota "share" la sposta di effetto/share.
+    const yearly = onTarget(effects?.everyYear) / Math.max(equilibrium.share(rules), 1e-9);
+    amount = shift + yearly;
+  } else {
+    amount = onTarget(effects?.once) + onTarget(effects?.everyYear);
   }
   // Allarme "troppo alto" (>): serve un calo; "troppo basso" (<): serve un aumento.
   return alarm.comparator === '>' ? -amount : amount;
@@ -174,7 +237,7 @@ function adviseOne(
   // l'ordine dei lotti e delle opere vale a parità.
   if (urgent) {
     const relief = all
-      .map((c, i) => ({ c, i, r: alarmRelief(c.action, vision.alarm, rules) }))
+      .map((c, i) => ({ c, i, r: alarmRelief(c.action, vision.alarm, rules, state) }))
       .filter((x) => x.r > 0)
       .sort((a, b) => b.r - a.r || a.i - b.i);
     const best = relief[0];
