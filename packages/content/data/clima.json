@@ -1,0 +1,94 @@
+{
+  "climateScenario": {
+    "id": "intermedio",
+    "nome": "Scenario intermedio",
+    "descrizione": "Un riscaldamento né ottimista né estremo. È uno scenario dichiarato, non una previsione.",
+    "annualChangeByEpoch": [
+      {
+        "seaLevelRiseCm": {
+          "valore": 0.4,
+          "stima": true,
+          "motivazione": "Centimetri l'anno: scenario intermedio dichiarato, non una previsione; da allineare agli scenari IPCC in T05b."
+        },
+        "summerHeat": {
+          "valore": 0.25,
+          "stima": true,
+          "motivazione": "Aumento annuo dell'indice di caldo estivo: scenario intermedio dichiarato."
+        },
+        "waterStress": {
+          "valore": 0.2,
+          "stima": true,
+          "motivazione": "Aumento annuo dell'indice di stress idrico: scenario intermedio dichiarato."
+        }
+      },
+      {
+        "seaLevelRiseCm": {
+          "valore": 0.5,
+          "stima": true,
+          "motivazione": "Centimetri l'anno: scenario intermedio dichiarato, non una previsione; da allineare agli scenari IPCC in T05b."
+        },
+        "summerHeat": {
+          "valore": 0.25,
+          "stima": true,
+          "motivazione": "Aumento annuo dell'indice di caldo estivo: scenario intermedio dichiarato."
+        },
+        "waterStress": {
+          "valore": 0.2,
+          "stima": true,
+          "motivazione": "Aumento annuo dell'indice di stress idrico: scenario intermedio dichiarato."
+        }
+      },
+      {
+        "seaLevelRiseCm": {
+          "valore": 0.6,
+          "stima": true,
+          "motivazione": "Centimetri l'anno: scenario intermedio dichiarato, non una previsione; da allineare agli scenari IPCC in T05b."
+        },
+        "summerHeat": {
+          "valore": 0.2,
+          "stima": true,
+          "motivazione": "Aumento annuo dell'indice di caldo estivo: scenario intermedio dichiarato."
+        },
+        "waterStress": {
+          "valore": 0.15,
+          "stima": true,
+          "motivazione": "Aumento annuo dell'indice di stress idrico: scenario intermedio dichiarato."
+        }
+      },
+      {
+        "seaLevelRiseCm": {
+          "valore": 0.7,
+          "stima": true,
+          "motivazione": "Centimetri l'anno: scenario intermedio dichiarato, non una previsione; da allineare agli scenari IPCC in T05b."
+        },
+        "summerHeat": {
+          "valore": 0.15,
+          "stima": true,
+          "motivazione": "Aumento annuo dell'indice di caldo estivo: scenario intermedio dichiarato."
+        },
+        "waterStress": {
+          "valore": 0.15,
+          "stima": true,
+          "motivazione": "Aumento annuo dell'indice di stress idrico: scenario intermedio dichiarato."
+        }
+      },
+      {
+        "seaLevelRiseCm": {
+          "valore": 0.8,
+          "stima": true,
+          "motivazione": "Centimetri l'anno: scenario intermedio dichiarato, non una previsione; da allineare agli scenari IPCC in T05b."
+        },
+        "summerHeat": {
+          "valore": 0.1,
+          "stima": true,
+          "motivazione": "Aumento annuo dell'indice di caldo estivo: scenario intermedio dichiarato."
+        },
+        "waterStress": {
+          "valore": 0.1,
+          "stima": true,
+          "motivazione": "Aumento annuo dell'indice di stress idrico: scenario intermedio dichiarato."
+        }
+      }
+    ]
+  }
+}

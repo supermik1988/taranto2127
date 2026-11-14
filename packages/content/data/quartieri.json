@@ -1,0 +1,430 @@
+{
+  "districts": {
+    "tamburi": {
+      "nome": "Tamburi",
+      "descrizione": "Il quartiere a ridosso dello stabilimento, con i parchi minerali al confine delle case.",
+      "population": {
+        "young": {
+          "valore": 2800,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        },
+        "adult": {
+          "valore": 10500,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        },
+        "elder": {
+          "valore": 4700,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        }
+      },
+      "airQuality": {
+        "valore": 35,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "contaminatedSoil": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "cumulativeExposure": {
+        "valore": 75,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "health": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "services": {
+        "valore": 40,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "greenCover": {
+        "valore": 20,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "floodRisk": {
+        "valore": 15,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "trust": {
+        "valore": 25,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "tension": {
+        "valore": 65,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "belonging": {
+        "valore": 70,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      }
+    },
+    "paolo-vi": {
+      "nome": "Paolo VI",
+      "descrizione": "Quartiere residenziale nato negli anni Settanta per chi lavorava in fabbrica.",
+      "population": {
+        "young": {
+          "valore": 3200,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        },
+        "adult": {
+          "valore": 9000,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        },
+        "elder": {
+          "valore": 3300,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        }
+      },
+      "airQuality": {
+        "valore": 50,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "contaminatedSoil": {
+        "valore": 40,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "cumulativeExposure": {
+        "valore": 55,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "health": {
+        "valore": 52,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "services": {
+        "valore": 30,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "greenCover": {
+        "valore": 30,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "floodRisk": {
+        "valore": 10,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "trust": {
+        "valore": 25,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "tension": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "belonging": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      }
+    },
+    "citta-vecchia": {
+      "nome": "Città Vecchia",
+      "descrizione": "L'isola tra i due mari: palazzi storici, molti vuoti, una comunità tenace.",
+      "population": {
+        "young": {
+          "valore": 500,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        },
+        "adult": {
+          "valore": 1800,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        },
+        "elder": {
+          "valore": 900,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        }
+      },
+      "airQuality": {
+        "valore": 55,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "contaminatedSoil": {
+        "valore": 25,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "cumulativeExposure": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "health": {
+        "valore": 50,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "services": {
+        "valore": 35,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "greenCover": {
+        "valore": 10,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "floodRisk": {
+        "valore": 35,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "trust": {
+        "valore": 30,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "tension": {
+        "valore": 50,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "belonging": {
+        "valore": 80,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      }
+    },
+    "borgo": {
+      "nome": "Borgo",
+      "descrizione": "Il centro ottocentesco, con negozi, uffici e il lungomare.",
+      "population": {
+        "young": {
+          "valore": 6500,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        },
+        "adult": {
+          "valore": 22000,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        },
+        "elder": {
+          "valore": 11500,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        }
+      },
+      "airQuality": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "contaminatedSoil": {
+        "valore": 15,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "cumulativeExposure": {
+        "valore": 40,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "health": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "services": {
+        "valore": 65,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "greenCover": {
+        "valore": 20,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "floodRisk": {
+        "valore": 25,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "trust": {
+        "valore": 40,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "tension": {
+        "valore": 40,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "belonging": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      }
+    },
+    "talsano-lama-san-vito": {
+      "nome": "Talsano, Lama e San Vito",
+      "descrizione": "Le borgate a sud, tra case basse, campagna e costa.",
+      "population": {
+        "young": {
+          "valore": 8000,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        },
+        "adult": {
+          "valore": 26000,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        },
+        "elder": {
+          "valore": 11000,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        }
+      },
+      "airQuality": {
+        "valore": 70,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "contaminatedSoil": {
+        "valore": 10,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "cumulativeExposure": {
+        "valore": 25,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "health": {
+        "valore": 65,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "services": {
+        "valore": 50,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "greenCover": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "floodRisk": {
+        "valore": 30,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "trust": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "tension": {
+        "valore": 35,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "belonging": {
+        "valore": 55,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      }
+    },
+    "area-industriale": {
+      "nome": "Area industriale",
+      "descrizione": "Le aree dello stabilimento e dei suoi servizi, quasi senza residenti.",
+      "population": {
+        "young": {
+          "valore": 20,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        },
+        "adult": {
+          "valore": 120,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        },
+        "elder": {
+          "valore": 60,
+          "stima": true,
+          "motivazione": "Ordine di grandezza dei residenti per fascia d'età; da sostituire con i dati ISTAT per sezione di censimento."
+        }
+      },
+      "airQuality": {
+        "valore": 20,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "contaminatedSoil": {
+        "valore": 90,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "cumulativeExposure": {
+        "valore": 85,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "health": {
+        "valore": 40,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "services": {
+        "valore": 10,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "greenCover": {
+        "valore": 5,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "floodRisk": {
+        "valore": 20,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "trust": {
+        "valore": 15,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "tension": {
+        "valore": 55,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      },
+      "belonging": {
+        "valore": 30,
+        "stima": true,
+        "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+      }
+    }
+  }
+}

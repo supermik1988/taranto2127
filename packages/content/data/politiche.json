@@ -1,0 +1,374 @@
+{
+  "policies": {
+    "formazione-riconversione": {
+      "id": "formazione-riconversione",
+      "nome": "Formazione per la riconversione",
+      "descrizione": "Corsi pagati per chi è senza lavoro: saldatura, impianti elettrici, bonifiche, mare, cura.",
+      "annualCost": {
+        "valore": 4,
+        "stima": true,
+        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+      },
+      "fund": "state",
+      "everyYear": {
+        "deltas": []
+      },
+      "minYearsActive": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Anni minimi prima di poterla spegnere: il tempo perché una misura dia segni."
+      },
+      "activationMoral": {
+        "care": {
+          "valore": 2,
+          "stima": true,
+          "motivazione": "Peso morale palese stimato: misura come si governa, non che cosa si sceglie."
+        }
+      },
+      "training": {
+        "peoplePerYear": {
+          "valore": 400,
+          "stima": true,
+          "motivazione": "Posti di formazione l'anno: stima per un programma cittadino."
+        },
+        "durationYears": {
+          "valore": 2,
+          "stima": true,
+          "motivazione": "Durata del percorso di riqualificazione: stima."
+        }
+      }
+    },
+    "dati-aperti-aria": {
+      "id": "dati-aperti-aria",
+      "nome": "Dati sull'aria in tempo reale",
+      "descrizione": "Pubblicare ogni ora, quartiere per quartiere, quello che misurano le centraline.",
+      "annualCost": {
+        "valore": 0.5,
+        "stima": true,
+        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+      },
+      "fund": "own",
+      "everyYear": {
+        "deltas": [
+          {
+            "target": "districts.tamburi.trust",
+            "amount": {
+              "valore": 0.3,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          },
+          {
+            "target": "districts.paolo-vi.trust",
+            "amount": {
+              "valore": 0.2,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          }
+        ]
+      },
+      "minYearsActive": {
+        "valore": 3,
+        "stima": true,
+        "motivazione": "Anni minimi prima di poterla spegnere: il tempo perché una misura dia segni."
+      },
+      "activationMoral": {
+        "truth": {
+          "valore": 4,
+          "stima": true,
+          "motivazione": "Peso morale palese stimato: misura come si governa, non che cosa si sceglie."
+        }
+      },
+      "annualMoral": {
+        "truth": {
+          "valore": 0.3,
+          "stima": true,
+          "motivazione": "Peso morale palese stimato: misura come si governa, non che cosa si sceglie."
+        }
+      }
+    },
+    "consulte-quartiere": {
+      "id": "consulte-quartiere",
+      "nome": "Consulte di quartiere",
+      "descrizione": "Assemblee periodiche con poteri di proposta sui progetti che toccano il quartiere.",
+      "annualCost": {
+        "valore": 0.8,
+        "stima": true,
+        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+      },
+      "fund": "own",
+      "everyYear": {
+        "deltas": [
+          {
+            "target": "districts.tamburi.tension",
+            "amount": {
+              "valore": -0.3,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          },
+          {
+            "target": "districts.paolo-vi.tension",
+            "amount": {
+              "valore": -0.3,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          },
+          {
+            "target": "districts.citta-vecchia.tension",
+            "amount": {
+              "valore": -0.3,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          }
+        ]
+      },
+      "minYearsActive": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Anni minimi prima di poterla spegnere: il tempo perché una misura dia segni."
+      },
+      "activationMoral": {
+        "listening": {
+          "valore": 3,
+          "stima": true,
+          "motivazione": "Peso morale palese stimato: misura come si governa, non che cosa si sceglie."
+        }
+      },
+      "annualMoral": {
+        "listening": {
+          "valore": 0.3,
+          "stima": true,
+          "motivazione": "Peso morale palese stimato: misura come si governa, non che cosa si sceglie."
+        }
+      }
+    },
+    "integrazione-reddito": {
+      "id": "integrazione-reddito",
+      "nome": "Integrazione al reddito delle famiglie in difficoltà",
+      "descrizione": "Un contributo mensile per chi ha perso il lavoro e ha figli a carico.",
+      "annualCost": {
+        "valore": 5,
+        "stima": true,
+        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+      },
+      "fund": "own",
+      "everyYear": {
+        "deltas": [
+          {
+            "target": "economy.averageIncome",
+            "amount": {
+              "valore": 0.15,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          },
+          {
+            "target": "districts.tamburi.tension",
+            "amount": {
+              "valore": -0.2,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          },
+          {
+            "target": "districts.paolo-vi.tension",
+            "amount": {
+              "valore": -0.2,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          }
+        ]
+      },
+      "minYearsActive": {
+        "valore": 3,
+        "stima": true,
+        "motivazione": "Anni minimi prima di poterla spegnere: il tempo perché una misura dia segni."
+      },
+      "activationMoral": {
+        "care": {
+          "valore": 3,
+          "stima": true,
+          "motivazione": "Peso morale palese stimato: misura come si governa, non che cosa si sceglie."
+        }
+      },
+      "annualMoral": {
+        "care": {
+          "valore": 0.2,
+          "stima": true,
+          "motivazione": "Peso morale palese stimato: misura come si governa, non che cosa si sceglie."
+        }
+      }
+    },
+    "sgravi-indotto": {
+      "id": "sgravi-indotto",
+      "nome": "Sgravi alle imprese dell'indotto",
+      "descrizione": "Meno tributi locali per le imprese che restano e assumono in città.",
+      "annualCost": {
+        "valore": 3,
+        "stima": true,
+        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+      },
+      "fund": "own",
+      "everyYear": {
+        "deltas": [
+          {
+            "target": "economy.supplierFirms",
+            "amount": {
+              "valore": 3,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          }
+        ],
+        "laborMoves": [
+          {
+            "from": "unemployed",
+            "to": "services",
+            "count": {
+              "valore": 80,
+              "stima": true,
+              "motivazione": "Persone stimate che trovano lavoro stabile grazie all'opera."
+            }
+          }
+        ]
+      },
+      "minYearsActive": {
+        "valore": 3,
+        "stima": true,
+        "motivazione": "Anni minimi prima di poterla spegnere: il tempo perché una misura dia segni."
+      }
+    },
+    "controlli-appalti": {
+      "id": "controlli-appalti",
+      "nome": "Controlli rafforzati sugli appalti",
+      "descrizione": "Un ufficio che verifica gare, subappalti e cantieri, con dati pubblici.",
+      "annualCost": {
+        "valore": 1.5,
+        "stima": true,
+        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+      },
+      "fund": "own",
+      "everyYear": {
+        "deltas": []
+      },
+      "minYearsActive": {
+        "valore": 3,
+        "stima": true,
+        "motivazione": "Anni minimi prima di poterla spegnere: il tempo perché una misura dia segni."
+      },
+      "activationMoral": {
+        "legality": {
+          "valore": 3,
+          "stima": true,
+          "motivazione": "Peso morale palese stimato: misura come si governa, non che cosa si sceglie."
+        }
+      },
+      "annualMoral": {
+        "legality": {
+          "valore": 0.4,
+          "stima": true,
+          "motivazione": "Peso morale palese stimato: misura come si governa, non che cosa si sceglie."
+        }
+      }
+    },
+    "trasporto-giovani": {
+      "id": "trasporto-giovani",
+      "nome": "Trasporto gratuito per studenti e giovani",
+      "descrizione": "Abbonamenti gratuiti fino a ventisei anni.",
+      "annualCost": {
+        "valore": 1,
+        "stima": true,
+        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+      },
+      "fund": "own",
+      "everyYear": {
+        "deltas": [
+          {
+            "target": "districts.paolo-vi.belonging",
+            "amount": {
+              "valore": 0.1,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          },
+          {
+            "target": "districts.talsano-lama-san-vito.belonging",
+            "amount": {
+              "valore": 0.1,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          }
+        ]
+      },
+      "minYearsActive": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Anni minimi prima di poterla spegnere: il tempo perché una misura dia segni."
+      },
+      "activationMoral": {
+        "care": {
+          "valore": 1,
+          "stima": true,
+          "motivazione": "Peso morale palese stimato: misura come si governa, non che cosa si sceglie."
+        }
+      }
+    },
+    "piano-caldo": {
+      "id": "piano-caldo",
+      "nome": "Piano contro il caldo estivo",
+      "descrizione": "Alberature, fontane e luoghi freschi aperti nelle ore più calde.",
+      "annualCost": {
+        "valore": 2,
+        "stima": true,
+        "motivazione": "Milioni di euro l'anno: stima di ordine di grandezza."
+      },
+      "fund": "state",
+      "everyYear": {
+        "deltas": [
+          {
+            "target": "districts.tamburi.greenCover",
+            "amount": {
+              "valore": 0.3,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          },
+          {
+            "target": "districts.borgo.greenCover",
+            "amount": {
+              "valore": 0.3,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          },
+          {
+            "target": "climate.summerHeat",
+            "amount": {
+              "valore": -0.05,
+              "stima": true,
+              "motivazione": "Effetto annuo stimato della politica, su scala 0-100."
+            }
+          }
+        ]
+      },
+      "minYearsActive": {
+        "valore": 4,
+        "stima": true,
+        "motivazione": "Anni minimi prima di poterla spegnere: il tempo perché una misura dia segni."
+      },
+      "activationMoral": {
+        "care": {
+          "valore": 2,
+          "stima": true,
+          "motivazione": "Peso morale palese stimato: misura come si governa, non che cosa si sceglie."
+        }
+      }
+    }
+  }
+}

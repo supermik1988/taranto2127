@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/parametri.json",
+  "title": "Parametri morali, economici e di ritmo",
+  "type": "object",
+  "required": ["dilemmaArrivalProbability", "moral", "economy"],
+  "properties": {
+    "dilemmaArrivalProbability": { "$ref": "comune.json#/$defs/quota" },
+    "moral": {
+      "type": "object",
+      "required": ["dimensionWeights", "scandal", "shortcutLegalityWeight", "promiseKeptWordWeight", "promiseBrokenWordWeight"],
+      "properties": {
+        "dimensionWeights": {
+          "type": "object",
+          "required": ["truth", "word", "care", "legality", "listening"],
+          "properties": {
+            "truth": { "$ref": "comune.json#/$defs/nonNegativo" },
+            "word": { "$ref": "comune.json#/$defs/nonNegativo" },
+            "care": { "$ref": "comune.json#/$defs/nonNegativo" },
+            "legality": { "$ref": "comune.json#/$defs/nonNegativo" },
+            "listening": { "$ref": "comune.json#/$defs/nonNegativo" }
+          },
+          "additionalProperties": false
+        },
+        "scandal": {
+          "type": "object",
+          "required": ["baseProbability", "probabilityPerGapPoint", "maxProbability", "reputationDropBelowConscience"],
+          "properties": {
+            "baseProbability": { "$ref": "comune.json#/$defs/quota" },
+            "probabilityPerGapPoint": { "$ref": "comune.json#/$defs/quota" },
+            "maxProbability": { "$ref": "comune.json#/$defs/quota" },
+            "reputationDropBelowConscience": { "$ref": "comune.json#/$defs/nonNegativo" }
+          },
+          "additionalProperties": false
+        },
+        "shortcutLegalityWeight": { "$ref": "comune.json#/$defs/numero" },
+        "promiseKeptWordWeight": { "$ref": "comune.json#/$defs/numero" },
+        "promiseBrokenWordWeight": { "$ref": "comune.json#/$defs/numero" }
+      },
+      "additionalProperties": false
+    },
+    "economy": {
+      "type": "object",
+      "required": [
+        "ownRevenuePerWorker", "stateTransferPerYear", "euTranches", "wageSupportCostPerPerson",
+        "servicesCostPerYear", "bankruptcyAfterDeficitYears"
+      ],
+      "properties": {
+        "ownRevenuePerWorker": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "stateTransferPerYear": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "euTranches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "amount", "arrivesInYear", "expiresInYear"],
+            "properties": {
+              "id": { "$ref": "comune.json#/$defs/id" },
+              "amount": { "$ref": "comune.json#/$defs/nonNegativo" },
+              "arrivesInYear": { "$ref": "comune.json#/$defs/intero" },
+              "expiresInYear": { "$ref": "comune.json#/$defs/intero" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "wageSupportCostPerPerson": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "servicesCostPerYear": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "bankruptcyAfterDeficitYears": { "$ref": "comune.json#/$defs/interoPositivo" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

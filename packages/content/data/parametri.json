@@ -1,0 +1,174 @@
+{
+  "dilemmaArrivalProbability": {
+    "valore": 0.35,
+    "stima": true,
+    "motivazione": "Probabilità che in un anno arrivi un dilemma: circa uno ogni tre anni, scelta di ritmo."
+  },
+  "moral": {
+    "dimensionWeights": {
+      "truth": {
+        "valore": 1,
+        "stima": true,
+        "motivazione": "Peso della dimensione nella media della coscienza: le cinque dimensioni contano allo stesso modo."
+      },
+      "word": {
+        "valore": 1,
+        "stima": true,
+        "motivazione": "Peso della dimensione nella media della coscienza: le cinque dimensioni contano allo stesso modo."
+      },
+      "care": {
+        "valore": 1,
+        "stima": true,
+        "motivazione": "Peso della dimensione nella media della coscienza: le cinque dimensioni contano allo stesso modo."
+      },
+      "legality": {
+        "valore": 1,
+        "stima": true,
+        "motivazione": "Peso della dimensione nella media della coscienza: le cinque dimensioni contano allo stesso modo."
+      },
+      "listening": {
+        "valore": 1,
+        "stima": true,
+        "motivazione": "Peso della dimensione nella media della coscienza: le cinque dimensioni contano allo stesso modo."
+      }
+    },
+    "scandal": {
+      "baseProbability": {
+        "valore": 0.03,
+        "stima": true,
+        "motivazione": "Probabilità annua di scoperta di un atto nascosto quando reputazione e coscienza coincidono: stima."
+      },
+      "probabilityPerGapPoint": {
+        "valore": 0.003,
+        "stima": true,
+        "motivazione": "Aumento della probabilità per punto di reputazione sopra la coscienza: stima."
+      },
+      "maxProbability": {
+        "valore": 0.5,
+        "stima": true,
+        "motivazione": "Tetto annuo alla probabilità di scoperta: stima."
+      },
+      "reputationDropBelowConscience": {
+        "valore": 15,
+        "stima": true,
+        "motivazione": "Di quanto la reputazione scende sotto la coscienza dopo uno scandalo: stima."
+      }
+    },
+    "shortcutLegalityWeight": {
+      "valore": -6,
+      "stima": true,
+      "motivazione": "Peso sulla legalità di una fase saltata: stima."
+    },
+    "promiseKeptWordWeight": {
+      "valore": 6,
+      "stima": true,
+      "motivazione": "Peso sulla parola di una promessa mantenuta: stima."
+    },
+    "promiseBrokenWordWeight": {
+      "valore": -10,
+      "stima": true,
+      "motivazione": "Peso sulla parola di una promessa tradita: tradire pesa più che mantenere."
+    }
+  },
+  "economy": {
+    "ownRevenuePerWorker": {
+      "valore": 0.0016,
+      "stima": true,
+      "motivazione": "Milioni di entrate proprie per occupato all'anno con reddito medio 100: stima tarata sul bilancio di partenza."
+    },
+    "stateTransferPerYear": {
+      "valore": 60,
+      "stima": true,
+      "motivazione": "Trasferimenti statali annui in milioni: stima."
+    },
+    "euTranches": [
+      {
+        "id": "rata-2028",
+        "amount": {
+          "valore": 40,
+          "stima": true,
+          "motivazione": "Milioni della rata europea: stima."
+        },
+        "arrivesInYear": {
+          "valore": 2028,
+          "stima": true,
+          "motivazione": "Anno di arrivo della rata: scenario di programmazione stimato."
+        },
+        "expiresInYear": {
+          "valore": 2031,
+          "stima": true,
+          "motivazione": "Ultimo anno utile per spenderla: scenario stimato."
+        }
+      },
+      {
+        "id": "rata-2030",
+        "amount": {
+          "valore": 60,
+          "stima": true,
+          "motivazione": "Milioni della rata europea: stima."
+        },
+        "arrivesInYear": {
+          "valore": 2030,
+          "stima": true,
+          "motivazione": "Anno di arrivo della rata: scenario di programmazione stimato."
+        },
+        "expiresInYear": {
+          "valore": 2034,
+          "stima": true,
+          "motivazione": "Ultimo anno utile per spenderla: scenario stimato."
+        }
+      },
+      {
+        "id": "rata-2033",
+        "amount": {
+          "valore": 50,
+          "stima": true,
+          "motivazione": "Milioni della rata europea: stima."
+        },
+        "arrivesInYear": {
+          "valore": 2033,
+          "stima": true,
+          "motivazione": "Anno di arrivo della rata: scenario di programmazione stimato."
+        },
+        "expiresInYear": {
+          "valore": 2037,
+          "stima": true,
+          "motivazione": "Ultimo anno utile per spenderla: scenario stimato."
+        }
+      },
+      {
+        "id": "rata-2036",
+        "amount": {
+          "valore": 40,
+          "stima": true,
+          "motivazione": "Milioni della rata europea: stima."
+        },
+        "arrivesInYear": {
+          "valore": 2036,
+          "stima": true,
+          "motivazione": "Anno di arrivo della rata: scenario di programmazione stimato."
+        },
+        "expiresInYear": {
+          "valore": 2040,
+          "stima": true,
+          "motivazione": "Ultimo anno utile per spenderla: scenario stimato."
+        }
+      }
+    ],
+    "wageSupportCostPerPerson": {
+      "valore": 0.009,
+      "stima": true,
+      "motivazione": "Milioni l'anno per un cassa integrato: circa novemila euro, stima."
+    },
+    "servicesCostPerYear": {
+      "valore": 37,
+      "stima": true,
+      "motivazione": "Spesa annua per i servizi comunali, in milioni: stima tarata per un piccolo disavanzo strutturale."
+    },
+    "bankruptcyAfterDeficitYears": {
+      "valore": 3,
+      "stima": true,
+      "motivazione": "Anni consecutivi di disavanzo che portano al dissesto: scelta di gioco."
+    }
+  }
+}

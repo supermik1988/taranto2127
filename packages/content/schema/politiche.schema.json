@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/politiche.json",
+  "title": "Politiche",
+  "type": "object",
+  "required": ["policies"],
+  "properties": {
+    "policies": {
+      "type": "object",
+      "minProperties": 8,
+      "propertyNames": { "$ref": "comune.json#/$defs/id" },
+      "additionalProperties": { "$ref": "#/$defs/politica" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "politica": {
+      "type": "object",
+      "required": ["id", "nome", "descrizione", "annualCost", "fund", "everyYear", "minYearsActive"],
+      "properties": {
+        "id": { "$ref": "comune.json#/$defs/id" },
+        "nome": { "$ref": "comune.json#/$defs/testo" },
+        "descrizione": { "$ref": "comune.json#/$defs/testo" },
+        "annualCost": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "fund": { "$ref": "comune.json#/$defs/fondo" },
+        "everyYear": { "$ref": "comune.json#/$defs/effetti" },
+        "minYearsActive": { "$ref": "comune.json#/$defs/interoNonNegativo" },
+        "activationMoral": { "$ref": "comune.json#/$defs/pesiMorali" },
+        "annualMoral": { "$ref": "comune.json#/$defs/pesiMorali" },
+        "training": {
+          "type": "object",
+          "required": ["peoplePerYear", "durationYears"],
+          "properties": {
+            "peoplePerYear": { "$ref": "comune.json#/$defs/interoNonNegativo" },
+            "durationYears": { "$ref": "comune.json#/$defs/interoPositivo" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

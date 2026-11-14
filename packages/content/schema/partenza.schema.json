@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/partenza.json",
+  "title": "Lavoro, economia, clima, lotti e Consiglio al 2027",
+  "type": "object",
+  "required": ["calibrationVersion", "labor", "economy", "climate", "plantLots", "council"],
+  "properties": {
+    "calibrationVersion": { "type": "string", "minLength": 1 },
+    "labor": {
+      "type": "object",
+      "required": ["employed", "onWageSupport", "unemployed", "inTraining"],
+      "properties": {
+        "employed": {
+          "type": "object",
+          "required": ["steel", "remediation", "energy", "sea", "culture-tourism", "services", "public"],
+          "propertyNames": { "$ref": "comune.json#/$defs/settore" },
+          "additionalProperties": { "$ref": "comune.json#/$defs/interoNonNegativo" }
+        },
+        "onWageSupport": { "$ref": "comune.json#/$defs/interoNonNegativo" },
+        "unemployed": { "$ref": "comune.json#/$defs/interoNonNegativo" },
+        "inTraining": { "$ref": "comune.json#/$defs/interoNonNegativo" }
+      },
+      "additionalProperties": false
+    },
+    "economy": {
+      "type": "object",
+      "required": ["funds", "averageIncome", "supplierFirms", "spendingCapacity"],
+      "properties": {
+        "funds": {
+          "type": "object",
+          "required": ["own", "state", "eu-earmarked", "private"],
+          "properties": {
+            "own": { "$ref": "comune.json#/$defs/numero" },
+            "state": { "$ref": "comune.json#/$defs/nonNegativo" },
+            "eu-earmarked": { "$ref": "comune.json#/$defs/nonNegativo" },
+            "private": { "$ref": "comune.json#/$defs/nonNegativo" }
+          },
+          "additionalProperties": false
+        },
+        "averageIncome": { "$ref": "comune.json#/$defs/indice" },
+        "supplierFirms": { "$ref": "comune.json#/$defs/interoNonNegativo" },
+        "spendingCapacity": { "$ref": "comune.json#/$defs/nonNegativo" }
+      },
+      "additionalProperties": false
+    },
+    "climate": {
+      "type": "object",
+      "required": ["co2Emissions", "seaLevelRiseCm", "summerHeat", "waterStress"],
+      "properties": {
+        "co2Emissions": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "seaLevelRiseCm": { "$ref": "comune.json#/$defs/numero" },
+        "summerHeat": { "$ref": "comune.json#/$defs/indice" },
+        "waterStress": { "$ref": "comune.json#/$defs/indice" }
+      },
+      "additionalProperties": false
+    },
+    "plantLots": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["id", "nome", "descrizione", "path", "progress", "remediated"],
+        "properties": {
+          "id": { "$ref": "comune.json#/$defs/id" },
+          "nome": { "$ref": "comune.json#/$defs/testo" },
+          "descrizione": { "$ref": "comune.json#/$defs/testo" },
+          "path": { "enum": ["idle", "green-steel", "remediation", "energy", "sea-culture"] },
+          "progress": { "$ref": "comune.json#/$defs/quota" },
+          "remediated": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "council": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "vision", "descrizione", "trustInPlayer", "patience"],
+        "properties": {
+          "id": { "$ref": "comune.json#/$defs/id" },
+          "name": { "$ref": "comune.json#/$defs/testo" },
+          "vision": { "$ref": "comune.json#/$defs/visione" },
+          "descrizione": { "$ref": "comune.json#/$defs/testo" },
+          "trustInPlayer": { "$ref": "comune.json#/$defs/indice" },
+          "patience": { "$ref": "comune.json#/$defs/indice" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

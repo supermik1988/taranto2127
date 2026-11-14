@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/progetti.json",
+  "title": "Progetti a fasi e progetti di riconversione dei lotti",
+  "type": "object",
+  "required": ["projects", "lotConversion"],
+  "properties": {
+    "projects": {
+      "type": "object",
+      "minProperties": 12,
+      "propertyNames": { "$ref": "comune.json#/$defs/id" },
+      "additionalProperties": { "$ref": "#/$defs/progetto" }
+    },
+    "lotConversion": {
+      "type": "object",
+      "required": ["green-steel", "remediation", "energy", "sea-culture"],
+      "properties": {
+        "green-steel": { "$ref": "comune.json#/$defs/id" },
+        "remediation": { "$ref": "comune.json#/$defs/id" },
+        "energy": { "$ref": "comune.json#/$defs/id" },
+        "sea-culture": { "$ref": "comune.json#/$defs/id" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "fase": {
+      "type": "object",
+      "required": ["minTurns", "maxTurns", "annualCost", "fund"],
+      "properties": {
+        "minTurns": { "$ref": "comune.json#/$defs/interoNonNegativo" },
+        "maxTurns": { "$ref": "comune.json#/$defs/interoNonNegativo" },
+        "annualCost": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "fund": { "$ref": "comune.json#/$defs/fondo" }
+      },
+      "additionalProperties": false
+    },
+    "progetto": {
+      "type": "object",
+      "required": ["id", "nome", "descrizione", "phases", "worksJobs", "operatingEffects"],
+      "properties": {
+        "id": { "$ref": "comune.json#/$defs/id" },
+        "nome": { "$ref": "comune.json#/$defs/testo" },
+        "descrizione": { "$ref": "comune.json#/$defs/testo" },
+        "phases": {
+          "type": "object",
+          "required": ["design", "permitting", "tender", "works"],
+          "properties": {
+            "design": { "$ref": "#/$defs/fase" },
+            "permitting": { "$ref": "#/$defs/fase" },
+            "tender": { "$ref": "#/$defs/fase" },
+            "works": { "$ref": "#/$defs/fase" }
+          },
+          "additionalProperties": false
+        },
+        "worksJobs": {
+          "type": "object",
+          "required": ["sector", "count"],
+          "properties": {
+            "sector": { "$ref": "comune.json#/$defs/settore" },
+            "count": { "$ref": "comune.json#/$defs/interoNonNegativo" }
+          },
+          "additionalProperties": false
+        },
+        "operatingEffects": {
+          "type": "object",
+          "required": ["once", "everyYear"],
+          "properties": {
+            "once": { "$ref": "comune.json#/$defs/effetti" },
+            "everyYear": { "$ref": "comune.json#/$defs/effetti" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

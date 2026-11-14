@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/comune.json",
+  "title": "Definizioni comuni ai contenuti di TARANTO2127",
+  "$defs": {
+    "fonte": {
+      "description": "Fonte di un dato reale: indirizzo, data di consultazione, descrizione.",
+      "type": "object",
+      "required": ["indirizzo", "consultatoIl", "descrizione"],
+      "properties": {
+        "indirizzo": { "type": "string", "minLength": 8 },
+        "consultatoIl": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "descrizione": { "type": "string", "minLength": 5 }
+      },
+      "additionalProperties": false
+    },
+    "annotato": {
+      "description": "Ogni numero porta accanto una stima dichiarata con motivazione, oppure una fonte.",
+      "type": "object",
+      "required": ["valore"],
+      "properties": {
+        "valore": { "type": "number" },
+        "stima": { "const": true },
+        "motivazione": { "type": "string", "minLength": 10 },
+        "fonte": { "$ref": "#/$defs/fonte" }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["stima", "motivazione"], "not": { "required": ["fonte"] } },
+        { "required": ["fonte"], "not": { "anyOf": [{ "required": ["stima"] }, { "required": ["motivazione"] }] } }
+      ]
+    },
+    "numero": { "$ref": "#/$defs/annotato" },
+    "nonNegativo": { "allOf": [{ "$ref": "#/$defs/annotato" }, { "type": "object", "properties": { "valore": { "type": "number", "minimum": 0 } } }] },
+    "indice": { "allOf": [{ "$ref": "#/$defs/annotato" }, { "type": "object", "properties": { "valore": { "type": "number", "minimum": 0, "maximum": 100 } } }] },
+    "quota": { "allOf": [{ "$ref": "#/$defs/annotato" }, { "type": "object", "properties": { "valore": { "type": "number", "minimum": 0, "maximum": 1 } } }] },
+    "intero": { "allOf": [{ "$ref": "#/$defs/annotato" }, { "type": "object", "properties": { "valore": { "type": "integer" } } }] },
+    "interoNonNegativo": {
+      "allOf": [{ "$ref": "#/$defs/annotato" }, { "type": "object", "properties": { "valore": { "type": "integer", "minimum": 0 } } }]
+    },
+    "interoPositivo": {
+      "allOf": [{ "$ref": "#/$defs/annotato" }, { "type": "object", "properties": { "valore": { "type": "integer", "minimum": 1 } } }]
+    },
+    "testo": { "type": "string", "minLength": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "quartiere": {
+      "enum": ["tamburi", "paolo-vi", "citta-vecchia", "borgo", "talsano-lama-san-vito", "area-industriale"]
+    },
+    "settore": { "enum": ["steel", "remediation", "energy", "sea", "culture-tourism", "services", "public"] },
+    "categoriaLavoro": {
+      "enum": ["steel", "remediation", "energy", "sea", "culture-tourism", "services", "public", "onWageSupport", "unemployed", "inTraining"]
+    },
+    "fondo": { "enum": ["own", "state", "eu-earmarked", "private"] },
+    "visione": {
+      "enum": ["work-industry", "health-environment", "sea-culture", "public-accounts", "youth-future", "districts-periphery"]
+    },
+    "pesiMorali": {
+      "type": "object",
+      "properties": {
+        "truth": { "$ref": "#/$defs/numero" },
+        "word": { "$ref": "#/$defs/numero" },
+        "care": { "$ref": "#/$defs/numero" },
+        "legality": { "$ref": "#/$defs/numero" },
+        "listening": { "$ref": "#/$defs/numero" }
+      },
+      "additionalProperties": false
+    },
+    "variazione": {
+      "description": "Variazione di una variabile della città. Lavoro e contatore morale non si toccano così (regola 5 e bilancio del lavoro).",
+      "type": "object",
+      "required": ["target", "amount"],
+      "properties": {
+        "target": { "type": "string", "pattern": "^(districts|economy|climate|council|plantLots)\\.[A-Za-z0-9.-]+$" },
+        "amount": { "$ref": "#/$defs/numero" }
+      },
+      "additionalProperties": false
+    },
+    "spostamentoLavoro": {
+      "type": "object",
+      "required": ["from", "to", "count"],
+      "properties": {
+        "from": { "$ref": "#/$defs/categoriaLavoro" },
+        "to": { "$ref": "#/$defs/categoriaLavoro" },
+        "count": { "$ref": "#/$defs/interoNonNegativo" }
+      },
+      "additionalProperties": false
+    },
+    "effetti": {
+      "type": "object",
+      "required": ["deltas"],
+      "properties": {
+        "deltas": { "type": "array", "items": { "$ref": "#/$defs/variazione" } },
+        "laborMoves": { "type": "array", "items": { "$ref": "#/$defs/spostamentoLavoro" } }
+      },
+      "additionalProperties": false
+    },
+    "condizione": {
+      "type": "object",
+      "required": ["target", "comparator", "value"],
+      "properties": {
+        "target": { "type": "string", "minLength": 3 },
+        "comparator": { "enum": [">=", ">", "<=", "<", "=="] },
+        "value": { "$ref": "#/$defs/numero" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

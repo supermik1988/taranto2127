@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/quartieri.json",
+  "title": "Quartieri: valori di partenza al 2027",
+  "type": "object",
+  "required": ["districts"],
+  "properties": {
+    "districts": {
+      "type": "object",
+      "required": ["tamburi", "paolo-vi", "citta-vecchia", "borgo", "talsano-lama-san-vito", "area-industriale"],
+      "propertyNames": { "$ref": "comune.json#/$defs/quartiere" },
+      "additionalProperties": { "$ref": "#/$defs/quartiere" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "quartiere": {
+      "type": "object",
+      "required": [
+        "nome", "descrizione", "population", "airQuality", "contaminatedSoil", "cumulativeExposure", "health",
+        "services", "greenCover", "floodRisk", "trust", "tension", "belonging"
+      ],
+      "properties": {
+        "nome": { "$ref": "comune.json#/$defs/testo" },
+        "descrizione": { "$ref": "comune.json#/$defs/testo" },
+        "population": {
+          "type": "object",
+          "required": ["young", "adult", "elder"],
+          "properties": {
+            "young": { "$ref": "comune.json#/$defs/interoNonNegativo" },
+            "adult": { "$ref": "comune.json#/$defs/interoNonNegativo" },
+            "elder": { "$ref": "comune.json#/$defs/interoNonNegativo" }
+          },
+          "additionalProperties": false
+        },
+        "airQuality": { "$ref": "comune.json#/$defs/indice" },
+        "contaminatedSoil": { "$ref": "comune.json#/$defs/indice" },
+        "cumulativeExposure": { "$ref": "comune.json#/$defs/indice" },
+        "health": { "$ref": "comune.json#/$defs/indice" },
+        "services": { "$ref": "comune.json#/$defs/indice" },
+        "greenCover": { "$ref": "comune.json#/$defs/indice" },
+        "floodRisk": { "$ref": "comune.json#/$defs/indice" },
+        "trust": { "$ref": "comune.json#/$defs/indice" },
+        "tension": { "$ref": "comune.json#/$defs/indice" },
+        "belonging": { "$ref": "comune.json#/$defs/indice" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

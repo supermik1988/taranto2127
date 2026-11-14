@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/dilemmi.json",
+  "title": "Dilemmi",
+  "type": "object",
+  "required": ["dilemmas"],
+  "properties": {
+    "dilemmas": {
+      "type": "object",
+      "minProperties": 6,
+      "propertyNames": { "$ref": "comune.json#/$defs/id" },
+      "additionalProperties": { "$ref": "#/$defs/dilemma" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "promessa": {
+      "type": "object",
+      "required": ["text", "dueInTurns"],
+      "properties": {
+        "text": { "$ref": "comune.json#/$defs/testo" },
+        "dueInTurns": { "$ref": "comune.json#/$defs/interoPositivo" },
+        "toDistrict": { "$ref": "comune.json#/$defs/quartiere" },
+        "toFaction": { "$ref": "comune.json#/$defs/id" },
+        "condition": { "$ref": "comune.json#/$defs/condizione" }
+      },
+      "additionalProperties": false
+    },
+    "opzione": {
+      "type": "object",
+      "required": ["etichetta", "conseguenze", "immediate", "delayed", "moral", "hidden"],
+      "properties": {
+        "etichetta": { "$ref": "comune.json#/$defs/testo" },
+        "conseguenze": { "$ref": "comune.json#/$defs/testo" },
+        "immediate": { "$ref": "comune.json#/$defs/effetti" },
+        "delayed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["delayTurns", "effects"],
+            "properties": {
+              "delayTurns": { "$ref": "comune.json#/$defs/interoPositivo" },
+              "effects": { "$ref": "comune.json#/$defs/effetti" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "moral": { "$ref": "comune.json#/$defs/pesiMorali" },
+        "hidden": { "type": "boolean" },
+        "promise": { "$ref": "#/$defs/promessa" }
+      },
+      "additionalProperties": false
+    },
+    "dilemma": {
+      "type": "object",
+      "required": ["id", "titolo", "testo", "options", "conditions", "firstTurn", "lastTurn", "weight", "repeatable"],
+      "properties": {
+        "id": { "$ref": "comune.json#/$defs/id" },
+        "titolo": { "$ref": "comune.json#/$defs/testo" },
+        "testo": { "$ref": "comune.json#/$defs/testo" },
+        "options": {
+          "type": "object",
+          "minProperties": 2,
+          "propertyNames": { "$ref": "comune.json#/$defs/id" },
+          "additionalProperties": { "$ref": "#/$defs/opzione" }
+        },
+        "conditions": { "type": "array", "items": { "$ref": "comune.json#/$defs/condizione" } },
+        "firstTurn": { "$ref": "comune.json#/$defs/interoNonNegativo" },
+        "lastTurn": { "$ref": "comune.json#/$defs/interoNonNegativo" },
+        "weight": { "$ref": "comune.json#/$defs/nonNegativo" },
+        "repeatable": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

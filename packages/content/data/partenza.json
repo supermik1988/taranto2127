@@ -1,0 +1,290 @@
+{
+  "calibrationVersion": "0.1-stime",
+  "labor": {
+    "employed": {
+      "steel": {
+        "valore": 1200,
+        "stima": true,
+        "motivazione": "Stima dell'ordine di grandezza per tutta la città nel 2027, dopo la chiusura dello stabilimento; da verificare con ISTAT e INPS."
+      },
+      "remediation": {
+        "valore": 300,
+        "stima": true,
+        "motivazione": "Stima dell'ordine di grandezza per tutta la città nel 2027, dopo la chiusura dello stabilimento; da verificare con ISTAT e INPS."
+      },
+      "energy": {
+        "valore": 400,
+        "stima": true,
+        "motivazione": "Stima dell'ordine di grandezza per tutta la città nel 2027, dopo la chiusura dello stabilimento; da verificare con ISTAT e INPS."
+      },
+      "sea": {
+        "valore": 2500,
+        "stima": true,
+        "motivazione": "Stima dell'ordine di grandezza per tutta la città nel 2027, dopo la chiusura dello stabilimento; da verificare con ISTAT e INPS."
+      },
+      "culture-tourism": {
+        "valore": 3000,
+        "stima": true,
+        "motivazione": "Stima dell'ordine di grandezza per tutta la città nel 2027, dopo la chiusura dello stabilimento; da verificare con ISTAT e INPS."
+      },
+      "services": {
+        "valore": 32000,
+        "stima": true,
+        "motivazione": "Stima dell'ordine di grandezza per tutta la città nel 2027, dopo la chiusura dello stabilimento; da verificare con ISTAT e INPS."
+      },
+      "public": {
+        "valore": 13000,
+        "stima": true,
+        "motivazione": "Stima dell'ordine di grandezza per tutta la città nel 2027, dopo la chiusura dello stabilimento; da verificare con ISTAT e INPS."
+      }
+    },
+    "onWageSupport": {
+      "valore": 7000,
+      "stima": true,
+      "motivazione": "Stima dell'ordine di grandezza per tutta la città nel 2027, dopo la chiusura dello stabilimento; da verificare con ISTAT e INPS."
+    },
+    "unemployed": {
+      "valore": 14000,
+      "stima": true,
+      "motivazione": "Stima dell'ordine di grandezza per tutta la città nel 2027, dopo la chiusura dello stabilimento; da verificare con ISTAT e INPS."
+    },
+    "inTraining": {
+      "valore": 600,
+      "stima": true,
+      "motivazione": "Stima dell'ordine di grandezza per tutta la città nel 2027, dopo la chiusura dello stabilimento; da verificare con ISTAT e INPS."
+    }
+  },
+  "economy": {
+    "funds": {
+      "own": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Milioni di euro disponibili all'inizio della partita: stima di bilancio, da verificare sui rendiconti comunali."
+      },
+      "state": {
+        "valore": 120,
+        "stima": true,
+        "motivazione": "Milioni di euro disponibili all'inizio della partita: stima di bilancio, da verificare sui rendiconti comunali."
+      },
+      "eu-earmarked": {
+        "valore": 80,
+        "stima": true,
+        "motivazione": "Milioni di euro disponibili all'inizio della partita: stima di bilancio, da verificare sui rendiconti comunali."
+      },
+      "private": {
+        "valore": 0,
+        "stima": true,
+        "motivazione": "Nessun capitale privato impegnato all'inizio: è un'ipotesi di partenza prudente."
+      }
+    },
+    "averageIncome": {
+      "valore": 42,
+      "stima": true,
+      "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+    },
+    "supplierFirms": {
+      "valore": 350,
+      "stima": true,
+      "motivazione": "Imprese dell'indotto ancora attive: ordine di grandezza da verificare con la Camera di commercio."
+    },
+    "spendingCapacity": {
+      "valore": 70,
+      "stima": true,
+      "motivazione": "Milioni che la macchina comunale riesce a spendere in un anno: stima prudente."
+    }
+  },
+  "climate": {
+    "co2Emissions": {
+      "valore": 45,
+      "stima": true,
+      "motivazione": "Con lo stabilimento chiuso le emissioni cittadine scendono molto sotto il livello del 2026 (=100): stima."
+    },
+    "seaLevelRiseCm": {
+      "valore": 0,
+      "stima": true,
+      "motivazione": "Il 2027 è l'anno di riferimento per l'innalzamento del mare."
+    },
+    "summerHeat": {
+      "valore": 55,
+      "stima": true,
+      "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+    },
+    "waterStress": {
+      "valore": 50,
+      "stima": true,
+      "motivazione": "Valore di partenza stimato su una scala 0-100; il metodo di lettura del dato reale è in docs/CONTENUTI.md."
+    }
+  },
+  "plantLots": [
+    {
+      "id": "lotto-parchi-minerali",
+      "nome": "Parchi minerali",
+      "descrizione": "I depositi a cielo aperto di minerali e carbone, al confine con i Tamburi.",
+      "path": "idle",
+      "progress": {
+        "valore": 0,
+        "stima": true,
+        "motivazione": "Nessuna trasformazione avviata al 2027."
+      },
+      "remediated": false
+    },
+    {
+      "id": "lotto-cokerie",
+      "nome": "Cokerie",
+      "descrizione": "Le batterie dove il carbone diventava coke.",
+      "path": "idle",
+      "progress": {
+        "valore": 0,
+        "stima": true,
+        "motivazione": "Nessuna trasformazione avviata al 2027."
+      },
+      "remediated": false
+    },
+    {
+      "id": "lotto-altoforni",
+      "nome": "Altoforni",
+      "descrizione": "I grandi forni, spenti con la chiusura.",
+      "path": "idle",
+      "progress": {
+        "valore": 0,
+        "stima": true,
+        "motivazione": "Nessuna trasformazione avviata al 2027."
+      },
+      "remediated": false
+    },
+    {
+      "id": "lotto-acciaieria",
+      "nome": "Acciaieria",
+      "descrizione": "I convertitori e le colate.",
+      "path": "idle",
+      "progress": {
+        "valore": 0,
+        "stima": true,
+        "motivazione": "Nessuna trasformazione avviata al 2027."
+      },
+      "remediated": false
+    },
+    {
+      "id": "lotto-laminatoi",
+      "nome": "Laminatoi",
+      "descrizione": "I capannoni dove l'acciaio diventava lamiera e tubo.",
+      "path": "idle",
+      "progress": {
+        "valore": 0,
+        "stima": true,
+        "motivazione": "Nessuna trasformazione avviata al 2027."
+      },
+      "remediated": false
+    },
+    {
+      "id": "lotto-banchine",
+      "nome": "Banchine dello stabilimento",
+      "descrizione": "Il fronte a mare usato per le materie prime e i prodotti.",
+      "path": "idle",
+      "progress": {
+        "valore": 0,
+        "stima": true,
+        "motivazione": "Nessuna trasformazione avviata al 2027."
+      },
+      "remediated": false
+    }
+  ],
+  "council": [
+    {
+      "id": "cons-lavoro",
+      "name": "Nicola Sperti",
+      "vision": "work-industry",
+      "descrizione": "Ex delegato sindacale, vuole che nessuno resti indietro.",
+      "trustInPlayer": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Fiducia iniziale verso il giocatore: punto neutro, poco sotto la metà per una città delusa."
+      },
+      "patience": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Pazienza iniziale: stima di partenza uguale per tutti, si differenzia con il gioco."
+      }
+    },
+    {
+      "id": "cons-salute",
+      "name": "Teresa Donvito",
+      "vision": "health-environment",
+      "descrizione": "Medica di base ai Tamburi da trent'anni.",
+      "trustInPlayer": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Fiducia iniziale verso il giocatore: punto neutro, poco sotto la metà per una città delusa."
+      },
+      "patience": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Pazienza iniziale: stima di partenza uguale per tutti, si differenzia con il gioco."
+      }
+    },
+    {
+      "id": "cons-mare",
+      "name": "Marina Scarcia",
+      "vision": "sea-culture",
+      "descrizione": "Biologa marina e guida in Città Vecchia.",
+      "trustInPlayer": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Fiducia iniziale verso il giocatore: punto neutro, poco sotto la metà per una città delusa."
+      },
+      "patience": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Pazienza iniziale: stima di partenza uguale per tutti, si differenzia con il gioco."
+      }
+    },
+    {
+      "id": "cons-conti",
+      "name": "Franco Licciardi",
+      "vision": "public-accounts",
+      "descrizione": "Ragioniere in pensione, conta ogni euro.",
+      "trustInPlayer": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Fiducia iniziale verso il giocatore: punto neutro, poco sotto la metà per una città delusa."
+      },
+      "patience": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Pazienza iniziale: stima di partenza uguale per tutti, si differenzia con il gioco."
+      }
+    },
+    {
+      "id": "cons-giovani",
+      "name": "Giulia Petrosino",
+      "vision": "youth-future",
+      "descrizione": "Rientrata in città dopo dieci anni fuori.",
+      "trustInPlayer": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Fiducia iniziale verso il giocatore: punto neutro, poco sotto la metà per una città delusa."
+      },
+      "patience": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Pazienza iniziale: stima di partenza uguale per tutti, si differenzia con il gioco."
+      }
+    },
+    {
+      "id": "cons-periferie",
+      "name": "Damiano Cervellera",
+      "vision": "districts-periphery",
+      "descrizione": "Animatore di un centro sociale a Paolo VI.",
+      "trustInPlayer": {
+        "valore": 45,
+        "stima": true,
+        "motivazione": "Fiducia iniziale verso il giocatore: punto neutro, poco sotto la metà per una città delusa."
+      },
+      "patience": {
+        "valore": 60,
+        "stima": true,
+        "motivazione": "Pazienza iniziale: stima di partenza uguale per tutti, si differenzia con il gioco."
+      }
+    }
+  ]
+}
