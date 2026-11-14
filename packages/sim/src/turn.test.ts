@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { fakeContent } from './__fixtures__/fake-content.js';
-import { fakeRules } from './__fixtures__/fake-rules.js';
+import { fakeRules, withOpenDilemma } from './__fixtures__/fake-rules.js';
 import { createInitialState } from './init.js';
 import { MAX_FREE_ACTIONS_PER_TURN, TOTAL_TURNS, type Action, type GameState } from './state.js';
 import { ActionError, TurnError, advanceTurn, applyAction, delayProject, replay, type TurnRules } from './turn.js';
 import { validateState } from './validate.js';
 
 const rules = fakeRules();
+/** Regole della partita a copione: il dilemma arriva da solo all'apertura del turno 2. */
+const scriptRules: TurnRules = (() => {
+  const r = fakeRules();
+  r.dilemmaArrivalProbability = 1;
+  r.dilemmas['dilemma-finto'] = { ...r.dilemmas['dilemma-finto']!, firstTurn: 2, lastTurn: 2 };
+  return r;
+})();
 const initial = (seed = 1) => createInitialState(seed, fakeContent());
 const advance = (state: GameState, turns: number, r: TurnRules = rules): GameState => {
   for (let i = 0; i < turns; i++) state = advanceTurn(state, r);
@@ -30,8 +37,8 @@ function scriptedGame(seed: number): GameState {
   };
   let state = initial(seed);
   while (state.status === 'running') {
-    for (const action of script[state.turn] ?? []) state = applyAction(state, action, rules);
-    state = advanceTurn(state, rules);
+    for (const action of script[state.turn] ?? []) state = applyAction(state, action, scriptRules);
+    state = advanceTurn(state, scriptRules);
   }
   return state;
 }
@@ -53,7 +60,7 @@ describe('determinismo', () => {
 
   it('seme e storia bastano a rigiocare la partita identica', () => {
     const final = scriptedGame(99);
-    const replayed = replay(initial(99), final.history, rules, final.turn);
+    const replayed = replay(initial(99), final.history, scriptRules, final.turn);
     expect(JSON.stringify(replayed)).toBe(JSON.stringify(final));
   });
 
@@ -188,7 +195,7 @@ describe('azioni', () => {
     }
     expect(() => applyAction(state, { kind: 'set-policy', policyId: 'troppe', active: true }, rules)).toThrow(ActionError);
     // Le risposte ai dilemmi non consumano azioni libere.
-    state = applyAction(state, { kind: 'answer-dilemma', dilemmaId: 'dilemma-finto', optionId: 'palese' }, rules);
+    state = applyAction(withOpenDilemma(state), { kind: 'answer-dilemma', dilemmaId: 'dilemma-finto', optionId: 'palese' }, rules);
     // Il turno dopo il conteggio riparte.
     state = advanceTurn(state, rules);
     expect(() => applyAction(state, { kind: 'set-policy', policyId: 'ok', active: true }, rules)).not.toThrow();

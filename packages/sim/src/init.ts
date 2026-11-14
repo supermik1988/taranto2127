@@ -32,7 +32,8 @@ export interface InitialContent {
   /** Versione dei dati e dei pesi, registrata nella partita. */
   calibrationVersion: string;
   districts: Record<DistrictId, DistrictStart>;
-  labor: LaborState;
+  /** Le persone formate partono da zero: le conta il motore. */
+  labor: Omit<LaborState, 'trained'>;
   /** Disavanzo e rate europee partono da zero: li gestisce il motore. */
   economy: Omit<EconomyState, 'deficitYears' | 'euTranches'>;
   climate: ClimateState;
@@ -71,12 +72,15 @@ export function createInitialState(seed: number, content: InitialContent): GameS
     calibrationVersion: data.calibrationVersion,
     turn: 0,
     districts,
-    labor: data.labor,
+    labor: { ...data.labor, trained: 0 },
     economy: { ...data.economy, deficitYears: 0, euTranches: [] },
     climate: data.climate,
     plantLots: data.plantLots,
     projects: [],
     activePolicies: [],
+    policySince: {},
+    trainingCohorts: [],
+    openDilemmaId: null,
     moral: { conscience: 0, reputation: 0, byDimension, hiddenActs: [], scandals: [] },
     promises: [],
     council: data.council.map((c) => ({ ...c, electedInEpoch: 0 })),

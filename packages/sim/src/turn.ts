@@ -10,6 +10,7 @@ import {
 import {
   MoralError,
   checkScandalsInPlace,
+  conditionHolds,
   readNumber,
   recordActInPlace,
   settlePromisesInPlace,
@@ -139,12 +140,46 @@ export interface DilemmaOption {
 export interface DilemmaDefinition {
   id: string;
   options: Record<string, DilemmaOption>;
+  /** Condizioni di comparsa sullo stato: devono valere tutte. */
+  conditions: PromiseCondition[];
+  /** Primo e ultimo turno in cui il dilemma può arrivare. */
+  firstTurn: number;
+  lastTurn: number;
+  /** Peso nell'estrazione tra i dilemmi ammessi. */
+  weight: number;
+  /** false: dopo la prima risposta non torna più. */
+  repeatable: boolean;
+}
+
+/** Formazione offerta da una politica, ogni anno in cui la politica è pagata. */
+export interface TrainingSpec {
+  /** Persone che passano ogni anno da disoccupate a in formazione (al massimo i disoccupati presenti). */
+  peoplePerYear: number;
+  /** Anni di formazione, poi tornano tra i disoccupati, formate. */
+  durationYears: number;
+}
+
+export interface PolicyDefinition {
+  id: string;
+  /** Milioni di euro all'anno. */
+  annualCost: number;
+  fund: FundKind;
+  /** Effetti di ogni anno in cui la politica è attiva e pagata. */
+  everyYear: EffectSet;
+  /** Anni minimi di attività prima di poterla spegnere. */
+  minYearsActive: number;
+  /** Pesi morali palesi registrati all'attivazione. */
+  activationMoral?: MoralWeights;
+  training?: TrainingSpec;
 }
 
 /** Numeri che il ciclo del turno legge dai dati (CLAUDE.md, regola 4). */
 export interface TurnRules {
   projects: Record<string, ProjectDefinition>;
   dilemmas: Record<string, DilemmaDefinition>;
+  /** Probabilità che in un anno arrivi un dilemma, se ce n'è almeno uno ammesso. */
+  dilemmaArrivalProbability: number;
+  policies: Record<string, PolicyDefinition>;
   moral: MoralRules;
   economy: EconomyRules;
   /** Per ogni strada di riconversione, la definizione del progetto che trasforma un lotto. */
@@ -222,12 +257,9 @@ export function applyAction(state: GameState, action: Action, rules: TurnRules):
     case 'convert-lot':
       convertLot(next, action, rules);
       break;
-    case 'set-policy': {
-      const active = next.activePolicies.includes(action.policyId);
-      if (action.active && !active) next.activePolicies.push(action.policyId);
-      if (!action.active && active) next.activePolicies = next.activePolicies.filter((p) => p !== action.policyId);
+    case 'set-policy':
+      setPolicy(next, action, rules);
       break;
-    }
     case 'make-promise': {
       if (action.text.trim() === '') throw new ActionError('una promessa deve avere un testo');
       if (!Number.isInteger(action.dueByTurn) || action.dueByTurn <= next.turn || action.dueByTurn > TOTAL_TURNS) {
@@ -258,7 +290,44 @@ export function applyAction(state: GameState, action: Action, rules: TurnRules):
       break;
   }
   next.history.push({ turn: next.turn, action: structuredClone(action) });
+  syncTrained(next);
   return next;
+}
+
+/** Le persone formate sono disoccupati: non possono essere più dei disoccupati presenti. */
+function syncTrained(state: GameState): void {
+  state.labor.trained = Math.min(state.labor.trained, state.labor.unemployed);
+}
+
+function policyOrThrow(rules: TurnRules, policyId: string, ErrorType: new (message: string) => Error): PolicyDefinition {
+  const policy = Object.hasOwn(rules.policies, policyId) ? rules.policies[policyId] : undefined;
+  if (policy === undefined) throw new ErrorType(`politica inesistente: ${policyId}`);
+  return policy;
+}
+
+/**
+ * Accende o spegne una politica. Accesa vale dal turno dopo (regola 10) e
+ * registra i suoi pesi morali palesi; non si spegne prima degli anni minimi.
+ */
+function setPolicy(state: GameState, action: Extract<Action, { kind: 'set-policy' }>, rules: TurnRules): void {
+  const policy = policyOrThrow(rules, action.policyId, ActionError);
+  const active = state.activePolicies.includes(policy.id);
+  if (action.active && !active) {
+    assertDataEffects(state, policy.id, policy.everyYear);
+    state.activePolicies.push(policy.id);
+    state.policySince[policy.id] = state.turn;
+    if (policy.activationMoral !== undefined) {
+      recordActInPlace(state, rules.moral, { sourceId: actSourceId(state), weights: policy.activationMoral, hidden: false });
+    }
+  }
+  if (!action.active && active) {
+    const since = state.policySince[policy.id] ?? state.turn;
+    if (state.turn - since < policy.minYearsActive) {
+      throw new ActionError(`${policy.id}: non si spegne prima di ${policy.minYearsActive} anni (attiva dal turno ${since})`);
+    }
+    state.activePolicies = state.activePolicies.filter((p) => p !== policy.id);
+    delete state.policySince[policy.id];
+  }
 }
 
 function assertDistrict(district: string | undefined): void {
@@ -284,6 +353,13 @@ function assertDataEffects(state: GameState, sourceId: string, effects: EffectSe
 }
 
 function answerDilemma(state: GameState, action: Extract<Action, { kind: 'answer-dilemma' }>, rules: TurnRules): void {
+  if (state.openDilemmaId !== action.dilemmaId) {
+    throw new ActionError(
+      state.openDilemmaId === null
+        ? `nessun dilemma aperto: non si può rispondere a ${action.dilemmaId}`
+        : `il dilemma aperto è ${state.openDilemmaId}, non ${action.dilemmaId}`,
+    );
+  }
   const dilemma = Object.hasOwn(rules.dilemmas, action.dilemmaId) ? rules.dilemmas[action.dilemmaId] : undefined;
   if (dilemma === undefined) throw new ActionError(`dilemma inesistente: ${action.dilemmaId}`);
   const option = Object.hasOwn(dilemma.options, action.optionId) ? dilemma.options[action.optionId] : undefined;
@@ -311,6 +387,7 @@ function answerDilemma(state: GameState, action: Extract<Action, { kind: 'answer
     }
   }
 
+  state.openDilemmaId = null;
   applyEffectSetInPlace(state, option.immediate);
   for (const { delayTurns, effects } of option.delayed) pushEffect(state, sourceId, state.turn + delayTurns, effects);
   recordActInPlace(state, rules.moral, { sourceId: actSourceId(state), weights: option.moral, hidden: option.hidden });
@@ -532,9 +609,12 @@ export function delayProject(state: GameState, projectId: string, turns: number)
 // ---------- Avanzamento del turno ----------
 
 /**
- * Chiude l'anno in corso e apre il successivo. Funzione pura. In ordine:
+ * Chiude l'anno in corso e apre il successivo. Funzione pura. Rifiuta di
+ * avanzare se c'è un dilemma aperto. In ordine:
  * 1. entrate: proprie, trasferimenti statali, rate europee in arrivo;
  * 2. spese obbligate: cassa integrazione (fondo statale) e servizi (fondi propri);
+ * 2b. politiche attive: fine delle formazioni in scadenza, poi chi trova fondi
+ *    paga e produce i suoi effetti dell'anno;
  * 3. progetti: effetti ricorrenti di quelli in esercizio, poi quelli in
  *    costruzione in ordine di avvio, entro fondi e capacità di spesa; infine
  *    scadono le rate europee non spese;
@@ -542,16 +622,19 @@ export function delayProject(state: GameState, projectId: string, turns: number)
  * 5. effetti in scadenza;
  * 6. morale: promesse con condizione in scadenza, poi scoperta degli atti nascosti.
  * Poi il turno avanza. Dopo troppi anni di disavanzo la partita termina con
- * 'ended-bankrupt'; al turno TOTAL_TURNS con 'ended-2127'.
+ * 'ended-bankrupt'; al turno TOTAL_TURNS con 'ended-2127'. Se la partita
+ * continua, all'apertura del nuovo turno può arrivare un dilemma.
  */
 export function advanceTurn(state: GameState, rules: TurnRules): GameState {
   if (state.status !== 'running') throw new TurnError(`partita conclusa (${state.status})`);
+  if (state.openDilemmaId !== null) throw new TurnError(`il dilemma ${state.openDilemmaId} attende una risposta`);
   const next = structuredClone(state);
   const closing = next.turn;
   const opening = closing + 1;
 
   collectRevenue(next, rules.economy, closing);
   payMandatorySpending(next, rules.economy);
+  advancePolicies(next, rules, closing);
   advanceProjects(next, rules, opening);
   expireEuTranches(next, closing);
   advanceClimate(next, rules, closing);
@@ -563,7 +646,92 @@ export function advanceTurn(state: GameState, rules: TurnRules): GameState {
   next.turn = opening;
   if (next.economy.deficitYears >= rules.economy.bankruptcyAfterDeficitYears) next.status = 'ended-bankrupt';
   else if (opening >= TOTAL_TURNS) next.status = 'ended-2127';
+  if (next.status === 'running') maybeOpenDilemma(next, rules, opening);
+  syncTrained(next);
   return next;
+}
+
+// ---------- Politiche e formazione ----------
+
+/**
+ * Le coorti in scadenza finiscono la formazione; poi ogni politica attiva, in
+ * ordine di attivazione, paga l'anno se il suo fondo basta e produce i suoi
+ * effetti. Senza fondi resta attiva ma per quell'anno non produce nulla.
+ */
+function advancePolicies(state: GameState, rules: TurnRules, closing: number): void {
+  const { labor } = state;
+  for (const cohort of state.trainingCohorts.filter((c) => c.completesOnTurn <= closing)) {
+    const moved = Math.min(cohort.count, labor.inTraining);
+    labor.inTraining -= moved;
+    labor.unemployed += moved;
+    labor.trained += moved;
+  }
+  state.trainingCohorts = state.trainingCohorts.filter((c) => c.completesOnTurn > closing);
+
+  for (const policyId of state.activePolicies) {
+    const policy = policyOrThrow(rules, policyId, TurnError);
+    if (!Number.isFinite(policy.annualCost) || policy.annualCost < 0) {
+      throw new TurnError(`costo non valido per la politica ${policy.id}: ${policy.annualCost}`);
+    }
+    if (state.economy.funds[policy.fund] < policy.annualCost) continue;
+    payFrom(state, policy.fund, policy.annualCost);
+    applyEffectSetInPlace(state, policy.everyYear);
+    if (policy.training !== undefined) {
+      const { peoplePerYear, durationYears } = policy.training;
+      if (!Number.isInteger(peoplePerYear) || peoplePerYear < 0 || !Number.isInteger(durationYears) || durationYears < 1) {
+        throw new TurnError(`formazione non valida per la politica ${policy.id}`);
+      }
+      const enrolled = Math.min(peoplePerYear, labor.unemployed);
+      if (enrolled > 0) {
+        // Chi entra in formazione esce prima dai disoccupati non ancora formati.
+        const untrained = labor.unemployed - labor.trained;
+        labor.trained -= Math.max(0, enrolled - untrained);
+        labor.unemployed -= enrolled;
+        labor.inTraining += enrolled;
+        state.trainingCohorts.push({ policyId: policy.id, count: enrolled, completesOnTurn: closing + durationYears });
+      }
+    }
+  }
+}
+
+// ---------- Arrivo dei dilemmi ----------
+
+/** Dilemmi che possono arrivare al turno `turn`: finestra, condizioni, ripetibilità. */
+export function eligibleDilemmas(state: GameState, rules: TurnRules, turn: number): DilemmaDefinition[] {
+  const answered = new Set(
+    state.history.flatMap((h) => (h.action.kind === 'answer-dilemma' ? [h.action.dilemmaId] : [])),
+  );
+  return Object.keys(rules.dilemmas)
+    .sort()
+    .map((id) => rules.dilemmas[id]!)
+    .filter(
+      (d) =>
+        d.weight > 0 &&
+        d.firstTurn <= turn &&
+        turn <= d.lastTurn &&
+        (d.repeatable || !answered.has(d.id)) &&
+        d.conditions.every((c) => conditionHolds(state, c)),
+    );
+}
+
+/** All'apertura del turno: con la probabilità annua dei dati arriva un dilemma, estratto per peso. */
+function maybeOpenDilemma(state: GameState, rules: TurnRules, opening: number): void {
+  if (state.openDilemmaId !== null) return;
+  const eligible = eligibleDilemmas(state, rules, opening);
+  if (eligible.length === 0) return;
+  const rng = rngFor(state.seed, 'dilemma-arrival', opening);
+  if (!(rng.next() < rules.dilemmaArrivalProbability)) return;
+  const total = eligible.reduce((sum, d) => sum + d.weight, 0);
+  let draw = rng.next() * total;
+  let chosen = eligible[eligible.length - 1]!;
+  for (const dilemma of eligible) {
+    draw -= dilemma.weight;
+    if (draw < 0) {
+      chosen = dilemma;
+      break;
+    }
+  }
+  state.openDilemmaId = chosen.id;
 }
 
 // ---------- Entrate e spese obbligate ----------

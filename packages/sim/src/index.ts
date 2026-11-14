@@ -19,6 +19,7 @@ export {
   TurnError,
   advanceTurn,
   applyAction,
+  eligibleDilemmas,
   freeActionsUsed,
   isFreeAction,
   replay,
@@ -33,6 +34,8 @@ export {
   type EuTrancheSpec,
   type PhaseDuration,
   type PhaseSpec,
+  type PolicyDefinition,
   type ProjectDefinition,
+  type TrainingSpec,
   type TurnRules,
 } from './turn.js';

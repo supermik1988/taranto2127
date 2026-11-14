@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { fakeContent } from './__fixtures__/fake-content.js';
-import { fakeRules, fakeRulesWithEconomy } from './__fixtures__/fake-rules.js';
+import { fakeRules, fakeRulesWithEconomy, withOpenDilemma } from './__fixtures__/fake-rules.js';
 import { randomGame } from './__fixtures__/random-game.js';
 import { applyDeltas, scheduleEffect } from './effects.js';
 import { createInitialState } from './init.js';
@@ -12,8 +12,9 @@ import { validateState } from './validate.js';
 const rules = fakeRules();
 const initial = (seed = 1) => createInitialState(seed, fakeContent());
 const act = (state: GameState, action: Action, r: TurnRules = rules): GameState => applyAction(state, action, r);
+/** Apre il dilemma di prova e risponde con l'opzione indicata. */
 const answer = (state: GameState, optionId: string, r: TurnRules = rules): GameState =>
-  act(state, { kind: 'answer-dilemma', dilemmaId: 'dilemma-finto', optionId }, r);
+  act(withOpenDilemma(state), { kind: 'answer-dilemma', dilemmaId: 'dilemma-finto', optionId }, r);
 const advance = (state: GameState, turns: number, r: TurnRules = rules): GameState => {
   for (let i = 0; i < turns; i++) state = advanceTurn(state, r);
   return state;

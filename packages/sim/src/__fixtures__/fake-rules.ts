@@ -5,7 +5,7 @@
  * esercitare il motore e non vengono da alcuna fonte. I valori veri, con
  * fonte, arrivano con la scheda T05 in packages/content.
  */
-import type { FundKind } from '../state.js';
+import type { FundKind, GameState } from '../state.js';
 import type { EconomyRules, PhaseSpec, ProjectDefinition, TurnRules } from '../turn.js';
 
 const phase = (minTurns: number, maxTurns = minTurns, annualCost = 1, fund: FundKind = 'state'): PhaseSpec => ({
@@ -64,6 +64,11 @@ export const fakeRules = (): TurnRules => ({
   dilemmas: {
     'dilemma-finto': {
       id: 'dilemma-finto',
+      conditions: [],
+      firstTurn: 0,
+      lastTurn: 100,
+      weight: 1,
+      repeatable: true,
       options: {
         // Palese: muove coscienza e reputazione.
         palese: {
@@ -109,6 +114,35 @@ export const fakeRules = (): TurnRules => ({
         },
       },
     },
+  },
+  // Di serie nessun dilemma arriva da solo: i test che lo vogliono alzano la probabilità.
+  dilemmaArrivalProbability: 0,
+  policies: {
+    // Politica con costo, effetti annui, anni minimi e peso morale all'attivazione.
+    'politica-verde': {
+      id: 'politica-verde',
+      annualCost: 2,
+      fund: 'state',
+      everyYear: { deltas: [{ target: 'districts.tamburi.greenCover', amount: 1 }] },
+      minYearsActive: 3,
+      activationMoral: { listening: 2 },
+    },
+    // Formazione: 10 persone l'anno, 2 anni di corso.
+    formazione: {
+      id: 'formazione',
+      annualCost: 1,
+      fund: 'own',
+      everyYear: { deltas: [] },
+      minYearsActive: 0,
+      training: { peoplePerYear: 10, durationYears: 2 },
+    },
+    // Politiche gratuite e senza effetti, per i test sulle azioni libere.
+    ...Object.fromEntries(
+      ['politica-finta', 'p', 'p0', 'p1', 'p2', 'p3', 'ok', 'troppe'].map((id) => [
+        id,
+        { id, annualCost: 0, fund: 'own' as const, everyYear: { deltas: [] }, minYearsActive: 0 },
+      ]),
+    ),
   },
   moral: {
     dimensionWeights: { truth: 1, word: 1, care: 1, legality: 1, listening: 1 },
@@ -159,3 +193,6 @@ export const activeEconomy = (): EconomyRules => ({
 });
 
 export const fakeRulesWithEconomy = (): TurnRules => ({ ...fakeRules(), economy: activeEconomy() });
+
+/** Apre a mano un dilemma, come farebbe il motore all'apertura del turno. Solo per i test. */
+export const withOpenDilemma = (state: GameState, dilemmaId = 'dilemma-finto'): GameState => ({ ...state, openDilemmaId: dilemmaId });

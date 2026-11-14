@@ -60,6 +60,19 @@ export interface LaborState {
   onWageSupport: number; // cassa integrazione
   unemployed: number;
   inTraining: number;
+  /**
+   * Disoccupati che hanno finito una formazione. Sono già contati in
+   * `unemployed` (non si sommano alla forza lavoro) e non ne superano mai il numero.
+   */
+  trained: number;
+}
+
+/** Persone entrate in formazione nello stesso anno con la stessa politica. */
+export interface TrainingCohort {
+  policyId: string;
+  count: number;
+  /** A fine di questo turno la coorte finisce la formazione e torna tra i disoccupati, formata. */
+  completesOnTurn: number;
 }
 
 export type FundKind = 'own' | 'state' | 'eu-earmarked' | 'private';
@@ -300,6 +313,12 @@ export interface GameState {
   plantLots: PlantLot[];
   projects: Project[];
   activePolicies: string[];
+  /** Turno di attivazione di ogni politica attiva. */
+  policySince: Record<string, number>;
+  /** Coorti ancora in formazione. */
+  trainingCohorts: TrainingCohort[];
+  /** Dilemma arrivato e in attesa di risposta: finché c'è, il turno non avanza. */
+  openDilemmaId: string | null;
   moral: MoralState;
   promises: Promise[];
   council: Councillor[];
