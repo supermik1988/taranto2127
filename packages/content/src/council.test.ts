@@ -57,18 +57,29 @@ describe('il Consiglio', () => {
     expect(checked).toBeGreaterThan(100);
   });
 
-  it('salute e ambiente, con l’aria dei Tamburi sotto guardia, chiede con urgenza la bonifica di un lotto', () => {
+  it('salute e ambiente, con l’aria dei Tamburi sotto guardia, chiede con urgenza un’opera che migliora quell’aria', () => {
     const health = advise(initial()).find((a) => a.vision === 'health-environment')!;
     expect(health.urgent).toBe(true);
-    expect(health.action).toMatchObject({ kind: 'convert-lot', path: 'remediation' });
+    expect(health.action).toMatchObject({ kind: 'start-project', definitionId: 'fascia-verde-tamburi' });
     expect(health.reason).toContain('Tamburi');
   });
 
-  it('ogni visione propone qualcosa di suo all’inizio della partita, e ognuna un lotto diverso', () => {
+  it('con l’allarme mareggiate propone le difese costiere, prima del lotto delle banchine', () => {
+    const sea = advise(initial()).find((a) => a.vision === 'sea-culture')!;
+    expect(initial().districts['citta-vecchia'].floodRisk).toBeGreaterThan(30);
+    expect(sea.urgent).toBe(true);
+    expect(sea.action).toMatchObject({ kind: 'start-project', definitionId: 'difese-costiere' });
+    // Senza allarme torna l'ordine normale: prima il lotto preferito.
+    const calm = structuredClone(initial());
+    calm.districts['citta-vecchia'].floodRisk = 10;
+    expect(advise(calm).find((a) => a.vision === 'sea-culture')!.action).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-banchine' });
+  });
+
+  it('ogni visione propone qualcosa di suo all’inizio della partita, e i lotti proposti sono diversi', () => {
     const byVision = Object.fromEntries(advise(initial()).map((a) => [a.vision, a.action]));
     expect(byVision['work-industry']).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-acciaieria', path: 'green-steel' });
-    expect(byVision['health-environment']).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-parchi-minerali', path: 'remediation' });
-    expect(byVision['sea-culture']).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-banchine', path: 'sea-culture' });
+    expect(byVision['health-environment']).toMatchObject({ kind: 'start-project', definitionId: 'fascia-verde-tamburi' });
+    expect(byVision['sea-culture']).toMatchObject({ kind: 'start-project', definitionId: 'difese-costiere' });
     expect(byVision['public-accounts']).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-laminatoi', path: 'energy' });
     expect(byVision['youth-future']).toMatchObject({ kind: 'start-project', definitionId: 'centro-ricerca-mare' });
     // Allarme sui servizi di Paolo VI: l'opera proposta riguarda Paolo VI.
@@ -76,9 +87,9 @@ describe('il Consiglio', () => {
   });
 
   it('se il primo lotto preferito non è più fermo, propone il successivo del suo ordine', () => {
-    const state = applyAction(initial(), { kind: 'convert-lot', lotId: 'lotto-parchi-minerali', path: 'energy' }, rules);
-    const health = advise(state).find((a) => a.vision === 'health-environment')!;
-    expect(health.action).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-cokerie', path: 'remediation' });
+    const state = applyAction(initial(), { kind: 'convert-lot', lotId: 'lotto-acciaieria', path: 'energy' }, rules);
+    const work = advise(state).find((a) => a.vision === 'work-industry')!;
+    expect(work.action).toMatchObject({ kind: 'convert-lot', lotId: 'lotto-altoforni', path: 'green-steel' });
   });
 
   it('se il motivo cita un quartiere, l’azione proposta riguarda quel quartiere', { timeout: 60_000 }, () => {

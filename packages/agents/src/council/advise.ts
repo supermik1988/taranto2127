@@ -76,6 +76,28 @@ export function actionConcerns(action: Action, district: string, rules: TurnRule
 }
 
 /**
+ * Di quanto un'azione migliora proprio la grandezza in allarme, secondo i suoi
+ * effetti dichiarati: positivo se la sposta nella direzione giusta, 0 se non la tocca.
+ */
+export function alarmRelief(action: Action, alarm: CouncilAlarm, rules: TurnRules): number {
+  const sum = (effects: { deltas: { target: string; amount: number }[] }[]) =>
+    effects.flatMap((e) => e.deltas).filter((d) => d.target === alarm.target).reduce((a, d) => a + d.amount, 0);
+  const project = (id: string | undefined) => {
+    const def = id === undefined ? undefined : rules.projects[id];
+    return def === undefined ? 0 : sum([def.operatingEffects.once, def.operatingEffects.everyYear]);
+  };
+  let amount = 0;
+  if (action.kind === 'start-project') amount = project(action.definitionId);
+  else if (action.kind === 'convert-lot' && action.path !== 'idle') amount = project(rules.lotConversion[action.path]);
+  else if (action.kind === 'set-policy' && action.active) {
+    const policy = rules.policies[action.policyId];
+    amount = policy === undefined ? 0 : sum([policy.everyYear]);
+  }
+  // Allarme "troppo alto" (>): serve un calo; "troppo basso" (<): serve un aumento.
+  return alarm.comparator === '>' ? -amount : amount;
+}
+
+/**
  * Proposte ordinate di una visione: il primo lotto fermo del suo ordine verso
  * la sua strada, poi opere, poi politiche.
  */
@@ -148,6 +170,18 @@ function adviseOne(
   }
 
   const all = candidates(state, vision, labels).filter((c) => allowed(state, c.action, rules));
+  // Con l'allarme acceso, prima le azioni che migliorano proprio la grandezza in allarme, dalla più efficace;
+  // l'ordine dei lotti e delle opere vale a parità.
+  if (urgent) {
+    const relief = all
+      .map((c, i) => ({ c, i, r: alarmRelief(c.action, vision.alarm, rules) }))
+      .filter((x) => x.r > 0)
+      .sort((a, b) => b.r - a.r || a.i - b.i);
+    const best = relief[0];
+    if (best !== undefined) {
+      return { ...base, action: best.c.action, reason: fill(vision.alarmReason, { azione: best.c.label }), shortcut: false };
+    }
+  }
   // Con l'allarme su un quartiere, il motivo cita quel quartiere: la proposta deve riguardarlo.
   const district = urgent ? alarmDistrict(vision.alarm) : undefined;
   const focused = district === undefined ? all : all.filter((c) => actionConcerns(c.action, district, rules));
