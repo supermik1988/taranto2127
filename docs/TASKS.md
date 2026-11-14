@@ -412,3 +412,45 @@ elencati. Ordine: T01, poi T02, poi T03 e T05a in parallelo, poi T04, poi T06.
   consiglio è identico a parità di stato; ogni consigliere propone azioni coerenti
   con la sua visione (test); nessuna scelta nascosta è rivelata prima della scelta
   (test); le schermate stanno in 100 colonne.
+
+---
+
+## T09 — Prototipo grafico nel browser
+
+- **Agente:** `sim-engineer` (anticipa il lavoro di interfaccia, su decisione dell'architetto)
+- **Dipende da:** T08
+- **File:** `apps/game/`, `.github/workflows/`, una funzione pura di spiegazione in
+  `packages/sim` (`explainDistrict`) con i suoi testi in `packages/content`.
+- **Cosa fare:**
+  1. *Tecnica.* Vite, React, TypeScript; il motore gira nel browser, senza server.
+     Stato dell'interfaccia separato dallo stato di gioco, che cambia solo con
+     `applyAction` e `advanceTurn`. Salvataggio automatico nel browser come seme
+     più storia. Regola 9: ogni schermata funziona a 360 px, in verticale, con il tocco.
+  2. *Mappa* vettoriale schematica ma riconoscibile di Taranto (Mar Grande, Mar
+     Piccolo, Città Vecchia con i due ponti, Borgo, Tamburi, Paolo VI, borgate a
+     sud, area industriale con i sei lotti). Quartieri colorati secondo
+     l'indicatore scelto, con legenda e numero; lotti con colore e sigla secondo
+     strada e fase; toccare un'area apre la sua scheda.
+  3. *Tempo.* Barra con anno, epoca, fondi, coscienza e reputazione; pulsanti
+     "chiudi l'anno" e "avanza fino al prossimo evento"; azioni libere sempre visibili.
+  4. *Grafici* dal 2027 all'anno corrente, con i cambi d'epoca.
+  5. *Il perché.* `explainDistrict(state, rules, id)`: per aria, esposizione,
+     salute, servizi, tensione e fiducia, il valore di arrivo e i fattori con il
+     loro peso; la scheda del quartiere li mostra in frasi semplici.
+  6. *Cantieri* come barre a fasi, con anni mancanti, ritardi e motivo del fermo;
+     scheda del progetto prima di avviarlo.
+  7. *Consiglio* come sei schede; *Cronaca* come prima pagina a ogni chiusura
+     d'anno; *dilemma* come carta a tutto schermo. Le scelte nascoste non sono mai
+     segnalate prima della scelta.
+  8. *Finale:* ritratto con indicatori iniziali e finali, famiglia di finale, link
+     che riapre la stessa partita.
+  9. *Aspetto:* sobrio, rosso e blu come accenti, testo scuro su fondo chiaro,
+     niente immagini generate, testo di almeno 16 px.
+  10. *Pubblicazione* automatica su GitHub Pages sotto `/taranto2127/` a ogni invio su main.
+  11. *Verifica visiva* con un browser automatico: partita da copione e schermate
+      in `docs/schermate/` a 390 px e 1280 px.
+- **Fatto quando:** la partita da copione arriva al finale nel browser automatico
+  senza errori in console; ricaricare la pagina riprende la stessa partita; a 360
+  px nessuna schermata scorre in orizzontale; `explainDistrict` è pura e i suoi
+  fattori sommati danno il valore di arrivo (test); nessuna scelta nascosta
+  rivelata prima (test); le schermate sono nel repository.
