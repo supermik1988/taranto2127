@@ -22,6 +22,10 @@ export interface PlasticoProbe {
   looks(): Record<string, LotLook>;
   /** Solo per le prove visive: mostra aspetti diversi da quelli della partita, fino al prossimo cambiamento dello stato. */
   preview(looks: Record<string, LotLook>): void;
+  /** Il lotto o il quartiere evidenziato sul plastico. */
+  selected(): string | null;
+  /** Porta il centro di un lotto o di un quartiere al centro di un rettangolo dello schermo. */
+  frameIn(id: string, area: { left: number; top: number; right: number; bottom: number }): void;
   fps(): number;
   measured: number | null;
 }
@@ -32,13 +36,41 @@ declare global {
   }
 }
 
+/**
+ * Parte della tela che finestre e barre lasciano libera: sopra la finestra che sale
+ * dal basso (telefono) o a sinistra di quella laterale (schermo largo).
+ */
+function freeArea(canvas: HTMLCanvasElement): { left: number; top: number; right: number; bottom: number } {
+  const box = canvas.getBoundingClientRect();
+  const rect = (selector: string) => document.querySelector(selector)?.getBoundingClientRect();
+  const hud = rect('.hud-top');
+  const rail = rect('.rail');
+  const win = rect('.map-window');
+  const bar = rect('.timebar');
+  let top = hud?.bottom ?? 0;
+  let bottom = bar?.top ?? box.height;
+  let right = rail?.left ?? box.width;
+  const left = 0;
+  if (win !== undefined) {
+    if (win.left <= 1) bottom = Math.min(bottom, win.top);
+    else right = Math.min(right, win.left);
+  }
+  top = Math.max(0, top - box.top);
+  bottom = Math.max(top + 1, bottom - box.top);
+  right = Math.max(left + 1, right - box.left);
+  return { left, top, right, bottom };
+}
+
 export default function Plastico({
   state,
   layer,
+  selected = null,
   onSelect,
   onFallback,
 }: {
   state: GameState;
+  /** Lotto o quartiere aperto in una finestra: resta evidenziato e in vista. */
+  selected?: string | null;
   /** Indicatore dello strato colorato, o null se spento. */
   layer: MapIndicator | null;
   onSelect: (kind: 'district' | 'lot', id: string) => void;
@@ -74,6 +106,8 @@ export default function Plastico({
       focus: (id, distance) => instance.focus(id, distance),
       looks: () => looksRef.current(),
       preview: (looks) => instance.setLots(looks),
+      selected: () => instance.selected(),
+      frameIn: (id, area) => instance.frameIn(id, area),
       fps: () => instance.fps(),
       measured: null,
     };
@@ -96,6 +130,19 @@ export default function Plastico({
   useEffect(() => {
     if (ready) api.current?.setLots(looks());
   }, [ready, state]);
+
+  // Ciò che è aperto in una finestra resta evidenziato e, dopo che la finestra si è disposta, in vista.
+  useEffect(() => {
+    if (!ready) return;
+    api.current?.setSelected(selected);
+    if (selected === null) return;
+    const frame = requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        if (canvas.current !== null) api.current?.frameIn(selected, freeArea(canvas.current));
+      }),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [ready, selected]);
 
   // Strato colorato.
   useEffect(() => {

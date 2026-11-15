@@ -29,6 +29,7 @@ import {
   hashString,
   lotOf,
   pick,
+  pointInPolygon,
   type GeoBuilding,
   type Pt,
 } from './data.js';
@@ -43,6 +44,15 @@ export interface PlasticoApi {
   screenPosition(id: string): { x: number; y: number } | null;
   /** Porta la camera su un lotto o su un quartiere. */
   focus(id: string, distance?: number): void;
+  /** Evidenzia sul plastico il lotto o il quartiere aperto in una finestra (null: nessuno). */
+  setSelected(id: string | null): void;
+  /** Il lotto o il quartiere evidenziato. */
+  selected(): string | null;
+  /**
+   * Sposta la camera, senza cambiare distanza né rotazione, perché il centro
+   * dell'oggetto cada al centro del rettangolo libero (pixel nella tela).
+   */
+  frameIn(id: string, area: { left: number; top: number; right: number; bottom: number }): void;
   /** Immagini al secondo negli ultimi due secondi. */
   fps(): number;
   dispose(): void;
@@ -257,10 +267,58 @@ const GROUND: Record<LotLook, string> = {
   mare: '#e6dcc6',
 };
 
-function lotGround(frame: LotFrame, look: LotLook): THREE.Mesh {
-  const b = new Builder();
-  b.flat(frame.quad, 2.2, c(GROUND[look]));
-  return meshOf(b, vertexMaterial());
+/** Quota del terreno dello stabilimento: il fondo dei lotti sta qui, mai sopra. */
+export const TERRAIN_Y = 0.4;
+
+/**
+ * Bordo irregolare di un lotto: i lati del quadrilatero divisi in tratti, ogni
+ * punto spinto verso l'interno di una quantità ripetibile tra `min` e `max` metri.
+ */
+function raggedRing(frame: LotFrame, min: number, max: number, seed: string): Pt[] {
+  const rnd = rngFor(seed);
+  const [q0, q1, q2, q3] = frame.quad as [Pt, Pt, Pt, Pt];
+  const center = frame.center;
+  const ring: Pt[] = [];
+  const steps = 14;
+  for (const [a, b] of [
+    [q0, q1],
+    [q1, q2],
+    [q2, q3],
+    [q3, q0],
+  ] as [Pt, Pt][]) {
+    for (let i = 0; i < steps; i++) {
+      const t = i / steps;
+      const x = a[0] + (b[0] - a[0]) * t;
+      const y = a[1] + (b[1] - a[1]) * t;
+      const dx = center[0] - x;
+      const dy = center[1] - y;
+      const len = Math.hypot(dx, dy) || 1;
+      const inset = min + rnd() * (max - min);
+      ring.push([x + (dx / len) * inset, y + (dy / len) * inset]);
+    }
+  }
+  return ring;
+}
+
+/**
+ * Fondo del lotto alla quota del terreno: una fascia di raccordo, a metà tra il
+ * colore del lotto e quello dello stabilimento, sotto un fondo dal bordo
+ * irregolare. Niente piastra rialzata: lo spessore è zero, sta sopra il terreno
+ * solo per l'ordine di disegno (polygonOffset), non per la quota.
+ */
+function lotGround(frame: LotFrame, look: LotLook): THREE.Group {
+  const g = new THREE.Group();
+  const blend = c(GROUND[look]).lerp(c(PALETTE.stabilimento), 0.55);
+  const outer = new Builder();
+  outer.flat(raggedRing(frame, 0, 18, `${look}:esterno`), TERRAIN_Y, blend);
+  const inner = new Builder();
+  inner.flat(raggedRing(frame, 22, 55, `${look}:interno`), TERRAIN_Y, c(GROUND[look]));
+  const outerMesh = meshOf(outer, vertexMaterial({ polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }));
+  const innerMesh = meshOf(inner, vertexMaterial({ polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+  outerMesh.name = 'fondo-lotto';
+  innerMesh.name = 'fondo-lotto';
+  g.add(outerMesh, innerMesh);
+  return g;
 }
 
 function buildFermo(frame: LotFrame, buildings: GeoBuilding[], rnd: () => number): THREE.Group {
@@ -271,7 +329,7 @@ function buildFermo(frame: LotFrame, buildings: GeoBuilding[], rnd: () => number
   for (const building of buildings) {
     const h = buildingHeight(building) * VERTICAL;
     const { wall, roof } = buildingColors(building, true);
-    b.walls(building.p, 2.2, h, c(wall));
+    b.walls(building.p, 0, h, c(wall));
     b.flat(building.p, h, c(roof));
   }
   if (buildings.length > 0) g.add(meshOf(b, vertexMaterial(), { cast: true }));
@@ -455,44 +513,159 @@ function buildEnergia(frame: LotFrame, rnd: () => number, animated: Animated[]):
   return g;
 }
 
+/**
+ * Lati del lotto che danno sull'acqua vera (mare, canale): un lato conta se la
+ * maggior parte dei punti appena fuori dal lato cade in un'acqua di OpenStreetMap.
+ * Restituisce gli indici dei lati: 0 = q0→q1, 1 = q1→q2, 2 = q2→q3, 3 = q3→q0.
+ */
+export function waterSides(quad: Pt[]): number[] {
+  const sides: number[] = [];
+  for (let i = 0; i < 4; i++) {
+    const a = quad[i]!;
+    const b = quad[(i + 1) % 4]!;
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+    // Anello antiorario: la normale esterna è (dy, −dx).
+    const nx = (b[1] - a[1]) / len;
+    const ny = -(b[0] - a[0]) / len;
+    let wet = 0;
+    const samples = 7;
+    for (let k = 1; k <= samples; k++) {
+      const t = k / (samples + 1);
+      const point: Pt = [a[0] + (b[0] - a[0]) * t + nx * 12, a[1] + (b[1] - a[1]) * t + ny * 12];
+      if (geo.acqua.some((ring) => pointInPolygon(point, ring))) wet += 1;
+    }
+    if (wet >= Math.ceil(samples / 2)) sides.push(i);
+  }
+  return sides;
+}
+
+/** Coordinate relative (u, v) dei due estremi di ogni lato del lotto. */
+const SIDE_UV: [number, number, number, number][] = [
+  [0, 0, 1, 0],
+  [1, 0, 1, 1],
+  [1, 1, 0, 1],
+  [0, 1, 0, 0],
+];
+
 function buildMare(frame: LotFrame, rnd: () => number): THREE.Group {
   const g = new THREE.Group();
   g.add(lotGround(frame, 'mare'));
-  // Darsena aperta lungo il primo lato, con banchine chiare.
-  const water = new Builder();
-  const inlet: Pt[] = [0.12, 0.88].flatMap((u) => [0.05, 0.38].map((v) => [u, v] as [number, number])).map(([u, v]) => {
-    const p = at(frame, u, v);
+  // Nessuna acqua finta: se il lotto tocca il mare vero, banchine aperte su quel lato.
+  const wet = waterSides(frame.quad);
+  for (const side of wet) {
+    const [u1, v1, u2, v2] = SIDE_UV[side]!;
+    const a = at(frame, u1, v1);
+    const b = at(frame, u2, v2);
+    const len = a.distanceTo(b);
+    const angle = -Math.atan2(b.z - a.z, b.x - a.x);
+    const quay = box(len * 0.92, 4, 26, '#d8d0c0');
+    quay.position.set((a.x + b.x) / 2, 2, (a.z + b.z) / 2);
+    quay.rotation.y = angle;
+    g.add(quay);
+    // Bitte lungo la banchina e qualche barca ormeggiata appena fuori, sul mare vero.
+    for (let i = 1; i < 10; i++) {
+      const t = i / 10;
+      const bollard = cylinder(1.5, 1.8, 3, '#55524b', 8);
+      bollard.position.set(a.x + (b.x - a.x) * t, 4, a.z + (b.z - a.z) * t);
+      g.add(bollard);
+    }
+    const outward = new THREE.Vector3(b.z - a.z, 0, -(b.x - a.x)).normalize();
+    // La normale esterna nel mondo dipende dal verso del lato: si sceglie quella che si allontana dal centro.
+    const center = at(frame, 0.5, 0.5);
+    const mid = a.clone().add(b).multiplyScalar(0.5);
+    if (outward.dot(mid.clone().sub(center)) < 0) outward.negate();
+    for (let i = 0; i < 5; i++) {
+      const t = 0.15 + i * 0.17;
+      const boat = box(18, 4, 6, '#ffffff');
+      boat.position.set(a.x + (b.x - a.x) * t + outward.x * 40, 1.2, a.z + (b.z - a.z) * t + outward.z * 40);
+      boat.rotation.y = angle;
+      g.add(boat);
+    }
+  }
+  // Una piazza chiara al centro, edifici pubblici colorati intorno, alberi lungo i viali.
+  const square = new Builder();
+  const corners: Pt[] = [
+    [0.35, 0.35],
+    [0.65, 0.35],
+    [0.65, 0.65],
+    [0.35, 0.65],
+  ].map(([u, v]) => {
+    const p = at(frame, u!, v!);
     return [p.x, -p.z] as Pt;
   });
-  water.flat([inlet[0]!, inlet[2]!, inlet[3]!, inlet[1]!], 2.6, c(PALETTE.mare));
-  g.add(meshOf(water, vertexMaterial()));
-  for (const v of [0.03, 0.4]) place(g, box(frame.width * 0.8, 4, 10, '#d8d0c0'), frame, 0.5, v);
-  // Barche ormeggiate.
-  for (let i = 0; i < 6; i++) place(g, box(16, 4, 6, '#ffffff'), frame, 0.18 + i * 0.12, 0.12 + rnd() * 0.2);
-  // Edifici pubblici colorati e una piazza alberata.
-  const colors = ['#d0704e', '#e3b04b', '#3e9c9c', '#f1e3c3', '#b5523b'];
-  for (let i = 0; i < 5; i++) {
+  square.flat(corners, TERRAIN_Y, c('#f3ead6'));
+  const squareMesh = meshOf(square, vertexMaterial({ polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 }));
+  squareMesh.name = 'fondo-lotto';
+  g.add(squareMesh);
+  const colors = ['#d0704e', '#e3b04b', '#3e9c9c', '#f1e3c3', '#b5523b', '#7f9fc4'];
+  const spots: [number, number][] = [
+    [0.22, 0.25],
+    [0.5, 0.2],
+    [0.78, 0.25],
+    [0.8, 0.72],
+    [0.5, 0.8],
+    [0.2, 0.72],
+  ];
+  spots.forEach(([u, v], i) => {
     const h = 18 + rnd() * 16;
     const building = new THREE.Group();
     building.add(box(60 + rnd() * 30, h, 40 + rnd() * 20, colors[i]!));
     const roof = box(64, 3, 46, '#f3eee4');
     roof.position.y = h + 1.5;
     building.add(roof);
-    place(g, building, frame, 0.15 + i * 0.17, 0.62 + (i % 2) * 0.18);
-  }
+    place(g, building, frame, u, v);
+  });
   const positions: THREE.Vector3[] = [];
-  for (let i = 0; i < 40; i++) positions.push(at(frame, 0.1 + rnd() * 0.8, 0.46 + rnd() * 0.08));
+  for (let i = 0; i < 16; i++) {
+    const t = i / 15;
+    positions.push(at(frame, 0.3 + t * 0.4, 0.3), at(frame, 0.3 + t * 0.4, 0.7), at(frame, 0.3, 0.3 + t * 0.4), at(frame, 0.7, 0.3 + t * 0.4));
+  }
+  for (let i = 0; i < 30; i++) positions.push(at(frame, 0.08 + rnd() * 0.84, 0.08 + rnd() * 0.84));
   g.add(trees(positions, rnd, 0.7));
   return g;
 }
 
+/** Costruisce un aspetto di un lotto fuori dalla scena: lo usano la scena e i test. */
+export function buildLotLook(id: string, quad: Pt[], look: LotLook, buildings: GeoBuilding[] = []): { group: THREE.Group; animated: Animated[] } {
+  const frame = lotFrame(quad);
+  const rnd = rngFor(`${id}:${look}`);
+  const animated: Animated[] = [];
+  const group =
+    look === 'fermo'
+      ? buildFermo(frame, buildings, rnd)
+      : look === 'lavori'
+        ? buildLavori(frame, rnd, animated)
+        : look === 'acciaio'
+          ? buildAcciaio(frame, rnd, animated)
+          : look === 'bosco'
+            ? buildBosco(frame, rnd)
+            : look === 'energia'
+              ? buildEnergia(frame, rnd, animated)
+              : buildMare(frame, rnd);
+  group.name = `${id}:${look}`;
+  return { group, animated };
+}
+
 // ---------- Scena ----------
+
+/**
+ * Forza dello strato. Gli edifici prendono quasi tutto il colore della legenda:
+ * la forma resta leggibile perché pareti e tetti sono illuminati diversamente.
+ * Il terreno del quartiere si copre quasi del tutto; fuori dai quartieri tutto si attenua.
+ */
+const LAYER_TINT = 0.9;
+const LAYER_GROUND_OPACITY = 0.9;
+const LAYER_FADE_OUTSIDE = 0.8;
 
 export function createPlastico({ canvas, labels, onSelect }: PlasticoOptions): PlasticoApi {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  // Il plastico è quasi tutto fermo: la mappa d'ombra si ridisegna solo quando serve (vedi loop e setLots).
+  renderer.shadowMap.autoUpdate = false;
+  renderer.shadowMap.needsUpdate = true;
+  let frameCount = 0;
 
   const scene = new THREE.Scene();
   const sky = new THREE.Color('#d6e6ee');
@@ -581,24 +754,8 @@ export function createPlastico({ canvas, labels, onSelect }: PlasticoOptions): P
     lotGroups[id] = { root, looks: {}, current: null, frame: lotFrame(quad) };
   }
   const buildLook = (id: string, look: LotLook): THREE.Group => {
-    const entry = lotGroups[id]!;
-    const rnd = rngFor(`${id}:${look}`);
-    const list: Animated[] = [];
-    const frame = entry.frame;
-    const group =
-      look === 'fermo'
-        ? buildFermo(frame, byLot[id] ?? [], rnd)
-        : look === 'lavori'
-          ? buildLavori(frame, rnd, list)
-          : look === 'acciaio'
-            ? buildAcciaio(frame, rnd, list)
-            : look === 'bosco'
-              ? buildBosco(frame, rnd)
-              : look === 'energia'
-                ? buildEnergia(frame, rnd, list)
-                : buildMare(frame, rnd);
+    const { group, animated: list } = buildLotLook(id, lotGroups[id]!.frame.quad, look, byLot[id] ?? []);
     animated[`${id}:${look}`] = list;
-    group.name = `${id}:${look}`;
     return group;
   };
 
@@ -624,12 +781,19 @@ export function createPlastico({ canvas, labels, onSelect }: PlasticoOptions): P
     hit.userData = { kind: 'district', id };
     districtHits.push(hit);
     scene.add(hit);
-    const overlay = new THREE.Mesh(hit.geometry, new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.5, depthWrite: false, side: THREE.DoubleSide }));
+    const overlay = new THREE.Mesh(hit.geometry, new THREE.MeshBasicMaterial({ transparent: true, opacity: LAYER_GROUND_OPACITY, depthWrite: false, side: THREE.DoubleSide }));
     overlay.visible = false;
     overlay.renderOrder = 2;
     overlays[id] = overlay;
     scene.add(overlay);
   }
+
+  // Evidenza della selezione: un nastro blu lungo il contorno, sopra il terreno, che pulsa piano.
+  const highlightMaterial = new THREE.MeshBasicMaterial({ color: '#1f6fd1', transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide });
+  const veilMaterial = new THREE.MeshBasicMaterial({ color: '#1f6fd1', transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide });
+  let highlight: THREE.Group | null = null;
+  let selectedId: string | null = null;
+  const outlineOf = (id: string): Pt[] | undefined => geo.lotti[id] ?? districtOutline(id as DistrictId);
 
   // Camera: dall'alto, da sud-est, sullo stabilimento e sui Tamburi.
   const camera = new THREE.PerspectiveCamera(32, 1, 150, 30000);
@@ -717,16 +881,22 @@ export function createPlastico({ canvas, labels, onSelect }: PlasticoOptions): P
     raf = requestAnimationFrame(loop);
     const t = clock.getElapsedTime();
     controls.update();
+    let moving = false;
     for (const [key, list] of Object.entries(animated)) {
       const [id, look] = key.split(':');
       if (lotGroups[id!]?.current !== look) continue;
       for (const a of list) a.update(t);
+      moving = moving || list.length > 0;
     }
+    // Con parti in movimento (pale, gru, fumo) le ombre si aggiornano ogni 12 immagini.
+    frameCount += 1;
+    if (moving && frameCount % 12 === 0) renderer.shadowMap.needsUpdate = true;
     for (const l of layerLabels) {
       const p = project(l.point);
       l.el.style.display = p === null ? 'none' : '';
       if (p !== null) l.el.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -50%)`;
     }
+    if (highlight !== null) highlightMaterial.opacity = 0.7 + 0.3 * Math.sin(t * 3);
     composer.render();
     const now = performance.now();
     frameTimes.push(now);
@@ -755,6 +925,7 @@ export function createPlastico({ canvas, labels, onSelect }: PlasticoOptions): P
         for (const other of LOT_LOOKS) if (entry.looks[other] !== undefined) entry.looks[other]!.visible = other === look;
         if (group.parent === null) entry.root.add(group);
         entry.current = look;
+        renderer.shadowMap.needsUpdate = true;
       }
     },
     setLayer(layer) {
@@ -767,14 +938,14 @@ export function createPlastico({ canvas, labels, onSelect }: PlasticoOptions): P
         const target = t === 0 ? null : tint[t - 1];
         if (target === null || target === undefined) {
           // A strato acceso, ciò che sta fuori dai quartieri si attenua.
-          const fade = layer === null ? 1 : 0.92;
+          const fade = layer === null ? 1 : LAYER_FADE_OUTSIDE;
           array[k] = baseColors[k]! * fade;
           array[k + 1] = baseColors[k + 1]! * fade;
           array[k + 2] = baseColors[k + 2]! * fade;
         } else {
-          array[k] = baseColors[k]! * 0.25 + target.r * 0.75;
-          array[k + 1] = baseColors[k + 1]! * 0.25 + target.g * 0.75;
-          array[k + 2] = baseColors[k + 2]! * 0.25 + target.b * 0.75;
+          array[k] = baseColors[k]! * (1 - LAYER_TINT) + target.r * LAYER_TINT;
+          array[k + 1] = baseColors[k + 1]! * (1 - LAYER_TINT) + target.g * LAYER_TINT;
+          array[k + 2] = baseColors[k + 2]! * (1 - LAYER_TINT) + target.b * LAYER_TINT;
         }
       }
       colors.needsUpdate = true;
@@ -812,6 +983,58 @@ export function createPlastico({ canvas, labels, onSelect }: PlasticoOptions): P
       const offset = camera.position.clone().sub(controls.target).setLength(distance);
       controls.target.copy(point);
       camera.position.copy(point).add(offset);
+      controls.update();
+    },
+    setSelected(id) {
+      if (highlight !== null) {
+        scene.remove(highlight);
+        highlight.traverse((o) => (o as THREE.Mesh).geometry?.dispose());
+        highlight = null;
+      }
+      selectedId = id;
+      const outline = id === null ? undefined : outlineOf(id);
+      if (outline === undefined) return;
+      // Un nastro lungo il contorno e un velo leggero sulla superficie: si vede anche da vicino, quando il bordo esce dallo schermo.
+      const border = new Builder();
+      border.ribbon([...outline, outline[0]!], geo.lotti[id!] !== undefined ? 26 : 30, 8, c('#1f6fd1'));
+      const veil = new Builder();
+      veil.flat(outline, 6, c('#1f6fd1'));
+      const borderMesh = new THREE.Mesh(border.build(), highlightMaterial);
+      const veilMesh = new THREE.Mesh(veil.build(), veilMaterial);
+      borderMesh.renderOrder = 6;
+      veilMesh.renderOrder = 5;
+      highlight = new THREE.Group();
+      highlight.add(veilMesh, borderMesh);
+      highlight.name = 'evidenza';
+      scene.add(highlight);
+    },
+    selected() {
+      return selectedId;
+    },
+    frameIn(id, area) {
+      const point = centerOf(id);
+      if (point === null) return;
+      point.y = 0;
+      const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+      const groundAt = (x: number, y: number): THREE.Vector3 | null => {
+        const ndc = new THREE.Vector2((x / canvas.clientWidth) * 2 - 1, -(y / canvas.clientHeight) * 2 + 1);
+        raycaster.setFromCamera(ndc, camera);
+        return raycaster.ray.intersectPlane(ground, new THREE.Vector3());
+      };
+      const wanted = { x: (area.left + area.right) / 2, y: (area.top + area.bottom) / 2 };
+      // Prospettiva: tre passi bastano perché l'oggetto arrivi a pochi pixel dal punto voluto.
+      for (let i = 0; i < 3; i++) {
+        camera.updateMatrixWorld();
+        const now = project(point);
+        if (now === null) break;
+        const from = groundAt(now.x, now.y);
+        const to = groundAt(wanted.x, wanted.y);
+        if (from === null || to === null) break;
+        const shift = from.sub(to);
+        shift.y = 0;
+        controls.target.add(shift);
+        camera.position.add(shift);
+      }
       controls.update();
     },
     fps() {

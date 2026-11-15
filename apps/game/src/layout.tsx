@@ -76,7 +76,7 @@ export function MapStage({
     <div className="map-stage" data-tour="mappa" data-testid="mappa-palco">
       {mode === 'plastico' ? (
         <Suspense fallback={<p className="plastico-loading">Preparo il plastico…</p>}>
-          <Plastico state={state} layer={layer} onSelect={onSelect} onFallback={onFallback} />
+          <Plastico state={state} layer={layer} selected={selected} onSelect={onSelect} onFallback={onFallback} />
         </Suspense>
       ) : (
         <div className="schematic">

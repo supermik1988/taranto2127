@@ -33,6 +33,31 @@ pezzo di Mar Grande, del porto, della Città Vecchia e del Borgo.
   stessa altezza e stessi colori a ogni avvio, niente `Math.random`. Dove OpenStreetMap
   ha l'altezza o i piani, vale quella. Altezze tipiche: palazzine dei Tamburi 12-22 m,
   case piccole 5-9 m, capannoni 9-23 m. Esagerazione verticale 2,4, come nei plastici.
+- **Fondo dei lotti alla quota del terreno** (dopo la revisione, decisione di Michele:
+  niente piastre rialzate e squadrate). Il fondo di ogni lotto sta alla stessa quota del
+  terreno dello stabilimento (`TERRAIN_Y` = 0,4 m) e ha spessore zero: si vede sopra il
+  terreno solo per l'ordine di disegno (`polygonOffset`), non per l'altezza. Il bordo è
+  irregolare e sfumato in due passi: una fascia di raccordo, con il colore a metà tra
+  quello del lotto e quello dello stabilimento e un bordo che rientra fino a 18 m, sotto
+  un fondo pieno che rientra tra 22 e 55 m. Gli scarti sono ripetibili (ricavati
+  dall'identificativo del lotto). Strade e binari passano sopra il fondo, come sul
+  terreno vero. Gli edifici del lotto fermo partono da terra. Il lotto resta toccabile
+  perché la superficie invisibile del tocco copre l'intero quadrilatero.
+- **Mare e cultura senza vasca** (dopo la revisione). Nessuno specchio d'acqua finto. Il
+  codice controlla quali lati del lotto danno sull'acqua vera di OpenStreetMap
+  (`waterSides`: sette punti 12 m fuori dal lato, conta se la maggioranza cade
+  nell'acqua). Su quei lati: banchina aperta, bitte e barche ormeggiate appena fuori, sul
+  canale vero. Al centro di ogni lotto: una piazza chiara, sei edifici pubblici colorati,
+  viali alberati. Oggi tocca l'acqua solo il lotto delle **Banchine**, spostato sulla riva
+  nord-ovest del canale dello stabilimento (largo circa 20 m, porta al Mar Grande); gli
+  altri cinque lotti sono interni.
+- **Si vede che cosa hai toccato** (dopo la revisione, decisione dell'architetto). Il
+  lotto o il quartiere aperto in una finestra resta evidenziato da un nastro blu
+  (`#1f6fd1`) lungo il contorno, che pulsa piano. Quando la finestra si è disposta, la
+  camera si sposta, senza cambiare distanza né rotazione, perché il centro dell'oggetto
+  cada al centro della parte di schermo libera: sopra la finestra che sale dal basso sul
+  telefono, a sinistra di quella laterale sullo schermo largo, sempre sotto la barra in
+  alto (`frameIn`, tre passi per correggere la prospettiva).
 - **Aspetto dei lotti** letto dallo stato del motore (regola 1) in `plastico/looks.ts`:
   cantiere se un progetto del lotto è nella fase dei lavori; l'aspetto della strada
   quando il progetto è in esercizio; bosco giovane se il lotto è stato bonificato e poi
@@ -40,7 +65,7 @@ pezzo di Mar Grande, del porto, della Città Vecchia e del Borgo.
   terreno non si vede ancora nulla). Ogni aspetto si costruisce la prima volta che
   serve.
 - **Luce e ombre.** Cielo diffuso (luce emisferica) e sole da sud-est con ombre morbide
-  (mappa d'ombra 4096 px sull'intera zona). Base del plastico come una lastra su un
+  (mappa d'ombra 4096 px sull'intera zona, ridisegnata solo quando serve). Base del plastico come una lastra su un
   tavolo, nebbia leggera in lontananza.
 - **Camera.** Si sposta con un dito o con il mouse, ingrandisce con due dita o con la
   rotella (verso il punto indicato), ruota con due dita o con il tasto destro. Limiti:
@@ -52,6 +77,20 @@ pezzo di Mar Grande, del porto, della Città Vecchia e del Borgo.
   e stende sul terreno il colore dell'indicatore scelto (aria, salute, fiducia,
   tensione), con un'etichetta che porta nome e valore. I colori sono quelli della mappa
   schematica (`indicatorColor`), quindi la legenda è una sola.
+  - *Dopo la revisione (decisione di Michele: «più deciso sul telefono»).* Gli edifici
+    prendono il 90% del colore della legenda (prima il 75%): la forma resta leggibile
+    perché pareti e tetti sono illuminati diversamente. Il terreno del quartiere si
+    copre al 90% (prima 50%); fuori dai quartieri tutto si attenua all'80% (prima 92%).
+  - La causa vera della tinta debole era la legenda: il colore di metà scala era un
+    crema (`#efe6cf`) quasi uguale al terreno (`#e8dcc0`), e i Tamburi, con l'aria
+    intorno a 35, cadevano proprio lì. La scala diventa arancio scuro `#be5c26` (male),
+    giallo caldo `#eec45c` (metà), verde acqua `#348874` (bene). Vale anche per la mappa
+    schematica, che usa la stessa funzione.
+  - Misura (`verifica.ts`, `layerContrast`): differenza media di colore tra strato
+    spento e acceso sugli stessi pixel dei Tamburi a 390 px, con la stessa camera e
+    senza etichette, su una scala da 0 a 255. In `556dc09`: **18,77**. Ora: **46,71**.
+    Soglia dichiarata: **40**, più del doppio del valore di partenza; la verifica fallisce
+    sotto la soglia o sotto il doppio.
 - **Riserva.** Senza WebGL, o se dopo 5,5 secondi il plastico disegna meno di 20
   immagini al secondo, il gioco passa alla mappa schematica e lo dice. La si sceglie
   anche a mano (pannello Strati, ricordata nel browser) o con `?mappa=schematica`
@@ -90,7 +129,10 @@ pezzo di Mar Grande, del porto, della Città Vecchia e del Borgo.
 | Capannoni (pareti, tetti) | `#bcb6ac`, `#a9a49c`, `#cbc4b8`; `#8f9ba4`, `#9e9186`, `#b0aba2` |
 | Edifici pubblici | `#f3d8a4`, `#efc994`; tetto `#c46a4f` |
 | Ruggine (stabilimento fermo) | pareti `#8f7b69`, `#7d6f65`, `#9c8774`, `#86705e`; tetti `#8a4b2c`, `#9c5a35`, `#6f5a49`, `#7d4630` |
-| Terreno dei lotti: fermo, cantiere, acciaio, bosco, energia, mare | `#a59683`, `#c7a77c`, `#cfcbc3`, `#8cc46a`, `#b8d48c`, `#e6dcc6` |
+| Terreno dei lotti: fermo, cantiere, acciaio, bosco, energia, mare | `#a59683`, `#c7a77c`, `#cfcbc3`, `#8cc46a`, `#b8d48c`, `#e6dcc6` (fascia di raccordo: a metà con `#c8b79f`) |
+| Piazza di «mare e cultura» | `#f3ead6` |
+| Evidenza della selezione | `#1f6fd1` |
+| Legenda e strati (male, metà, bene) | `#be5c26`, `#eec45c`, `#348874` |
 | Cielo | `#d6e6ee` |
 
 ## Modelli: origine e licenza
@@ -107,7 +149,7 @@ altri giochi.
 | Acciaio con forni nuovi | Otto capannoni bianchi con tetti azzurri, edifici di servizio, camion, un solo camino bianco e rosso con poco fumo | Codice |
 | Bosco giovane | Prato e circa 300 alberelli di altezze e verdi diversi, con un sentiero libero | Codice |
 | Energia | Sei pale eoliche che girano e file di pannelli solari | Codice |
-| Mare e cultura | Pavimentazione chiara, una darsena aperta con banchine e barche, cinque edifici pubblici colorati, una passeggiata alberata | Codice |
+| Mare e cultura | Pavimentazione chiara, una piazza, sei edifici pubblici colorati, viali alberati; sui lati che danno sull'acqua vera, banchina aperta con bitte e barche ormeggiate fuori dal lotto. Nessuna acqua finta | Codice |
 
 ## Prestazioni
 
@@ -128,6 +170,20 @@ su un telefono vero la farà Michele.
 Immagini al secondo. Le due esecuzioni a 390 px differiscono di qualche immagine: la
 misura dipende dal carico del computer in quel momento. Il gioco passa da solo alla
 mappa schematica sotto 20 immagini al secondo.
+
+**Dopo la revisione.** In una nuova esecuzione il minimo a 390 px è sceso a 29. Misurata
+nello stesso momento, anche `556dc09` dava gli stessi numeri (media 31,5-33,9, minima
+29,0-32,1): era il computer, più carico, non il codice nuovo. Per avere margine, la
+mappa d'ombra non si ridisegna più a ogni immagine: si ridisegna quando cambia l'aspetto
+di un lotto e, se ci sono parti in movimento (pale, gru, fumo), ogni 12 immagini. Le
+ombre degli edifici non cambiano quando la camera si muove, perché il sole è fermo.
+
+| Prova, stesso computer e stesso momento | Media | Minima |
+| --- | ---: | ---: |
+| `556dc09`, 390 px, processore rallentato 4×, quattro esecuzioni | 31,5-33,9 | 29,0-32,1 |
+| Dopo la revisione, ombre ridisegnate solo quando serve, quattro esecuzioni | 44,2-46,1 | 39,4-41,2 |
+
+`verifica.ts --prestazioni` ripete la misura a 390 px quattro volte.
 
 ## Pesi
 

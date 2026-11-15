@@ -21,9 +21,9 @@ export const INDICATOR_LABELS: Record<MapIndicator, string> = {
 export function indicatorColor(value: number, indicator: MapIndicator): string {
   const good = indicator === 'tension' ? 100 - value : value;
   const t = Math.max(0, Math.min(1, good / 100));
-  const bad = [201, 139, 74];
-  const mid = [239, 230, 207];
-  const ok = [79, 143, 127];
+  const bad = [190, 92, 38];
+  const mid = [238, 196, 92];
+  const ok = [52, 136, 116];
   const mix = (a: number[], b: number[], k: number) => a.map((x, i) => Math.round(x + (b[i]! - x) * k));
   const [r, g, b] = t < 0.5 ? mix(bad, mid, t * 2) : mix(mid, ok, (t - 0.5) * 2);
   return `rgb(${r}, ${g}, ${b})`;

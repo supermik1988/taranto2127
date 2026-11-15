@@ -1,11 +1,12 @@
 /** T11: il plastico senza scheda grafica — geografia, lotti, aspetti, strato, scelta della mappa. */
 import { DISTRICT_IDS, type GameState } from '@taranto2127/sim';
 import { readFileSync } from 'node:fs';
+import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { act, closeYear, content, newGame } from '../engine.js';
 import { chooseMapMode } from '../layout.js';
 import { indicatorColor } from '../map.js';
-import { buildingColors, buildingHeight, centroid, districtAt, geo, lotOf, pointInPolygon, polygonArea, type Pt } from './data.js';
+import { PALETTE, buildingColors, buildingHeight, centroid, districtAt, geo, lotOf, pointInPolygon, polygonArea, type Pt } from './data.js';
 import { LOT_LOOKS, layerValues, lotLook } from './looks.js';
 
 const lotti = JSON.parse(readFileSync(new URL('../../../../packages/content/geo/lotti.json', import.meta.url), 'utf8')) as {
@@ -152,5 +153,52 @@ describe('quale mappa', () => {
     expect(chooseMapMode('', 'schematica', true)).toBe('schematica');
     expect(chooseMapMode('', null, true)).toBe('plastico');
     expect(chooseMapMode('', null, false)).toBe('schematica');
+  });
+});
+
+describe('lotti sul plastico (correzioni dopo la revisione)', () => {
+  // La scena si costruisce anche senza scheda grafica: geometrie e materiali sono solo dati.
+  const lots = Object.entries(geo.lotti);
+
+  it('nessun lotto ha il fondo sopra la quota del terreno, in nessun aspetto', async () => {
+    const { buildLotLook, TERRAIN_Y } = await import('./scene.js');
+    for (const [id, quad] of lots) {
+      for (const look of LOT_LOOKS) {
+        const { group } = buildLotLook(id, quad, look);
+        const grounds: THREE.Mesh[] = [];
+        group.traverse((o) => {
+          if (o.name === 'fondo-lotto') grounds.push(o as THREE.Mesh);
+        });
+        expect(grounds.length, `${id}:${look}`).toBeGreaterThan(0);
+        for (const g of grounds) {
+          g.geometry.computeBoundingBox();
+          // Tolleranza: le geometrie sono in virgola mobile a 32 bit.
+          expect(g.geometry.boundingBox!.max.y, `${id}:${look}`).toBeLessThanOrEqual(TERRAIN_Y + 1e-6);
+        }
+      }
+    }
+  });
+
+  it('«mare e cultura» non mette superfici d’acqua dentro i lotti', async () => {
+    const { buildLotLook } = await import('./scene.js');
+    const sea = new THREE.Color(PALETTE.mare);
+    const isSea = (r: number, g: number, b: number) => Math.abs(r - sea.r) + Math.abs(g - sea.g) + Math.abs(b - sea.b) < 0.02;
+    for (const [id, quad] of lots) {
+      const { group } = buildLotLook(id, quad, 'mare');
+      group.traverse((o) => {
+        if (!(o instanceof THREE.Mesh)) return;
+        expect(o.name, id).not.toBe('acqua');
+        const material = o.material as THREE.MeshLambertMaterial;
+        if (material.color !== undefined && !material.vertexColors) expect(isSea(material.color.r, material.color.g, material.color.b), `${id}: materiale color mare`).toBe(false);
+        const colors = o.geometry.getAttribute('color');
+        if (colors !== undefined) for (let i = 0; i < colors.count; i++) expect(isSea(colors.getX(i), colors.getY(i), colors.getZ(i)), `${id}: vertice color mare`).toBe(false);
+      });
+    }
+  });
+
+  it('il lotto delle banchine tocca l’acqua vera del canale; gli altri sono interni', async () => {
+    const { waterSides } = await import('./scene.js');
+    const touching = lots.filter(([, quad]) => waterSides(quad).length > 0).map(([id]) => id);
+    expect(touching).toEqual(['lotto-banchine']);
   });
 });

@@ -29,12 +29,16 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium, type Browser, type Page } from 'playwright-core';
 
-const appDir = join(dirname(fileURLToPath(import.meta.url)), '..');
+// VERIFICA_APP permette di misurare un'altra copia del gioco (per esempio una versione precedente, per confronto).
+const appDir = process.env['VERIFICA_APP'] ?? join(dirname(fileURLToPath(import.meta.url)), '..');
 const shotsDir = join(appDir, '..', '..', 'docs', 'schermate');
 const PORT = 4173;
 const BASE = `http://localhost:${PORT}/`;
 const SEED = 7;
 const problems: string[] = [];
+/** Contrasto dello strato dell'aria sui Tamburi a 390 px in 556dc09, misurato con layerContrast; la soglia è più del doppio. */
+const OLD_LAYER_CONTRAST = 18.77;
+const LAYER_CONTRAST_THRESHOLD = 40;
 const stopsSeen = new Set<string>();
 const measures: string[] = [];
 let multiStops = 0;
@@ -200,12 +204,23 @@ async function waitForModel(page: Page): Promise<void> {
   await page.waitForTimeout(800);
 }
 
-/** Tocca sul plastico il centro di un lotto o di un quartiere, come farebbe un dito. */
+/**
+ * Tocca sul plastico il centro di un lotto o di un quartiere, come farebbe un dito.
+ * Prima del tocco l'oggetto sta dove la finestra lo coprirà (in basso sul telefono,
+ * a destra sullo schermo largo): così si vede se la camera lo riporta in vista.
+ */
 async function tapOnModel(page: Page, id: string): Promise<void> {
   // Una finestra aperta ha il suo sfondo sopra la mappa: un tocco lì la chiuderebbe soltanto.
   if (await visible(page, 'finestra-chiudi')) await click(page, 'finestra-chiudi');
   await page.evaluate((target) => window.taranto2127Plastico!.focus(target, 2600), id);
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(400);
+  await page.evaluate((target) => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const area = w < 900 ? { left: w * 0.1, top: h * 0.74, right: w * 0.6, bottom: h * 0.84 } : { left: w * 0.6, top: h * 0.45, right: w * 0.85, bottom: h * 0.6 };
+    window.taranto2127Plastico!.frameIn(target, area);
+  }, id);
+  await page.waitForTimeout(500);
   const point = await page.evaluate((target) => window.taranto2127Plastico!.screenPosition(target), id);
   const canvas = await page.locator(sel('mappa-3d')).boundingBox();
   if (point === null || canvas === null) {
@@ -213,6 +228,31 @@ async function tapOnModel(page: Page, id: string): Promise<void> {
     return;
   }
   await page.mouse.click(canvas.x + point.x, canvas.y + point.y);
+}
+
+/**
+ * Il lotto o il quartiere aperto in una finestra è evidenziato e sta nella parte
+ * di schermo libera: sotto la barra in alto, sopra la finestra che sale dal basso
+ * (telefono) o a sinistra di quella laterale (schermo largo).
+ */
+async function checkSelectionFraming(page: Page, id: string, width: number): Promise<void> {
+  await page.waitForTimeout(900);
+  const selected = await page.evaluate(() => window.taranto2127Plastico?.selected() ?? null);
+  if (selected !== id) fail(`a ${width} px aprendo ${id} sul plastico è evidenziato ${String(selected)}`);
+  const point = await page.evaluate((target) => window.taranto2127Plastico!.screenPosition(target), id);
+  const canvas = await page.locator(sel('mappa-3d')).boundingBox();
+  const win = await page.locator('.map-window').boundingBox();
+  const hud = await page.locator('.hud-top').boundingBox();
+  if (point === null || canvas === null || win === null || hud === null) {
+    fail(`a ${width} px non riesco a controllare dove sta ${id}`);
+    return;
+  }
+  const x = canvas.x + point.x;
+  const y = canvas.y + point.y;
+  const top = hud.y + hud.height;
+  const sheet = win.x <= 1;
+  const ok = sheet ? y > top && y < win.y : x < win.x && y > top;
+  if (!ok) fail(`a ${width} px ${id} aperto in una finestra resta coperto (${Math.round(x)}, ${Math.round(y)}; finestra da ${Math.round(sheet ? win.y : win.x)})`);
 }
 
 /** Lo strato dell'aria colora i quartieri del plastico con il loro valore. */
@@ -284,7 +324,10 @@ async function playAt(width: number, browser: Browser, mode: 'completa' | 'salta
   // Toccare un quartiere sul plastico apre la sua finestra; un tocco fuori la chiude.
   await tapOnModel(page, 'tamburi');
   if (!(await visible(page, 'finestra-quartiere'))) fail(`a ${width} px toccare i Tamburi sul plastico non apre la loro finestra`);
-  else await shot('quartiere', false);
+  else {
+    await checkSelectionFraming(page, 'tamburi', width);
+    await shot('quartiere', false);
+  }
   await closeOutside(page);
   await click(page, 'termine-coscienza');
   await page.waitForSelector(sel('spiegazione'));
@@ -305,6 +348,7 @@ async function playAt(width: number, browser: Browser, mode: 'completa' | 'salta
       await openPanel(page, 'elenco');
       await click(page, `elenco-lotto-${lot}`);
     }
+    await checkSelectionFraming(page, lot, width);
     if (lot === 'lotto-parchi-minerali') await shot('lotto-finestra', false);
     await page.locator(`${sel('finestra-lotto')} button`, { hasText: path }).first().click();
     await click(page, 'conferma-si');
@@ -485,6 +529,52 @@ async function check360(browser: Browser): Promise<void> {
   await context.close();
 }
 
+/**
+ * Contrasto dello strato dell'aria sui Tamburi a 390 px: differenza media di
+ * colore (0-255, media dei tre canali) tra strato spento e acceso, sugli stessi
+ * pixel con la stessa camera, senza le etichette.
+ */
+async function layerContrast(browser: Browser): Promise<number> {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  await context.addInitScript(() => localStorage.setItem('taranto2127:visita-fatta', 'si'));
+  const page = await context.newPage();
+  await page.goto(`${BASE}?seme=${SEED}`);
+  await waitForModel(page);
+  if (await visible(page, 'avviso')) await page.locator(`${sel('avviso')} button`).click();
+  await page.addStyleTag({ content: '.plastico-labels { display: none !important; }' });
+  await page.evaluate(() => window.taranto2127Plastico!.focus('tamburi', 2600));
+  await page.waitForTimeout(1500);
+  const point = (await page.evaluate(() => window.taranto2127Plastico!.screenPosition('tamburi')))!;
+  const clip = { x: Math.max(0, point.x - 80), y: Math.max(0, point.y - 50), width: 160, height: 100 };
+  const off = (await page.screenshot({ clip })).toString('base64');
+  await click(page, 'scheda-strati');
+  await click(page, 'strato-airQuality');
+  await page.mouse.click(6, 6);
+  await page.waitForTimeout(800);
+  const on = (await page.screenshot({ clip })).toString('base64');
+  // Funzioni anonime: il compilatore aggiunge aiuti alle funzioni con nome, che nel browser non esistono.
+  const diff = await page.evaluate(async (images) => {
+    const [pa, pb] = await Promise.all(
+      images.map(async (b64) => {
+        const img = new Image();
+        img.src = `data:image/png;base64,${b64}`;
+        await img.decode();
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0);
+        return ctx.getImageData(0, 0, img.width, img.height).data;
+      }),
+    );
+    let sum = 0;
+    for (let i = 0; i < pa!.length; i += 4) sum += (Math.abs(pa![i]! - pb![i]!) + Math.abs(pa![i + 1]! - pb![i + 1]!) + Math.abs(pa![i + 2]! - pb![i + 2]!)) / 3;
+    return sum / (pa!.length / 4);
+  }, [off, on]);
+  await context.close();
+  return diff;
+}
+
 /** Controlli rapidi del plastico (`--rapida`): tocco su quartiere e lotto, strato dell'aria. Servono alle prove inverse. */
 async function quickModelChecks(browser: Browser): Promise<void> {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
@@ -510,11 +600,25 @@ async function quickModelChecks(browser: Browser): Promise<void> {
   await noHorizontalScroll(small, 'mappa');
   await openPanel(small, 'strati');
   await noHorizontalScroll(small, 'strati');
+  await click(small, 'finestra-chiudi');
+  await tapOnModel(small, 'lotto-cokerie');
+  if (!(await visible(small, 'finestra-lotto'))) fail('a 360 px toccare un lotto non apre la sua finestra');
+  else await checkSelectionFraming(small, 'lotto-cokerie', 360);
   await narrow.close();
+  await checkLayerContrast(browser);
+}
+
+async function checkLayerContrast(browser: Browser): Promise<void> {
+  const contrast = await layerContrast(browser);
+  measures.push(`contrasto dello strato dell'aria sui Tamburi a 390 px: ${contrast.toFixed(2)} (soglia ${LAYER_CONTRAST_THRESHOLD}; in 556dc09 ${OLD_LAYER_CONTRAST})`);
+  if (contrast < LAYER_CONTRAST_THRESHOLD || contrast < 2 * OLD_LAYER_CONTRAST) {
+    fail(`lo strato dell'aria a 390 px cambia i Tamburi di ${contrast.toFixed(2)}: sotto la soglia di ${LAYER_CONTRAST_THRESHOLD} o sotto il doppio di ${OLD_LAYER_CONTRAST}`);
+  }
 }
 
 async function main(): Promise<void> {
   const quick = process.argv.includes('--rapida');
+  const onlyContrast = process.argv.includes('--misura-strato');
   mkdirSync(shotsDir, { recursive: true });
   execSync('npx vite build', { cwd: appDir, stdio: 'inherit' });
   const server = spawn(`npx vite preview --port ${PORT} --strictPort`, { cwd: appDir, shell: true, stdio: 'ignore' });
@@ -523,11 +627,23 @@ async function main(): Promise<void> {
     const channel = process.env['BROWSER'] === 'chrome' ? 'chrome' : 'msedge';
     const browser = await chromium.launch({ channel });
     try {
+      if (process.argv.includes('--prestazioni')) {
+        for (let i = 0; i < 4; i++) await measure(browser, 390, 4);
+        for (const line of measures) console.log(line);
+        await browser.close();
+        return;
+      }
+      if (onlyContrast) {
+        console.log(`Contrasto dello strato dell'aria sui Tamburi a 390 px: ${(await layerContrast(browser)).toFixed(2)}`);
+        await browser.close();
+        return;
+      }
       if (quick) {
         await quickModelChecks(browser);
       } else {
         await measure(browser, 390, 4);
         await measure(browser, 1280, 1);
+        await checkLayerContrast(browser);
         await playAt(390, browser, 'completa');
         await playAt(1280, browser, 'salta');
         await playSchematic(browser);
@@ -540,12 +656,13 @@ async function main(): Promise<void> {
     if (process.platform === 'win32' && server.pid !== undefined) execSync(`taskkill /pid ${server.pid} /T /F`, { stdio: 'ignore' });
     else server.kill();
   }
-  console.log('\nImmagini al secondo del plastico:');
+  console.log('\nMisure del plastico:');
   for (const line of measures) console.log(`  ${line}`);
   if (!quick && multiStops === 0) fail('nessuna fermata con più motivi: «e altri N» non verificato');
   console.log(`\nFermate con più motivi aperte al tocco: ${multiStops}.`);
   console.log(`\nFermate del tempo viste (${stopsSeen.size} tipi di riga):`);
   for (const line of [...stopsSeen].sort()) console.log(`  ${line}`);
+  if (quick) for (const line of measures) console.log(line);
   if (problems.length > 0) {
     console.error(`\nVerifica fallita: ${problems.length} problemi.`);
     process.exit(1);
