@@ -559,3 +559,45 @@ elencati. Ordine: T01, poi T02, poi T03 e T05a in parallelo, poi T04, poi T06.
   sua finestra; lo strato dell'aria colora la zona con il valore corretto; nessun errore
   in console; schermate a 390 e 1280 px in `docs/schermate/`, compresa una per ogni
   stato di lotto; il resto del gioco continua a funzionare.
+
+### Integrazioni dell'architetto (15 novembre 2026)
+
+- **Scelte tecniche (decise dall'architetto).**
+  - Motore 3D: `three` (licenza MIT), con versione esatta in `package.json`, senza
+    altri strati sopra (niente react-three-fiber). Nuove dipendenze solo con licenza
+    compatibile con AGPL, annotate in `docs/FONTI.md`.
+  - Il codice 3D e `plastico.json` si caricano **solo** quando si mostra il plastico
+    (caricamento separato). Così la prima schermata non diventa più lenta e la mappa
+    schematica di riserva funziona anche senza il 3D.
+  - Colori e altezze «ripetibili» vuol dire ricavati dall'identificativo della sagoma
+    con una funzione fissa: niente `Math.random`, nemmeno nell'interfaccia.
+  - Le posizioni dei sei lotti stanno in `packages/content/geo/`, ciascuna con la nota
+    `stima` e la motivazione (regole 4 e 7). Lo stato del lotto lo legge l'interfaccia
+    dal motore (regola 1). `packages/sim` e `state.ts` **non** si toccano.
+  - L'attribuzione OpenStreetMap si vede anche nel gioco, in un angolo della mappa:
+    la licenza ODbL la richiede dove la mappa viene mostrata, non solo nei documenti.
+- **Correzione ereditata da T10.** La riga delle fermate oggi si legge «… «titolo».
+  e altri 2», con un punto di troppo prima di «e». Va sistemata nella nuova disposizione.
+- **Fatto quando, in aggiunta:**
+  - forzando la mappa schematica (ad esempio con un parametro nell'indirizzo) il gioco
+    funziona da capo a fondo: c'è un test;
+  - prestazioni: misura con il browser automatico a 390 px e processore rallentato di
+    4 volte, come stand-in del telefono di fascia media, dichiarata come tale in
+    `docs/GRAFICA.md`; la prova su un telefono vero la farà Michele;
+  - la visita guidata funziona nella nuova disposizione e indica gli elementi giusti;
+  - a 360 px nessuno scorrimento orizzontale; `apps/game/scripts/verifica.ts` passa;
+  - `pnpm test` resta sotto il minuto; `pnpm test:lungo` resta verde;
+  - nel resoconto: peso del file dei dati e del codice 3D (normale e compresso).
+- **Regole per l'esecutore (dal metodo, valgono sempre):**
+  - ogni criterio «Fatto quando» ha un test, e per ciascuno la prova inversa: un
+    errore introdotto apposta deve far cadere un test;
+  - invio a GitHub del **solo ramo `task/T11-plastico`**, dopo il verde su un clone
+    pulito;
+  - **l'esecutore non unisce a `main` e non invia `main`.** L'unione la fa
+    l'architetto dopo la revisione (in T10 è successo il contrario: non ripeterlo);
+  - non cambiare ramo né salvare commit sui file dell'architetto (`docs/ARCHITETTO.md`,
+    `docs/DECISIONI.md`): la cartella è condivisa;
+  - resoconto finale in tre parti: cosa ho fatto, cosa ho verificato, cosa resta
+    aperto (comprese le scelte da confermare).
+- **Prima dell'approvazione** l'architetto mostra le schermate a Michele: sull'aspetto
+  il giudizio è suo.

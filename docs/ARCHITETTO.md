@@ -150,11 +150,17 @@ Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 | --- | --- | --- |
 | T01-T08 | Motore completo, contenuti con stime, bilanciamento, partita dal terminale | In `main` |
 | T09, T09b | Prototipo web: mappa schematica, grafici, spiegazioni, cantieri, Consiglio, Cronaca, dilemmi, finale, pubblicazione | In `main` |
-| T10 | Tempo che scorre e si ferma da solo, niente limite di azioni, visita guidata, bilancio, grafici per telefono, 24 dilemmi, menu della partita | Ramo `task/T10-esperienza`, approvato con due correzioni (sotto) |
-| T11 | Plastico 3D di una zona e nuova disposizione | Da avviare dopo l'unione di T10 |
+| T10 | Tempo che scorre e si ferma da solo, niente limite di azioni, visita guidata, bilancio, grafici per telefono, 24 dilemmi, menu della partita | In `main` dal 15 novembre, con le due correzioni; pubblicato |
+| T11 | Plastico 3D di una zona e nuova disposizione | In corso sul ramo `task/T11-plastico` (esecutore); scheda integrata dall'architetto |
 
-Ultimo `main` verificato: `2e5a5c7`. Ultimo commit del ramo T10: `4257058`,
-474 test superati su clone pulito.
+Ultimo `main` verificato: `d184e08`. Su clone pulito: 434 test in `pnpm test`
+(58 s, eslint compreso), 41 in `pnpm test:lungo`; verifica nel browser riuscita;
+procedura «Pubblica il gioco» arrivata in fondo.
+
+Nota sui ruoli: l'esecutore lavora in contemporanea nella stessa cartella.
+L'architetto non cambia ramo lì: rivede su un clone pulito. In T10 l'esecutore ha
+unito e inviato `main` da solo, prima della fine della revisione; la scheda T11
+lo vieta espressamente.
 
 Obiettivi di bilanciamento, su 1.000 partite per bot (arrivo al 2127):
 Blu 40-70%; Red 15-45%; casuale 30-60%; ognuna delle quattro strade 40-80%
@@ -167,7 +173,7 @@ Blu è vicino al limite basso: è il primo numero da ricontrollare.
 
 ## 7. Prossimi passi, in ordine
 
-### 7.1 Chiudere T10
+### 7.1 Chiudere T10 — fatto il 15 novembre 2026 (`main` a `d184e08`)
 
 Due correzioni sullo stesso ramo, poi verde su clone pulito, unione in
 `main`, controllo della pubblicazione:
