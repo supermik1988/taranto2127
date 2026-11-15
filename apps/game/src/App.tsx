@@ -17,7 +17,7 @@ import {
   type StopReason,
 } from '@taranto2127/sim';
 import { fmt } from '@taranto2127/play/describe';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { BudgetView, fundName } from './budget.js';
 import {
   ConfirmSheet,
@@ -49,17 +49,20 @@ import {
   type SavedGame,
 } from './engine.js';
 import { HelpSheet, Term, TipProvider, Tour, fill } from './guide.js';
-import { INDICATOR_LABELS, MapLegend, TarantoMap, type MapIndicator } from './map.js';
+import { LayersPanel, MapList, MapStage, MapWindow, chooseMapMode, readStoredMode, storeMode, webglAvailable, type MapMode } from './layout.js';
+import type { MapIndicator } from './map.js';
 import { GameMenu } from './menu.js';
 
-type Tab = 'mappa' | 'cantieri' | 'bilancio' | 'grafici' | 'consiglio' | 'politiche';
-const TABS: [Tab, string][] = [
-  ['mappa', 'Mappa'],
+/** I pannelli che si aprono dai pulsanti sul lato della mappa. */
+type Panel = 'consiglio' | 'cantieri' | 'bilancio' | 'grafici' | 'politiche' | 'strati' | 'elenco';
+const PANELS: [Panel, string][] = [
+  ['consiglio', 'Consiglio'],
   ['cantieri', 'Cantieri'],
   ['bilancio', 'Bilancio'],
   ['grafici', 'Grafici'],
-  ['consiglio', 'Consiglio'],
   ['politiche', 'Politiche'],
+  ['strati', 'Strati'],
+  ['elenco', 'Elenco'],
 ];
 const PHASE_NAMES: Record<string, string> = {
   design: 'progettazione',
@@ -114,13 +117,14 @@ export function StopLine({ lines }: { lines: string[] }) {
   return (
     <div className="stop" role="status" data-testid="fermata">
       <span>
-        {stopsText['prefisso']} {first}
+        {stopsText['prefisso']} {others.length > 0 && !open ? first?.replace(/\.$/, '') : first}
         {others.length > 0 && !open && (
           <>
             {' '}
             <button type="button" className="term" onClick={() => setOpen(true)} data-testid="fermata-altri">
               e {others.length === 1 ? 'un altro motivo' : `altri ${others.length}`}
             </button>
+            .
           </>
         )}
       </span>
@@ -238,8 +242,9 @@ interface Pending {
 export function App() {
   const [game, setGame] = useState<Game>(() => startingGame(window.location));
   const initial = useMemo(() => newGame(game.state.seed).state, [game.state.seed]);
-  const [tab, setTab] = useState<Tab>('mappa');
-  const [indicator, setIndicator] = useState<MapIndicator>('airQuality');
+  const [panel, setPanel] = useState<Panel | null>(null);
+  const [layer, setLayer] = useState<MapIndicator | null>(null);
+  const [mapMode, setMapMode] = useState<MapMode>(() => chooseMapMode(window.location.search, readStoredMode(), webglAvailable()));
   const [selected, setSelected] = useState<{ kind: 'district' | 'lot'; id: string } | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
   const [cronaca, setCronaca] = useState<{ year: number; headlines: string[] } | null>(null);
@@ -253,6 +258,17 @@ export function App() {
   const [tour, setTour] = useState(() => !tourDone());
   const [help, setHelp] = useState(false);
   const [menu, setMenu] = useState(false);
+
+  // Altezza della barra in alto: pulsanti, finestre e mappa schematica stanno sotto di essa.
+  const hudRef = useRef<HTMLDivElement>(null);
+  const [hudHeight, setHudHeight] = useState(150);
+  useEffect(() => {
+    const el = hudRef.current;
+    if (el === null || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => setHudHeight(Math.ceil(el.getBoundingClientRect().height)));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const state = game.state;
   const ended = state.status !== 'running';
@@ -348,7 +364,7 @@ export function App() {
     setCronaca(null);
     setSelected(null);
     setPending(null);
-    setTab('mappa');
+    setPanel(null);
   };
 
   const load = (saved: SavedGame, message: string) => {
@@ -368,94 +384,120 @@ export function App() {
   const endTour = (completed: boolean) => {
     markTourDone();
     setTour(false);
-    setTab('mappa');
+    setPanel(null);
     setNotice(completed ? 'Buona partita. Il tempo è in pausa: avvialo quando vuoi.' : 'Visita saltata. La riapri quando vuoi dal pulsante «?».');
   };
 
-  // Durante la visita, la sezione giusta deve essere aperta.
-  const onTourStep = useCallback((target: string) => {
-    if (target === 'mappa' || target === 'barra') setTab('mappa');
+  // Durante la visita le finestre si chiudono: si vedono la mappa e i pulsanti indicati.
+  const onTourStep = useCallback(() => {
+    setPanel(null);
+    setSelected(null);
   }, []);
+
+  const openPanel = (p: Panel) => {
+    setSelected(null);
+    setPanel(panel === p ? null : p);
+  };
+  const select = (kind: 'district' | 'lot', id: string) => {
+    setPanel(null);
+    setSelected({ kind, id });
+  };
+  const changeMode = (mode: MapMode) => {
+    storeMode(mode);
+    setMapMode(mode);
+    if (mode === 'schematica' && layer === null) setLayer('airQuality');
+  };
+  const fallback = useCallback((reason: string) => {
+    setMapMode('schematica');
+    setLayer((current) => current ?? 'airQuality');
+    setNotice(`Mappa schematica: ${reason}.`);
+  }, []);
+  const closeWindow = () => {
+    setPanel(null);
+    setSelected(null);
+  };
+  const panelTitle = PANELS.find(([p]) => p === panel)?.[1] ?? '';
 
   const showDilemma = dilemmaOpen && pending === null && !tour;
 
   return (
     <TipProvider>
-      <div className="app">
-        <TopBar state={state} onHelp={() => setHelp(true)} onMenu={() => setMenu(true)} onBudget={() => setTab('bilancio')} />
-        {notice !== null && (
-          <p className="notice" role="status" data-testid="avviso">
-            {notice} <button type="button" onClick={() => setNotice(null)}>Ok</button>
-          </p>
+      <div className={ended ? 'app game ended-game' : 'app game'} style={{ '--hud-h': `${hudHeight}px` } as CSSProperties}>
+        {!ended && (
+          <MapStage
+            mode={mapMode}
+            state={state}
+            layer={mapMode === 'schematica' ? (layer ?? 'airQuality') : layer}
+            selected={selected?.id ?? null}
+            onSelect={select}
+            onFallback={fallback}
+          />
         )}
-        {cronaca !== null && !ended && <CronacaStrip year={cronaca.year} headlines={cronaca.headlines} onOpen={() => setPaperOpen(true)} />}
+        <div className="hud-top" ref={hudRef}>
+          <TopBar state={state} onHelp={() => setHelp(true)} onMenu={() => setMenu(true)} onBudget={() => openPanel('bilancio')} />
+          {notice !== null && (
+            <p className="notice" role="status" data-testid="avviso">
+              {notice} <button type="button" onClick={() => setNotice(null)}>Ok</button>
+            </p>
+          )}
+          {cronaca !== null && !ended && <CronacaStrip year={cronaca.year} headlines={cronaca.headlines} onOpen={() => setPaperOpen(true)} />}
+        </div>
         {ended ? (
-          <main>
+          <main className="ended">
             <Portrait initial={initial} state={state} link={gameLink(state, window.location.href)} onNew={startNew} />
+            <footer className="footer">Seme {state.seed} · TARANTO2127 è un gioco: luoghi reali, persone e aziende inventate.</footer>
           </main>
         ) : (
           <>
-            <nav className="tabs" aria-label="Sezioni">
-              {TABS.map(([t, label]) => (
+            <nav className="rail" aria-label="Pannelli">
+              {PANELS.map(([p, label]) => (
                 <button
-                  key={t}
+                  key={p}
                   type="button"
-                  className={t === tab ? 'tab on' : 'tab'}
-                  aria-current={t === tab}
-                  onClick={() => setTab(t)}
-                  data-testid={`scheda-${t}`}
-                  data-tour={`scheda-${t}`}
+                  className={p === panel ? 'rail-button on' : 'rail-button'}
+                  aria-pressed={p === panel}
+                  onClick={() => openPanel(p)}
+                  data-testid={`scheda-${p}`}
+                  data-tour={`scheda-${p}`}
                 >
                   {label}
                 </button>
               ))}
             </nav>
-            <main className={tab === 'mappa' ? 'layout-map' : ''}>
-              {tab === 'mappa' && (
-                <>
-                  <section className="panel map-panel" data-tour="mappa">
-                    <div className="chips" role="group" aria-label="Indicatore della mappa">
-                      {(Object.keys(INDICATOR_LABELS) as MapIndicator[]).map((ind) => (
-                        <button key={ind} type="button" className={ind === indicator ? 'chip on' : 'chip'} aria-pressed={ind === indicator} onClick={() => setIndicator(ind)}>
-                          {INDICATOR_LABELS[ind]}
-                        </button>
-                      ))}
-                    </div>
-                    <TarantoMap state={state} indicator={indicator} selected={selected?.id ?? null} onSelect={(kind, id) => setSelected({ kind, id })} />
-                    <MapLegend indicator={indicator} />
-                  </section>
-                  <aside className="side">
-                    {selected === null && (
-                      <p className="panel note">
-                        Tocca un quartiere per sapere come sta e perché, o un <Term id="lotto">lotto</Term> di ILSIDER per decidere la sua strada.
-                      </p>
-                    )}
-                    {selected?.kind === 'district' && (
-                      <DistrictCard
-                        key={selected.id}
-                        state={state}
-                        prev={game.prev}
-                        id={selected.id as DistrictId}
-                        initial={indicator}
-                        timeline={game.timeline}
-                        onClose={() => setSelected(null)}
-                      />
-                    )}
-                    {selected?.kind === 'lot' && <LotCard state={state} lotId={selected.id} onRequest={request} onClose={() => setSelected(null)} />}
-                  </aside>
-                </>
-              )}
-              {tab === 'cantieri' && <ProjectsView state={state} prev={game.prev} onRequest={request} />}
-              {tab === 'bilancio' && <BudgetView state={state} prev={game.prev} />}
-              {tab === 'grafici' && <ChartsView timeline={game.timeline} />}
-              {tab === 'consiglio' && <CouncilView state={state} onRequest={request} />}
-              {tab === 'politiche' && <PoliciesView state={state} onRequest={request} />}
-            </main>
+            {panel !== null && (
+              <MapWindow title={panelTitle} onClose={closeWindow} testId={`finestra-${panel}`}>
+                {panel === 'cantieri' && <ProjectsView state={state} prev={game.prev} onRequest={request} />}
+                {panel === 'bilancio' && <BudgetView state={state} prev={game.prev} />}
+                {panel === 'grafici' && <ChartsView timeline={game.timeline} />}
+                {panel === 'consiglio' && <CouncilView state={state} onRequest={request} />}
+                {panel === 'politiche' && <PoliciesView state={state} onRequest={request} />}
+                {panel === 'strati' && <LayersPanel state={state} layer={layer} mode={mapMode} onLayer={setLayer} onMode={changeMode} />}
+                {panel === 'elenco' && <MapList state={state} onSelect={select} />}
+              </MapWindow>
+            )}
+            {selected !== null && (
+              <MapWindow
+                title={selected.kind === 'district' ? (content.texts.districts[selected.id]?.nome ?? '') : `Lotto: ${content.texts.plantLots[selected.id]?.nome ?? ''}`}
+                onClose={closeWindow}
+                testId={selected.kind === 'district' ? 'finestra-quartiere' : 'finestra-lotto'}
+              >
+                {selected.kind === 'district' ? (
+                  <DistrictCard
+                    key={selected.id}
+                    state={state}
+                    prev={game.prev}
+                    id={selected.id as DistrictId}
+                    initial={layer ?? 'airQuality'}
+                    timeline={game.timeline}
+                    onClose={closeWindow}
+                  />
+                ) : (
+                  <LotCard state={state} lotId={selected.id} onRequest={request} onClose={closeWindow} />
+                )}
+              </MapWindow>
+            )}
           </>
         )}
-        <footer className="footer">
-          Seme {state.seed} · TARANTO2127 è un gioco: luoghi reali, persone e aziende inventate.
-        </footer>
         {!ended && (
           <TimeBar
             running={running}

@@ -1,0 +1,221 @@
+{
+  "descrizione": "Posizioni sul plastico dei sei lotti di ILSIDER e contorni dei quartieri che cadono nella zona. Poligoni in gradi [latitudine, longitudine], in senso antiorario. Li legge apps/game/scripts/geo-riduci.ts per produrre plastico.json.",
+  "lotti": {
+    "lotto-parchi-minerali": {
+      "valore": [
+        [
+          40.4927,
+          17.2069
+        ],
+        [
+          40.4927,
+          17.2175
+        ],
+        [
+          40.4986,
+          17.2192
+        ],
+        [
+          40.4986,
+          17.2069
+        ]
+      ],
+      "stima": true,
+      "motivazione": "Posizione approssimata a mano su OpenStreetMap e ortofoto pubbliche: i parchi minerali stanno nell'angolo dello stabilimento a ridosso dei Tamburi."
+    },
+    "lotto-cokerie": {
+      "valore": [
+        [
+          40.4995,
+          17.206
+        ],
+        [
+          40.4995,
+          17.219
+        ],
+        [
+          40.507,
+          17.22
+        ],
+        [
+          40.507,
+          17.207
+        ]
+      ],
+      "stima": true,
+      "motivazione": "Posizione approssimata a mano: le cokerie a nord dei parchi minerali, sempre sul lato verso i Tamburi."
+    },
+    "lotto-altoforni": {
+      "valore": [
+        [
+          40.5005,
+          17.193
+        ],
+        [
+          40.5005,
+          17.2045
+        ],
+        [
+          40.509,
+          17.2055
+        ],
+        [
+          40.509,
+          17.1935
+        ]
+      ],
+      "stima": true,
+      "motivazione": "Posizione approssimata a mano: gli altoforni al centro dello stabilimento."
+    },
+    "lotto-acciaieria": {
+      "valore": [
+        [
+          40.503,
+          17.18
+        ],
+        [
+          40.503,
+          17.1915
+        ],
+        [
+          40.511,
+          17.192
+        ],
+        [
+          40.511,
+          17.1805
+        ]
+      ],
+      "stima": true,
+      "motivazione": "Posizione approssimata a mano: le acciaierie verso ovest, tra altoforni e laminatoi."
+    },
+    "lotto-laminatoi": {
+      "valore": [
+        [
+          40.512,
+          17.18
+        ],
+        [
+          40.512,
+          17.2
+        ],
+        [
+          40.5205,
+          17.201
+        ],
+        [
+          40.5205,
+          17.181
+        ]
+      ],
+      "stima": true,
+      "motivazione": "Posizione approssimata a mano: i laminatoi nella parte nord-ovest, con i capannoni lunghi."
+    },
+    "lotto-banchine": {
+      "valore": [
+        [
+          40.4978,
+          17.172
+        ],
+        [
+          40.4978,
+          17.184
+        ],
+        [
+          40.5025,
+          17.1855
+        ],
+        [
+          40.5025,
+          17.173
+        ]
+      ],
+      "stima": true,
+      "motivazione": "Posizione approssimata a mano: le banchine lungo il canale dello stabilimento a sud-ovest, verso il Mar Grande."
+    }
+  },
+  "quartieri": {
+    "tamburi": {
+      "valore": [
+        [
+          40.4812,
+          17.221
+        ],
+        [
+          40.4812,
+          17.229
+        ],
+        [
+          40.487,
+          17.2335
+        ],
+        [
+          40.4935,
+          17.2368
+        ],
+        [
+          40.4978,
+          17.233
+        ],
+        [
+          40.4978,
+          17.2225
+        ]
+      ],
+      "stima": true,
+      "motivazione": "Contorno approssimato a mano sul reticolo di strade del quartiere in OpenStreetMap, tra lo stabilimento e la costa del Mar Piccolo, senza entrare in acqua."
+    },
+    "citta-vecchia": {
+      "valore": [
+        [
+          40.4722,
+          17.2245
+        ],
+        [
+          40.4735,
+          17.2352
+        ],
+        [
+          40.4772,
+          17.235
+        ],
+        [
+          40.48,
+          17.229
+        ],
+        [
+          40.4778,
+          17.224
+        ]
+      ],
+      "stima": true,
+      "motivazione": "Contorno approssimato a mano sull'isola tra i due mari, in OpenStreetMap."
+    },
+    "borgo": {
+      "valore": [
+        [
+          40.4682,
+          17.2352
+        ],
+        [
+          40.4682,
+          17.2618
+        ],
+        [
+          40.4768,
+          17.2618
+        ],
+        [
+          40.4775,
+          17.244
+        ],
+        [
+          40.4745,
+          17.2352
+        ]
+      ],
+      "stima": true,
+      "motivazione": "Contorno approssimato a mano: la parte del Borgo che entra nella zona, a sud-est del ponte girevole."
+    }
+  }
+}

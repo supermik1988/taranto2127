@@ -25,6 +25,7 @@ import { HowToPlay, TipProvider, Tour } from './guide.js';
 import { GameMenu } from './menu.js';
 
 const noop = () => {};
+const text = (html: string) => html.replace(/<[^>]+>/g, '').replace(/&[a-z#0-9]+;/g, ' ');
 
 /** Qualche anno di gioco con azioni, per avere cantieri e storia. */
 function played(): Game {
@@ -120,7 +121,9 @@ describe('il tempo', () => {
     const lines = stopLines(reasons, state);
     expect(lines).toHaveLength(reasons.length);
     const html = renderToString(<StopLine lines={lines} />);
-    expect(html).toContain(lines[0]!.replace(/'/g, '&#x27;'));
+    // Il motivo principale senza il suo punto finale, poi «e altri N.»: mai «». e altri».
+    expect(html).toContain(lines[0]!.replace(/\.$/, '').replace(/'/g, '&#x27;'));
+    expect(text(html)).not.toMatch(/\.\s+e altri/);
     expect(html).toContain(`altri ${lines.length - 1}`);
     expect(html).not.toContain(lines[1]!.slice(0, 20).replace(/'/g, '&#x27;'));
     expect(renderToString(<StopLine lines={lines.slice(0, 2)} />)).toContain('un altro motivo');

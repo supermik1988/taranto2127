@@ -9,9 +9,7 @@
  * Dati © OpenStreetMap contributors, licenza ODbL 1.0 (vedi docs/FONTI.md).
  */
 import { writeFileSync } from 'node:fs';
-
-/** Riquadro della zona: sud, ovest, nord, est (gradi WGS84). */
-export const BBOX = [40.468, 17.168, 40.522, 17.262] as const;
+import { BBOX } from './geo-zona.js';
 
 const query = `
 [out:json][timeout:180][bbox:${BBOX.join(',')}];

@@ -9,26 +9,26 @@
     },
     {
       "id": "mappa",
-      "titolo": "La mappa e i colori",
-      "testo": "Ogni quartiere è colorato secondo l'indicatore scelto sopra la mappa: aria, salute, fiducia e gli altri. Più il colore è scuro, peggio va. Il numero al centro è il valore da 0 a 100; la legenda sotto la mappa spiega la scala.",
+      "titolo": "Il plastico e gli strati",
+      "testo": "La mappa occupa tutto lo schermo: è un plastico dei Tamburi, dello stabilimento ILSIDER e del Mar Piccolo. Trascina per spostarti; avvicina o allontana con due dita o con la rotella; ruota con due dita o con il tasto destro. Il pulsante «Strati», sul lato, colora i quartieri secondo aria, salute, fiducia o tensione, con il valore da 0 a 100.",
       "bersaglio": "mappa"
     },
     {
       "id": "quartiere",
       "titolo": "Il perché di un quartiere",
-      "testo": "Tocca un quartiere: la sua scheda dice dove sta andando ogni valore e perché, con i fattori che lo spingono su o giù, e un piccolo grafico dell'andamento. Nessun numero cambia senza una causa che puoi leggere.",
+      "testo": "Tocca un quartiere: si apre una finestra che dice dove sta andando ogni valore e perché, con i fattori che lo spingono su o giù e un piccolo grafico dell'andamento. Un tocco fuori dalla finestra la chiude. Il pulsante «Elenco» mostra le stesse informazioni in testo, anche per i quartieri fuori dal plastico.",
       "bersaglio": "mappa"
     },
     {
       "id": "lotti",
       "titolo": "I lotti di ILSIDER e le strade",
-      "testo": "L'area dello stabilimento è divisa in sei lotti. Tocca un lotto per destinarlo a una strada: acciaio con forni nuovi, bonifica, energia, mare e cultura. Nessuna strada è giusta o sbagliata in sé: ognuna ha tempi, costi, posti di lavoro ed effetti sull'aria diversi.",
+      "testo": "L'area dello stabilimento è divisa in sei lotti. Tocca un lotto per destinarlo a una strada: acciaio con forni nuovi, bonifica, energia, mare e cultura. Sul plastico il lotto cambia aspetto: fermo e arrugginito, cantiere con le gru, e poi la strada scelta. Nessuna strada è giusta o sbagliata in sé.",
       "bersaglio": "mappa"
     },
     {
       "id": "consiglio",
       "titolo": "Il Consiglio",
-      "testo": "Sei consiglieri, ognuno con la sua delega, ti propongono ogni anno un'azione e il motivo. Puoi seguirli con un tocco, ignorarli o fare di testa tua. Quando la loro causa è alle strette, qualcuno può proporti una scorciatoia.",
+      "testo": "Sul lato della mappa ci sono i pulsanti delle finestre. «Consiglio» apre i sei consiglieri: ognuno ti propone un'azione e il motivo. Puoi seguirli con un tocco, ignorarli o fare di testa tua.",
       "bersaglio": "scheda-consiglio"
     },
     {
@@ -40,7 +40,7 @@
     {
       "id": "bilancio",
       "titolo": "Il bilancio",
-      "testo": "Tre casse: la cassa della città, i fondi dello Stato e i fondi europei. Ognuna paga cose diverse. Il pannello del bilancio mostra entrate e uscite dell'ultimo anno, la previsione per quello in corso e, se la cassa va in rosso, quanti anni mancano al dissesto.",
+      "testo": "Il pulsante «Bilancio» apre le tre casse: la cassa della città, i fondi dello Stato e i fondi europei. Vedi entrate e uscite dell'ultimo anno, la previsione per quello in corso e, se la cassa va in rosso, quanti anni mancano al dissesto.",
       "bersaglio": "scheda-bilancio"
     },
     {
@@ -77,15 +77,18 @@
     {
       "titolo": "La mappa e i quartieri",
       "paragrafi": [
-        "Sopra la mappa scegli l'indicatore: aria, esposizione accumulata, salute, servizi, tensione, fiducia. I quartieri si colorano di conseguenza; il numero è il valore da 0 a 100.",
-        "Tocca un quartiere per aprire la sua scheda: i sei valori, un piccolo grafico dell'andamento e, per il valore scelto, dove sta andando e perché."
+        "La mappa occupa tutto lo schermo. In alto ci sono anno, casse e la barra Red e Blu; in basso i comandi del tempo; sul lato i pulsanti Consiglio, Cantieri, Bilancio, Grafici, Politiche, Strati ed Elenco. Ogni pulsante apre una finestra sopra la mappa, che si chiude con un tocco fuori; sul telefono le finestre salgono dal basso.",
+        "Il plastico mostra la zona dei Tamburi, lo stabilimento e il Mar Piccolo, ricavata da OpenStreetMap. Si sposta, ruota e ingrandisce con le dita o con il mouse. Se il dispositivo non regge il 3D, il gioco usa una mappa schematica; la si sceglie anche dal pannello Strati.",
+        "«Strati» colora i quartieri secondo aria, salute, fiducia o tensione, con il valore. Tocca un quartiere per aprire la sua scheda: i sei valori, un piccolo grafico dell'andamento e, per il valore scelto, dove sta andando e perché.",
+        "«Elenco» riporta in testo tutto ciò che c'è sulla mappa: i valori di ogni quartiere, anche di quelli fuori dal plastico, e la strada, la fase e l'aspetto di ogni lotto."
       ]
     },
     {
       "titolo": "ILSIDER: lotti e strade",
       "paragrafi": [
         "L'area industriale è divisa in sei lotti. Toccandone uno lo destini a una strada: acciaio con forni nuovi, bonifica, energia, mare e cultura. Ogni strada è un progetto a fasi che trasforma il lotto.",
-        "Cambiare strada a un lotto annulla il progetto in corso su quel lotto."
+        "Cambiare strada a un lotto annulla il progetto in corso su quel lotto.",
+        "Sul plastico ogni lotto ha un aspetto per stato: fermo (impianti spenti, ruggine), cantiere (gru e recinzioni), acciaio con forni nuovi (capannoni nuovi, un camino con poco fumo), bonifica conclusa (bosco giovane), energia (pale e pannelli), mare e cultura (banchine aperte ed edifici pubblici)."
       ]
     },
     {
@@ -133,7 +136,7 @@
     {
       "titolo": "Grafici",
       "paragrafi": [
-        "La sezione Grafici mostra l'andamento dal 2027 a oggi. Scegli che cosa guardare e quale quartiere mettere in evidenza: gli altri restano attenuati, la linea tratteggiata è la media della città. Sotto, ogni nome ha la variazione dal 2027."
+        "Il pulsante Grafici mostra l'andamento dal 2027 a oggi. Scegli che cosa guardare e quale quartiere mettere in evidenza: gli altri restano attenuati, la linea tratteggiata è la media della città. Sotto, ogni nome ha la variazione dal 2027."
       ]
     },
     {
