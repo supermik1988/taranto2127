@@ -28,6 +28,7 @@ const BASE = `http://localhost:${PORT}/`;
 const SEED = 7;
 const problems: string[] = [];
 const stopsSeen = new Set<string>();
+let multiStops = 0;
 
 function fail(message: string): void {
   problems.push(message);
@@ -68,6 +69,12 @@ async function tidy(page: Page): Promise<void> {
 async function answerDilemma(page: Page): Promise<void> {
   await page.locator(sel('opzione')).first().click();
   await click(page, 'scegli');
+  // Chiuso il dilemma, restano gli altri motivi della fermata: con più di uno, «e altri N» apre l'elenco.
+  if (await visible(page, 'fermata-altri')) {
+    await click(page, 'fermata-altri');
+    if (!(await visible(page, 'fermata-elenco'))) fail("toccando «e altri N» non compare l'elenco dei motivi");
+    multiStops += 1;
+  }
 }
 
 /** La visita guidata: completata passo per passo, oppure saltata. */
@@ -96,6 +103,12 @@ async function runUntilStop(page: Page): Promise<'dilemma' | 'finale' | 'fermata
   await page.waitForSelector(`${sel('avvia')}, ${sel('dilemma')}, ${sel('finale')}`, { timeout: 180_000 });
   if (await visible(page, 'finale')) return 'finale';
   if (await visible(page, 'fermata')) {
+    // Più motivi: si vede il principale e «e altri N»; al tocco compare l'elenco completo.
+    if ((await visible(page, 'fermata-altri')) && !(await visible(page, 'dilemma'))) {
+      await click(page, 'fermata-altri');
+      if (!(await visible(page, 'fermata-elenco'))) fail('toccando «e altri N» non compare l\'elenco dei motivi');
+      multiStops += 1;
+    }
     const line = (await page.locator(sel('fermata')).textContent()) ?? '';
     stopsSeen.add(line.replace(/«[^»]*»/g, '«…»').replace(/\d+/g, 'N'));
   }
@@ -324,6 +337,8 @@ async function main(): Promise<void> {
     if (process.platform === 'win32' && server.pid !== undefined) execSync(`taskkill /pid ${server.pid} /T /F`, { stdio: 'ignore' });
     else server.kill();
   }
+  if (multiStops === 0) fail('nessuna fermata con più motivi: «e altri N» non verificato');
+  console.log(`\nFermate con più motivi aperte al tocco: ${multiStops}.`);
   console.log(`\nFermate del tempo viste (${stopsSeen.size} tipi di riga):`);
   for (const line of [...stopsSeen].sort()) console.log(`  ${line}`);
   if (problems.length > 0) {

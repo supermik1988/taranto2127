@@ -72,8 +72,11 @@ const PHASE_NAMES: Record<string, string> = {
 const time = content.guide.time;
 const stopsText = content.guide.stops;
 
-/** La riga che dice perché il tempo si è fermato. */
-export function describeStops(reasons: StopReason[], state: GameState): string {
+/**
+ * I motivi per cui il tempo si è fermato, una frase ciascuno, dal più
+ * importante (l'ordine è quello di stopReasons nel motore).
+ */
+export function stopLines(reasons: StopReason[], state: GameState): string[] {
   const parts = reasons.map((r) => {
     switch (r.kind) {
       case 'dilemma':
@@ -96,8 +99,38 @@ export function describeStops(reasons: StopReason[], state: GameState): string {
         return stopsText[r.kind]!;
     }
   });
-  const sentence = (part: string) => part.charAt(0).toLocaleUpperCase('it-IT') + part.slice(1);
-  return `${stopsText['prefisso']} ${parts.map(sentence).join(' ')}`;
+  return parts.map((part) => part.charAt(0).toLocaleUpperCase('it-IT') + part.slice(1));
+}
+
+/** Tutti i motivi in una riga sola. */
+export function describeStops(reasons: StopReason[], state: GameState): string {
+  return `${stopsText['prefisso']} ${stopLines(reasons, state).join(' ')}`;
+}
+
+/** La riga della fermata: il motivo principale e «e altri N»; al tocco, l'elenco completo. */
+export function StopLine({ lines }: { lines: string[] }) {
+  const [open, setOpen] = useState(false);
+  const [first, ...others] = lines;
+  return (
+    <div className="stop" role="status" data-testid="fermata">
+      <span>
+        {stopsText['prefisso']} {first}
+        {others.length > 0 && !open && (
+          <>
+            {' '}
+            <button type="button" className="term" onClick={() => setOpen(true)} data-testid="fermata-altri">
+              e {others.length === 1 ? 'un altro motivo' : `altri ${others.length}`}
+            </button>
+          </>
+        )}
+      </span>
+      {open && (
+        <ul className="stop-list" data-testid="fermata-elenco">
+          {others.map((line, i) => <li key={i}>{line}</li>)}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 function MoralBar({ label, term, value }: { label: string; term: string; value: number }) {
@@ -165,7 +198,7 @@ function TimeBar({
   running: boolean;
   speed: number;
   canAdvance: boolean;
-  stop: string | null;
+  stop: string[] | null;
   onToggle: () => void;
   onSpeed: (speed: number) => void;
   onStep: () => void;
@@ -173,7 +206,7 @@ function TimeBar({
   return (
     <div className="timebar" data-testid="tempo" data-tour="tempo">
       {stop !== null && (
-        <p className="stop" role="status" data-testid="fermata">{stop}</p>
+        <StopLine key={stop.join('|')} lines={stop} />
       )}
       <div className="time-controls">
         <button type="button" className="primary play" onClick={onToggle} disabled={!canAdvance && !running} aria-pressed={running} data-testid={running ? 'pausa' : 'avvia'}>
@@ -214,7 +247,8 @@ export function App() {
   const [notice, setNotice] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
-  const [stop, setStop] = useState<string | null>(null);
+  /** Motivi dell'ultima fermata, con il loro tipo: rispondendo al dilemma restano gli altri. */
+  const [stop, setStop] = useState<{ kind: StopReason['kind']; line: string }[] | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(() => lastLocalSave());
   const [tour, setTour] = useState(() => !tourDone());
   const [help, setHelp] = useState(false);
@@ -243,7 +277,8 @@ export function App() {
       setCronaca({ year: result.year, headlines: result.headlines });
       setNotice(null);
       if (result.stops.length > 0) {
-        setStop(describeStops(result.stops, result.game.state));
+        const lines = stopLines(result.stops, result.game.state);
+        setStop(result.stops.map((r, i) => ({ kind: r.kind, line: lines[i]! })));
         return false;
       }
       setStop(null);
@@ -300,7 +335,10 @@ export function App() {
     const id = state.openDilemmaId!;
     const hidden = content.rules.dilemmas[id]!.options[optionId]!.hidden;
     setGame(act(game, { kind: 'answer-dilemma', dilemmaId: id, optionId }));
-    setStop(null);
+    setStop((current) => {
+      const rest = current?.filter((s) => s.kind !== 'dilemma') ?? [];
+      return rest.length > 0 ? rest : null;
+    });
     setNotice(hidden ? 'Questa era una scelta nascosta: nessuno lo sa, per ora.' : null);
   };
 
@@ -423,7 +461,7 @@ export function App() {
             running={running}
             speed={speed}
             canAdvance={!dilemmaOpen}
-            stop={stop}
+            stop={stop === null ? null : stop.map((s) => s.line)}
             onToggle={() => {
               if (!running) setStop(null);
               setRunning(!running);

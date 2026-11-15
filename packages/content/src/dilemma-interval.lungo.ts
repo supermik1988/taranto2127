@@ -1,4 +1,7 @@
-/** T10: in 1.000 partite casuali nessun dilemma torna prima del suo intervallo. */
+/**
+ * T10: in 1.000 partite casuali nessun dilemma torna prima del suo intervallo.
+ * Prova lunga: si esegue con `pnpm test:lungo`, non con `pnpm test`.
+ */
 import { describe, expect, it } from 'vitest';
 import { checkDilemmaInterval } from './test-support/dilemma-interval.js';
 

@@ -2,7 +2,7 @@
 import { DISTRICT_IDS, type StopReason } from '@taranto2127/sim';
 import { renderToString } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { describeStops } from './App.js';
+import { StopLine, describeStops, stopLines } from './App.js';
 import { BudgetView } from './budget.js';
 import { DistrictCard } from './cards.js';
 import { ChartsView, MIN_CHART_YEARS, Sparkline, verticalScale } from './charts.js';
@@ -114,6 +114,17 @@ describe('il tempo', () => {
     const first = reasons[0]!;
     if (first.kind === 'dilemma') expect(describeStops([first], state)).toContain(content.texts.dilemmas[first.dilemmaId]!.titolo);
     expect(describeStops([reasons[5]!], state)).toContain("l'epoca 2 di 5");
+  });
+
+  it('la riga mostra il motivo principale e «e altri N»; l’elenco completo si apre al tocco', () => {
+    const lines = stopLines(reasons, state);
+    expect(lines).toHaveLength(reasons.length);
+    const html = renderToString(<StopLine lines={lines} />);
+    expect(html).toContain(lines[0]!.replace(/'/g, '&#x27;'));
+    expect(html).toContain(`altri ${lines.length - 1}`);
+    expect(html).not.toContain(lines[1]!.slice(0, 20).replace(/'/g, '&#x27;'));
+    expect(renderToString(<StopLine lines={lines.slice(0, 2)} />)).toContain('un altro motivo');
+    expect(renderToString(<StopLine lines={lines.slice(0, 1)} />)).not.toContain('fermata-altri');
   });
 });
 
