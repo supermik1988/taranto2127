@@ -601,3 +601,42 @@ elencati. Ordine: T01, poi T02, poi T03 e T05a in parallelo, poi T04, poi T06.
     aperto (comprese le scelte da confermare).
 - **Prima dell'approvazione** l'architetto mostra le schermate a Michele: sull'aspetto
   il giudizio è suo.
+
+### Correzioni dopo la revisione (15 novembre 2026)
+
+Revisione dell'architetto su clone pulito di `556dc09`: tutto verde. Michele ha
+guardato le schermate: la zona gli sembra Taranto. Prima dell'unione servono le
+correzioni qui sotto, sullo stesso ramo e con gli stessi file e le stesse regole.
+
+1. *Strati più decisi sul telefono (decisione di Michele).* Oggi a 390 px la tinta
+   sugli edifici e sul terreno dei quartieri quasi non si vede. Va resa netta, con gli
+   stessi colori della legenda, senza coprire la forma degli edifici.
+2. *Lotti aderenti al terreno (decisione di Michele).* Niente piastre rialzate e
+   squadrate: il fondo di ogni lotto sta alla quota del terreno e i bordi sono meno
+   netti (raccordo, bordo irregolare o sfumato: la scelta tecnica è dell'esecutore,
+   da spiegare in `docs/GRAFICA.md`). Il lotto deve restare riconoscibile e toccabile.
+3. *«Mare e cultura» senza vasca.* Su un lotto che tocca la costa vera: banchine aperte
+   sul mare vero ed edifici pubblici, nessuno specchio d'acqua finto dentro il lotto.
+   Su un lotto interno: edifici pubblici, piazze e verde, anche qui senza acqua finta.
+   Nel resoconto: quali lotti toccano la costa.
+4. *Si vede che cosa hai toccato (decisione dell'architetto).* Il lotto o il quartiere
+   aperto in una finestra resta evidenziato sul plastico. Sul telefono la camera lo
+   sposta nella parte di schermo che la finestra lascia libera.
+5. *Invariati (decisione di Michele):* altezza esagerata 2,4 volte e sfocatura ai bordi.
+
+- **Fatto quando:**
+  - strato dell'aria a 390 px: la differenza di colore tra strato acceso e spento,
+    misurata sui pixel dei Tamburi, supera una soglia dichiarata nel resoconto ed è
+    almeno il doppio di quella di `556dc09`: c'è un test;
+  - nessun lotto ha il fondo sopra la quota del terreno: c'è un test sui dati della scena;
+  - «mare e cultura» non produce superfici d'acqua dentro i lotti: c'è un test;
+  - aprendo un lotto a 390 px, il lotto è evidenziato e sta nella parte visibile
+    sopra la finestra: c'è un test nella verifica nel browser;
+  - schermate rifatte: ogni stato di lotto a 390 e 1280 px, `strato-aria-390`,
+    `lotto-finestra-390`;
+  - tutto il resto della scheda T11 resta verde, compresi `pnpm test` sotto il
+    minuto, `pnpm test:lungo` e la verifica nel browser; prova inversa per ogni
+    criterio nuovo.
+- **Regole:** come sopra. Invio del solo ramo `task/T11-plastico`; niente unione né
+  invio di `main`; resoconto in tre parti. L'architetto rivede e mostra di nuovo
+  le schermate a Michele prima di unire.
