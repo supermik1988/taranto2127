@@ -514,3 +514,48 @@ elencati. Ordine: T01, poi T02, poi T03 e T05a in parallelo, poi T04, poi T06.
   ventiquattro dilemmi passano i controlli di contenuto; la visita guidata si
   completa e si salta; a 360 px nessuno scorrimento orizzontale; schermate
   aggiornate in `docs/schermate/`.
+
+---
+
+## T11 — Plastico di una zona e nuova disposizione
+
+- **Agente:** `sim-engineer` (interfaccia, su decisione di Michele)
+- **Dipende da:** T10
+- **Ramo:** `task/T11-plastico`
+- **File:** `apps/game/`, `packages/content/geo/`, `docs/GRAFICA.md`; inoltre
+  `docs/FONTI.md` (licenze), `docs/TASKS.md`, `docs/schermate/`.
+- **Stile:** plastico 3D della città, effetto modellino, luce morbida, colori pieni.
+  Mappa a tutto schermo, comandi ai bordi, finestre al tocco. Nessun modello,
+  insegna o elemento d'interfaccia copiato da altri giochi: tutto originale o con
+  licenza libera compatibile, annotata in `docs/FONTI.md`.
+- **Cosa fare:**
+  1. *Dati geografici.* Da OpenStreetMap, una volta sola: Tamburi, area industriale e
+     tratto di Mar Piccolo adiacente (costa, strade principali, sagome degli edifici,
+     aree verdi). Nel repository un file ridotto e semplificato, con l'attribuzione
+     richiesta dalla licenza. Il gioco non scarica nulla durante la partita.
+  2. *Scena 3D nel browser.* Terreno, mare, strade, edifici come volumi dalle sagome,
+     con altezze plausibili, tetti e colori variati in modo ripetibile. Luce di giorno
+     sereno, ombre leggere, effetto modellino con sfocatura ai bordi. Camera che si
+     sposta, ruota e ingrandisce con mouse e dita, entro limiti sensati.
+  3. *ILSIDER.* I sei lotti nella posizione reale dello stabilimento, con un aspetto per
+     stato: fermo (impianti spenti, ruggine), lavori (gru, recinzioni), acciaio verde
+     (capannoni nuovi, camino con poco fumo), bonifica conclusa (bosco giovane), energia
+     (pale che girano, pannelli), mare e cultura (banchine aperte, edifici pubblici).
+  4. *Strati.* Un comando colora il plastico secondo l'indicatore scelto (aria, salute,
+     fiducia, tensione), con legenda e valore numerico.
+  5. *Disposizione.* Mappa a tutto schermo. In alto anno, fondi, barra Red/Blu; in basso
+     i comandi del tempo; su un lato Consiglio, cantieri, bilancio, grafici, strati.
+     Toccare un quartiere, un lotto o un pulsante apre una finestra sopra la mappa, che
+     si chiude con un tocco fuori. Su telefono le finestre salgono dal basso.
+  6. *Prestazioni.* Almeno 30 immagini al secondo su un telefono di fascia media:
+     misurare e scrivere il risultato. Se il dispositivo non regge il 3D, la mappa
+     schematica attuale.
+  7. *Accessibilità.* Ogni informazione della mappa raggiungibile da un elenco testuale.
+  8. `docs/GRAFICA.md`: scelte tecniche, tavolozza, origine e licenza di ogni modello,
+     cosa manca per estendere il plastico a tutta la città, con una stima del lavoro.
+- **Fatto quando:** la zona si riconosce confrontandola con la cartografia (costa, strade
+  principali, posizione dello stabilimento rispetto ai Tamburi); ogni stato di lotto ha
+  un aspetto distinto e cambia durante una partita da copione; toccare un lotto apre la
+  sua finestra; lo strato dell'aria colora la zona con il valore corretto; nessun errore
+  in console; schermate a 390 e 1280 px in `docs/schermate/`, compresa una per ogni
+  stato di lotto; il resto del gioco continua a funzionare.
