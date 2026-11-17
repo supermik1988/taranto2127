@@ -47,7 +47,8 @@ Un agente modifica solo le proprie cartelle. Se serve altro, apre una richiesta.
 ## Lavorare
 
 - Un ramo per task (`task/T03-ciclo-turno`), unione solo con test verdi.
-- Comandi: `pnpm install`, `pnpm test`, `pnpm typecheck`, `pnpm balance -- --partite 1000`.
+- Comandi: `pnpm install`, `pnpm test` (sotto il minuto), `pnpm test:lungo` (prove lunghe,
+  eseguite anche da GitHub), `pnpm typecheck`, `pnpm balance -- --partite 1000`.
 - Ogni task ha una scheda in `docs/TASKS.md`: non uscire dai file elencati lì.
 - Testi di gioco e documentazione in italiano; nomi nel codice in inglese.
 - Le chiavi stanno solo in `.env`, che Git ignora. Mai una chiave nel codice o in un commit.

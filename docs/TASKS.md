@@ -640,3 +640,51 @@ correzioni qui sotto, sullo stesso ramo e con gli stessi file e le stesse regole
 - **Regole:** come sopra. Invio del solo ramo `task/T11-plastico`; niente unione né
   invio di `main`; resoconto in tre parti. L'architetto rivede e mostra di nuovo
   le schermate a Michele prima di unire.
+
+---
+
+## T11b — Prove più veloci e lotto «Banchine» sul Mar Grande
+
+- **Agente:** `balance-tester` per le prove, `sim-engineer` (interfaccia) per il lotto.
+- **Dipende da:** T11 (in `main` a `9940e43`).
+- **Ramo:** `task/T11b-rifiniture` (già creato dall'architetto con questa scheda).
+- **File:** `package.json` (solo gli script `test` e `test:lungo`),
+  `vitest.lungo.config.ts`, i file di prova esistenti (`*.test.ts`, da cui si
+  possono ricavare file `*.lungo.ts`), `packages/content/geo/lotti.json` (solo
+  `lotto-banchine`), `apps/game/` (prove e scena del plastico),
+  `docs/GRAFICA.md`, `docs/schermate/`. Non si toccano `packages/sim/src` e
+  i valori di bilanciamento.
+- **Perché:** su clone pulito `pnpm test` dura 62 secondi (limite: un minuto).
+  Le prove più lente esistevano già: bilanciamento 22 s, morale 16, città 15,
+  dilemmi e politiche 13, contenuti 10, partita da terminale 9; il lint
+  aggiunge circa 17 s prima delle prove. Il lotto «Banchine» oggi si affaccia
+  su un canale largo circa 20 m: Michele ha chiesto che «mare e cultura» si
+  affacci sul mare vero.
+- **Cosa fare:**
+  1. *Prove.* Spostare in `pnpm test:lungo` le prove che giocano molte partite
+     intere (bilanciamento a più thread, partite complete da terminale e simili).
+     In `pnpm test` resta per ognuna una versione breve che controlla lo stesso
+     comportamento su poche partite. Nessuna prova sparisce: il totale tra i
+     due comandi non scende. Allargare `vitest.lungo.config.ts` a `tools/` se
+     serve. Valutare `eslint --cache` con il file di cache dentro
+     `node_modules/.cache/` (senza toccare `.gitignore`).
+  2. *Lotto «Banchine».* Spostarlo sul fronte dello stabilimento sul Mar Grande,
+     accanto ai grandi moli del porto visibili nel plastico, in modo che almeno
+     un lato tocchi il mare aperto e non un canale. Aggiornare la motivazione
+     della stima. L'aspetto «mare e cultura» resta quello approvato (piazza,
+     edifici pubblici, viali, banchine solo sui lati sull'acqua).
+- **Fatto quando:**
+  - `pnpm test` dura al massimo 45 secondi su un clone pulito, a computer il più
+    possibile scarico; nel resoconto i tempi prima e dopo, misurati nello stesso
+    momento;
+  - il numero di prove di `pnpm test` più `pnpm test:lungo` non è inferiore a
+    451 + 41; ogni prova spostata ha la sua versione breve in `pnpm test`;
+  - `pnpm test:lungo` è verde, e la procedura di GitHub lo esegue ancora;
+  - un test verifica che il lotto «Banchine» tocchi il mare aperto (non un corso
+    d'acqua o un canale) e resti dentro il contorno dello stabilimento;
+  - schermate rifatte: `lotto-mare-390`, `lotto-mare-1280`, `mappa-1280`;
+  - verifica nel browser riuscita; prova inversa per ogni criterio nuovo.
+- **Regole:** come T11. Invio del solo ramo `task/T11b-rifiniture` dopo il verde
+  su clone pulito; niente unione né invio di `main`; non toccare `CLAUDE.md`,
+  `docs/ARCHITETTO.md`, `docs/DECISIONI.md`; resoconto in tre parti.
+  L'architetto rivede e mostra a Michele la schermata del lotto prima di unire.

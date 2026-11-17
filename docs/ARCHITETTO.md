@@ -151,11 +151,13 @@ Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 | T01-T08 | Motore completo, contenuti con stime, bilanciamento, partita dal terminale | In `main` |
 | T09, T09b | Prototipo web: mappa schematica, grafici, spiegazioni, cantieri, Consiglio, Cronaca, dilemmi, finale, pubblicazione | In `main` |
 | T10 | Tempo che scorre e si ferma da solo, niente limite di azioni, visita guidata, bilancio, grafici per telefono, 24 dilemmi, menu della partita | In `main` dal 15 novembre, con le due correzioni; pubblicato |
-| T11 | Plastico 3D di una zona e nuova disposizione | In corso sul ramo `task/T11-plastico` (esecutore); scheda integrata dall'architetto |
+| T11 | Plastico 3D di una zona e nuova disposizione | In `main` dal 17 novembre, con le correzioni chieste da Michele; pubblicato |
+| T11b | Prove più veloci; lotto «Banchine» sul Mar Grande | Scheda pronta, ramo `task/T11b-rifiniture` |
 
-Ultimo `main` verificato: `d184e08`. Su clone pulito: 434 test in `pnpm test`
-(58 s, eslint compreso), 41 in `pnpm test:lungo`; verifica nel browser riuscita;
-procedura «Pubblica il gioco» arrivata in fondo.
+Ultimo `main` verificato: `9940e43` (T11). Su clone pulito: 451 test in `pnpm test`
+(62 s, eslint compreso: oltre il limite, da sistemare in T11b), 41 in
+`pnpm test:lungo`; verifica nel browser riuscita; plastico a 51 immagini al
+secondo sul telefono simulato; procedura «Pubblica il gioco» arrivata in fondo.
 
 Nota sui ruoli: l'esecutore lavora in contemporanea nella stessa cartella.
 L'architetto non cambia ramo lì: rivede su un clone pulito. In T10 l'esecutore ha
@@ -184,7 +186,7 @@ Due correzioni sullo stesso ramo, poi verde su clone pulito, unione in
 2. Riga dei motivi di fermata: il motivo principale più "e altri N", con
    l'elenco completo al tocco.
 
-### 7.2 T11, "Plastico di una zona e nuova disposizione"
+### 7.2 T11, "Plastico di una zona e nuova disposizione" — fatto il 17 novembre 2026 (`main` a `9940e43`)
 
 Ramo `task/T11-plastico`. File: `apps/game/`, `packages/content/geo/`,
 `docs/GRAFICA.md`.
