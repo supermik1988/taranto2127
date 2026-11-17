@@ -18,14 +18,24 @@ pezzo di Mar Grande, del porto, della Città Vecchia e del Borgo.
   e salva il file grezzo fuori dal repository; `scripts/geo-riduci.ts` lo trasforma in
   `packages/content/geo/plastico.json`: metri dal centro della zona, sagome
   semplificate (Douglas-Peucker, 0,8 m per gli edifici), ritaglio sul riquadro
-  (40,468-40,522 N, 17,168-17,262 E, circa 8 × 6 km), edifici sotto i 12 m² scartati,
+  (40,468-40,522 N, 17,150-17,262 E, circa 9,5 × 6 km), edifici sotto i 12 m² scartati,
   nessun nome proprio. Il gioco non scarica nulla durante la partita.
+  - *T11b, riquadro allargato a ovest* (scelta di Michele). Nel primo scaricamento
+    (15 novembre) il bordo ovest era a 17,168° e lo stabilimento non toccava il mare: il
+    suo contorno in OpenStreetMap dista 1,1 km dal Mar Piccolo e 1,3 km dal Mar Grande,
+    e il suo fronte a mare vero, a ovest, cadeva fuori. Il 17 novembre il riquadro è
+    stato allargato di circa 1,5 km (bordo a 17,150°) e i dati scaricati di nuovo, una
+    volta. Il golfo di Taranto, prima escluso, entra ritagliato sul riquadro: è il mare
+    aperto a ovest dello stabilimento. Il contorno dello stabilimento comprende ora
+    anche le aree portuali dello stesso gestore in OpenStreetMap (il quinto sporgente,
+    un pontile lungo circa 1,1 km): il nome serve solo a riconoscerle e non entra nel file.
 - **Lotti e quartieri nei dati.** Le posizioni dei sei lotti e i contorni di Tamburi,
   Città Vecchia e Borgo stanno in `packages/content/geo/lotti.json`, ognuno con
-  `stima: true` e la motivazione. L'area industriale è il contorno dello stabilimento
-  in OpenStreetMap. Paolo VI e le borgate cadono fuori dalla zona: i loro valori sono
+  `stima: true` e la motivazione. L'area industriale è il contorno principale dello
+  stabilimento in OpenStreetMap; i pontili dello stesso gestore fanno parte dello
+  stabilimento ma non del quartiere. Paolo VI e le borgate cadono fuori dalla zona: i loro valori sono
   nel pannello Strati e nell'elenco.
-- **Una sola geometria per la città.** I 5.456 edifici diventano pareti e tetto in
+- **Una sola geometria per la città.** I 5.737 edifici diventano pareti e tetto in
   un'unica geometria con i colori per vertice; strade, ferrovie, verde e acqua sono
   altre quattro geometrie. Così il disegno resta leggero anche sul telefono.
 - **Altezze e colori ripetibili.** Ricavati dall'identificativo OpenStreetMap della
@@ -47,10 +57,13 @@ pezzo di Mar Grande, del porto, della Città Vecchia e del Borgo.
   codice controlla quali lati del lotto danno sull'acqua vera di OpenStreetMap
   (`waterSides`: sette punti 12 m fuori dal lato, conta se la maggioranza cade
   nell'acqua). Su quei lati: banchina aperta, bitte e barche ormeggiate appena fuori, sul
-  canale vero. Al centro di ogni lotto: una piazza chiara, sei edifici pubblici colorati,
-  viali alberati. Oggi tocca l'acqua solo il lotto delle **Banchine**, spostato sulla riva
-  nord-ovest del canale dello stabilimento (largo circa 20 m, porta al Mar Grande); gli
-  altri cinque lotti sono interni.
+  mare vero. Al centro di ogni lotto: una piazza chiara, sei edifici pubblici colorati,
+  viali alberati. Tocca il mare solo il lotto delle **Banchine**: dal T11b sta sul quinto
+  sporgente, il pontile con cui lo stabilimento entra nel mare a ovest, e i suoi lati
+  lunghi seguono le sponde del pontile sei metri all'interno (lotto di circa 500 × 245 m).
+  Un test controlla che il lato bagnato dia sul mare aperto (un'acqua più grande di
+  1 km²: golfo, Mar Grande, Mar Piccolo), non su un canale, e che tutti i vertici del
+  lotto stiano dentro lo stabilimento. Gli altri cinque lotti sono interni.
 - **Si vede che cosa hai toccato** (dopo la revisione, decisione dell'architetto). Il
   lotto o il quartiere aperto in una finestra resta evidenziato da un nastro blu
   (`#1f6fd1`) lungo il contorno, che pulsa piano. Quando la finestra si è disposta, la
@@ -189,7 +202,7 @@ ombre degli edifici non cambiano quando la camera si muove, perché il sole è f
 
 | Che cosa | Normale | Compresso (gzip) |
 | --- | ---: | ---: |
-| `packages/content/geo/plastico.json` | 724 kB | 203 kB |
+| `packages/content/geo/plastico.json` | 766 kB (T11: 724 kB) | 215 kB (T11: 203 kB) |
 | `packages/content/geo/lotti.json` | 2,8 kB | 0,9 kB |
 | Pezzo del plastico nel gioco costruito (three.js, scena, dati) | 1.239 kB | 346 kB |
 | Pezzo principale del gioco (come nel T10: +1 kB per la nuova disposizione) | 581 kB | 151 kB |

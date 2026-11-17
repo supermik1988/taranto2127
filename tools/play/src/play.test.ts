@@ -1,8 +1,6 @@
-import { execFileSync } from 'node:child_process';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { adviseCouncil } from '@taranto2127/agents';
 import { loadContent } from '@taranto2127/content';
 import { createInitialState, type GameState } from '@taranto2127/sim';
@@ -12,7 +10,6 @@ import { WIDTH } from './screens.js';
 import { PlaySession } from './session.js';
 
 const content = loadContent();
-const cli = fileURLToPath(new URL('./cli.ts', import.meta.url));
 const columns = (text: string): number => Math.max(...text.split('\n').map((line) => [...line].length));
 
 /** Gioca una partita intera con un copione: qualche azione all'inizio, poi avanti, rispondendo ai dilemmi. */
@@ -139,21 +136,24 @@ describe('le scelte nascoste non si rivelano prima', () => {
   });
 });
 
-describe('il comando', { timeout: 60_000 }, () => {
-  const run = (args: string[], input: string): string =>
-    execFileSync(process.execPath, ['--import', 'tsx', cli, ...args], { input, encoding: 'utf8' });
-
+describe('il comando', () => {
+  // Versioni brevi nello stesso processo: la sessione che il comando usa, con gli stessi comandi.
+  // Le prove che lanciano il comando vero (pnpm play) stanno in play.lungo.ts (pnpm test:lungo).
   it('pnpm play legge i comandi da tastiera o da un file e risponde', () => {
-    const out = run(['--seme', '4'], 'c\nq\n');
+    const session = new PlaySession({ content, seed: 4 });
+    const out = [session.start(), session.handle('c'), session.handle('q')].join(' ');
     expect(out).toContain('TARANTO 2027');
     expect(out).toContain('IL CONSIGLIO');
     expect(out).toContain('Arrivederci');
+    expect(session.quit).toBe(true);
   });
 
   it('--carica riprende una partita salvata', () => {
     const path = join(mkdtempSync(join(tmpdir(), 'taranto2127-')), 'p.json');
-    run(['--seme', '8'], `a\na\nsalva ${path}\nq\n`);
-    const out = run(['--carica', path], 'q\n');
-    expect(out).toContain('Seme 8');
+    const session = new PlaySession({ content, seed: 8 });
+    session.start();
+    for (const line of ['a', 'a', `salva ${path}`]) session.handle(line);
+    const resumed = new PlaySession({ content, state: loadGame(path, content) });
+    expect(resumed.start()).toContain('Seme 8');
   });
 });

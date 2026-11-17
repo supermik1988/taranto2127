@@ -518,7 +518,7 @@ function buildEnergia(frame: LotFrame, rnd: () => number, animated: Animated[]):
  * maggior parte dei punti appena fuori dal lato cade in un'acqua di OpenStreetMap.
  * Restituisce gli indici dei lati: 0 = q0→q1, 1 = q1→q2, 2 = q2→q3, 3 = q3→q0.
  */
-export function waterSides(quad: Pt[]): number[] {
+export function waterSides(quad: Pt[], waters: Pt[][] = geo.acqua): number[] {
   const sides: number[] = [];
   for (let i = 0; i < 4; i++) {
     const a = quad[i]!;
@@ -532,7 +532,7 @@ export function waterSides(quad: Pt[]): number[] {
     for (let k = 1; k <= samples; k++) {
       const t = k / (samples + 1);
       const point: Pt = [a[0] + (b[0] - a[0]) * t + nx * 12, a[1] + (b[1] - a[1]) * t + ny * 12];
-      if (geo.acqua.some((ring) => pointInPolygon(point, ring))) wet += 1;
+      if (waters.some((ring) => pointInPolygon(point, ring))) wet += 1;
     }
     if (wet >= Math.ceil(samples / 2)) sides.push(i);
   }

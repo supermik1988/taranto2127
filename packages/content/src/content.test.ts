@@ -319,10 +319,12 @@ describe('la città reagisce, con i contenuti veri', () => {
 });
 
 describe('partite casuali con i contenuti veri', { timeout: 120_000 }, () => {
-  const seeds = Array.from({ length: 20 }, (_, i) => i + 1);
+  // Versione breve su due semi: il seme 1 finisce in dissesto, il 6 arriva al 2127.
+  // Quella su 20 semi sta in content.lungo.ts (pnpm test:lungo).
+  const seeds = [1, 6];
   const finals = new Map<number, GameState>();
 
-  it('100 turni di gioco casuale su 20 semi restano validi, con forza lavoro costante', () => {
+  it('100 turni di gioco casuale su due semi restano validi, con forza lavoro costante', () => {
     for (const seed of seeds) {
       const force = laborForce(initial(seed));
       const final = randomGame(seed, initialContent, rules, (s) => {

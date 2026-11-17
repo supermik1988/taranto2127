@@ -114,24 +114,24 @@
     "lotto-banchine": {
       "valore": [
         [
-          40.496413,
-          17.178045
+          40.496731,
+          17.159789
         ],
         [
-          40.499281,
-          17.183125
+          40.499783,
+          17.164149
         ],
         [
-          40.502412,
-          17.180111
+          40.501419,
+          17.16219
         ],
         [
-          40.499544,
-          17.175031
+          40.498357,
+          17.157843
         ]
       ],
       "stima": true,
-      "motivazione": "Posizione approssimata a mano: le banchine sulla riva nord-ovest del canale dello stabilimento, che porta al Mar Grande; il lato sud-est del lotto segue la riva del canale in OpenStreetMap."
+      "motivazione": "Posizione approssimata a mano: le banchine sul quinto sporgente, il pontile con cui lo stabilimento entra nel Mar Grande a ovest; i due lati lunghi del lotto seguono le sponde del pontile in OpenStreetMap, sei metri all'interno."
     }
   },
   "quartieri": {

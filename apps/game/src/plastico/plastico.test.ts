@@ -61,8 +61,10 @@ describe('i lotti di ILSIDER', () => {
     }
   });
 
-  it('ogni lotto sta dentro lo stabilimento', () => {
-    for (const [id, quad] of Object.entries(geo.lotti)) expect(pointInPolygon(centroid(quad), geo.stabilimento[0]!), id).toBe(true);
+  it('ogni lotto sta dentro lo stabilimento (area principale o pontili dello stesso gestore)', () => {
+    const inPlant = (p: Pt) => geo.stabilimento.some((ring) => pointInPolygon(p, ring));
+    // Il centro di ogni lotto; i vertici si controllano per le Banchine, nel test sul mare aperto.
+    for (const [id, quad] of Object.entries(geo.lotti)) expect(inPlant(centroid(quad)), id).toBe(true);
   });
 
   it('i parchi minerali sono il lotto più vicino ai Tamburi', () => {
@@ -78,7 +80,8 @@ describe('i lotti di ILSIDER', () => {
   });
 });
 
-describe('aspetto dei lotti secondo lo stato del motore', () => {
+// Gioca quarant'anni da copione: sotto carico può superare i 5 secondi di serie.
+describe('aspetto dei lotti secondo lo stato del motore', { timeout: 30_000 }, () => {
   function play(): GameState[] {
     let game = newGame(7);
     game = act(game, { kind: 'convert-lot', lotId: 'lotto-parchi-minerali', path: 'remediation' });
@@ -137,10 +140,14 @@ describe('strato', () => {
 
 describe('altezze e colori ripetibili', () => {
   it('dipendono solo dall’identificativo della sagoma', () => {
-    const b = geo.edifici[42]!;
-    const moved = { ...b, p: b.p.map(([x, y]) => [x + 5, y + 5] as Pt) };
-    expect(buildingColors(moved, false)).toEqual(buildingColors(b, false));
-    expect(buildingHeight({ ...b, p: b.p })).toBe(buildingHeight(b));
+    // Edifici senza altezza nei dati: l'altezza la decide la funzione fissa. Spostati di 5 m, devono restare uguali.
+    const sample = geo.edifici.filter((x) => x.h === undefined).slice(0, 50);
+    expect(sample.length).toBe(50);
+    for (const b of sample) {
+      const moved = { ...b, p: b.p.map(([x, y]) => [x + 5, y + 5] as Pt) };
+      expect(buildingColors(moved, false), String(b.id)).toEqual(buildingColors(b, false));
+      expect(buildingHeight(moved), String(b.id)).toBe(buildingHeight(b));
+    }
     const heights = new Set(geo.edifici.slice(0, 200).map((x) => Math.round(buildingHeight(x))));
     expect(heights.size).toBeGreaterThan(10);
   });
@@ -196,8 +203,16 @@ describe('lotti sul plastico (correzioni dopo la revisione)', () => {
     }
   });
 
-  it('il lotto delle banchine tocca l’acqua vera del canale; gli altri sono interni', async () => {
+  it('il lotto delle banchine tocca il mare aperto, non un canale, e resta nello stabilimento; gli altri sono interni', async () => {
     const { waterSides } = await import('./scene.js');
+    // Mare aperto: un'acqua più grande di 1 km² (golfo, Mar Grande, Mar Piccolo). Canali e vasche sono molto più piccoli.
+    const openSea = geo.acqua.filter((ring) => Math.abs(polygonArea(ring)) > 1e6);
+    expect(openSea.length).toBeGreaterThanOrEqual(2);
+    const banchine = geo.lotti['lotto-banchine']!;
+    expect(waterSides(banchine, openSea).length).toBeGreaterThan(0);
+    // Il lato sull'acqua è sul mare aperto: ogni lato bagnato lo è anche contando solo il mare aperto.
+    expect(waterSides(banchine)).toEqual(waterSides(banchine, openSea));
+    for (const corner of banchine) expect(geo.stabilimento.some((ring) => pointInPolygon(corner, ring)), corner.join(',')).toBe(true);
     const touching = lots.filter(([, quad]) => waterSides(quad).length > 0).map(([id]) => id);
     expect(touching).toEqual(['lotto-banchine']);
   });

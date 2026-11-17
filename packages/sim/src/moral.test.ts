@@ -139,9 +139,10 @@ describe('scandalo', () => {
     expect(at(-20, 0)).toBe(0.02); // reputazione peggiore della coscienza: nessun aumento
   });
 
-  it('con dieci atti nascosti lo scandalo arriva entro 20 turni in almeno il 95% di 1.000 semi', { timeout: 60_000 }, () => {
+  // Versione breve su 200 semi; quella su 1.000 semi sta in moral.lungo.ts (pnpm test:lungo).
+  it('con dieci atti nascosti lo scandalo arriva entro 20 turni in almeno il 95% di 200 semi', { timeout: 30_000 }, () => {
     let withScandal = 0;
-    for (let seed = 0; seed < 1000; seed++) {
+    for (let seed = 0; seed < 200; seed++) {
       let state = initial(seed);
       for (let i = 0; i < 10; i++) state = answer(state, 'nascosta-legalita');
       expect(state.moral.hiddenActs).toHaveLength(10);
@@ -153,7 +154,7 @@ describe('scandalo', () => {
         }
       }
     }
-    expect(withScandal).toBeGreaterThanOrEqual(950);
+    expect(withScandal).toBeGreaterThanOrEqual(190);
   });
 
   it('dopo uno scandalo la reputazione è sotto la coscienza, e l’atto esce da hiddenActs', () => {

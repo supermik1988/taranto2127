@@ -302,10 +302,11 @@ describe('partita completa', { timeout: 60_000 }, () => {
   /** Economia attiva, dilemmi che arrivano un anno su due, politiche a caso. */
   const rules = (): TurnRules => ({ ...fakeRulesWithEconomy(), dilemmaArrivalProbability: 0.5 });
 
-  it('stato sempre valido e forza lavoro costante in 100 turni di gioco casuale su 5 semi', () => {
+  // Versione breve su un seme; quella su cinque semi sta in dilemmas-policies.lungo.ts (pnpm test:lungo).
+  it('stato sempre valido e forza lavoro costante in 100 turni di gioco casuale su un seme', () => {
     let dilemmas = 0;
     let trained = 0;
-    for (const seed of [31, 32, 33, 34, 35]) {
+    for (const seed of [31]) {
       const force = laborForce(initial(seed));
       const final = randomGame(seed, rules(), (s) => {
         expect(validateState(s).errors).toEqual([]);
@@ -317,7 +318,7 @@ describe('partita completa', { timeout: 60_000 }, () => {
       expect(final.turn).toBe(TOTAL_TURNS);
       dilemmas += final.history.filter((h) => h.action.kind === 'answer-dilemma').length;
     }
-    expect(dilemmas).toBeGreaterThan(100); // circa uno ogni due anni per partita
+    expect(dilemmas).toBeGreaterThan(20); // circa uno ogni due anni
     expect(trained).toBeGreaterThan(0);
   });
 

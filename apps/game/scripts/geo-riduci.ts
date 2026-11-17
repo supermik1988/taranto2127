@@ -295,8 +295,8 @@ function main(): void {
     } else if (tags['railway'] === 'rail' && geom !== undefined) {
       rails.push(...line(geom, 4));
     } else if (tags['natural'] === 'water' || tags['natural'] === 'bay') {
-      // Il golfo intero esce di molto dalla zona: basta il Mar Grande.
-      if (tags['name'] === 'Golfo di Taranto') continue;
+      // Il golfo esce di molto dalla zona: si ritaglia sul riquadro, come il Mar Grande.
+      // Dal T11b serve: il fronte a mare dello stabilimento, a ovest, dà sul golfo.
       const rings = e.type === 'relation' ? outerRings(e) : geom !== undefined ? [geom] : [];
       for (const g of rings) {
         const r = ring(g, 3, 150);
@@ -314,7 +314,10 @@ function main(): void {
       }
     } else if (tags['landuse'] === 'industrial') {
       const rings = e.type === 'relation' ? outerRings(e) : geom !== undefined ? [geom] : [];
-      const isPlant = e.type === 'relation' && e.id === 11843712;
+      // Lo stabilimento è la sua area principale più le aree portuali dello stesso gestore (i pontili sul mare, T11b).
+      // Il nome serve solo a riconoscerle: nel file del plastico non entra (regola 6).
+      const owner = `${tags['name'] ?? ''} ${tags['operator'] ?? ''}`.toLowerCase();
+      const isPlant = (e.type === 'relation' && e.id === 11843712) || /acciaierie d'italia|arcelormittal|\bilva\b/.test(owner);
       for (const g of rings) {
         const r = ring(g, 4, 500);
         if (r === null) continue;

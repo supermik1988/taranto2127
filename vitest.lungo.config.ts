@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config';
 // Le esegue la procedura di GitHub a ogni invio su main.
 export default defineConfig({
   test: {
-    include: ['packages/**/src/**/*.lungo.ts'],
+    include: ['packages/**/src/**/*.lungo.ts', 'tools/**/src/**/*.lungo.ts'],
     testTimeout: 120_000,
   },
 });

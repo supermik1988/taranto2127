@@ -40,9 +40,10 @@ describe('A. correzioni sui fondi', () => {
     }
   });
 
-  it('su migliaia di combinazioni di fondo e costo nessun fondo scende sotto zero', () => {
+  // Versione breve su 500 combinazioni; quella su 5.000 sta in city.lungo.ts (pnpm test:lungo).
+  it('su centinaia di combinazioni di fondo e costo nessun fondo scende sotto zero', () => {
     const rng = rngFor(7, 'prova-arrotondamenti');
-    for (let i = 0; i < 5000; i++) {
+    for (let i = 0; i < 500; i++) {
       const state = patch(initial(), (s) => {
         s.economy.funds.state = Math.round(rng.next() * 100000) / 1000;
         s.labor.onWageSupport = rng.int(0, 20000);
@@ -328,9 +329,10 @@ describe('partite complete con la città che reagisce', { timeout: 120_000 }, ()
   const laborForce = (s: GameState) =>
     Object.values(s.labor.employed).reduce((a, b) => a + b, 0) + s.labor.onWageSupport + s.labor.unemployed + s.labor.inTraining;
 
-  it('stato sempre valido e forza lavoro costante in 100 turni di gioco casuale su 5 semi', () => {
+  // Versione breve su un seme; quella su cinque semi sta in city.lungo.ts (pnpm test:lungo).
+  it('stato sempre valido e forza lavoro costante in 100 turni di gioco casuale su un seme', () => {
     const endings = new Set<string>();
-    for (const seed of [41, 42, 43, 44, 45]) {
+    for (const seed of [41]) {
       const force = laborForce(initial(seed));
       const final = randomGame(seed, rules(), (s) => {
         expect(validateState(s).errors).toEqual([]);

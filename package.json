@@ -12,7 +12,7 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json && tsc -p apps/game/tsconfig.json",
     "lint": "eslint .",
-    "test": "eslint . && vitest run",
+    "test": "eslint --cache --cache-location node_modules/.cache/eslint/ . && vitest run",
     "test:lungo": "vitest run --config vitest.lungo.config.ts",
     "balance": "tsx tools/balance/src/cli.ts",
     "play": "tsx tools/play/src/cli.ts"
