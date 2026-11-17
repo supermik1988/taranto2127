@@ -19,10 +19,11 @@ describe('partita completa, su più semi', { timeout: 120_000 }, () => {
   /** Economia attiva, dilemmi che arrivano un anno su due, politiche a caso. */
   const rules = (): TurnRules => ({ ...fakeRulesWithEconomy(), dilemmaArrivalProbability: 0.5 });
 
-  it('stato sempre valido e forza lavoro costante in 100 turni di gioco casuale su 5 semi', () => {
+  it('stato sempre valido e forza lavoro costante in 100 turni di gioco casuale su 5 semi', async () => {
     let dilemmas = 0;
     let trained = 0;
     for (const seed of [31, 32, 33, 34, 35]) {
+      await new Promise((resolve) => setImmediate(resolve));
       const force = laborForce(initial(seed));
       const final = randomGame(seed, rules(), (s) => {
         expect(validateState(s).errors).toEqual([]);

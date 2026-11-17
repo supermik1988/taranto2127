@@ -15,9 +15,11 @@ const answer = (state: GameState, optionId: string): GameState =>
   applyAction(withOpenDilemma(state), { kind: 'answer-dilemma', dilemmaId: 'dilemma-finto', optionId }, rules);
 
 describe('scandalo, su molti semi', () => {
-  it('con dieci atti nascosti lo scandalo arriva entro 20 turni in almeno il 95% di 1.000 semi', { timeout: 120_000 }, () => {
+  it('con dieci atti nascosti lo scandalo arriva entro 20 turni in almeno il 95% di 1.000 semi', { timeout: 300_000 }, async () => {
     let withScandal = 0;
+    // Una pausa ogni tanto: sotto carico Vitest deve poter parlare con il processo di prova.
     for (let seed = 0; seed < 1000; seed++) {
+      if (seed % 50 === 0) await new Promise((resolve) => setImmediate(resolve));
       let state = initial(seed);
       for (let i = 0; i < 10; i++) state = answer(state, 'nascosta-legalita');
       expect(state.moral.hiddenActs).toHaveLength(10);

@@ -3,15 +3,18 @@
  * il comando vero, lanciato in un processo a parte, anche su più thread. In
  * `balance.test.ts` restano le versioni brevi, nello stesso processo.
  */
-import { execFileSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { formatReport } from './report.js';
 import { runBalance } from './run.js';
 
 const cli = fileURLToPath(new URL('./cli.ts', import.meta.url));
-const runCli = (...args: string[]): string =>
-  execFileSync(process.execPath, ['--import', 'tsx', cli, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+const exec = promisify(execFile);
+/** Il comando vero, in modo asincrono: il processo di prova non resta bloccato in attesa. */
+const runCli = async (...args: string[]): Promise<string> =>
+  (await exec(process.execPath, ['--import', 'tsx', cli, ...args], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })).stdout;
 
 const HEADINGS = [
   '## 1. Esiti',
@@ -32,24 +35,28 @@ describe('rapporto con tutti i bot', { timeout: 180_000 }, () => {
   });
 
   it('è identico a parità di seme, e diverso con un altro seme', async () => {
-    const a = formatReport(await runBalance({ games: 2, seed: 5, threads: 1 }));
-    const b = formatReport(await runBalance({ games: 2, seed: 5, threads: 1 }));
-    const c = formatReport(await runBalance({ games: 2, seed: 6, threads: 1 }));
+    const run = async (seed: number) => {
+      await new Promise((resolve) => setImmediate(resolve));
+      return formatReport(await runBalance({ games: 2, seed, threads: 1 }));
+    };
+    const a = await run(5);
+    const b = await run(5);
+    const c = await run(6);
     expect(b).toBe(a);
     expect(c).not.toBe(a);
   });
 });
 
 describe('il comando vero', { timeout: 180_000 }, () => {
-  it('pnpm balance gira su poche partite e stampa il rapporto', () => {
-    const out = runCli('--partite', '2', '--thread', '1');
+  it('pnpm balance gira su poche partite e stampa il rapporto', async () => {
+    const out = await runCli('--partite', '2', '--thread', '1');
     expect(out).toContain('# Rapporto di bilanciamento');
     expect(out).toContain('2 partite per bot');
   });
 
-  it('con più thread il rapporto è identico a quello in un solo thread', () => {
-    const one = runCli('--partite', '3', '--thread', '1', '--bot', 'casuale', '--bot', 'red');
-    const many = runCli('--partite', '3', '--thread', '3', '--bot', 'casuale', '--bot', 'red');
+  it('con più thread il rapporto è identico a quello in un solo thread', async () => {
+    const one = await runCli('--partite', '3', '--thread', '1', '--bot', 'casuale', '--bot', 'red');
+    const many = await runCli('--partite', '3', '--thread', '3', '--bot', 'casuale', '--bot', 'red');
     expect(many).toBe(one);
   });
 });

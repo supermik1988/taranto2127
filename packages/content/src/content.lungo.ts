@@ -17,8 +17,9 @@ describe('partite casuali con i contenuti veri, su 20 semi', { timeout: 300_000 
   const seeds = Array.from({ length: 20 }, (_, i) => i + 1);
   const finals = new Map<number, GameState>();
 
-  it('100 turni di gioco casuale su 20 semi restano validi, con forza lavoro costante', () => {
+  it('100 turni di gioco casuale su 20 semi restano validi, con forza lavoro costante', async () => {
     for (const seed of seeds) {
+      await new Promise((resolve) => setImmediate(resolve));
       const force = laborForce(initial(seed));
       const final = randomGame(seed, initialContent, rules, (s) => {
         expect(validateState(s).errors).toEqual([]);

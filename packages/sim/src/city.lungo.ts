@@ -21,9 +21,11 @@ const patch = (state: GameState, change: (s: GameState) => void): GameState => {
 };
 
 describe('correzioni sui fondi, su molti casi', () => {
-  it('su 5.000 combinazioni di fondo e costo nessun fondo scende sotto zero', () => {
+  it('su 5.000 combinazioni di fondo e costo nessun fondo scende sotto zero', async () => {
     const rng = rngFor(7, 'prova-arrotondamenti');
+    // Una pausa ogni tanto: sotto carico Vitest deve poter parlare con il processo di prova.
     for (let i = 0; i < 5000; i++) {
+      if (i % 500 === 0) await new Promise((resolve) => setImmediate(resolve));
       const state = patch(initial(), (s) => {
         s.economy.funds.state = Math.round(rng.next() * 100000) / 1000;
         s.labor.onWageSupport = rng.int(0, 20000);
@@ -39,9 +41,10 @@ describe('partite complete con la città che reagisce, su più semi', { timeout:
   const laborForce = (s: GameState) =>
     Object.values(s.labor.employed).reduce((a, b) => a + b, 0) + s.labor.onWageSupport + s.labor.unemployed + s.labor.inTraining;
 
-  it('stato sempre valido e forza lavoro costante in 100 turni di gioco casuale su 5 semi', () => {
+  it('stato sempre valido e forza lavoro costante in 100 turni di gioco casuale su 5 semi', async () => {
     const endings = new Set<string>();
     for (const seed of [41, 42, 43, 44, 45]) {
+      await new Promise((resolve) => setImmediate(resolve));
       const force = laborForce(initial(seed));
       const final = randomGame(seed, rules(), (s) => {
         expect(validateState(s).errors).toEqual([]);
