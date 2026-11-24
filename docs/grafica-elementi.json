@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "art_direction_brief": "docs/GRAFICA.md#città-isometrica-t12-brief-di-direzione-artistica",
-  "note": "Elenco degli elementi grafici della città isometrica (T12), sul modello della skill create-game-assets. Tutti generati dal codice: nessun file esterno, nessuna immagine di altri giochi né dei riferimenti di Michele. Stato 'provino' finché Michele non approva la fase A nella scheda T12.",
+  "note": "Elenco degli elementi grafici della città isometrica (T12), sul modello della skill create-game-assets. Tutti generati dal codice: nessun file esterno, nessuna immagine di altri giochi né dei riferimenti di Michele. Gli elementi del provino sono approvati (fase A); quelli nuovi o cambiati nella fase B aspettano l'approvazione di Michele.",
   "assets": [
     {
       "id": "edificio-palazzina",
       "role": "Palazzina dei Tamburi: 4-7 piani, terrazza con parapetto bianco, cisterne, antenne, facciata a balconi",
       "path": "apps/game/src/iso/tipi.ts",
-      "status": "provino",
+      "status": "approvato",
       "technical": {
         "geometria": "estrusa dalla sagoma OSM, pareti raggruppate per stile di facciata",
         "colore": "per vertice, sRGB",
@@ -27,22 +27,22 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "edificio-citta-vecchia",
       "role": "Casa della Città Vecchia: 3-5 piani, terrazza, persiane verdi, pastelli e tufo",
       "path": "apps/game/src/iso/tipi.ts",
-      "status": "provino",
+      "status": "approvato",
       "technical": {
         "geometria": "estrusa dalla sagoma OSM, pareti raggruppate per stile di facciata",
         "colore": "per vertice, sRGB",
@@ -62,22 +62,22 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "edificio-casa",
       "role": "Casa bassa: 1-3 piani, persiane, terrazza o falde in coppi",
       "path": "apps/game/src/iso/tipi.ts",
-      "status": "provino",
+      "status": "approvato",
       "technical": {
         "geometria": "estrusa dalla sagoma OSM, pareti raggruppate per stile di facciata",
         "colore": "per vertice, sRGB",
@@ -97,22 +97,22 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "edificio-pubblico",
       "role": "Edificio pubblico: 2-4 piani, finestre a nastro, falde in coppi o tetto piano",
       "path": "apps/game/src/iso/tipi.ts",
-      "status": "provino",
+      "status": "approvato",
       "technical": {
         "geometria": "estrusa dalla sagoma OSM, pareti raggruppate per stile di facciata",
         "colore": "per vertice, sRGB",
@@ -132,22 +132,22 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "edificio-negozio",
       "role": "Negozi: 1-2 piani, vetrine con tenda rossa e bianca senza scritte, tetto piano",
       "path": "apps/game/src/iso/tipi.ts",
-      "status": "provino",
+      "status": "approvato",
       "technical": {
         "geometria": "estrusa dalla sagoma OSM, pareti raggruppate per stile di facciata",
         "colore": "per vertice, sRGB",
@@ -167,22 +167,22 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "edificio-capannone",
-      "role": "Capannone: 10-22 m, lamiera grecata grigia, falde in lamiera",
+      "role": "Capannone: 10-22 m, facciata industriale (zoccolo, lamiera, finestre in alto, portone), falde in lamiera con lucernari; grigi, azzurri, bianchi sporchi e ruggine (fase B: prima lamiera liscia)",
       "path": "apps/game/src/iso/tipi.ts",
-      "status": "provino",
+      "status": "in revisione",
       "technical": {
         "geometria": "estrusa dalla sagoma OSM, pareti raggruppate per stile di facciata",
         "colore": "per vertice, sRGB",
@@ -202,22 +202,22 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
         "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "approval": "in attesa di Michele (fase B)"
       }
     },
     {
       "id": "edificio-impianto",
-      "role": "Impianto: volume cieco di cemento con ciminiera",
+      "role": "Impianto: volume cieco di cemento a pannelli con ciminiera",
       "path": "apps/game/src/iso/tipi.ts",
-      "status": "provino",
+      "status": "approvato",
       "technical": {
         "geometria": "estrusa dalla sagoma OSM, pareti raggruppate per stile di facciata",
         "colore": "per vertice, sRGB",
@@ -237,22 +237,22 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "edificio-basso",
       "role": "Garage e annessi: un piano, tetto piano",
       "path": "apps/game/src/iso/tipi.ts",
-      "status": "provino",
+      "status": "approvato",
       "technical": {
         "geometria": "estrusa dalla sagoma OSM, pareti raggruppate per stile di facciata",
         "colore": "per vertice, sRGB",
@@ -272,22 +272,57 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
+      }
+    },
+    {
+      "id": "edificio-arrugginito",
+      "role": "Edifici veri dei reparti fermi (lotti diversi dai parchi minerali): capannoni con lamiere e tetti arrugginiti",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "estrusa dalla sagoma OSM, pareti raggruppate per stile di facciata",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "sagoma del tetto",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Regole in tipoEdificio() e variante(); costruzione in CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
         "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "approval": "in attesa di Michele (fase B)"
       }
     },
     {
       "id": "tetto-terrazza",
       "role": "Tetto piano a terrazza con parapetto bianco alto 1 m",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "approvato",
       "technical": {
         "geometria": "raggruppata con gli altri tetti",
         "colore": "per vertice, sRGB"
@@ -303,22 +338,22 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "CostruttoreEdifici.aggiungi(): falde se il riempimento del rettangolo orientato supera 0,82. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "tetto-falde-coppi",
-      "role": "Tetto a falde in coppi (pendenza 0,5) sul rettangolo orientato della sagoma",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "role": "Tetto a falde in coppi (pendenza 0,5)",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "approvato",
       "technical": {
         "geometria": "raggruppata con gli altri tetti",
         "colore": "per vertice, sRGB"
@@ -334,22 +369,22 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "CostruttoreEdifici.aggiungi(): falde se il riempimento del rettangolo orientato supera 0,82. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "tetto-falde-lamiera",
       "role": "Tetto a falde in lamiera (pendenza 0,22) per i capannoni",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "approvato",
       "technical": {
         "geometria": "raggruppata con gli altri tetti",
         "colore": "per vertice, sRGB"
@@ -365,22 +400,22 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "CostruttoreEdifici.aggiungi(): falde se il riempimento del rettangolo orientato supera 0,82. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "tetto-piano",
       "role": "Tetto piano con parapetto basso (0,4 m)",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "approvato",
       "technical": {
         "geometria": "raggruppata con gli altri tetti",
         "colore": "per vertice, sRGB"
@@ -396,25 +431,24 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "CostruttoreEdifici.aggiungi(): falde se il riempimento del rettangolo orientato supera 0,82. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "CostruttoreEdifici.aggiungi(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "dettaglio-cisterne",
       "role": "Cisterne d'acqua bianche sui tetti piani",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "approvato",
       "technical": {
-        "geometria": "cilindro a 10 lati, InstancedMesh",
-        "colore": "#eef1f2"
+        "geometria": "cilindro a 8 lati, InstancedMesh"
       },
       "visual_locks": [
         "tavolozza",
@@ -427,25 +461,24 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "CostruttoreEdifici.meshes() e aggiungi(). Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "CostruttoreEdifici. Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "dettaglio-antenne",
       "role": "Antenne sui tetti piani",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "approvato",
       "technical": {
-        "geometria": "palo con traverso, InstancedMesh",
-        "colore": "#4f5357"
+        "geometria": "palo con traverso, InstancedMesh"
       },
       "visual_locks": [
         "tavolozza",
@@ -458,25 +491,24 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "CostruttoreEdifici.meshes() e aggiungi(). Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "CostruttoreEdifici. Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "dettaglio-ciminiera",
-      "role": "Ciminiera degli impianti con fascia rossa o grigia",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "role": "Ciminiera rastremata con fascia rossa o grigia; dai dati OSM dove ci sono, con l'altezza vera",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "approvato",
       "technical": {
-        "geometria": "cilindro rastremato a 16 lati",
-        "colore": "#c9c2b6, fascia #c0392b o #7a7470"
+        "geometria": "cilindri a 12 lati uniti in una geometria"
       },
       "visual_locks": [
         "tavolozza",
@@ -489,25 +521,56 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "CostruttoreEdifici.meshes() e aggiungi(). Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "CostruttoreEdifici. Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
+      }
+    },
+    {
+      "id": "dettaglio-lucernari",
+      "role": "Lucernari: file di lastre chiare sui tetti dei capannoni",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "scatola, InstancedMesh"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "proporzioni"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "CostruttoreEdifici. Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
         "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "approval": "in attesa di Michele (fase B)"
       }
     },
     {
       "id": "albero-pino-domestico",
-      "role": "Pino domestico: chioma piatta e scura, tronco alto 8 m",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "role": "Pino domestico: chioma piatta e scura su fusto alto (icosaedro schiacciato, 20 triangoli più il fusto)",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "approvato",
       "technical": {
-        "geometria": "chioma e tronco in InstancedMesh, colore per istanza",
-        "varianti": "dimensione e verde da hash01"
+        "geometria": "chioma e fusto uniti, InstancedMesh per specie e per riquadro di 2 km",
+        "varianti": "dimensione e verde da hash01",
+        "livelli": "ordinati per importanza: il livello basso tiene viali e lotti"
       },
       "visual_locks": [
         "tavolozza",
@@ -521,25 +584,26 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "Classe Alberi; posizioni da viali, parchi e lotto a bosco, senza alberi dentro gli edifici. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "Classe Alberi. Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-isolato-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/correzione-strade-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "albero-latifoglia",
-      "role": "Latifoglia dei viali e dei parchi: chioma tonda, tronco 4,5 m",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "role": "Latifoglia dei viali, dei parchi e delle strade secondarie",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "approvato",
       "technical": {
-        "geometria": "chioma e tronco in InstancedMesh, colore per istanza",
-        "varianti": "dimensione e verde da hash01"
+        "geometria": "chioma e fusto uniti, InstancedMesh per specie e per riquadro di 2 km",
+        "varianti": "dimensione e verde da hash01",
+        "livelli": "ordinati per importanza: il livello basso tiene viali e lotti"
       },
       "visual_locks": [
         "tavolozza",
@@ -553,25 +617,26 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "Classe Alberi; posizioni da viali, parchi e lotto a bosco, senza alberi dentro gli edifici. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "Classe Alberi. Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-isolato-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/correzione-strade-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "albero-giovane",
-      "role": "Albero giovane del bosco dopo la bonifica: chioma piccola e chiara, tronco 2,4 m",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "role": "Alberello del bosco giovane dopo la bonifica",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "approvato",
       "technical": {
-        "geometria": "chioma e tronco in InstancedMesh, colore per istanza",
-        "varianti": "dimensione e verde da hash01"
+        "geometria": "chioma e fusto uniti, InstancedMesh per specie e per riquadro di 2 km",
+        "varianti": "dimensione e verde da hash01",
+        "livelli": "ordinati per importanza: il livello basso tiene viali e lotti"
       },
       "visual_locks": [
         "tavolozza",
@@ -585,25 +650,124 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "Classe Alberi; posizioni da viali, parchi e lotto a bosco, senza alberi dentro gli edifici. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "Classe Alberi. Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-isolato-1280.png",
+        "review_capture": "docs/schermate/correzione-strade-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
+      }
+    },
+    {
+      "id": "albero-ulivo",
+      "role": "Ulivo degli uliveti in campagna: chioma larga, bassa, grigio-verde",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "chioma e fusto uniti, InstancedMesh per specie e per riquadro di 2 km",
+        "varianti": "dimensione e verde da hash01",
+        "livelli": "ordinati per importanza: il livello basso tiene viali e lotti"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "sagoma",
+        "proporzioni"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "Classe Alberi. Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-strade-1280.png",
         "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "albero-cipresso",
+      "role": "Cipresso dei cimiteri: colonna stretta e scura",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "chioma e fusto uniti, InstancedMesh per specie e per riquadro di 2 km",
+        "varianti": "dimensione e verde da hash01",
+        "livelli": "ordinati per importanza: il livello basso tiene viali e lotti"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "sagoma",
+        "proporzioni"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "Classe Alberi. Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-strade-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "cespuglio",
+      "role": "Cespugli della macchia e dei terreni liberi",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "chioma e fusto uniti, InstancedMesh per specie e per riquadro di 2 km",
+        "varianti": "dimensione e verde da hash01",
+        "livelli": "ordinati per importanza: il livello basso tiene viali e lotti"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "sagoma",
+        "proporzioni"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "Classe Alberi. Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-strade-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
       }
     },
     {
       "id": "texture-balconi",
       "role": "Texture di facciata: finestre con balcone e ringhiera",
       "path": "apps/game/src/iso/texture.ts",
-      "status": "provino",
+      "status": "approvato",
       "technical": {
         "dimensions": "128x114",
-        "modulo": "una campata 3,6 m per un piano 3,2 m, ripetuto",
+        "modulo": "una campata 3,6 m per un piano 3,2 m",
         "alpha": false,
         "color_space": "sRGB",
         "filtering": "lineare con mipmap, anisotropia 4"
@@ -620,25 +784,25 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "Disegnata su tela 2D in textureFacciata(); quasi bianca, moltiplica il colore della geometria. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "textureFacciata(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "texture-persiane",
       "role": "Texture di facciata: finestra con persiane verdi aperte",
       "path": "apps/game/src/iso/texture.ts",
-      "status": "provino",
+      "status": "approvato",
       "technical": {
         "dimensions": "128x114",
-        "modulo": "una campata 3,6 m per un piano 3,2 m, ripetuto",
+        "modulo": "una campata 3,6 m per un piano 3,2 m",
         "alpha": false,
         "color_space": "sRGB",
         "filtering": "lineare con mipmap, anisotropia 4"
@@ -655,25 +819,25 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "Disegnata su tela 2D in textureFacciata(); quasi bianca, moltiplica il colore della geometria. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "textureFacciata(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "texture-nastro",
       "role": "Texture di facciata: finestre a nastro",
       "path": "apps/game/src/iso/texture.ts",
-      "status": "provino",
+      "status": "approvato",
       "technical": {
         "dimensions": "128x114",
-        "modulo": "una campata 3,6 m per un piano 3,2 m, ripetuto",
+        "modulo": "una campata 3,6 m per un piano 3,2 m",
         "alpha": false,
         "color_space": "sRGB",
         "filtering": "lineare con mipmap, anisotropia 4"
@@ -690,25 +854,25 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "Disegnata su tela 2D in textureFacciata(); quasi bianca, moltiplica il colore della geometria. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "textureFacciata(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "texture-vetrine",
       "role": "Texture di facciata: vetrina con tenda a strisce, senza scritte",
       "path": "apps/game/src/iso/texture.ts",
-      "status": "provino",
+      "status": "approvato",
       "technical": {
         "dimensions": "128x114",
-        "modulo": "una campata 3,6 m per un piano 3,2 m, ripetuto",
+        "modulo": "una campata 3,6 m per un piano 3,2 m",
         "alpha": false,
         "color_space": "sRGB",
         "filtering": "lineare con mipmap, anisotropia 4"
@@ -725,25 +889,25 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "Disegnata su tela 2D in textureFacciata(); quasi bianca, moltiplica il colore della geometria. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "textureFacciata(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "texture-lamiera",
       "role": "Texture di facciata: lamiera grecata",
       "path": "apps/game/src/iso/texture.ts",
-      "status": "provino",
+      "status": "approvato",
       "technical": {
         "dimensions": "128x114",
-        "modulo": "una campata 3,6 m per un piano 3,2 m, ripetuto",
+        "modulo": "una campata 3,6 m per un piano 3,2 m",
         "alpha": false,
         "color_space": "sRGB",
         "filtering": "lineare con mipmap, anisotropia 4"
@@ -760,25 +924,25 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "Disegnata su tela 2D in textureFacciata(); quasi bianca, moltiplica il colore della geometria. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "textureFacciata(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
       }
     },
     {
       "id": "texture-cieco",
-      "role": "Texture di facciata: parete cieca con giunti",
+      "role": "Texture di facciata: pannelli di cemento con giunti e macchie (fase B: più marcati)",
       "path": "apps/game/src/iso/texture.ts",
-      "status": "provino",
+      "status": "in revisione",
       "technical": {
         "dimensions": "128x114",
-        "modulo": "una campata 3,6 m per un piano 3,2 m, ripetuto",
+        "modulo": "una campata 3,6 m per un piano 3,2 m",
         "alpha": false,
         "color_space": "sRGB",
         "filtering": "lineare con mipmap, anisotropia 4"
@@ -795,25 +959,696 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "",
-        "prompt_or_source_record": "Disegnata su tela 2D in textureFacciata(); quasi bianca, moltiplica il colore della geometria. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "textureFacciata(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-tipi-1280.png",
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
         "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "approval": "in attesa di Michele (fase B)"
       }
     },
     {
-      "id": "lotto-parchi-fermo",
-      "role": "Lotto Parchi minerali, stato fermo: cumuli di minerale di ferro, carbone e calcare, binari, macchine di ripresa, nastri",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "id": "texture-industriale",
+      "role": "Texture di facciata: facciata industriale su tutta l'altezza: zoccolo, lamiera, nastro di finestre in alto, portone, colature di ruggine",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
       "technical": {
-        "geometria": "cumuli a prisma, binari a nastro, macchine e nastri come oggetti separati (da raggruppare in fase B)",
-        "quota": "fondo a 0,11 m"
+        "dimensions": "128x256",
+        "modulo": "7,2 m per tutta l'altezza",
+        "alpha": false,
+        "color_space": "sRGB",
+        "filtering": "lineare con mipmap, anisotropia 4"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "proporzioni del modulo",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureFacciata(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/citta-insieme-orientamento-1-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "suolo-erba",
+      "role": "Texture del suolo: erba mediterranea con cespugli disegnati (fondo della zona, giardini, terreni liberi)",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "scala": "una ripetizione ogni 24 m",
+        "alpha": false,
+        "color_space": "sRGB"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureSuolo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "suolo-cortile",
+      "role": "Texture del suolo: lastre chiare dei cortili e degli slarghi nei quartieri",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "scala": "una ripetizione ogni 24 m",
+        "alpha": false,
+        "color_space": "sRGB"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureSuolo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "suolo-piazzale",
+      "role": "Texture del suolo: cemento a lastre con macchie, piazzali dello stabilimento",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "scala": "una ripetizione ogni 24 m",
+        "alpha": false,
+        "color_space": "sRGB"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureSuolo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "suolo-parcheggio",
+      "role": "Texture del suolo: asfalto con gli stalli bianchi",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "scala": "una ripetizione ogni 24 m",
+        "alpha": false,
+        "color_space": "sRGB"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureSuolo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "suolo-sabbia",
+      "role": "Texture del suolo: sabbia con le increspature, spiagge",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "scala": "una ripetizione ogni 24 m",
+        "alpha": false,
+        "color_space": "sRGB"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureSuolo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "suolo-roccia",
+      "role": "Texture del suolo: roccia, scogli",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "scala": "una ripetizione ogni 24 m",
+        "alpha": false,
+        "color_space": "sRGB"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureSuolo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "suolo-ghiaia",
+      "role": "Texture del suolo: massicciata dei binari",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "scala": "una ripetizione ogni 24 m",
+        "alpha": false,
+        "color_space": "sRGB"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureSuolo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "suolo-terra",
+      "role": "Texture del suolo: terra battuta, aree dismesse, cantieri",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "scala": "una ripetizione ogni 24 m",
+        "alpha": false,
+        "color_space": "sRGB"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureSuolo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "suolo-lastricato",
+      "role": "Texture del suolo: lastricato delle piazze",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "scala": "una ripetizione ogni 24 m",
+        "alpha": false,
+        "color_space": "sRGB"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureSuolo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "suolo-campi",
+      "role": "Texture del suolo: campi coltivati a file",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "scala": "una ripetizione ogni 24 m",
+        "alpha": false,
+        "color_space": "sRGB"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureSuolo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "suolo-sottobosco",
+      "role": "Texture del suolo: bosco e macchia",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "scala": "una ripetizione ogni 24 m",
+        "alpha": false,
+        "color_space": "sRGB"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureSuolo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "suolo-campo",
+      "role": "Texture del suolo: campi sportivi",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "scala": "una ripetizione ogni 24 m",
+        "alpha": false,
+        "color_space": "sRGB"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessuna scritta"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureSuolo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "copertura-suolo",
+      "role": "Copertura di tutta la zona: dati OSM dove ci sono (usi del suolo, parcheggi, piazze, spiagge, verde), altrimenti stima per tipo di zona (piazzali, terra ed erba nello stabilimento; cortili e giardini nei quartieri; erba, campi e uliveti in campagna)",
+      "path": "apps/game/src/iso/suolo.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "una per strato e tipo di suolo, disegnate dall'alto verso il basso",
+        "stencil": "il mare segna i suoi pixel, i fondi li saltano"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "nessun terreno vuoto"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "costruisciSuolo(); dati in packages/content/geo/suolo.json. Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-suolo-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "mare-onde",
+      "role": "Mare con onde e riflessi leggeri: mappa delle normali disegnata dal codice che scorre nel tempo; bacini e canali più scuri",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "in revisione",
+      "technical": {
+        "dimensions": "128x128",
+        "color_space": "lineare (normali)",
+        "materiale": "MeshPhongMaterial, brillantezza 40"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "riflessi leggeri"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "textureOnde(), materialeMare(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-mare-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "costa",
+      "role": "Riva vera: il mare è 0,9 m sotto la terra; banchine di cemento, scogliere con massi e schiuma, spiagge che entrano in acqua",
+      "path": "apps/game/src/iso/suolo.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "pareti e piani inclinati lungo i lati dell'acqua; massi in InstancedMesh"
+      },
+      "visual_locks": [
+        "tavolozza"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "costruisciMare(), tipoRiva(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-mare-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "moli-barche",
+      "role": "Moli di cemento sopra l'acqua e barche ormeggiate lungo i moli e i bacini",
+      "path": "apps/game/src/iso/suolo.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "moli uniti; barche in InstancedMesh con colore per istanza"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "proporzioni"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "costruisciMare(), barcheLungo(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-mare-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "strade",
+      "role": "Strade con asfalto, mezzeria e marciapiedi, anche sulle secondarie dei quartieri; vie di servizio dello stabilimento; binari con massicciata e rotaie",
+      "path": "apps/game/src/iso/suolo.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "nastri uniti per materiale"
+      },
+      "visual_locks": [
+        "tavolozza"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "costruisciStrade(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-strade-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "auto",
+      "role": "Auto parcheggiate negli stalli dei parcheggi",
+      "path": "apps/game/src/iso/suolo.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "scocca e abitacolo, InstancedMesh con colore per istanza"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "proporzioni"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "parcheggia(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-strade-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "impianti-stabilimento",
+      "role": "Serbatoi e silos, ciminiere, nastri trasportatori su cavalletti e torri dai dati OSM; rastrelliere di tubazioni lungo le vie di servizio interne (stima)",
+      "path": "apps/game/src/iso/impianti.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "una geometria unita"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "proporzioni"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "costruisciImpianti(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/correzione-stabilimento-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "lotto-fermo-parchi",
+      "role": "Aspetto dei lotti di ILSIDER: Parchi minerali fermi: cumuli di minerale di ferro, carbone e calcare, binari, macchine di ripresa, nastri (fase B: uniti in una geometria)",
+      "path": "apps/game/src/iso/lotti.ts",
+      "status": "approvato",
+      "technical": {
+        "geometria": "al più 12 ordini di disegno per aspetto; parti in movimento in InstancedMesh"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "posizione del lotto"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "costruisciAspetto(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/lotto-fermo-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
+      }
+    },
+    {
+      "id": "lotto-fermo-reparti",
+      "role": "Aspetto dei lotti di ILSIDER: Altri lotti fermi: edifici veri arrugginiti e le strutture del reparto (batterie di forni, altoforni e cowper, camini, rotoli d'acciaio, gru a portale), con erbacce",
+      "path": "apps/game/src/iso/lotti.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "al più 12 ordini di disegno per aspetto; parti in movimento in InstancedMesh"
       },
       "visual_locks": [
         "tavolozza",
@@ -826,25 +1661,24 @@
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
         "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "parchiFermi(); gli edifici OSM dentro il lotto non si disegnano. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "prompt_or_source_record": "costruisciAspetto(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-parchi-fermo-1280.png",
+        "review_capture": "docs/schermate/lotto-fermo-1280.png",
         "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "approval": "in attesa di Michele (fase B)"
       }
     },
     {
-      "id": "lotto-parchi-bosco",
-      "role": "Lotto Parchi minerali, bonifica conclusa: bosco giovane con sentieri",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "id": "lotto-lavori",
+      "role": "Aspetto dei lotti di ILSIDER: Cantiere: recinzione arancione, gru a torre con il braccio che gira, mucchi di terra, strutture a metà, baracche, ruspe",
+      "path": "apps/game/src/iso/lotti.ts",
+      "status": "in revisione",
       "technical": {
-        "geometria": "fondo verde, sentieri a nastro, alberi giovani e pini in InstancedMesh",
-        "quota": "fondo a 0,11 m"
+        "geometria": "al più 12 ordini di disegno per aspetto; parti in movimento in InstancedMesh"
       },
       "visual_locks": [
         "tavolozza",
@@ -856,31 +1690,29 @@
         "creator": "TARANTO2127 (codice del progetto)",
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
-        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "boscoGiovane(); gli edifici OSM dentro il lotto non si disegnano. Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "attribution": "",
+        "prompt_or_source_record": "costruisciAspetto(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-parchi-bosco-1280.png",
+        "review_capture": "docs/schermate/lotto-lavori-1280.png",
         "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "approval": "in attesa di Michele (fase B)"
       }
     },
     {
-      "id": "terreno-mare-strade",
-      "role": "Terreno esteso oltre la zona, mare con riflesso, strade con marciapiedi e mezzeria, binari, verde a terra",
-      "path": "apps/game/src/iso/citta.ts",
-      "status": "provino",
+      "id": "lotto-acciaio",
+      "role": "Aspetto dei lotti di ILSIDER: Acciaio con forni nuovi: capannoni bianchi e azzurri con lucernari, uffici, camion, un camino con poco fumo",
+      "path": "apps/game/src/iso/lotti.ts",
+      "status": "in revisione",
       "technical": {
-        "geometria": "superfici piatte raggruppate",
-        "mare": "MeshPhongMaterial, brillantezza 60",
-        "bordi": "terreno esteso di 6 km, nessuna lastra"
+        "geometria": "al più 12 ordini di disegno per aspetto; parti in movimento in InstancedMesh"
       },
       "visual_locks": [
         "tavolozza",
-        "nessun bordo"
+        "posizione del lotto"
       ],
       "source": {
         "kind": "generato dal codice",
@@ -888,16 +1720,106 @@
         "creator": "TARANTO2127 (codice del progetto)",
         "created_at": "2026-11-24",
         "license": "AGPL-3.0-only (come il codice)",
-        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "TERRENO e costruisciCitta(). Nessuna immagine generata con servizi esterni: forme e colori scritti nel codice."
+        "attribution": "",
+        "prompt_or_source_record": "costruisciAspetto(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
       },
       "verification": {
         "native_scale_reviewed": true,
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
-        "review_capture": "docs/schermate/provino-costa-1280.png",
+        "review_capture": "docs/schermate/lotto-acciaio-1280.png",
         "approved_by": "",
-        "approval": "in attesa di Michele (scheda T12, fase A)"
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "lotto-bosco",
+      "role": "Aspetto dei lotti di ILSIDER: Bonifica conclusa: prato, sentieri, bosco giovane",
+      "path": "apps/game/src/iso/lotti.ts",
+      "status": "approvato",
+      "technical": {
+        "geometria": "al più 12 ordini di disegno per aspetto; parti in movimento in InstancedMesh"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "posizione del lotto"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "costruisciAspetto(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/lotto-bosco-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A (scheda T12, 24 novembre 2026)"
+      }
+    },
+    {
+      "id": "lotto-energia",
+      "role": "Aspetto dei lotti di ILSIDER: Energia: file di pannelli solari e pale eoliche che girano",
+      "path": "apps/game/src/iso/lotti.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "al più 12 ordini di disegno per aspetto; parti in movimento in InstancedMesh"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "posizione del lotto"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "costruisciAspetto(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/lotto-energia-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "lotto-mare",
+      "role": "Aspetto dei lotti di ILSIDER: Mare e cultura: piazza, edifici pubblici colorati, viali; sul mare vero banchina, bitte e barche",
+      "path": "apps/game/src/iso/lotti.ts",
+      "status": "in revisione",
+      "technical": {
+        "geometria": "al più 12 ordini di disegno per aspetto; parti in movimento in InstancedMesh"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "posizione del lotto"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "",
+        "prompt_or_source_record": "costruisciAspetto(). Nessuna immagine esterna né generata con servizi: forme, colori e texture scritti nel codice."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/lotto-mare-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (fase B)"
       }
     }
   ]

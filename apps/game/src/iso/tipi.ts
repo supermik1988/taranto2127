@@ -56,7 +56,8 @@ export function tipoEdificio(b: GeoBuilding, ctx: Contesto): TipoEdificio {
 }
 
 /** Facciate disegnate dal codice: una texture per stile, ripetuta lungo le pareti. */
-export type StileFacciata = 'balconi' | 'persiane' | 'nastro' | 'vetrine' | 'lamiera' | 'cieco';
+export type StileFacciata = 'balconi' | 'persiane' | 'nastro' | 'vetrine' | 'lamiera' | 'cieco' | 'industriale';
+export const STILI: StileFacciata[] = ['balconi', 'persiane', 'nastro', 'vetrine', 'lamiera', 'cieco', 'industriale'];
 
 export type Tetto = 'terrazza' | 'falde-coppi' | 'falde-lamiera' | 'piano';
 
@@ -76,6 +77,8 @@ export interface Variante {
   antenne: number;
   /** Ciminiera: altezza in metri (0 = nessuna). */
   ciminiera: number;
+  /** Lucernari sul tetto (capannoni). */
+  lucernari: boolean;
 }
 
 /** Tavolozza degli intonaci e delle lamiere, con il ruolo di ogni colore (docs/GRAFICA.md). */
@@ -87,7 +90,8 @@ export const INTONACI = {
   casa: ['#f4ead2', '#efd2a2', '#e6b48b', '#f3e2b3'],
   pubblico: ['#e7b76f', '#d9a06a', '#f0d79d'],
   negozio: ['#ece6d8', '#e3dccb', '#f3efe4'],
-  capannone: ['#9aa7b3', '#b7bdc2', '#8e9aa5', '#a6b1a2'],
+  // Capannoni: grigi freddi, azzurri, bianchi sporchi e qualche lamiera arrugginita.
+  capannone: ['#9aa7b3', '#b7bdc2', '#8e9aa5', '#a6b1a2', '#c9cfd4', '#7f97ad', '#a8826a', '#b9a48b'],
   impianto: ['#b8b0a3', '#a59c8f', '#c4bcae'],
   basso: ['#dcd3c1', '#cfc5b0'],
 } as const satisfies Record<TipoEdificio, readonly string[]>;
@@ -110,6 +114,7 @@ export function variante(b: GeoBuilding, tipo: TipoEdificio, rettangolare: boole
   let cisterne = 0;
   let antenne = 0;
   let ciminiera = 0;
+  let lucernari = false;
   switch (tipo) {
     case 'palazzina':
       piani = 4 + Math.floor(r(1) * 4); // 4-7 piani, come le palazzine dei Tamburi
@@ -149,8 +154,9 @@ export function variante(b: GeoBuilding, tipo: TipoEdificio, rettangolare: boole
       break;
     case 'capannone':
       piani = 3 + Math.floor(r(1) * 4); // 10-22 m di gronda, misurati in «piani» di 3,2 m
-      facciata = 'lamiera';
+      facciata = 'industriale';
       tetto = rettangolare ? 'falde-lamiera' : 'piano';
+      lucernari = true;
       copertura = pick(COPERTURE.lamiera, r(2));
       break;
     case 'impianto':
@@ -179,5 +185,6 @@ export function variante(b: GeoBuilding, tipo: TipoEdificio, rettangolare: boole
     cisterne,
     antenne,
     ciminiera,
+    lucernari,
   };
 }

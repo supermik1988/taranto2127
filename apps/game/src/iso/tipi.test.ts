@@ -25,7 +25,7 @@ describe('tipi di edificio', () => {
   it('palazzine con terrazza e balconi, capannoni in lamiera, impianti con ciminiera', () => {
     const b = geo.edifici[0]!;
     expect(variante(b, 'palazzina', true)).toMatchObject({ tetto: 'terrazza', facciata: 'balconi' });
-    expect(variante(b, 'capannone', false)).toMatchObject({ facciata: 'lamiera', tetto: 'piano' });
+    expect(variante(b, 'capannone', false)).toMatchObject({ facciata: 'industriale', tetto: 'piano', lucernari: true });
     expect(variante(b, 'impianto', true).ciminiera).toBeGreaterThan(0);
   });
 

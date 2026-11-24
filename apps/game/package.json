@@ -11,8 +11,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "verifica": "tsx scripts/verifica.ts",
-    "provino": "tsx scripts/provino.ts"
+    "verifica": "tsx scripts/verifica.ts"
   },
   "dependencies": {
     "@taranto2127/agents": "workspace:*",

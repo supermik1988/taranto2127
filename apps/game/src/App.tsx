@@ -49,7 +49,8 @@ import {
   type SavedGame,
 } from './engine.js';
 import { HelpSheet, Term, TipProvider, Tour, fill } from './guide.js';
-import { LayersPanel, MapList, MapStage, MapWindow, chooseMapMode, readStoredMode, storeMode, webglAvailable, type MapMode } from './layout.js';
+import type { Livello, Scelta } from './iso/livelli.js';
+import { LayersPanel, MapList, MapStage, MapWindow, chooseMapMode, readStoredDetail, readStoredMode, storeDetail, storeMode, webglAvailable, type MapMode } from './layout.js';
 import type { MapIndicator } from './map.js';
 import { GameMenu } from './menu.js';
 
@@ -245,6 +246,8 @@ export function App() {
   const [panel, setPanel] = useState<Panel | null>(null);
   const [layer, setLayer] = useState<MapIndicator | null>(null);
   const [mapMode, setMapMode] = useState<MapMode>(() => chooseMapMode(window.location.search, readStoredMode(), webglAvailable()));
+  const [detail, setDetail] = useState<Scelta>(() => readStoredDetail());
+  const [detailNow, setDetailNow] = useState<Livello | null>(null);
   const [selected, setSelected] = useState<{ kind: 'district' | 'lot'; id: string } | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
   const [cronaca, setCronaca] = useState<{ year: number; headlines: string[] } | null>(null);
@@ -429,8 +432,10 @@ export function App() {
             state={state}
             layer={mapMode === 'schematica' ? (layer ?? 'airQuality') : layer}
             selected={selected?.id ?? null}
+            detail={detail}
             onSelect={select}
             onFallback={fallback}
+            onDetail={setDetailNow}
           />
         )}
         <div className="hud-top" ref={hudRef}>
@@ -471,7 +476,19 @@ export function App() {
                 {panel === 'grafici' && <ChartsView timeline={game.timeline} />}
                 {panel === 'consiglio' && <CouncilView state={state} onRequest={request} />}
                 {panel === 'politiche' && <PoliciesView state={state} onRequest={request} />}
-                {panel === 'strati' && <LayersPanel state={state} layer={layer} mode={mapMode} onLayer={setLayer} onMode={changeMode} />}
+                {panel === 'strati' && <LayersPanel
+                    state={state}
+                    layer={layer}
+                    mode={mapMode}
+                    detail={detail}
+                    detailNow={detailNow}
+                    onLayer={setLayer}
+                    onMode={changeMode}
+                    onDetail={(d) => {
+                      setDetail(d);
+                      storeDetail(d);
+                    }}
+                  />}
                 {panel === 'elenco' && <MapList state={state} onSelect={select} />}
               </MapWindow>
             )}

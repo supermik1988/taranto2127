@@ -9,6 +9,7 @@ import { Suspense, lazy, type ReactNode } from 'react';
 import { PATH_NAMES } from './cards.js';
 import { content } from './engine.js';
 import { INDICATOR_LABELS, MapLegend, TarantoMap, type MapIndicator } from './map.js';
+import { NOMI_LIVELLI, type Livello, type Scelta } from './iso/livelli.js';
 import { LOT_LOOK_NAMES, layerValues, lotLook } from './plastico/looks.js';
 
 /** Il plastico si carica a parte: three.js e i dati geografici non pesano sulla prima schermata. */
@@ -48,6 +49,26 @@ export function readStoredMode(): string | null {
   }
 }
 
+const DETAIL_KEY = 'taranto2127:dettaglio';
+
+/** Livello di dettaglio scelto e salvato (automatico se non c'è). */
+export function readStoredDetail(): Scelta {
+  try {
+    const v = localStorage.getItem(DETAIL_KEY);
+    return v === 'alto' || v === 'medio' || v === 'basso' ? v : 'auto';
+  } catch {
+    return 'auto';
+  }
+}
+
+export function storeDetail(detail: Scelta): void {
+  try {
+    localStorage.setItem(DETAIL_KEY, detail);
+  } catch {
+    // archivio non disponibile: la scelta vale per questa visita
+  }
+}
+
 export function storeMode(mode: MapMode): void {
   try {
     localStorage.setItem(MODE_KEY, mode);
@@ -62,21 +83,25 @@ export function MapStage({
   state,
   layer,
   selected,
+  detail,
   onSelect,
   onFallback,
+  onDetail,
 }: {
   mode: MapMode;
   state: GameState;
   layer: MapIndicator | null;
   selected: string | null;
+  detail: Scelta;
   onSelect: (kind: 'district' | 'lot', id: string) => void;
   onFallback: (reason: string) => void;
+  onDetail: (livello: Livello) => void;
 }) {
   return (
     <div className="map-stage" data-tour="mappa" data-testid="mappa-palco">
       {mode === 'plastico' ? (
-        <Suspense fallback={<p className="plastico-loading">Preparo il plastico…</p>}>
-          <Plastico state={state} layer={layer} selected={selected} onSelect={onSelect} onFallback={onFallback} />
+        <Suspense fallback={<p className="plastico-loading">Preparo la città…</p>}>
+          <Plastico state={state} layer={layer} selected={selected} detail={detail} onSelect={onSelect} onFallback={onFallback} onDetail={onDetail} />
         </Suspense>
       ) : (
         <div className="schematic">
@@ -111,14 +136,21 @@ export function LayersPanel({
   state,
   layer,
   mode,
+  detail = 'auto',
+  detailNow = null,
   onLayer,
   onMode,
+  onDetail = () => undefined,
 }: {
   state: GameState;
   layer: MapIndicator | null;
   mode: MapMode;
+  /** Livello di dettaglio scelto e livello in uso (null se la città non è ancora pronta). */
+  detail?: Scelta;
+  detailNow?: Livello | null;
   onLayer: (layer: MapIndicator | null) => void;
   onMode: (mode: MapMode) => void;
+  onDetail?: (detail: Scelta) => void;
 }) {
   const shown = layer ?? 'airQuality';
   const values = layerValues(state, shown);
@@ -150,16 +182,31 @@ export function LayersPanel({
           ))}
         </tbody>
       </table>
-      {mode === 'plastico' && <p className="note">Paolo VI e le borgate sono fuori dalla zona del plastico: i loro valori sono qui e nell'elenco.</p>}
+      {mode === 'plastico' && <p className="note">Paolo VI e le borgate sono fuori dalla zona della città 3D: i loro valori sono qui e nell'elenco.</p>}
       <h3>Mappa</h3>
       <div className="buttons wrap">
         <button type="button" className={mode === 'plastico' ? 'primary' : ''} aria-pressed={mode === 'plastico'} onClick={() => onMode('plastico')} data-testid="modo-plastico">
-          Plastico 3D
+          Città 3D
         </button>
         <button type="button" className={mode === 'schematica' ? 'primary' : ''} aria-pressed={mode === 'schematica'} onClick={() => onMode('schematica')} data-testid="modo-schematica">
           Mappa schematica
         </button>
       </div>
+      {mode === 'plastico' && (
+        <>
+          <h3>Dettaglio della città</h3>
+          <div className="chips" role="group" aria-label="Dettaglio della città">
+            {(['auto', 'alto', 'medio', 'basso'] as Scelta[]).map((d) => (
+              <button key={d} type="button" className={d === detail ? 'chip on' : 'chip'} aria-pressed={d === detail} onClick={() => onDetail(d)} data-testid={`dettaglio-${d}`}>
+                {NOMI_LIVELLI[d]}
+              </button>
+            ))}
+          </div>
+          <p className="note" data-testid="dettaglio-ora">
+            {detailNow === null ? 'La città si sta preparando.' : `In uso: ${NOMI_LIVELLI[detailNow].toLowerCase()}.`} In automatico il gioco scende di livello da solo se il dispositivo fatica.
+          </p>
+        </>
+      )}
     </div>
   );
 }

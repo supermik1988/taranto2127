@@ -290,6 +290,9 @@ button.danger { background: var(--red); border-color: var(--red); }
 .plastico-loading { position: absolute; top: 50%; left: 0; right: 0; text-align: center; color: var(--muted); }
 .attribution { position: absolute; left: 8px; bottom: 124px; margin: 0; padding: 2px 8px; background: rgba(255, 255, 255, 0.85); border-radius: 6px; font-size: 1rem; }
 .attribution a { color: var(--ink); }
+/* T12: pulsanti della vista (avvicina, allontana, ruota), a sinistra sopra l'attribuzione. */
+.map-controls { position: absolute; left: 8px; bottom: 160px; display: flex; flex-direction: column; gap: 6px; z-index: 1; }
+.map-controls button { width: 44px; height: 44px; padding: 0; justify-content: center; font-size: 1.4rem; font-weight: 700; background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(29, 29, 31, 0.15); }
 .schematic { position: absolute; top: calc(var(--hud-h, 150px) + 8px); bottom: 124px; left: 8px; right: 116px; display: flex; align-items: center; justify-content: center; }
 .schematic .map { max-height: 100%; width: auto; max-width: 100%; }
 

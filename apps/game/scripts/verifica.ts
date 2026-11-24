@@ -15,11 +15,18 @@
  * - con la mappa schematica forzata la partita vada da capo a fondo senza
  *   scaricare il codice 3D;
  * - a 360 px nessuna schermata scorra in orizzontale.
- * Misura anche le immagini al secondo del plastico: a 390 px con il processore
- * rallentato 4 volte (come un telefono di fascia media) e a 1280 px.
+ * T12: misura i tempi delle immagini della città isometrica in tre giri (media e
+ * 95° percentile in ms) a 390 px con il processore rallentato 4 volte (telefono di
+ * fascia media simulato) e a 1280 px; controlla che il gioco scenda di livello da
+ * solo, che i quattro angoli dello schermo non mostrino mai lo sfondo e che la
+ * camera resti ortografica a 30°; annota i budget per livello e fa le schermate
+ * della città (vista d'insieme in due orientamenti, correzioni, livello basso).
  *
  *   pnpm --filter @taranto2127/game verifica          (Edge)
- *   pnpm --filter @taranto2127/game verifica -- --rapida   (solo tocco e strato sul plastico)
+ *   pnpm --filter @taranto2127/game verifica -- --rapida   (solo tocco e strato sulla città)
+ *   pnpm --filter @taranto2127/game verifica -- --prestazioni   (solo tempi, livelli e budget)
+ *   pnpm --filter @taranto2127/game verifica -- --citta   (solo angoli dello schermo e schermate della città)
+ *   pnpm --filter @taranto2127/game verifica -- --angoli | --scende   (una sola prova, per le prove inverse)
  *   BROWSER=chrome pnpm --filter @taranto2127/game verifica
  */
 import { execSync, spawn } from 'node:child_process';
@@ -199,8 +206,9 @@ async function checkSaves(page: Page, width: number, shot: Shot): Promise<void> 
 // ---------- Plastico ----------
 
 async function waitForModel(page: Page): Promise<void> {
-  await page.waitForSelector(sel('mappa-3d'), { timeout: 30_000 });
-  await page.waitForFunction(() => window.taranto2127Plastico !== undefined, undefined, { timeout: 30_000 });
+  // La città si costruisce in qualche secondo; con il processore rallentato anche dieci volte tanto.
+  await page.waitForSelector(sel('mappa-3d'), { timeout: 120_000 });
+  await page.waitForFunction(() => window.taranto2127Plastico !== undefined, undefined, { timeout: 120_000 });
   await page.waitForTimeout(800);
 }
 
@@ -415,31 +423,6 @@ async function playAt(width: number, browser: Browser, mode: 'completa' | 'salta
   await context.close();
 }
 
-/** Immagini al secondo del plastico, dopo il riscaldamento, con il processore rallentato (o no). */
-async function measure(browser: Browser, width: number, cpuSlowdown: number): Promise<void> {
-  const context = await browser.newContext({ viewport: { width, height: width < 600 ? 844 : 900 }, deviceScaleFactor: width < 600 ? 2 : 1, hasTouch: width < 600 });
-  await context.addInitScript(() => localStorage.setItem('taranto2127:visita-fatta', 'si'));
-  const page = await context.newPage();
-  const cdp = await context.newCDPSession(page);
-  await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuSlowdown });
-  await page.goto(`${BASE}?seme=${SEED}`);
-  await waitForModel(page);
-  // Si muove la camera mentre si misura, come chi esplora il plastico.
-  await page.waitForTimeout(3000);
-  const samples: number[] = [];
-  for (let i = 0; i < 4; i++) {
-    await page.evaluate((k) => window.taranto2127Plastico!.focus(['tamburi', 'lotto-altoforni', 'lotto-banchine', 'citta-vecchia'][k]!, 3000), i);
-    await page.waitForTimeout(2200);
-    samples.push(await page.evaluate(() => window.taranto2127Plastico!.fps()));
-  }
-  const still3d = await visible(page, "mappa-3d");
-  const min = Math.min(...samples);
-  const avg = samples.reduce((a, b) => a + b, 0) / samples.length;
-  measures.push(`${width} px, processore rallentato ${cpuSlowdown}×, densità ${width < 600 ? 2 : 1}: media ${avg.toFixed(1)}, minima ${min.toFixed(1)} immagini al secondo${still3d ? "" : " (passato alla mappa schematica)"}`);
-  if (width < 600 && min < 30) fail(`a ${width} px con il processore rallentato ${cpuSlowdown}× il plastico scende a ${min.toFixed(1)} immagini al secondo`);
-  await context.close();
-}
-
 /** Con la mappa schematica forzata la partita va da capo a fondo, e il codice 3D non si scarica. */
 async function playSchematic(browser: Browser): Promise<void> {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
@@ -616,9 +599,191 @@ async function checkLayerContrast(browser: Browser): Promise<void> {
   }
 }
 
+// ---------- Città isometrica (T12) ----------
+
+/** Budget di un'immagine e margine chiesto al livello medio sul telefono simulato. */
+const BUDGET_MS = 33;
+const MARGINE_MEDIO = 0.2;
+/** Metà della zona in metri (packages/content/geo/plastico.json, dimensioni). */
+const MEZZA = { x: 4740, y: 2984 };
+type Livello = 'alto' | 'medio' | 'basso';
+
+/** Annota una misura e la stampa subito (le esecuzioni lunghe non la perdono se qualcosa si ferma dopo). */
+function misura(line: string): void {
+  measures.push(line);
+  console.log(`MISURA: ${line}`);
+}
+
+async function apriCitta(browser: Browser, width: number, opts: { cpu?: number; livello?: Livello | 'auto' } = {}): Promise<{ page: Page; close: () => Promise<void> }> {
+  const context = await browser.newContext({ viewport: { width, height: width < 600 ? 844 : 900 }, deviceScaleFactor: width < 600 ? 2 : 1, hasTouch: width < 600 });
+  await context.addInitScript((livello) => {
+    localStorage.setItem('taranto2127:visita-fatta', 'si');
+    if (livello !== undefined) localStorage.setItem('taranto2127:dettaglio', livello);
+  }, opts.livello);
+  const page = await context.newPage();
+  page.on('console', (msg) => msg.type() === 'error' && fail(`errore in console (città ${width} px): ${msg.text()}`));
+  page.on('pageerror', (err) => fail(`errore nella pagina (città ${width} px): ${err.message}`));
+  if (opts.cpu !== undefined && opts.cpu > 1) {
+    const cdp = await context.newCDPSession(page);
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: opts.cpu });
+  }
+  await page.goto(`${BASE}?seme=${SEED}`, { timeout: 180_000 });
+  await waitForModel(page);
+  if (await visible(page, 'avviso')) await page.locator(`${sel('avviso')} button`).click();
+  return { page, close: () => context.close() };
+}
+
+const p95 = (t: number[]) => [...t].sort((a, b) => a - b)[Math.min(t.length - 1, Math.floor(t.length * 0.95))] ?? 0;
+const media = (t: number[]) => t.reduce((a, b) => a + b, 0) / Math.max(1, t.length);
+
+/**
+ * Tempi delle immagini (ms) sulla stessa scena: la vista d'avvio, poi quattro punti
+ * della zona, muovendo la camera come chi esplora. Restituisce media e 95° percentile.
+ */
+async function giro(page: Page): Promise<{ media: number; p95: number; livello: string }> {
+  // Si lascia assestare il livello (in automatico può scendere), poi si misura.
+  await page.waitForTimeout(6000);
+  const tempi: number[] = [];
+  for (const [id, distanza] of [
+    ['tamburi', 3000],
+    ['lotto-altoforni', 3000],
+    ['lotto-banchine', 3000],
+    ['citta-vecchia', 3000],
+  ] as const) {
+    await page.evaluate(([t, d]) => window.taranto2127Plastico!.focus(t, d), [id, distanza] as const);
+    await page.waitForTimeout(400);
+    await page.evaluate(() => window.taranto2127Plastico!.azzeraTempi());
+    await page.waitForTimeout(2500);
+    tempi.push(...(await page.evaluate(() => window.taranto2127Plastico!.tempi())));
+  }
+  const livello = await page.evaluate(() => window.taranto2127Plastico!.livello());
+  return { media: media(tempi), p95: p95(tempi), livello };
+}
+
+/** Prestazioni in tre giri, in millisecondi, sui casi della scheda T12. */
+async function prestazioniCitta(browser: Browser): Promise<void> {
+  const casi: { nome: string; width: number; cpu: number; livello: Livello | 'auto'; soglia: number }[] = [
+    { nome: '390 px, processore rallentato 4×, densità 2, livello scelto da solo', width: 390, cpu: 4, livello: 'auto', soglia: BUDGET_MS },
+    { nome: '390 px, processore rallentato 4×, densità 2, livello medio', width: 390, cpu: 4, livello: 'medio', soglia: BUDGET_MS * (1 - MARGINE_MEDIO) },
+    { nome: '1280 px, densità 1, livello alto', width: 1280, cpu: 1, livello: 'alto', soglia: BUDGET_MS },
+  ];
+  for (const caso of casi) {
+    for (let run = 1; run <= 3; run++) {
+      const { page, close } = await apriCitta(browser, caso.width, { cpu: caso.cpu, livello: caso.livello });
+      const r = await giro(page);
+      misura(`${caso.nome}, giro ${run}: media ${r.media.toFixed(1)} ms, 95° percentile ${r.p95.toFixed(1)} ms (livello ${r.livello}; soglia ${caso.soglia.toFixed(1)} ms)`);
+      if (r.p95 >= caso.soglia) fail(`${caso.nome}, giro ${run}: 95° percentile ${r.p95.toFixed(1)} ms, sopra ${caso.soglia.toFixed(1)} ms`);
+      await close();
+    }
+  }
+}
+
+/** Con il processore molto rallentato, in automatico, il gioco scende di livello da solo. */
+async function scendeDaSolo(browser: Browser, cpu = 10): Promise<void> {
+  const { page, close } = await apriCitta(browser, 390, { cpu, livello: 'auto' });
+  let cambi: string[] = [];
+  for (let i = 0; i < 40 && cambi.length === 0; i++) {
+    await page.waitForTimeout(1000);
+    cambi = await page.evaluate(() => window.taranto2127Plastico?.cambi.slice() ?? ['riserva: mappa schematica']);
+  }
+  misura(`processore rallentato ${cpu}×, 390 px: ${cambi.length === 0 ? 'nessun cambio di livello' : cambi.join(' → ')}`);
+  if (cambi.length === 0) fail(`con il processore rallentato ${cpu}× il gioco non scende di livello da solo`);
+  await close();
+}
+
+/** A ogni ingrandimento e in ogni orientamento, anche spingendo la vista ai bordi, i quattro angoli mostrano terreno o mare. */
+async function angoliSempreCitta(browser: Browser, width: number): Promise<void> {
+  const { page, close } = await apriCitta(browser, width, { livello: 'basso' });
+  let prove = 0;
+  for (let o = 0; o < 4; o++) {
+    for (const ppm of [0.3, 0.6, 1, 2, 4, 8]) {
+      for (const [x, y] of [
+        [0, 0],
+        [-MEZZA.x * 2, -MEZZA.y * 2],
+        [MEZZA.x * 2, MEZZA.y * 2],
+        [-MEZZA.x * 2, MEZZA.y * 2],
+        [MEZZA.x * 2, -MEZZA.y * 2],
+      ] as const) {
+        const r = await page.evaluate(
+          ([oo, pp, xx, yy]) => {
+            const p = window.taranto2127Plastico!;
+            p.imposta(pp, oo);
+            p.guarda(xx, yy, pp);
+            return { angoli: p.angoli(), camera: p.camera() };
+          },
+          [o, ppm, x, y] as const,
+        );
+        prove += 1;
+        if (r.angoli.some((a) => !a)) fail(`a ${width} px, orientamento ${o}, ${ppm} pixel per metro, vista spinta verso (${x}, ${y}): un angolo dello schermo mostra lo sfondo (${JSON.stringify(r.angoli)})`);
+        if (!r.camera.ortografica || Math.abs(r.camera.elevazione - 30) > 1e-6 || Math.abs(((r.camera.azimut - 45 - o * 90) % 360 + 360) % 360) > 1e-6) {
+          fail(`a ${width} px la camera non è ortografica a 30° con l'orientamento ${o}: ${JSON.stringify(r.camera)}`);
+        }
+      }
+    }
+  }
+  misura(`angoli dello schermo a ${width} px: ${prove} viste controllate (4 orientamenti × 6 ingrandimenti × 5 posizioni)`);
+  await close();
+}
+
+/** Ordini di disegno, triangoli e memoria delle texture per livello, sulla vista d'avvio e da vicino. */
+async function budgetCitta(browser: Browser): Promise<void> {
+  for (const livello of ['alto', 'medio', 'basso'] as const) {
+    const { page, close } = await apriCitta(browser, 1280, { livello });
+    for (const [nome, ppm] of [
+      ['vista d\'avvio', 1.1],
+      ['da vicino', 4],
+    ] as const) {
+      const info = await page.evaluate(
+        ([pp]) => {
+          const p = window.taranto2127Plastico!;
+          p.focus('tamburi', 3000 / pp);
+          return p.info();
+        },
+        [ppm] as const,
+      );
+      misura(`budget, livello ${livello}, ${nome} (${ppm} px/m): ${info.ordini} ordini di disegno, ${Math.round(info.triangoli / 1000)} mila triangoli, texture ${(info.memoriaTexture / 1e6).toFixed(2)} MB`);
+    }
+    await close();
+  }
+}
+
+/** Schermate della città: vista d'insieme in due orientamenti, le quattro correzioni, il livello basso. */
+async function schermateCitta(browser: Browser, width: number): Promise<void> {
+  const shots: { nome: string; livello?: Livello; ppm: number; o?: number; xy?: [number, number]; id?: string }[] = [
+    { nome: 'citta-insieme-orientamento-1', ppm: 0.45, o: 0, id: 'tamburi' },
+    { nome: 'citta-insieme-orientamento-3', ppm: 0.45, o: 2, id: 'tamburi' },
+    { nome: 'correzione-suolo', ppm: 1.6, xy: [-250, -900] },
+    { nome: 'correzione-stabilimento', ppm: 2.2, xy: [-1150, -500] },
+    { nome: 'correzione-mare', ppm: 3, xy: [1700, -1750], o: 0 },
+    { nome: 'correzione-strade', ppm: 4, id: 'tamburi' },
+    { nome: 'citta-livello-basso', ppm: 1.6, livello: 'basso', id: 'tamburi' },
+  ];
+  for (const s of shots) {
+    const { page, close } = await apriCitta(browser, width, { livello: s.livello ?? 'alto' });
+    await page.evaluate(
+      ([id, ppm, o, xy]) => {
+        const p = window.taranto2127Plastico!;
+        if (id !== null) p.focus(id, 3000 / ppm);
+        p.imposta(ppm, o);
+        if (xy !== null) p.guarda(xy[0], xy[1], ppm);
+      },
+      [s.id ?? null, s.ppm, s.o ?? 0, s.xy ?? null] as const,
+    );
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: join(shotsDir, `${s.nome}-${width}.png`) });
+    await close();
+  }
+}
+
 async function main(): Promise<void> {
   const quick = process.argv.includes('--rapida');
   const onlyContrast = process.argv.includes('--misura-strato');
+  const onlyPerf = process.argv.includes('--prestazioni');
+  const onlyCity = process.argv.includes('--citta');
+  // Solo per le prove inverse: una prova del browser alla volta, senza schermate.
+  const onlyCorners = process.argv.includes('--angoli');
+  const onlyDescent = process.argv.includes('--scende');
+  const partial = quick || onlyContrast || onlyPerf || onlyCity || onlyCorners || onlyDescent;
   mkdirSync(shotsDir, { recursive: true });
   execSync('npx vite build', { cwd: appDir, stdio: 'inherit' });
   const server = spawn(`npx vite preview --port ${PORT} --strictPort`, { cwd: appDir, shell: true, stdio: 'ignore' });
@@ -627,22 +792,31 @@ async function main(): Promise<void> {
     const channel = process.env['BROWSER'] === 'chrome' ? 'chrome' : 'msedge';
     const browser = await chromium.launch({ channel });
     try {
-      if (process.argv.includes('--prestazioni')) {
-        for (let i = 0; i < 4; i++) await measure(browser, 390, 4);
-        for (const line of measures) console.log(line);
-        await browser.close();
-        return;
-      }
       if (onlyContrast) {
         console.log(`Contrasto dello strato dell'aria sui Tamburi a 390 px: ${(await layerContrast(browser)).toFixed(2)}`);
-        await browser.close();
-        return;
-      }
-      if (quick) {
+      } else if (onlyCorners) {
+        await angoliSempreCitta(browser, 390);
+      } else if (onlyDescent) {
+        await scendeDaSolo(browser);
+      } else if (onlyPerf) {
+        await prestazioniCitta(browser);
+        await scendeDaSolo(browser);
+        await budgetCitta(browser);
+      } else if (onlyCity) {
+        await angoliSempreCitta(browser, 390);
+        await angoliSempreCitta(browser, 1280);
+        await schermateCitta(browser, 390);
+        await schermateCitta(browser, 1280);
+      } else if (quick) {
         await quickModelChecks(browser);
       } else {
-        await measure(browser, 390, 4);
-        await measure(browser, 1280, 1);
+        await prestazioniCitta(browser);
+        await scendeDaSolo(browser);
+        await budgetCitta(browser);
+        await angoliSempreCitta(browser, 390);
+        await angoliSempreCitta(browser, 1280);
+        await schermateCitta(browser, 390);
+        await schermateCitta(browser, 1280);
         await checkLayerContrast(browser);
         await playAt(390, browser, 'completa');
         await playAt(1280, browser, 'salta');
@@ -658,11 +832,10 @@ async function main(): Promise<void> {
   }
   console.log('\nMisure del plastico:');
   for (const line of measures) console.log(`  ${line}`);
-  if (!quick && multiStops === 0) fail('nessuna fermata con più motivi: «e altri N» non verificato');
+  if (!partial && multiStops === 0) fail('nessuna fermata con più motivi: «e altri N» non verificato');
   console.log(`\nFermate con più motivi aperte al tocco: ${multiStops}.`);
   console.log(`\nFermate del tempo viste (${stopsSeen.size} tipi di riga):`);
   for (const line of [...stopsSeen].sort()) console.log(`  ${line}`);
-  if (quick) for (const line of measures) console.log(line);
   if (problems.length > 0) {
     console.error(`\nVerifica fallita: ${problems.length} problemi.`);
     process.exit(1);

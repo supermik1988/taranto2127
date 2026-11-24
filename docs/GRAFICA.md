@@ -1,124 +1,19 @@
-# Grafica: il plastico
+# Grafica: la città isometrica
 
-> Dal T12 (D20) lo stile della mappa cambia: città isometrica, senza effetto
-> modellino. Il brief di direzione artistica è in fondo, nella sezione
-> «Città isometrica (T12): brief di direzione artistica». Le sezioni sul plastico
-> restano valide finché la fase B non lo sostituisce.
+Dal T12 (D20) la mappa è una città isometrica nello stile dei gestionali di città di
+fine anni '90: vista fissa con rotazione a scatti di 90°, colori pieni, giornata di
+sole, niente effetto modellino né bordi. La zona è quella del T11: i Tamburi, lo
+stabilimento ILSIDER e il primo seno del Mar Piccolo, con un pezzo di Mar Grande, del
+porto, della Città Vecchia e del Borgo.
 
-Scelte del T11 (D18): un plastico 3D della città, effetto modellino, luce morbida,
-colori pieni; mappa a tutto schermo, comandi ai bordi, finestre al tocco. Per ora una
-zona: i Tamburi, lo stabilimento ILSIDER e il primo seno del Mar Piccolo, con un
-pezzo di Mar Grande, del porto, della Città Vecchia e del Borgo.
-
-## Scelte tecniche
-
-- **Motore 3D: three.js 0.169.0** (MIT), senza strati sopra. Moduli usati:
-  `MapControls` per la camera, `EffectComposer` con `RenderPass`, due passate di
-  sfocatura tilt-shift e `OutputPass` per l'effetto modellino.
-- **Caricamento separato.** `apps/game/src/plastico/` (scena, componente, dati) entra
-  nella pagina con `React.lazy` solo quando si mostra il plastico. La prima schermata
-  scarica lo stesso codice di prima del T11; con la mappa schematica il codice 3D non
-  si scarica affatto (lo controlla `scripts/verifica.ts`).
-- **Dati geografici scaricati una volta.** `scripts/geo-scarica.ts` interroga Overpass
-  e salva il file grezzo fuori dal repository; `scripts/geo-riduci.ts` lo trasforma in
-  `packages/content/geo/plastico.json`: metri dal centro della zona, sagome
-  semplificate (Douglas-Peucker, 0,8 m per gli edifici), ritaglio sul riquadro
-  (40,468-40,522 N, 17,150-17,262 E, circa 9,5 × 6 km), edifici sotto i 12 m² scartati,
-  nessun nome proprio. Il gioco non scarica nulla durante la partita.
-  - *T11b, riquadro allargato a ovest* (scelta di Michele). Nel primo scaricamento
-    (15 novembre) il bordo ovest era a 17,168° e lo stabilimento non toccava il mare: il
-    suo contorno in OpenStreetMap dista 1,1 km dal Mar Piccolo e 1,3 km dal Mar Grande,
-    e il suo fronte a mare vero, a ovest, cadeva fuori. Il 17 novembre il riquadro è
-    stato allargato di circa 1,5 km (bordo a 17,150°) e i dati scaricati di nuovo, una
-    volta. Il golfo di Taranto, prima escluso, entra ritagliato sul riquadro: è il mare
-    aperto a ovest dello stabilimento. Il contorno dello stabilimento comprende ora
-    anche le aree portuali dello stesso gestore in OpenStreetMap (il quinto sporgente,
-    un pontile lungo circa 1,1 km): il nome serve solo a riconoscerle e non entra nel file.
-- **Lotti e quartieri nei dati.** Le posizioni dei sei lotti e i contorni di Tamburi,
-  Città Vecchia e Borgo stanno in `packages/content/geo/lotti.json`, ognuno con
-  `stima: true` e la motivazione. L'area industriale è il contorno principale dello
-  stabilimento in OpenStreetMap; i pontili dello stesso gestore fanno parte dello
-  stabilimento ma non del quartiere. Paolo VI e le borgate cadono fuori dalla zona: i loro valori sono
-  nel pannello Strati e nell'elenco.
-- **Una sola geometria per la città.** I 5.737 edifici diventano pareti e tetto in
-  un'unica geometria con i colori per vertice; strade, ferrovie, verde e acqua sono
-  altre quattro geometrie. Così il disegno resta leggero anche sul telefono.
-- **Altezze e colori ripetibili.** Ricavati dall'identificativo OpenStreetMap della
-  sagoma con una funzione fissa (`hash01` in `plastico/data.ts`): stesso edificio,
-  stessa altezza e stessi colori a ogni avvio, niente `Math.random`. Dove OpenStreetMap
-  ha l'altezza o i piani, vale quella. Altezze tipiche: palazzine dei Tamburi 12-22 m,
-  case piccole 5-9 m, capannoni 9-23 m. Esagerazione verticale 2,4, come nei plastici.
-- **Fondo dei lotti alla quota del terreno** (dopo la revisione, decisione di Michele:
-  niente piastre rialzate e squadrate). Il fondo di ogni lotto sta alla stessa quota del
-  terreno dello stabilimento (`TERRAIN_Y` = 0,4 m) e ha spessore zero: si vede sopra il
-  terreno solo per l'ordine di disegno (`polygonOffset`), non per l'altezza. Il bordo è
-  irregolare e sfumato in due passi: una fascia di raccordo, con il colore a metà tra
-  quello del lotto e quello dello stabilimento e un bordo che rientra fino a 18 m, sotto
-  un fondo pieno che rientra tra 22 e 55 m. Gli scarti sono ripetibili (ricavati
-  dall'identificativo del lotto). Strade e binari passano sopra il fondo, come sul
-  terreno vero. Gli edifici del lotto fermo partono da terra. Il lotto resta toccabile
-  perché la superficie invisibile del tocco copre l'intero quadrilatero.
-- **Mare e cultura senza vasca** (dopo la revisione). Nessuno specchio d'acqua finto. Il
-  codice controlla quali lati del lotto danno sull'acqua vera di OpenStreetMap
-  (`waterSides`: sette punti 12 m fuori dal lato, conta se la maggioranza cade
-  nell'acqua). Su quei lati: banchina aperta, bitte e barche ormeggiate appena fuori, sul
-  mare vero. Al centro di ogni lotto: una piazza chiara, sei edifici pubblici colorati,
-  viali alberati. Tocca il mare solo il lotto delle **Banchine**: dal T11b sta sul quinto
-  sporgente, il pontile con cui lo stabilimento entra nel mare a ovest, e i suoi lati
-  lunghi seguono le sponde del pontile sei metri all'interno (lotto di circa 500 × 245 m).
-  Un test controlla che il lato bagnato dia sul mare aperto (un'acqua più grande di
-  1 km²: golfo, Mar Grande, Mar Piccolo), non su un canale, e che tutti i vertici del
-  lotto stiano dentro lo stabilimento. Gli altri cinque lotti sono interni.
-- **Si vede che cosa hai toccato** (dopo la revisione, decisione dell'architetto). Il
-  lotto o il quartiere aperto in una finestra resta evidenziato da un nastro blu
-  (`#1f6fd1`) lungo il contorno, che pulsa piano. Quando la finestra si è disposta, la
-  camera si sposta, senza cambiare distanza né rotazione, perché il centro dell'oggetto
-  cada al centro della parte di schermo libera: sopra la finestra che sale dal basso sul
-  telefono, a sinistra di quella laterale sullo schermo largo, sempre sotto la barra in
-  alto (`frameIn`, tre passi per correggere la prospettiva).
-- **Aspetto dei lotti** letto dallo stato del motore (regola 1) in `plastico/looks.ts`:
-  cantiere se un progetto del lotto è nella fase dei lavori; l'aspetto della strada
-  quando il progetto è in esercizio; bosco giovane se il lotto è stato bonificato e poi
-  lasciato fermo; altrimenti fermo (anche in progettazione, autorizzazioni e gara: sul
-  terreno non si vede ancora nulla). Ogni aspetto si costruisce la prima volta che
-  serve.
-- **Luce e ombre.** Cielo diffuso (luce emisferica) e sole da sud-est con ombre morbide
-  (mappa d'ombra 4096 px sull'intera zona, ridisegnata solo quando serve). Base del plastico come una lastra su un
-  tavolo, nebbia leggera in lontananza.
-- **Camera.** Si sposta con un dito o con il mouse, ingrandisce con due dita o con la
-  rotella (verso il punto indicato), ruota con due dita o con il tasto destro. Limiti:
-  distanza da 450 a 9.000 m, inclinazione tra 11° e 69° dalla verticale, centro sempre
-  dentro la zona.
-- **Tocco.** Un tocco breve (meno di 8 px di spostamento, meno di 0,6 s) sceglie prima
-  un lotto, poi un quartiere, con superfici invisibili sopra ciascuno.
-- **Strato.** Il pannello Strati colora pareti e tetti degli edifici di ogni quartiere
-  e stende sul terreno il colore dell'indicatore scelto (aria, salute, fiducia,
-  tensione), con un'etichetta che porta nome e valore. I colori sono quelli della mappa
-  schematica (`indicatorColor`), quindi la legenda è una sola.
-  - *Dopo la revisione (decisione di Michele: «più deciso sul telefono»).* Gli edifici
-    prendono il 90% del colore della legenda (prima il 75%): la forma resta leggibile
-    perché pareti e tetti sono illuminati diversamente. Il terreno del quartiere si
-    copre al 90% (prima 50%); fuori dai quartieri tutto si attenua all'80% (prima 92%).
-  - La causa vera della tinta debole era la legenda: il colore di metà scala era un
-    crema (`#efe6cf`) quasi uguale al terreno (`#e8dcc0`), e i Tamburi, con l'aria
-    intorno a 35, cadevano proprio lì. La scala diventa arancio scuro `#be5c26` (male),
-    giallo caldo `#eec45c` (metà), verde acqua `#348874` (bene). Vale anche per la mappa
-    schematica, che usa la stessa funzione.
-  - Misura (`verifica.ts`, `layerContrast`): differenza media di colore tra strato
-    spento e acceso sugli stessi pixel dei Tamburi a 390 px, con la stessa camera e
-    senza etichette, su una scala da 0 a 255. In `556dc09`: **18,77**. Ora: **46,71**.
-    Soglia dichiarata: **40**, più del doppio del valore di partenza; la verifica fallisce
-    sotto la soglia o sotto il doppio.
-- **Riserva.** Senza WebGL, o se dopo 5,5 secondi il plastico disegna meno di 20
-  immagini al secondo, il gioco passa alla mappa schematica e lo dice. La si sceglie
-  anche a mano (pannello Strati, ricordata nel browser) o con `?mappa=schematica`
-  nell'indirizzo; `?mappa=plastico` forza il 3D.
-- **Accessibilità.** Il pulsante «Elenco» riporta in testo ogni informazione della
-  mappa: i sei valori di ogni quartiere, anche fuori dalla zona, e per ogni lotto
-  strada, fase, anni mancanti, avanzamento e aspetto sul plastico. Ogni voce apre la
-  stessa finestra del tocco sulla mappa.
-- **Attribuzione.** «© OpenStreetMap contributors · ODbL» resta visibile in un angolo
-  del plastico, con il collegamento alla pagina dei diritti.
+- Brief di direzione artistica (fase A, approvato): sezione «Città isometrica (T12):
+  brief di direzione artistica».
+- Com'è fatta la città nel gioco, livelli di dettaglio, budget e misure (fase B):
+  sezione «Città isometrica (T12, fase B): com'è fatta».
+- Elenco degli elementi grafici con origine, licenza e approvazione:
+  `docs/grafica-elementi.json`.
+- La disposizione dei comandi resta quella del T11 (qui sotto), con in più i pulsanti
+  della vista a sinistra.
 
 ## Disposizione
 
@@ -129,126 +24,23 @@ pezzo di Mar Grande, del porto, della Città Vecchia e del Borgo.
 - Le finestre si aprono sopra la mappa e si chiudono con un tocco fuori o con
   «Chiudi». Sul telefono salgono dal basso (al massimo il 78% dell'altezza); sullo
   schermo largo stanno a destra, accanto ai pulsanti, che restano attivi.
-
-## Tavolozza
-
-| Uso | Colore |
-| --- | --- |
-| Terreno | `#e8dcc0` |
-| Mare e acque | `#6fb1cf` |
-| Stabilimento | `#c8b79f` |
-| Altre aree industriali | `#d5c8b2` |
-| Verde: parco, campo sportivo, bosco, macchia, prato, campi, cimitero | `#8cc46a`, `#a6d27a`, `#5e9b4c`, `#7fa860`, `#9ccb74`, `#c9d27e`, `#93b884` |
-| Strade, dalle principali alle minori | `#f2c14e`, `#f6d27a`, `#fbf4e4`, `#f7efdf` |
-| Ferrovie | `#8b8072` |
-| Moli | `#c9c2b4` |
-| Pareti delle case | `#f2e4c9`, `#ecd3b0`, `#f5ede1`, `#e7caa7`, `#ddd3c2`, `#f0d9c0` |
-| Tetti delle case | `#c8694b`, `#b65c43`, `#d8d3ca`, `#a9a299`, `#cf7a55` |
-| Capannoni (pareti, tetti) | `#bcb6ac`, `#a9a49c`, `#cbc4b8`; `#8f9ba4`, `#9e9186`, `#b0aba2` |
-| Edifici pubblici | `#f3d8a4`, `#efc994`; tetto `#c46a4f` |
-| Ruggine (stabilimento fermo) | pareti `#8f7b69`, `#7d6f65`, `#9c8774`, `#86705e`; tetti `#8a4b2c`, `#9c5a35`, `#6f5a49`, `#7d4630` |
-| Terreno dei lotti: fermo, cantiere, acciaio, bosco, energia, mare | `#a59683`, `#c7a77c`, `#cfcbc3`, `#8cc46a`, `#b8d48c`, `#e6dcc6` (fascia di raccordo: a metà con `#c8b79f`) |
-| Piazza di «mare e cultura» | `#f3ead6` |
-| Evidenza della selezione | `#1f6fd1` |
-| Legenda e strati (male, metà, bene) | `#be5c26`, `#eec45c`, `#348874` |
-| Cielo | `#d6e6ee` |
-
-## Modelli: origine e licenza
-
-Nessun modello esterno, nessuna texture: tutto è costruito dal codice in
-`apps/game/src/plastico/scene.ts` con parallelepipedi, cilindri, coni e prismi. Sono
-originali e seguono la licenza del codice (AGPL-3.0). Nessun elemento è copiato da
-altri giochi.
-
-| Aspetto del lotto | Che cosa si vede | Origine |
-| --- | --- | --- |
-| Fermo | Gli edifici veri del reparto (sagome OpenStreetMap) in colori di ruggine, tre torri e due camini spenti, un nastro trasportatore, cumuli di minerale rossastri | Sagome: OpenStreetMap (ODbL); resto: codice |
-| Cantiere | Terra smossa, recinzione arancione sui quattro lati, tre gru a torre gialle con il braccio che gira piano, cumuli di terra, strutture a metà | Codice |
-| Acciaio con forni nuovi | Otto capannoni bianchi con tetti azzurri, edifici di servizio, camion, un solo camino bianco e rosso con poco fumo | Codice |
-| Bosco giovane | Prato e circa 300 alberelli di altezze e verdi diversi, con un sentiero libero | Codice |
-| Energia | Sei pale eoliche che girano e file di pannelli solari | Codice |
-| Mare e cultura | Pavimentazione chiara, una piazza, sei edifici pubblici colorati, viali alberati; sui lati che danno sull'acqua vera, banchina aperta con bitte e barche ormeggiate fuori dal lotto. Nessuna acqua finta | Codice |
-
-## Prestazioni
-
-Misurate da `apps/game/scripts/verifica.ts` con Edge su questo computer, muovendo la
-camera tra quattro punti della zona e leggendo le immagini al secondo degli ultimi due
-secondi dopo ogni spostamento. **Il telefono di fascia media è simulato** con il
-processore rallentato 4 volte, schermo di 390 × 844 px a densità 2: è un sostituto
-dichiarato, non una misura su un telefono vero. La scheda grafica resta quella del
-computer, quindi la misura dice soprattutto se il lavoro del processore regge. La prova
-su un telefono vero la farà Michele.
-
-| Prova | Media | Minima | Esito |
-| --- | ---: | ---: | --- |
-| 390 × 844 px, densità 2, processore rallentato 4× (sostituto del telefono), prima esecuzione | 40,6 | 37,8 | sopra 30 |
-| 390 × 844 px, densità 2, processore rallentato 4×, seconda esecuzione | 36,6 | 34,0 | sopra 30 |
-| 1280 × 900 px, densità 1, processore normale | 50,4-57,0 | 43,0-51,9 | sopra 30 |
-
-Immagini al secondo. Le due esecuzioni a 390 px differiscono di qualche immagine: la
-misura dipende dal carico del computer in quel momento. Il gioco passa da solo alla
-mappa schematica sotto 20 immagini al secondo.
-
-**Dopo la revisione.** In una nuova esecuzione il minimo a 390 px è sceso a 29. Misurata
-nello stesso momento, anche `556dc09` dava gli stessi numeri (media 31,5-33,9, minima
-29,0-32,1): era il computer, più carico, non il codice nuovo. Per avere margine, la
-mappa d'ombra non si ridisegna più a ogni immagine: si ridisegna quando cambia l'aspetto
-di un lotto e, se ci sono parti in movimento (pale, gru, fumo), ogni 12 immagini. Le
-ombre degli edifici non cambiano quando la camera si muove, perché il sole è fermo.
-
-| Prova, stesso computer e stesso momento | Media | Minima |
-| --- | ---: | ---: |
-| `556dc09`, 390 px, processore rallentato 4×, quattro esecuzioni | 31,5-33,9 | 29,0-32,1 |
-| Dopo la revisione, ombre ridisegnate solo quando serve, quattro esecuzioni | 44,2-46,1 | 39,4-41,2 |
-
-`verifica.ts --prestazioni` ripete la misura a 390 px quattro volte.
-
-## Pesi
-
-| Che cosa | Normale | Compresso (gzip) |
-| --- | ---: | ---: |
-| `packages/content/geo/plastico.json` | 766 kB (T11: 724 kB) | 215 kB (T11: 203 kB) |
-| `packages/content/geo/lotti.json` | 2,8 kB | 0,9 kB |
-| Pezzo del plastico nel gioco costruito (three.js, scena, dati) | 1.239 kB | 346 kB |
-| Pezzo principale del gioco (come nel T10: +1 kB per la nuova disposizione) | 581 kB | 151 kB |
-
-## Estendere il plastico a tutta la città
-
-Che cosa manca, con una stima del lavoro per una persona che conosce il codice:
-
-1. **Dati.** Scaricare il resto del territorio comunale (Paolo VI, Borgo intero,
-   Città Vecchia, Tre Carrare, Solito-Corvisea, Salinella, Talsano, Lama, San Vito,
-   Mar Piccolo secondo seno): circa 70 km² e 40-50 mila edifici. Il file ridotto
-   salirebbe a 5-6 MB (1,5 MB compresso): va diviso in tasselli caricati secondo la
-   vista. **2-3 giorni.**
-2. **Tasselli e livelli di dettaglio.** Geometria per tasselli di 1 km, caricati e
-   scaricati con la camera; edifici più semplici da lontano (solo volumi, senza
-   ombre). **4-6 giorni.**
-3. **Contorni dei quartieri** dai confini ufficiali delle circoscrizioni (dati aperti
-   del Comune, con fonte) al posto dei poligoni stimati. **1 giorno.**
-4. **Ombre e prestazioni** su un'area dieci volte più grande: mappa d'ombra a cascata
-   o ombre solo vicino alla camera; nuova misura sul telefono. **2-3 giorni.**
-5. **Luoghi riconoscibili** (ponte girevole, Castello Aragonese, concattedrale,
-   lungomare): modelli semplici fatti dal codice o presi da raccolte con licenza
-   libera, annotati in `docs/FONTI.md`. **3-5 giorni.**
-6. **Elementi vivi**: traffico leggero, navi in Mar Grande, luci di sera. **3-4 giorni.**
-
-In tutto **15-22 giorni di lavoro**, più il giudizio di Michele sull'aspetto dopo
-ogni zona (D18: «si procede una zona alla volta»).
+- A sinistra, sopra l'attribuzione di OpenStreetMap (T12): «+» e «−» per avvicinare e
+  allontanare, «⟳» per ruotare la vista di un quarto di giro.
 
 ## Città isometrica (T12): brief di direzione artistica
 
 Decisione D20: città isometrica nello stile dei gestionali di città di fine anni '90,
 ricca di dettagli, a colori pieni, senza effetto modellino né bordi. Questo brief
 segue il modello della skill `create-game-assets` (`assets/art-direction-brief.md`).
-Lo stato è **provino (fase A), in attesa dell'approvazione di Michele**. Fino a quel
-momento nessun elemento è approvato per la produzione (fase B).
+**Approvato da Michele il 24 novembre 2026** (scheda T12, «Approvazione della fase
+A»), tavolozze comprese, con quattro correzioni per la fase B: niente terreno vuoto,
+stabilimento dettagliato come le case, mare vivo e costa vera, marciapiedi e alberi
+anche sulle strade secondarie. Come sono state fatte: sezione «Città isometrica (T12,
+fase B): com'è fatta».
 
-Provino: pagina di solo sviluppo `apps/game/provino.html` (`pnpm --filter
-@taranto2127/game dev`, poi `/provino.html?vista=isolato|costa|parchi|tipi`, con
-`&stato=fermo|bosco` per i parchi). Schermate con `pnpm --filter @taranto2127/game
-provino`. Codice in `apps/game/src/iso/` (`tipi.ts`, `texture.ts`, `citta.ts`) e
-`apps/game/src/provino.ts`. La costruzione del gioco pubblicato non include il provino.
+Il provino della fase A era una pagina di solo sviluppo (`apps/game/provino.html`):
+nella fase B è stata tolta, perché la città è nel gioco e le schermate le fa la
+verifica nel browser. Le sue schermate restano in `docs/schermate/provino-*.png`.
 
 ### Quadro del gioco
 
@@ -413,5 +205,418 @@ Come si riconosce Taranto:
   `docs/schermate/provino-*.png`, catturati alla scala reale del gioco.
 - **Elenco degli elementi:** `docs/grafica-elementi.json`, con origine, licenza e
   stato di ogni elemento.
-- **Approvazione:** Michele, nella scheda T12 di `docs/TASKS.md`. Finché manca,
-  tutti gli elementi restano «in attesa» e non si passa alla fase B.
+- **Approvazione:** Michele, nella scheda T12 di `docs/TASKS.md`: fase A approvata il
+  24 novembre 2026. Gli elementi nuovi o cambiati nella fase B sono «in attesa» in
+  `docs/grafica-elementi.json` fino alla revisione della fase B.
+
+## Città isometrica (T12, fase B): com'è fatta
+
+La città isometrica prende il posto del plastico nel gioco: stessa interfaccia per
+finestre, strato, tocco, evidenza della selezione, «Elenco», visita guidata e
+attribuzione; la mappa schematica resta la riserva. Il provino della fase A (pagina
+di solo sviluppo) non c'è più: le schermate le fa la verifica nel browser.
+
+### Codice
+
+| File | Che cosa |
+| --- | --- |
+| `apps/game/src/iso/vista.ts` | Camera ortografica, quattro orientamenti, movimenti morbidi, limiti della vista. Puro, provato in `vista.test.ts` |
+| `apps/game/src/iso/livelli.ts` | Livelli di dettaglio e regolatore che scende da solo. Puro, provato in `livelli.test.ts` |
+| `apps/game/src/iso/scena.ts` | Renderer, luce, ombre adattate alla vista, tocco e dita, strato, evidenza, sonde per la verifica |
+| `apps/game/src/iso/citta.ts` | Montaggio della città intera |
+| `apps/game/src/iso/tipi.ts`, `edifici.ts` | Tipi di edificio, varianti, pareti per stile di facciata, tetti, dettagli, alberi |
+| `apps/game/src/iso/suolo.ts`, `griglia.ts` | Copertura del suolo, mare, costa, moli, strade; griglia di occupazione a 2 m |
+| `apps/game/src/iso/impianti.ts` | Serbatoi, ciminiere, nastri, torri, tubazioni dello stabilimento |
+| `apps/game/src/iso/lotti.ts` | I sei aspetti dei lotti di ILSIDER |
+| `apps/game/src/iso/texture.ts`, `geo3.ts` | Texture disegnate dal codice; costruttore di geometrie unite |
+| `packages/content/geo/suolo.json` | Dati nuovi da OpenStreetMap (64 kB): usi del suolo, parcheggi, piazze, spiagge, costa, vie di servizio, nastri, serbatoi, ciminiere (`docs/FONTI.md`) |
+
+Skill seguite (scelte dall'architetto con il `router`): `create-game-assets` per brief
+ed elenco degli elementi; `threejs-scene-setup` e `threejs-materials-lighting` per
+scena, ombre adattate alla vista, spazio colore sRGB delle texture e densità di pixel;
+`camera-systems` per `1 − exp(−k·dt)` e per limitare la vista invece del centro;
+`performance-optimization` per i budget in millisecondi con media e 95° percentile.
+Nessuna funzione di three.js successiva alla 0.169.
+
+### Vista e comandi
+
+- Camera ortografica, elevazione 30°, azimut 45° più un multiplo di 90°: quattro
+  orientamenti. Il pulsante «⟳» ruota di un quarto di giro con un passaggio morbido.
+- Ci si sposta trascinando (un dito o il mouse), si ingrandisce con la rotella, con
+  due dita o con «+» e «−», da 0,3 a 8 pixel per metro. Rotella e dita tengono fermo
+  il punto sotto la mano.
+- La vista è limitata: la sua impronta a terra resta dentro la zona più 250 m, a ogni
+  ingrandimento e orientamento. Se la vista è più grande della zona, resta centrata.
+- Oltre la zona il terreno (erba) e il mare continuano per 6 km: gli angoli dello
+  schermo non mostrano mai lo sfondo. Niente sfocatura, niente lastra, niente bordi.
+- Sotto 1,2 pixel per metro si spengono cisterne, antenne, lucernari, auto, barche e
+  massi (sarebbero meno di un pixel); sotto 0,8 anche cespugli e uliveti.
+
+### Copertura del suolo (correzione 1): dati e stime
+
+Ogni punto della zona ha una copertura. Ordine di disegno, dall'alto: verde di
+OpenStreetMap, aree dei dati, stime, tipo di zona, fondo. I fondi scrivono la
+profondità dall'alto verso il basso (ogni pixel si calcola una volta); il mare si
+disegna prima e segna i suoi pixel nello stencil, così può stare 0,9 m sotto la terra.
+
+| Dove | Da dove viene | Copertura |
+| --- | --- | --- |
+| Tutta la zona (fondo) | stima | erba mediterranea con cespugli disegnati e cespugli veri sparsi |
+| Stabilimento e aree industriali | stima | piazzale di cemento; su celle irregolari di circa 120 m: 20% terra battuta, 22% erba secca con cespugli |
+| Quartieri | stima | cortili lastricati; giardini di forma libera (raggio 6-12 m) dove c'è spazio libero tra case e strade, con 1-3 alberi |
+| Campagna e periferia | stima | appezzamenti irregolari di circa 150 m: 30% campi a file, 12% uliveti in file di 14 m, il resto erba con cespugli |
+| Parcheggi, piazze, usi del suolo, spiagge, scogli, campi sportivi, verde | dati (`suolo.json`, `plastico.json`) | parcheggio con auto negli stalli, lastricato, cortile, ghiaia, terra, sabbia, roccia, campo, erba, sottobosco, campi |
+
+Prova: `citta.test.ts` campiona la zona ogni 40 m. Nessun punto di terra è scoperto,
+nessuna copertura supera metà della terra, e stabilimento, quartieri e campagna hanno
+almeno tre coperture diverse ciascuno.
+
+### Stabilimento (correzione 2)
+
+- Capannoni con la facciata industriale su tutta l'altezza (zoccolo, lamiera
+  grecata, nastro di finestre sotto la gronda, portone, colature di ruggine) e file
+  di lucernari sui tetti; otto colori, dai grigi freddi alla ruggine.
+- Dai dati: 431 serbatoi e silos (cilindri con cupola bassa e fascia), 20 ciminiere
+  con l'altezza vera quando c'è, 9 nastri trasportatori su cavalletti, torri.
+- Stima: rastrelliere di tre tubazioni su portali ogni 12 m lungo una via di servizio
+  interna su tre (58 tratti). OpenStreetMap non ha le tubazioni in vista della zona.
+
+### Mare e costa (correzione 3)
+
+- Il mare sta 0,9 m sotto la terra: lungo ogni riva c'è una sponda. Onde con una mappa
+  delle normali disegnata dal codice che scorre nel tempo, riflessi leggeri (lucentezza
+  40, riflesso `#4a6880`: si vedono in ogni orientamento senza accecare controsole).
+- Tipo di riva: spiaggia vicino alle spiagge dei dati (sabbia che entra in acqua,
+  schiuma); banchina di cemento nello stabilimento, nelle aree industriali e portuali,
+  nei quartieri e vicino ai moli; altrove scogliera con massi e schiuma (stima).
+- Moli di cemento un metro sopra l'acqua; barche ormeggiate lungo i moli e le banchine
+  dei bacini. I bacini e i canali (sotto 1 km²) sono più scuri del mare aperto
+  (`#2a6f98`): con sponde, massi e barche sembrano darsene, non piscine.
+
+### Strade (correzione 4)
+
+Marciapiedi su tutte le strade principali e, nei quartieri, anche sulle secondarie;
+filari sulle principali e su una strada secondaria su due dei quartieri, dove c'è
+spazio (a 2,8 m dal bordo, mai sopra case, acqua, binari o altre strade). Vie di
+servizio dello stabilimento in asfalto chiaro, binari con massicciata e due rotaie.
+
+### Lotti
+
+Al più 12 ordini di disegno per aspetto (i parchi fermi del provino ne facevano 79).
+Gli edifici di OpenStreetMap dentro i lotti non si disegnano negli aspetti nuovi; da
+fermi, i lotti diversi dai parchi minerali mostrano i loro edifici veri arrugginiti
+più le strutture del reparto messe dove c'è spazio, perché l'aspetto «fermo» è lo
+stabilimento di oggi (scelta da confermare, vedi il resoconto del T12).
+
+### Strato
+
+Con uno strato acceso, pareti, tetti e alberi di ogni quartiere prendono il colore
+pieno della legenda; il terreno del quartiere si copre quasi del tutto e un velo
+trasparente al 42% passa sopra anche a edifici e alberi; fuori dai quartieri tutto si
+attenua. Il rilievo resta leggibile per la luce e le finestre. Con gli intonaci caldi
+della città nuova una tinta più leggera cambiava i Tamburi di 33 (soglia del T11: 40);
+così il contrasto misurato è 42,8.
+
+### Tavolozza aggiunta nella fase B
+
+| Ruolo | Colori |
+| --- | --- |
+| Suolo (colore medio delle texture) | erba `#9cb75e`, cortile `#ddd4c2`, piazzale `#c9bfae`, parcheggio `#6a6d72`, sabbia `#e8d6a6`, roccia `#a19a8c`, ghiaia `#8d8377`, terra `#b49a78`, lastricato `#e6dccb`, campi `#c8c46e`, sottobosco `#5f9447`, campo `#6fae4c` |
+| Mare | aperto `#2f83c4`, bacini `#2a6f98`, schiuma `#e8f3f7` |
+| Rive | banchina `#cfc8ba`, scogliera `#8f887b`, moli `#d8d1c3` |
+| Strade | vie di servizio `#6b6c6e`, rotaie `#4a4440` (il resto come nella fase A) |
+| Capannoni | in più `#c9cfd4`, `#7f97ad`, `#a8826a`, `#b9a48b`; lucernari `#bcd3e0` |
+| Ruggine dei reparti fermi | pareti `#8f6a52` `#7d6656` `#9c6f4f` `#86705e`, tetti `#7d4630` `#6f5a49` `#8a4b2c` |
+| Alberi nuovi | ulivo `#7d9160` `#8a9b6a` `#72875a`, cipresso `#2f5530` `#36603a`, cespuglio `#4f7f36` `#5c8c3e` `#6b9846` |
+
+### Livelli di dettaglio
+
+| Livello | Densità di pixel (massima) | Ombre | Dettagli piccoli | Cespugli e uliveti | Alberi dei parchi | Onde |
+| --- | ---: | --- | --- | --- | --- | --- |
+| Alto | 1,5 | sì, mappa 4096 | sì | sì | sì | sì |
+| Medio | 1,1 | sì, mappa 2048 | sì | no | sì | sì |
+| Basso | 1 | no | no | no | no (restano viali e lotti) | no |
+
+In automatico si parte dall'alto. Il gioco misura il tempo di ogni immagine: su una
+finestra di 90 immagini (dopo 30 di riscaldamento), se il 95° percentile supera 33 ms
+scende di un livello. Al livello basso, sotto 20 immagini al secondo di media, torna
+la mappa schematica con il motivo. In «Strati» si sceglie Automatico, Alto, Medio o
+Basso (la scelta resta nel browser); scelto a mano, il livello non cambia da solo.
+Le ombre usano una camera adattata alla vista e si ridisegnano solo quando la vista si
+sposta di un quarto, cambia ingrandimento di più del 20% o ruota.
+
+### Budget e misure
+
+Budget dichiarati, per immagine, sulla vista d'avvio e da vicino (4 pixel per metro),
+città intera costruita:
+
+| Livello | Ordini di disegno (budget / misurati) | Triangoli (budget / misurati) | Memoria texture |
+| --- | --- | --- | --- |
+| Alto | 90 / 73 all'avvio, 56 da vicino | 700 mila / 513 mila, 461 mila | 2 MB / 1,61 MB |
+| Medio | 80 / 64, 53 | 550 mila / 463 mila, 439 mila | 2 MB / 1,61 MB |
+| Basso | 70 / 58, 48 | 450 mila / 362 mila, 344 mila | 2 MB / 1,61 MB |
+
+Tutta la città, con ogni cosa accesa, sta sotto 1,5 milioni di triangoli in al più
+140 mesh (`citta.test.ts`); se ne disegna solo una parte: gli alberi sono divisi in
+riquadri di 2 km che la camera scarta fuori dallo schermo, e gli oggetti piccoli si
+spengono da lontano. La memoria delle texture è quella delle tele disegnate dal codice
+con le mipmap (sette facciate, dodici suoli, le onde); le mappe d'ombra a parte
+(4096² al livello alto).
+
+Tempi delle immagini, misurati da `verifica.ts --prestazioni` con Edge su questo
+computer (scheda grafica Intel HD 630), sulla stessa scena: vista d'avvio, poi
+Tamburi, altoforni, banchine e Città Vecchia, 2,5 s ciascuno, in tre giri. Il telefono
+è simulato (processore rallentato 4 volte, 390 × 844 px, densità 2): è un sostituto
+dichiarato, la scheda grafica resta quella del computer.
+
+| Caso | Media | 95° percentile | Livello | Soglia |
+| --- | ---: | ---: | --- | ---: |
+| 390 px, processore 4×, livello scelto da solo | 16,9-17,2 ms | 22,2-23,6 ms | alto | 33 ms |
+| 390 px, processore 4×, livello medio | 17,7-17,8 ms | 20,0-20,7 ms | medio | 26,4 ms (20% di margine) |
+| 1280 px, densità 1, livello alto | 17,6 ms | 18,2-18,3 ms | alto | 33 ms |
+
+Tre giri per caso, nella verifica completa finale. In un'esecuzione precedente, con il
+computer più carico, a 390 px il gioco era sceso da solo al livello medio (95°
+percentile 23,2-26,5 ms al medio; al medio forzato 22,5-23,9 ms): la scelta
+automatica dipende anche dal carico del momento, ed è giusto così.
+
+Le medie vicine a 16,7 ms sono il limite delle 60 immagini al secondo dello schermo.
+Con il processore rallentato 10 volte, in automatico, il gioco scende da solo al
+livello medio (95° percentile all'alto: tra 65 e 101 ms nelle esecuzioni).
+
+Come si è arrivati qui: la prima versione stava a 43-50 ms all'alto. Quattro interventi:
+fondi del terreno disegnati dall'alto verso il basso con la profondità (prima si
+calcolava ogni strato, ombre comprese, per ogni pixel), ombre PCF invece di PCF morbide,
+vegetazione con meno triangoli e divisa in riquadri, niente oggetti nuovi a ogni
+immagine nel ciclo di disegno (meno pause per la raccolta della memoria).
+
+### Pesi
+
+| Che cosa | Normale | Compresso (gzip) |
+| --- | ---: | ---: |
+| `packages/content/geo/plastico.json` (non cambiato) | 766 kB | 215 kB |
+| `packages/content/geo/suolo.json` (nuovo) | 64 kB | 23 kB |
+| Pezzo della città nel gioco costruito (three.js, codice, dati) | 1.333 kB (T11: 1.239) | 385 kB (T11: 346) |
+| Pezzo principale del gioco | 584 kB (T11: 581) | 153 kB (T11: 151) |
+
+## Il plastico del T11 (sostituito nel T12)
+
+Quello che segue descrive il plastico del T11 (D18), che la città isometrica ha
+sostituito: resta come storia delle scelte e delle misure di allora. Non vale più per
+il gioco: scena, effetto modellino, esagerazione verticale e tavolozza sono cambiati.
+
+### Scelte tecniche
+
+- **Motore 3D: three.js 0.169.0** (MIT), senza strati sopra. Moduli usati:
+  `MapControls` per la camera, `EffectComposer` con `RenderPass`, due passate di
+  sfocatura tilt-shift e `OutputPass` per l'effetto modellino.
+- **Caricamento separato.** `apps/game/src/plastico/` (scena, componente, dati) entra
+  nella pagina con `React.lazy` solo quando si mostra il plastico. La prima schermata
+  scarica lo stesso codice di prima del T11; con la mappa schematica il codice 3D non
+  si scarica affatto (lo controlla `scripts/verifica.ts`).
+- **Dati geografici scaricati una volta.** `scripts/geo-scarica.ts` interroga Overpass
+  e salva il file grezzo fuori dal repository; `scripts/geo-riduci.ts` lo trasforma in
+  `packages/content/geo/plastico.json`: metri dal centro della zona, sagome
+  semplificate (Douglas-Peucker, 0,8 m per gli edifici), ritaglio sul riquadro
+  (40,468-40,522 N, 17,150-17,262 E, circa 9,5 × 6 km), edifici sotto i 12 m² scartati,
+  nessun nome proprio. Il gioco non scarica nulla durante la partita.
+  - *T11b, riquadro allargato a ovest* (scelta di Michele). Nel primo scaricamento
+    (15 novembre) il bordo ovest era a 17,168° e lo stabilimento non toccava il mare: il
+    suo contorno in OpenStreetMap dista 1,1 km dal Mar Piccolo e 1,3 km dal Mar Grande,
+    e il suo fronte a mare vero, a ovest, cadeva fuori. Il 17 novembre il riquadro è
+    stato allargato di circa 1,5 km (bordo a 17,150°) e i dati scaricati di nuovo, una
+    volta. Il golfo di Taranto, prima escluso, entra ritagliato sul riquadro: è il mare
+    aperto a ovest dello stabilimento. Il contorno dello stabilimento comprende ora
+    anche le aree portuali dello stesso gestore in OpenStreetMap (il quinto sporgente,
+    un pontile lungo circa 1,1 km): il nome serve solo a riconoscerle e non entra nel file.
+- **Lotti e quartieri nei dati.** Le posizioni dei sei lotti e i contorni di Tamburi,
+  Città Vecchia e Borgo stanno in `packages/content/geo/lotti.json`, ognuno con
+  `stima: true` e la motivazione. L'area industriale è il contorno principale dello
+  stabilimento in OpenStreetMap; i pontili dello stesso gestore fanno parte dello
+  stabilimento ma non del quartiere. Paolo VI e le borgate cadono fuori dalla zona: i loro valori sono
+  nel pannello Strati e nell'elenco.
+- **Una sola geometria per la città.** I 5.737 edifici diventano pareti e tetto in
+  un'unica geometria con i colori per vertice; strade, ferrovie, verde e acqua sono
+  altre quattro geometrie. Così il disegno resta leggero anche sul telefono.
+- **Altezze e colori ripetibili.** Ricavati dall'identificativo OpenStreetMap della
+  sagoma con una funzione fissa (`hash01` in `plastico/data.ts`): stesso edificio,
+  stessa altezza e stessi colori a ogni avvio, niente `Math.random`. Dove OpenStreetMap
+  ha l'altezza o i piani, vale quella. Altezze tipiche: palazzine dei Tamburi 12-22 m,
+  case piccole 5-9 m, capannoni 9-23 m. Esagerazione verticale 2,4, come nei plastici.
+- **Fondo dei lotti alla quota del terreno** (dopo la revisione, decisione di Michele:
+  niente piastre rialzate e squadrate). Il fondo di ogni lotto sta alla stessa quota del
+  terreno dello stabilimento (`TERRAIN_Y` = 0,4 m) e ha spessore zero: si vede sopra il
+  terreno solo per l'ordine di disegno (`polygonOffset`), non per l'altezza. Il bordo è
+  irregolare e sfumato in due passi: una fascia di raccordo, con il colore a metà tra
+  quello del lotto e quello dello stabilimento e un bordo che rientra fino a 18 m, sotto
+  un fondo pieno che rientra tra 22 e 55 m. Gli scarti sono ripetibili (ricavati
+  dall'identificativo del lotto). Strade e binari passano sopra il fondo, come sul
+  terreno vero. Gli edifici del lotto fermo partono da terra. Il lotto resta toccabile
+  perché la superficie invisibile del tocco copre l'intero quadrilatero.
+- **Mare e cultura senza vasca** (dopo la revisione). Nessuno specchio d'acqua finto. Il
+  codice controlla quali lati del lotto danno sull'acqua vera di OpenStreetMap
+  (`waterSides`: sette punti 12 m fuori dal lato, conta se la maggioranza cade
+  nell'acqua). Su quei lati: banchina aperta, bitte e barche ormeggiate appena fuori, sul
+  mare vero. Al centro di ogni lotto: una piazza chiara, sei edifici pubblici colorati,
+  viali alberati. Tocca il mare solo il lotto delle **Banchine**: dal T11b sta sul quinto
+  sporgente, il pontile con cui lo stabilimento entra nel mare a ovest, e i suoi lati
+  lunghi seguono le sponde del pontile sei metri all'interno (lotto di circa 500 × 245 m).
+  Un test controlla che il lato bagnato dia sul mare aperto (un'acqua più grande di
+  1 km²: golfo, Mar Grande, Mar Piccolo), non su un canale, e che tutti i vertici del
+  lotto stiano dentro lo stabilimento. Gli altri cinque lotti sono interni.
+- **Si vede che cosa hai toccato** (dopo la revisione, decisione dell'architetto). Il
+  lotto o il quartiere aperto in una finestra resta evidenziato da un nastro blu
+  (`#1f6fd1`) lungo il contorno, che pulsa piano. Quando la finestra si è disposta, la
+  camera si sposta, senza cambiare distanza né rotazione, perché il centro dell'oggetto
+  cada al centro della parte di schermo libera: sopra la finestra che sale dal basso sul
+  telefono, a sinistra di quella laterale sullo schermo largo, sempre sotto la barra in
+  alto (`frameIn`, tre passi per correggere la prospettiva).
+- **Aspetto dei lotti** letto dallo stato del motore (regola 1) in `plastico/looks.ts`:
+  cantiere se un progetto del lotto è nella fase dei lavori; l'aspetto della strada
+  quando il progetto è in esercizio; bosco giovane se il lotto è stato bonificato e poi
+  lasciato fermo; altrimenti fermo (anche in progettazione, autorizzazioni e gara: sul
+  terreno non si vede ancora nulla). Ogni aspetto si costruisce la prima volta che
+  serve.
+- **Luce e ombre.** Cielo diffuso (luce emisferica) e sole da sud-est con ombre morbide
+  (mappa d'ombra 4096 px sull'intera zona, ridisegnata solo quando serve). Base del plastico come una lastra su un
+  tavolo, nebbia leggera in lontananza.
+- **Camera.** Si sposta con un dito o con il mouse, ingrandisce con due dita o con la
+  rotella (verso il punto indicato), ruota con due dita o con il tasto destro. Limiti:
+  distanza da 450 a 9.000 m, inclinazione tra 11° e 69° dalla verticale, centro sempre
+  dentro la zona.
+- **Tocco.** Un tocco breve (meno di 8 px di spostamento, meno di 0,6 s) sceglie prima
+  un lotto, poi un quartiere, con superfici invisibili sopra ciascuno.
+- **Strato.** Il pannello Strati colora pareti e tetti degli edifici di ogni quartiere
+  e stende sul terreno il colore dell'indicatore scelto (aria, salute, fiducia,
+  tensione), con un'etichetta che porta nome e valore. I colori sono quelli della mappa
+  schematica (`indicatorColor`), quindi la legenda è una sola.
+  - *Dopo la revisione (decisione di Michele: «più deciso sul telefono»).* Gli edifici
+    prendono il 90% del colore della legenda (prima il 75%): la forma resta leggibile
+    perché pareti e tetti sono illuminati diversamente. Il terreno del quartiere si
+    copre al 90% (prima 50%); fuori dai quartieri tutto si attenua all'80% (prima 92%).
+  - La causa vera della tinta debole era la legenda: il colore di metà scala era un
+    crema (`#efe6cf`) quasi uguale al terreno (`#e8dcc0`), e i Tamburi, con l'aria
+    intorno a 35, cadevano proprio lì. La scala diventa arancio scuro `#be5c26` (male),
+    giallo caldo `#eec45c` (metà), verde acqua `#348874` (bene). Vale anche per la mappa
+    schematica, che usa la stessa funzione.
+  - Misura (`verifica.ts`, `layerContrast`): differenza media di colore tra strato
+    spento e acceso sugli stessi pixel dei Tamburi a 390 px, con la stessa camera e
+    senza etichette, su una scala da 0 a 255. In `556dc09`: **18,77**. Ora: **46,71**.
+    Soglia dichiarata: **40**, più del doppio del valore di partenza; la verifica fallisce
+    sotto la soglia o sotto il doppio.
+- **Riserva.** Senza WebGL, o se dopo 5,5 secondi il plastico disegna meno di 20
+  immagini al secondo, il gioco passa alla mappa schematica e lo dice. La si sceglie
+  anche a mano (pannello Strati, ricordata nel browser) o con `?mappa=schematica`
+  nell'indirizzo; `?mappa=plastico` forza il 3D.
+- **Accessibilità.** Il pulsante «Elenco» riporta in testo ogni informazione della
+  mappa: i sei valori di ogni quartiere, anche fuori dalla zona, e per ogni lotto
+  strada, fase, anni mancanti, avanzamento e aspetto sul plastico. Ogni voce apre la
+  stessa finestra del tocco sulla mappa.
+- **Attribuzione.** «© OpenStreetMap contributors · ODbL» resta visibile in un angolo
+  del plastico, con il collegamento alla pagina dei diritti.
+
+### Tavolozza
+
+| Uso | Colore |
+| --- | --- |
+| Terreno | `#e8dcc0` |
+| Mare e acque | `#6fb1cf` |
+| Stabilimento | `#c8b79f` |
+| Altre aree industriali | `#d5c8b2` |
+| Verde: parco, campo sportivo, bosco, macchia, prato, campi, cimitero | `#8cc46a`, `#a6d27a`, `#5e9b4c`, `#7fa860`, `#9ccb74`, `#c9d27e`, `#93b884` |
+| Strade, dalle principali alle minori | `#f2c14e`, `#f6d27a`, `#fbf4e4`, `#f7efdf` |
+| Ferrovie | `#8b8072` |
+| Moli | `#c9c2b4` |
+| Pareti delle case | `#f2e4c9`, `#ecd3b0`, `#f5ede1`, `#e7caa7`, `#ddd3c2`, `#f0d9c0` |
+| Tetti delle case | `#c8694b`, `#b65c43`, `#d8d3ca`, `#a9a299`, `#cf7a55` |
+| Capannoni (pareti, tetti) | `#bcb6ac`, `#a9a49c`, `#cbc4b8`; `#8f9ba4`, `#9e9186`, `#b0aba2` |
+| Edifici pubblici | `#f3d8a4`, `#efc994`; tetto `#c46a4f` |
+| Ruggine (stabilimento fermo) | pareti `#8f7b69`, `#7d6f65`, `#9c8774`, `#86705e`; tetti `#8a4b2c`, `#9c5a35`, `#6f5a49`, `#7d4630` |
+| Terreno dei lotti: fermo, cantiere, acciaio, bosco, energia, mare | `#a59683`, `#c7a77c`, `#cfcbc3`, `#8cc46a`, `#b8d48c`, `#e6dcc6` (fascia di raccordo: a metà con `#c8b79f`) |
+| Piazza di «mare e cultura» | `#f3ead6` |
+| Evidenza della selezione | `#1f6fd1` |
+| Legenda e strati (male, metà, bene) | `#be5c26`, `#eec45c`, `#348874` |
+| Cielo | `#d6e6ee` |
+
+### Modelli: origine e licenza
+
+Nessun modello esterno, nessuna texture: tutto è costruito dal codice in
+`apps/game/src/plastico/scene.ts` con parallelepipedi, cilindri, coni e prismi. Sono
+originali e seguono la licenza del codice (AGPL-3.0). Nessun elemento è copiato da
+altri giochi.
+
+| Aspetto del lotto | Che cosa si vede | Origine |
+| --- | --- | --- |
+| Fermo | Gli edifici veri del reparto (sagome OpenStreetMap) in colori di ruggine, tre torri e due camini spenti, un nastro trasportatore, cumuli di minerale rossastri | Sagome: OpenStreetMap (ODbL); resto: codice |
+| Cantiere | Terra smossa, recinzione arancione sui quattro lati, tre gru a torre gialle con il braccio che gira piano, cumuli di terra, strutture a metà | Codice |
+| Acciaio con forni nuovi | Otto capannoni bianchi con tetti azzurri, edifici di servizio, camion, un solo camino bianco e rosso con poco fumo | Codice |
+| Bosco giovane | Prato e circa 300 alberelli di altezze e verdi diversi, con un sentiero libero | Codice |
+| Energia | Sei pale eoliche che girano e file di pannelli solari | Codice |
+| Mare e cultura | Pavimentazione chiara, una piazza, sei edifici pubblici colorati, viali alberati; sui lati che danno sull'acqua vera, banchina aperta con bitte e barche ormeggiate fuori dal lotto. Nessuna acqua finta | Codice |
+
+### Prestazioni
+
+Misurate da `apps/game/scripts/verifica.ts` con Edge su questo computer, muovendo la
+camera tra quattro punti della zona e leggendo le immagini al secondo degli ultimi due
+secondi dopo ogni spostamento. **Il telefono di fascia media è simulato** con il
+processore rallentato 4 volte, schermo di 390 × 844 px a densità 2: è un sostituto
+dichiarato, non una misura su un telefono vero. La scheda grafica resta quella del
+computer, quindi la misura dice soprattutto se il lavoro del processore regge. La prova
+su un telefono vero la farà Michele.
+
+| Prova | Media | Minima | Esito |
+| --- | ---: | ---: | --- |
+| 390 × 844 px, densità 2, processore rallentato 4× (sostituto del telefono), prima esecuzione | 40,6 | 37,8 | sopra 30 |
+| 390 × 844 px, densità 2, processore rallentato 4×, seconda esecuzione | 36,6 | 34,0 | sopra 30 |
+| 1280 × 900 px, densità 1, processore normale | 50,4-57,0 | 43,0-51,9 | sopra 30 |
+
+Immagini al secondo. Le due esecuzioni a 390 px differiscono di qualche immagine: la
+misura dipende dal carico del computer in quel momento. Il gioco passa da solo alla
+mappa schematica sotto 20 immagini al secondo.
+
+**Dopo la revisione.** In una nuova esecuzione il minimo a 390 px è sceso a 29. Misurata
+nello stesso momento, anche `556dc09` dava gli stessi numeri (media 31,5-33,9, minima
+29,0-32,1): era il computer, più carico, non il codice nuovo. Per avere margine, la
+mappa d'ombra non si ridisegna più a ogni immagine: si ridisegna quando cambia l'aspetto
+di un lotto e, se ci sono parti in movimento (pale, gru, fumo), ogni 12 immagini. Le
+ombre degli edifici non cambiano quando la camera si muove, perché il sole è fermo.
+
+| Prova, stesso computer e stesso momento | Media | Minima |
+| --- | ---: | ---: |
+| `556dc09`, 390 px, processore rallentato 4×, quattro esecuzioni | 31,5-33,9 | 29,0-32,1 |
+| Dopo la revisione, ombre ridisegnate solo quando serve, quattro esecuzioni | 44,2-46,1 | 39,4-41,2 |
+
+`verifica.ts --prestazioni` ripete la misura a 390 px quattro volte.
+
+### Pesi
+
+| Che cosa | Normale | Compresso (gzip) |
+| --- | ---: | ---: |
+| `packages/content/geo/plastico.json` | 766 kB (T11: 724 kB) | 215 kB (T11: 203 kB) |
+| `packages/content/geo/lotti.json` | 2,8 kB | 0,9 kB |
+| Pezzo del plastico nel gioco costruito (three.js, scena, dati) | 1.239 kB | 346 kB |
+| Pezzo principale del gioco (come nel T10: +1 kB per la nuova disposizione) | 581 kB | 151 kB |
+
+### Estendere il plastico a tutta la città
+
+Che cosa manca, con una stima del lavoro per una persona che conosce il codice:
+
+1. **Dati.** Scaricare il resto del territorio comunale (Paolo VI, Borgo intero,
+   Città Vecchia, Tre Carrare, Solito-Corvisea, Salinella, Talsano, Lama, San Vito,
+   Mar Piccolo secondo seno): circa 70 km² e 40-50 mila edifici. Il file ridotto
+   salirebbe a 5-6 MB (1,5 MB compresso): va diviso in tasselli caricati secondo la
+   vista. **2-3 giorni.**
+2. **Tasselli e livelli di dettaglio.** Geometria per tasselli di 1 km, caricati e
+   scaricati con la camera; edifici più semplici da lontano (solo volumi, senza
+   ombre). **4-6 giorni.**
+3. **Contorni dei quartieri** dai confini ufficiali delle circoscrizioni (dati aperti
+   del Comune, con fonte) al posto dei poligoni stimati. **1 giorno.**
+4. **Ombre e prestazioni** su un'area dieci volte più grande: mappa d'ombra a cascata
+   o ombre solo vicino alla camera; nuova misura sul telefono. **2-3 giorni.**
+5. **Luoghi riconoscibili** (ponte girevole, Castello Aragonese, concattedrale,
+   lungomare): modelli semplici fatti dal codice o presi da raccolte con licenza
+   libera, annotati in `docs/FONTI.md`. **3-5 giorni.**
+6. **Elementi vivi**: traffico leggero, navi in Mar Grande, luci di sera. **3-4 giorni.**
+
+In tutto **15-22 giorni di lavoro**, più il giudizio di Michele sull'aspetto dopo
+ogni zona (D18: «si procede una zona alla volta»).
