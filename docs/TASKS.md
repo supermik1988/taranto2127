@@ -923,6 +923,30 @@ ciascuna fase.
   contrasto dello strato dell'aria almeno 40; tutti gli elementi nuovi nell'elenco
   degli elementi grafici con origine e licenza; `pnpm test` sotto i 45 secondi,
   `pnpm test:lungo` e verifica nel browser verdi.
+- **Approvazione della fase A (24 novembre 2026).** Michele sceglie la **variante 1,
+  «illustrata»** (campione in `3060f45`). Per la fase B:
+  1. *Una sola città:* la variante 1 diventa l'aspetto di tutta la zona e
+     l'unico. Si tolgono la variante 2, il parametro `?aspetto=` e l'aspetto di
+     T12; resta la mappa schematica di riserva.
+  2. *Contorni che si alleggeriscono con la distanza:* da media distanza i Tamburi
+     non devono diventare una massa scura. Spessore o intensità del contorno
+     scendono gradualmente con l'ingrandimento, fino a sparire da lontano, senza
+     scatti visibili. Prova nel browser: alla vista d'insieme la luminosità media
+     di un riquadro dei Tamburi non scende sotto quella della variante 2 di oltre
+     il 10%.
+  3. *Prestazioni:* al livello medio i balconi sono dipinti nella facciata, in
+     rilievo solo al livello alto e da vicino (proposta dell'esecutore, accettata).
+     Le soglie restano quelle della scheda, compreso il margine del 20% al livello
+     medio.
+  4. *Stabilimento:* nel campione è quasi uguale a prima. Capannoni, ciminiere,
+     serbatoi, nastri e lotti ricevono lo stesso trattamento delle case: tavolozza
+     nuova, tre fasce di luce, contorni, dettaglio sulle facciate.
+  5. *Scelte dell'esecutore accettate:* i valori del sistema visivo scritti in
+     `docs/GRAFICA.md` come punto di partenza; negozi al piano terra nel 40% delle
+     palazzine come stima; una riga di contorno per balcone; soglie di dettaglio
+     dichiarate. Restano da fare tutti i punti rinviati nel resoconto (chiese,
+     scuole, centro con cornicioni, vita della città, riflessi del mare, cantiere
+     grande, verifica a pixel dei colori, contrasto dello strato dell'aria).
 - **Regole:** come T12. Solo il ramo del task; non unire né inviare `main`; non
   toccare `CLAUDE.md`, `docs/ARCHITETTO.md`, `docs/DECISIONI.md`, `docs/TASKS.md`;
   scelte fuori scheda dichiarate come «mia scelta da confermare»; almeno tre prove
