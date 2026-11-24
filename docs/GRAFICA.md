@@ -1,5 +1,10 @@
 # Grafica: il plastico
 
+> Dal T12 (D20) lo stile della mappa cambia: città isometrica, senza effetto
+> modellino. Il brief di direzione artistica è in fondo, nella sezione
+> «Città isometrica (T12): brief di direzione artistica». Le sezioni sul plastico
+> restano valide finché la fase B non lo sostituisce.
+
 Scelte del T11 (D18): un plastico 3D della città, effetto modellino, luce morbida,
 colori pieni; mappa a tutto schermo, comandi ai bordi, finestre al tocco. Per ora una
 zona: i Tamburi, lo stabilimento ILSIDER e il primo seno del Mar Piccolo, con un
@@ -230,3 +235,183 @@ Che cosa manca, con una stima del lavoro per una persona che conosce il codice:
 
 In tutto **15-22 giorni di lavoro**, più il giudizio di Michele sull'aspetto dopo
 ogni zona (D18: «si procede una zona alla volta»).
+
+## Città isometrica (T12): brief di direzione artistica
+
+Decisione D20: città isometrica nello stile dei gestionali di città di fine anni '90,
+ricca di dettagli, a colori pieni, senza effetto modellino né bordi. Questo brief
+segue il modello della skill `create-game-assets` (`assets/art-direction-brief.md`).
+Lo stato è **provino (fase A), in attesa dell'approvazione di Michele**. Fino a quel
+momento nessun elemento è approvato per la produzione (fase B).
+
+Provino: pagina di solo sviluppo `apps/game/provino.html` (`pnpm --filter
+@taranto2127/game dev`, poi `/provino.html?vista=isolato|costa|parchi|tipi`, con
+`&stato=fermo|bosco` per i parchi). Schermate con `pnpm --filter @taranto2127/game
+provino`. Codice in `apps/game/src/iso/` (`tipi.ts`, `texture.ts`, `citta.ts`) e
+`apps/game/src/provino.ts`. La costruzione del gioco pubblicato non include il provino.
+
+### Quadro del gioco
+
+- **Cosa prova chi gioca.** Governa Taranto per cento anni e vede la città cambiare
+  lotto per lotto: lo stabilimento che si ferma, i parchi minerali che diventano
+  bosco, i Tamburi che respirano. La mappa deve far riconoscere la propria città.
+- **Motore.** three.js 0.169.0, WebGL, nessuno strato sopra. Nessuna funzione
+  successiva alla 0.169.
+- **Piattaforme.** Browser da computer (1280 px) e telefono (390 px, densità 2).
+- **Vista.** Camera ortografica con angolo fisso: azimut 45° (si guarda da sud-est
+  verso nord-ovest), elevazione 30°. È la vista dimetrica 2:1 del genere: un metro
+  in orizzontale sullo schermo diventa mezzo metro in verticale. In fase B si ruota
+  solo a scatti di 90°, quindi quattro orientamenti, sempre con lo stesso angolo.
+- **Scala.** Scala reale, in pixel per metro (ppm): nessuna esagerazione verticale
+  (il plastico alzava le altezze di 2,4 volte). Ingrandimenti usati nel provino:
+  isolato 4 ppm, costa 2,6 ppm, parchi 1,15 ppm, foglio dei tipi 5 ppm. A 4 ppm una
+  palazzina di sei piani è alta circa 40 px sullo schermo, una campata è larga 14 px.
+- **Grandezza tipica sullo schermo.** Palazzina: 60-200 px di lato. Albero: 15-30 px.
+  Finestra: 5-8 px. Sotto 1,5 ppm le finestre diventano una trama: va bene, perché a
+  quella distanza contano le masse e i colori.
+
+### Sistema visivo
+
+- **Forme.** Volumi semplici estrusi dalle sagome OpenStreetMap, con spigoli vivi.
+  Nessuna forma arrotondata se non cisterne, ciminiere e chiome. Il dettaglio sta
+  sui tetti (parapetti, cisterne, antenne, falde) e sulle facciate (texture), non
+  nella geometria delle pareti.
+- **Sagome che contano.** Il profilo dei tetti distingue i tipi: terrazza con
+  parapetto bianco (palazzine), falde in coppi (case e scuole), falde in lamiera
+  (capannoni), ciminiera alta con fascia (impianti). Si devono riconoscere anche a
+  1,5 ppm, quando le finestre non si leggono più.
+- **Valori (chiari e scuri).** Il terreno chiaro (sabbia e intonaco) fa da fondo. Le
+  facciate stanno a metà. Ombre, asfalto, mare e chiome scure sono i bassi. I tetti
+  piani chiari fanno da luci alte e indicano subito dove c'è città fitta.
+- **Tavolozza e ruoli.**
+
+  | Ruolo | Colori | Perché |
+  | --- | --- | --- |
+  | Terreno di campagna | `#cfc58f` | terra secca e prato bruciato del sud d'estate |
+  | Suolo urbano | `#d9d1bd`, marciapiedi `#d3ccbf` | fondo chiaro su cui si stagliano le case |
+  | Piazzali dello stabilimento | `#c8b89a` | più bruno e polveroso della città |
+  | Mare | `#2f83c4`, riflesso `#9fc9ea` | blu pieno e saturo, l'elemento più forte del quadro |
+  | Asfalto | `#56595f` (superstrada `#4c4f55`), segnaletica `#f4f2ea` | strade leggibili come reticolo scuro |
+  | Binari | `#7d7266` | bruno ferroso, distinto dall'asfalto |
+  | Intonaci delle palazzine | `#ecc779` `#e9a07f` `#f2e3bd` `#dd8f5c` `#e6cf9a` `#c9a46d` `#f0b98a` | gialli, ocra, rosa e terracotta caldi: la gamma dei quartieri popolari del sud |
+  | Intonaci della Città Vecchia | `#f3e6c4` `#e9c9a3` `#d9c7a1` `#f1d6b8` `#e3d2b0` `#cdbb93` | pastelli chiari e tufo |
+  | Case basse | `#f4ead2` `#efd2a2` `#e6b48b` `#f3e2b3` | chiare, quasi bianche |
+  | Edifici pubblici | `#e7b76f` `#d9a06a` `#f0d79d` | ocra istituzionale |
+  | Negozi | `#ece6d8` `#e3dccb` `#f3efe4`, tende `#c4473a` | neutri, con il rosso delle tende come unico accento |
+  | Capannoni | `#9aa7b3` `#b7bdc2` `#8e9aa5` `#a6b1a2`, coperture `#7d8a96` `#8f9aa4` `#6f7b86` | grigi freddi: l'industria si legge come zona fredda in una città calda |
+  | Impianti e ciminiere | `#b8b0a3` `#a59c8f` `#c4bcae`, fusto `#c9c2b6`, fascia `#c0392b` o `#7a7470` | cemento; la fascia rossa segna le ciminiere da lontano |
+  | Tetti a terrazza | `#cfc9bd` `#d8d2c6` `#c5beb1`, parapetto `#f3efe6`, cisterne `#eef1f2`, antenne `#4f5357` | il carattere dei tetti di Taranto |
+  | Coppi | `#c5623d` `#b8573a` `#cf7048` | terracotta, unico rosso caldo dei tetti |
+  | Alberi | pino domestico `#3f6f3a` `#467a3e` `#365f34`; latifoglie `#5a9a3c` `#67a844` `#4f8f38` `#73b04a`; giovani `#6fae46` `#7dba50` `#5f9e3e` `#8cc25a`; tronchi `#6b4d33` | tre verdi per tre età: si legge a colpo d'occhio un bosco giovane |
+  | Verde a terra | parco `#79b84e`, prato `#86c057`, bosco `#4f8f3c`, macchia `#6f9f4b`, campi `#c2c967` | prati saturi, come in una giornata di primavera |
+  | Parchi minerali fermi | fondo `#a89377`; minerale di ferro `#8a3b22` `#7a3220`; carbone `#2f2b29` `#3a3431`; calcare `#a8a29a`; macchine `#9a5b35` | i cumuli rosso ruggine e neri sono il segno più riconoscibile dello stabilimento |
+  | Bosco dopo la bonifica | fondo `#86bd55`, sentieri `#e2d6b3` | verde chiaro e nuovo contro il bruno dello stabilimento |
+
+  Variazione: ogni edificio pesca il suo intonaco dalla gamma del tipo con
+  `hash01(identificativo)`, mai a caso: la stessa sagoma ha sempre lo stesso colore.
+
+- **Materiali.** `MeshLambertMaterial` per tutto ciò che è opaco (intonaco, lamiera,
+  terra), `MeshPhongMaterial` con brillantezza 60 solo per il mare. Le texture delle
+  facciate sono quasi bianche e moltiplicano il colore della geometria: una sola
+  texture per stile serve tutti i colori.
+- **Bordi e linee.** Nessun contorno disegnato, nessun effetto di linea: gli spigoli
+  si leggono per differenza di luce tra le tre facce visibili (tetto chiaro, faccia
+  al sole, faccia in ombra). Nessuna sfocatura, nessuna lastra sotto la città,
+  nessun bordo: oltre l'area di gioco il terreno continua per 6 km in tinta unita
+  e il mare resta mare, così lo schermo non mostra mai il vuoto.
+- **Luce.** Una giornata di sole a metà mattina. Sole caldo `#fff3d9` da sud-ovest,
+  alto (intensità 2,6); cielo diffuso `#d4e9ff` sopra e `#b8a57c` sotto (intensità
+  1,5), così le facce in ombra restano leggibili e calde. Ombre portate morbide ai
+  bordi (`PCFSoftShadowMap`), lunghe circa quanto l'edificio è alto. Lo sfondo del
+  cielo `#bcdcf2` non si vede mai nelle viste normali.
+- **Densità di dettaglio e gerarchia.** Più dettaglio dove c'è vita: Tamburi e
+  Città Vecchia (balconi, cisterne, antenne, alberi nei cortili, viali alberati).
+  Meno dettaglio nello stabilimento (volumi grandi, lamiera, poche ciminiere ben
+  visibili). I lotti di ILSIDER hanno l'aspetto più forte del quadro, perché sono il
+  centro del gioco: cumuli colorati da fermi, verde chiaro e fitto da bosco.
+- **Movimento.** Nel provino nulla si muove. In fase B: rotazione a scatti di 90° con
+  passaggio morbido, movimenti con fattore dipendente dal tempo trascorso; più avanti
+  forse navi e traffico leggero, solo se il budget lo permette.
+- **Cosa si prende dal genere.** Vista isometrica con angolo fisso, città fitta e
+  leggibile, tetti e finestre in vista, viali alberati, giardini, moli, colori pieni
+  e saturi, giornata di sole, edifici distinti per tipo a colpo d'occhio.
+- **Cosa non si prende (esclusioni).** Niente immagini, texture, modelli, icone,
+  pannelli, caratteri, nomi o loghi di SimCity o di altri giochi. Niente edifici
+  riconoscibili di altri giochi, niente minimappa a rombo, niente interfaccia a
+  pannelli del genere. Le immagini di riferimento di Michele non entrano nel
+  repository. Niente scritte sulle insegne e sulle tende (nessun marchio, nessun
+  testo da tradurre). Niente immagini generate con servizi a pagamento senza il via
+  di Michele: nel provino tutto è disegnato dal codice.
+
+### Tipi di edificio e luoghi di Taranto
+
+Il tipo si ricava dai dati OpenStreetMap (`k`), dalla superficie della sagoma e dal
+luogo (quartiere, recinto dello stabilimento): `apps/game/src/iso/tipi.ts`. Foglio di
+confronto: `docs/schermate/provino-tipi-1280.png`.
+
+| Tipo | Come si riconosce | Quando |
+| --- | --- | --- |
+| Palazzina dei Tamburi | 4-7 piani, tetto piano a terrazza con parapetto bianco, 1-4 cisterne e 1-3 antenne, facciata a balconi con ringhiera | sagome tra 160 e 2.500 m² fuori dalla Città Vecchia |
+| Casa della Città Vecchia | 3-5 piani, terrazza, persiane verdi, pastelli chiari, edifici serrati | sagome nel quartiere Città Vecchia |
+| Casa bassa | 1-3 piani, persiane; terrazza o, sulle sagome rettangolari, falde in coppi (circa 45%) | sagome sotto i 160 m² |
+| Edificio pubblico | 2-4 piani, finestre a nastro, falde in coppi o tetto piano, ocra | scuole, uffici, chiese in OSM, o sagome sopra i 2.500 m² |
+| Negozi | 1-2 piani, vetrine con tende rosse e bianche, tetto piano | negozi in OSM e alcune grandi sagome |
+| Capannone | 10-22 m di gronda, lamiera grecata, falde in lamiera, grigio freddo | industria in OSM e sagome nello stabilimento |
+| Impianto con ciminiera | volume cieco di cemento con una ciminiera alta e una fascia rossa o grigia | circa una sagoma media su cinque nel recinto dello stabilimento |
+| Garage e annessi | un piano, tetto piano, intonaco grigio chiaro | sagome sotto i 40 m² o `basso` in OSM |
+
+Come si riconosce Taranto:
+
+- **Tamburi.** Palazzine fitte con tetti a terrazza, parapetti bianchi, cisterne e
+  antenne; intonaci caldi; pini domestici nei cortili e viali alberati. Lo
+  stabilimento si vede subito oltre la strada, grigio e bruno.
+- **Città Vecchia.** Case strette e alte, terrazze, pastelli e tufo, poche strade.
+  Nel riquadro attuale ne entrano solo due sagome: va rivista quando la zona si
+  allarga.
+- **Stabilimento.** Capannoni lunghi in lamiera grigia, ciminiere con la fascia,
+  binari, nastri, cumuli rossi e neri dei parchi minerali.
+- **Mar Piccolo.** Mare blu pieno, moli e banchine chiare, binari lungo la costa.
+
+### Contratto tecnico
+
+- **Texture delle facciate.** Disegnate dal codice su tela (`texture.ts`), 128 × 114
+  px, un modulo di una campata (3,6 m) per un piano (3,2 m), ripetute lungo le
+  pareti. Sei stili: balconi, persiane, nastro, vetrine, lamiera, cieco. Spazio
+  colore sRGB (texture di colore), anisotropia 4, mipmap di three.js. Nessuna
+  trasparenza. Memoria: sei texture da circa 58 kB ciascuna, con le mipmap circa
+  80 kB, in tutto meno di 0,5 MB.
+- **Geometria.** Le pareti di tutti gli edifici con lo stesso stile di facciata
+  sono raggruppate in una sola geometria con colori per vertice; tetti in una
+  geometria; cisterne, antenne e alberi ripetuti con `InstancedMesh`. Varianti solo
+  da `hash01(identificativo, n)`, mai `Math.random`.
+- **Coordinate.** Metri dal centro della zona; x verso est, z verso sud, y in alto.
+  Base degli edifici a y = 0. Fondi dei lotti a y 0,11, sentieri a 0,13, binari dei
+  parchi a 0,14, così non si mescolano con l'acqua e le strade.
+- **Densità di pixel.** Al massimo 1,5 (punto di partenza della scheda), da rivedere
+  con le misure in fase B.
+- **Numeri del provino** (tutta la zona costruita ad alto dettaglio, misura di
+  `renderer.info` a 1280 px):
+
+  | Vista | Ordini di disegno | Triangoli |
+  | --- | ---: | ---: |
+  | Isolato | 23 | 742 mila |
+  | Costa | 16 | 606 mila |
+  | Parchi fermi | 79 | 744 mila |
+  | Parchi a bosco | 38 | 977 mila |
+  | Foglio dei tipi | 17 | 3,7 mila |
+
+  Zona: 2.157 edifici (490 palazzine, 263 case, 2 della Città Vecchia, 14 pubblici,
+  6 negozi, 304 capannoni, 14 impianti, 1.064 garage e annessi), 5.716 alberi
+  (10.359 con il bosco). I numeri comprendono le ombre. Le macchine e i nastri dei
+  parchi fermi sono ancora oggetti separati: in fase B vanno raggruppati. I budget
+  per livello di dettaglio si fissano in fase B con le misure in millisecondi.
+
+### Bersaglio visivo e approvazione
+
+- **Bersaglio proposto:** `docs/schermate/provino-isolato-1280.png` (con la versione a
+  390 px), più costa, parchi fermi, parchi a bosco e foglio dei tipi, tutti in
+  `docs/schermate/provino-*.png`, catturati alla scala reale del gioco.
+- **Elenco degli elementi:** `docs/grafica-elementi.json`, con origine, licenza e
+  stato di ogni elemento.
+- **Approvazione:** Michele, nella scheda T12 di `docs/TASKS.md`. Finché manca,
+  tutti gli elementi restano «in attesa» e non si passa alla fase B.
