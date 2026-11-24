@@ -25,6 +25,9 @@ di architettura (GDD) non coincidono, vale questo file.
 | D18 | Grafica                  | Plastico 3D della città, effetto modellino, luce morbida, colori pieni. Mappa a tutto schermo che si ingrandisce, comandi ai bordi, finestre al tocco. Sostituisce «Grafica e strumenti creativi» qui sotto per la mappa |
 | D19 | Ambiente di sviluppo     | Lo sviluppo prosegue interamente dentro Antigravity, con l'architetto lì. Passaggio di consegne in `docs/ARCHITETTO.md` |
 | D20 | Stile della mappa        | (24 novembre 2026) Città isometrica nello stile dei gestionali di città di fine anni '90, ricca di dettagli e a colori pieni, senza effetto modellino né bordi. Ispirata al genere, nessun elemento copiato da giochi esistenti. Vista fissa con rotazione a scatti di 90°; si parte dalla zona già fatta (Tamburi, stabilimento, Mar Piccolo) e poi si estende; dettaglio ricco, ridotto da solo sui dispositivi lenti. Sostituisce l'effetto modellino di D18 |
+| D21 | Consiglieri              | (24 novembre 2026) Personaggi inventati con volto, nome, età, mestiere e una storia legata a Taranto. Mai persone reali. Sostituisce D17 |
+| D22 | Ritratti                 | (24 novembre 2026) Ritratti dei consiglieri illustrati dal codice, nello stile della mappa, con più espressioni. Niente immagini esterne né servizi a pagamento |
+| D23 | Interfaccia              | (24 novembre 2026) Interfaccia da gestionale di città (barra di stato, notizie che scorrono, comandi a icone, minimappa), ispirata al genere senza copiare nessun gioco. Si fa dopo la mappa isometrica (T12) |
 
 ## Cosa ne discende
 
@@ -158,7 +161,7 @@ dell'area in 10-15 anni.
 
 ## Ancora da decidere
 
-- Nomi e volti dei sei consiglieri della prima epoca.
+- Nomi e volti dei sei consiglieri della prima epoca: deciso il principio (D21, D22); i personaggi li propone T14 e li approva Michele.
 - Soglia del tetto di spesa mensile per le voci AI.
 - Chi ospita le prime prove sul campo.
 - Quale università o gruppo di ricerca coinvolgere.

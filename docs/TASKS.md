@@ -830,3 +830,109 @@ clone pulito; niente unione né invio di `main`; non toccare `CLAUDE.md`,
 resoconto come «mia scelta da confermare», mai attribuita ad altri. Resoconto in tre
 parti. L'architetto rivede e mostra le schermate a Michele prima di approvare
 ciascuna fase.
+
+---
+
+## T13 — Interfaccia gestionale
+
+- **Agente:** `sim-engineer` (interfaccia), su decisione di Michele (D23).
+- **Dipende da:** T12 fase B unita in `main`. Non si avvia prima: stessi file.
+- **Ramo:** `task/T13-interfaccia`.
+- **File:** `apps/game/` (esclusa la scena della mappa, salvo gli agganci),
+  `packages/content/data/guida.json` e il suo schema (testi della visita guidata che
+  cambiano), `docs/GRAFICA.md`, `docs/grafica-elementi.json`, `docs/FONTI.md`,
+  `docs/schermate/`. Il motore non si tocca.
+- **Perché:** Michele vuole un'interfaccia da gestionale di città, più vicina ai suoi
+  riferimenti (schermate di SimCity 3000 e SimCity BuildIt), al posto dei pulsanti
+  di testo attuali.
+- **Ispirazione, non copia (vincolante).** Dal genere si prendono le funzioni: barra
+  di stato sempre visibile, notizie che scorrono, pannello di comandi a icone,
+  minimappa, finestre con cornice coerente. Non si prende l'aspetto di nessun gioco:
+  niente pannelli blu arrotondati, icone, colori, caratteri o disposizioni riconoscibili
+  di SimCity o di altri. Icone disegnate per noi in SVG, con origine e licenza
+  nell'elenco degli elementi grafici. Il linguaggio visivo nasce dalla mappa
+  isometrica e dai colori della città (rosso e blu della bandiera, sabbia, mare).
+- **Skill da leggere** (`~/.claude/skills/<nome>/SKILL.md`): `game-ui-ux` (ancore e
+  contenitori, una sola regola di scala, zona sicura dei telefoni, finestre a pila,
+  navigazione da tastiera, prove a più dimensioni) e `create-game-assets` (brief,
+  elenco degli elementi, un bersaglio visivo approvato prima della produzione).
+- **Cosa fare, in due fasi.**
+
+  **Fase A — Provino (ci si ferma fino al via di Michele).** Tre schermate statiche
+  dell'interfaccia sopra la mappa vera, a 390 e 1280 px: gioco in corso, finestra del
+  Consiglio aperta, dilemma. Più un foglio con tutte le icone. Brief dell'interfaccia
+  in `docs/GRAFICA.md`.
+
+  **Fase B — Interfaccia completa.**
+  1. *Barra di stato:* anno ed epoca, le tre casse, popolazione, barra Red/Blu,
+     comandi del tempo. Su telefono compatta, con il dettaglio al tocco.
+  2. *Notizie:* i titoli della Cronaca scorrono in una striscia; al tocco si apre la
+     Cronaca. Il movimento si ferma se il sistema chiede meno animazioni.
+  3. *Pannello dei comandi* a icone con etichetta (Consiglio, Cantieri, Bilancio,
+     Grafici, Politiche, Strati, Elenco, Partita, Aiuto). Su telefono si apre e chiude.
+  4. *Minimappa* della zona, ricavata dai dati della mappa: mostra dove si sta
+     guardando; toccandola ci si sposta.
+  5. *Finestre* con una cornice comune; a pila, risponde solo quella in cima; si
+     chiudono con un tocco fuori o con Esc. Su telefono salgono dal basso.
+  6. *Spazio per i consiglieri:* nella finestra del Consiglio e nei dilemmi c'è il
+     posto per un ritratto (T14); fino ad allora un segnaposto neutro.
+- **Fatto quando (fase B):** ogni funzione di oggi resta raggiungibile; a 360, 390,
+  1280 px e su un telefono lungo (1080×2340) nessun elemento tagliato o sovrapposto e
+  nessuno scorrimento orizzontale (schermate e test); rispetto della zona sicura;
+  ogni finestra si apre e si chiude da tastiera e il fuoco resta dentro la finestra
+  aperta (test); la minimappa sposta la vista (test); la striscia delle notizie si
+  ferma con «riduci animazioni» (test); visita guidata aggiornata e completa; tutte
+  le icone nell'elenco degli elementi con origine e licenza; `pnpm test` sotto i 45
+  secondi, `pnpm test:lungo` e verifica nel browser verdi.
+- **Regole:** come T12. L'architetto mostra le schermate a Michele prima di approvare
+  ciascuna fase.
+
+---
+
+## T14 — I consiglieri come personaggi
+
+- **Agenti:** `content-designer` per nomi, biografie e testi; `sim-engineer`
+  (interfaccia) per i ritratti. Su decisione di Michele (D21, D22).
+- **Dipende da:** T13 unito in `main`.
+- **Ramo:** `task/T14-consiglieri`.
+- **File:** `packages/content/data/` (file dei consiglieri e suo schema),
+  `apps/game/` (ritratti e loro uso), `docs/CONTENUTI.md`, `docs/GRAFICA.md`,
+  `docs/grafica-elementi.json`, `docs/schermate/`. Le regole con cui i consiglieri
+  decidono (`packages/agents`) **non** cambiano: cambia come si presentano.
+- **Perché:** Michele vuole consiglieri che siano personaggi, con volto e nome, non
+  deleghe anonime.
+- **Cosa fare, in due fasi.**
+
+  **Fase A — Proposta (ci si ferma fino al via di Michele).**
+  1. Sei personaggi **inventati** per la prima epoca, uno per delega. Per ciascuno:
+     nome e cognome, età, mestiere prima della politica, quartiere, un legame con la
+     storia della città, cosa gli sta a cuore, un difetto, un modo di parlare, due
+     frasi d'esempio. Equilibrio tra donne e uomini e tra generazioni.
+  2. Controllo dei nomi: comuni e credibili a Taranto, mai di persone pubbliche note
+     (politici, sindacalisti, dirigenti, giornalisti, vittime); il controllo fatto va
+     descritto nel resoconto. Nessun riferimento a sigle, partiti o aziende reali.
+  3. Tono sobrio (regola 8): nessun personaggio è una macchietta, nessuno è «il
+     buono»; chiunque può proporre una scorciatoia quando la sua causa è alle strette.
+  4. Un ritratto di prova per due personaggi, nelle quattro espressioni.
+
+  **Fase B — Realizzazione.**
+  1. *Ritratti illustrati dal codice* (SVG generato da parametri: forma del viso,
+     capelli, carnagione, abiti, occhiali, età), nello stile della mappa. Nessuna
+     immagine esterna, nessun servizio a pagamento. Lo stesso personaggio è sempre
+     uguale (parametri fissi nei dati).
+  2. *Espressioni:* neutra, soddisfatta, preoccupata, contrariata, scelte dallo stato
+     del personaggio nel motore (fiducia verso il giocatore, andamento della sua
+     causa). L'interfaccia legge, non decide.
+  3. *Uso:* finestra del Consiglio, consigli dell'anno, commenti ai dilemmi, Cronaca.
+     Nei testi il consigliere parla in prima persona con il suo stile.
+  4. *Epoche successive:* il rinnovo del Consiglio è nel motore e non è ancora fatto
+     (tappa M2). Qui si prepara solo il formato dei dati perché ogni epoca possa avere
+     i suoi sei personaggi.
+- **Fatto quando:** sei personaggi nei dati, validati dallo schema; ogni ritratto
+  nelle quattro espressioni, a 390 e 1280 px; l'espressione cambia con lo stato in
+  una partita da copione (test); stesso personaggio, stesso disegno (test); i testi
+  passano i controlli di contenuto; nessun nome coincide con l'elenco di controllo
+  del resoconto; `pnpm test` sotto i 45 secondi, `pnpm test:lungo` e verifica nel
+  browser verdi.
+- **Regole:** come T12. **Nomi, biografie e ritratti li approva Michele** prima della
+  fase B e prima dell'unione: sono contenuti, il giudizio è suo.

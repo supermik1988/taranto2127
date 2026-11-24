@@ -116,6 +116,9 @@ simulazioni sociali.
 | D18 | Grafica: plastico 3D della città, effetto modellino, luce morbida, colori pieni. Mappa a tutto schermo che si ingrandisce, comandi ai bordi, finestre al tocco |
 | D19 | Lo sviluppo prosegue interamente dentro Antigravity, con l'architetto lì |
 | D20 | Mappa isometrica in stile gestionale di città anni '90, ricca e a colori pieni, senza effetto modellino; ispirata al genere, niente di copiato; vista fissa con rotazione a 90°; si parte dalla zona attuale; dettaglio ridotto da solo sui dispositivi lenti. Sostituisce l'effetto modellino di D18 |
+| D21 | Consiglieri come personaggi inventati, con volto e nome; mai persone reali. Sostituisce D17 |
+| D22 | Ritratti dei consiglieri illustrati dal codice, con più espressioni |
+| D23 | Interfaccia da gestionale di città, ispirata al genere, dopo la mappa isometrica |
 
 Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 
@@ -154,7 +157,9 @@ Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 | T10 | Tempo che scorre e si ferma da solo, niente limite di azioni, visita guidata, bilancio, grafici per telefono, 24 dilemmi, menu della partita | In `main` dal 15 novembre, con le due correzioni; pubblicato |
 | T11 | Plastico 3D di una zona e nuova disposizione | In `main` dal 17 novembre, con le correzioni chieste da Michele; pubblicato |
 | T11b | Prove più veloci; lotto «Banchine» sul Mar Grande | In `main` dal 24 novembre; pubblicato |
-| T12 | Città isometrica (D20) | Scheda pronta, ramo `task/T12-isometrica`; prima un provino di stile da mostrare a Michele |
+| T12 | Città isometrica (D20) | Fase A approvata da Michele il 24 novembre con quattro correzioni; fase B in corso sul ramo `task/T12-isometrica` |
+| T13 | Interfaccia gestionale (D23) | Scheda pronta; parte dopo l'unione di T12 |
+| T14 | Consiglieri come personaggi (D21, D22) | Scheda pronta; parte dopo T13; nomi e ritratti li approva Michele |
 
 Ultimo `main` verificato: `4276f4b` (T11b). Su clone pulito: 451 test in
 `pnpm test` (36 s a computer carico, contro 143 s della versione precedente
