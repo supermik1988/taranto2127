@@ -7,6 +7,7 @@ import type { DistrictId, GameState } from '@taranto2127/sim';
 import { useEffect, useRef, useState } from 'react';
 import { content } from '../engine.js';
 import { MIN_IMMAGINI, type Livello, type Scelta } from '../iso/livelli.js';
+import { aspettoDa } from '../iso/aspetto.js';
 import { createCitta, type CittaApi, type InfoDisegno } from '../iso/scena.js';
 import type { MapIndicator } from '../map.js';
 import { geo } from './data.js';
@@ -124,6 +125,7 @@ export default function Plastico({
           detailChanged.current?.(livello);
         },
         scelta: detail,
+        aspetto: aspettoDa(window.location.search),
       });
     } catch (error) {
       fallback.current(`il browser non riesce a disegnare la città (${error instanceof Error ? error.message : String(error)})`);

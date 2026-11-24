@@ -8,7 +8,7 @@
 import * as THREE from 'three';
 import { geo, hash01, pick, pointInPolygon, type Pt } from '../plastico/data.js';
 import type { CostruttoreEdifici } from './edifici.js';
-import { Geo3, colore, meshDa } from './geo3.js';
+import { Geo3, colore, contorniDa, meshDa } from './geo3.js';
 import { Griglia, OCCUPATO, datiSuolo } from './griglia.js';
 
 const dentroLotto = (p: Pt) => Object.values(geo.lotti).some((q) => pointInPolygon(p, q));
@@ -21,13 +21,25 @@ export interface NumeriImpianti {
   tubazioni: number;
 }
 
-export function costruisciImpianti(edifici: CostruttoreEdifici, griglia: Griglia): { oggetti: THREE.Object3D[]; numeri: NumeriImpianti } {
+export function costruisciImpianti(
+  edifici: CostruttoreEdifici,
+  griglia: Griglia,
+  /** Dove raccogliere i contorni (variante illustrata, T12c); assente = da nessuna parte. */
+  contorniIn?: (x: number, y: number) => boolean,
+): { oggetti: THREE.Object3D[]; numeri: NumeriImpianti } {
   const g = new Geo3();
+  const linee: number[] = [];
+  const contorni = (p: Pt) => {
+    const si = contorniIn?.(p[0], p[1]) ?? false;
+    g.contorni = si ? linee : null;
+    edifici.accendiContorni(si);
+  };
   const numeri: NumeriImpianti = { serbatoi: 0, ciminiere: 0, nastri: 0, tubazioni: 0 };
 
   // Serbatoi e silos: cilindri con il tetto a cupola bassa, bianchi, grigi o arrugginiti.
   for (const { p, r } of datiSuolo.serbatoi) {
     if (dentroLotto(p) || (griglia.get(p[0], p[1]) & OCCUPATO.acqua) !== 0) continue;
+    contorni(p);
     const seed = Math.round(p[0] * 7 + p[1] * 13);
     const raggio = Math.min(30, Math.max(3, r));
     const alto = Math.min(28, raggio * (0.9 + hash01(seed, 701) * 0.6));
@@ -42,12 +54,14 @@ export function costruisciImpianti(edifici: CostruttoreEdifici, griglia: Griglia
   // Ciminiere dei dati: altezza vera se c'è, altrimenti 60-110 m.
   for (const { p, h } of datiSuolo.ciminiere) {
     if (dentroLotto(p)) continue;
+    contorni(p);
     const seed = Math.round(p[0] * 3 + p[1] * 5);
     edifici.ciminiera(p[0], p[1], 0, h ?? 60 + hash01(seed, 711) * 50, hash01(seed, 712) < 0.6 ? '#c0392b' : '#7a7470');
     numeri.ciminiere += 1;
   }
   for (const { p, h } of datiSuolo.torri) {
     if (dentroLotto(p)) continue;
+    contorni(p);
     g.box(p[0], p[1], 6, 6, h ?? 40, 0, 0, colore('#b9b2a6'));
   }
 
@@ -56,6 +70,7 @@ export function costruisciImpianti(edifici: CostruttoreEdifici, griglia: Griglia
   const cavalletto = colore('#7d6a58');
   for (const line of datiSuolo.nastri) {
     numeri.nastri += 1;
+    contorni(line[0]!);
     for (let i = 1; i < line.length; i++) {
       const a = line[i - 1]!;
       const b = line[i]!;
@@ -79,6 +94,7 @@ export function costruisciImpianti(edifici: CostruttoreEdifici, griglia: Griglia
     if (!nelloStabilimento(mezzo) || dentroLotto(mezzo)) continue;
     if (hash01(Math.round(mezzo[0]), Math.round(mezzo[1]), 721) > 0.34) continue;
     numeri.tubazioni += 1;
+    contorni(mezzo);
     for (let i = 1; i < line.length; i++) {
       const a = line[i - 1]!;
       const b = line[i]!;
@@ -101,6 +117,10 @@ export function costruisciImpianti(edifici: CostruttoreEdifici, griglia: Griglia
     }
   }
 
-  const oggetti = g.empty ? [] : [meshDa(g, new THREE.MeshLambertMaterial({ vertexColors: true }), { nome: 'impianti', proietta: true })];
+  g.contorni = linee;
+  edifici.accendiContorni(false);
+  const oggetti: THREE.Object3D[] = g.empty ? [] : [meshDa(g, new THREE.MeshLambertMaterial({ vertexColors: true }), { nome: 'impianti', proietta: true })];
+  const l = contorniDa(g, '#2b2530', 'contorni-impianti');
+  if (l !== null) oggetti.push(l);
   return { oggetti, numeri };
 }

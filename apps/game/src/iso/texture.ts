@@ -149,6 +149,153 @@ function facciata(stile: StileFacciata, ctx: Ctx, w: number, h: number): void {
 
 const cacheFacciate = new Map<StileFacciata, THREE.Texture>();
 
+/**
+ * Resa delle facciate (T12c): «attuale» come in T12; «piatta» per la variante
+ * illustrata (finestre di colore pieno, niente sfumature né riflessi); «ricca»
+ * per la variante predisegnata (cornici, davanzali con l'ombra, persiane a
+ * stecche, vasi, condizionatori, macchie d'umidità alla base, colature).
+ */
+export type Resa = 'attuale' | 'piatta' | 'ricca';
+let resa: Resa = 'attuale';
+
+/** Cambia la resa delle texture: le facciate già fatte si rifanno al prossimo uso. */
+export function impostaResa(r: Resa): void {
+  if (r === resa) return;
+  resa = r;
+  cacheFacciate.clear();
+  cacheSuolo.clear();
+}
+
+/** Finestra di colore pieno, con la cornice chiara (resa piatta). */
+function finestraPiatta(ctx: Ctx, x: number, y: number, w: number, h: number): void {
+  ctx.fillStyle = '#fbf6ec';
+  ctx.fillRect(x - 3, y - 3, w + 6, h + 6);
+  ctx.fillStyle = '#2f4f72';
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#5f86ad';
+  ctx.fillRect(x, y, w, Math.round(h * 0.3));
+}
+
+/** Facciata a colori pieni e piatti (variante illustrata). */
+function facciataPiatta(stile: StileFacciata, ctx: Ctx, w: number, h: number): void {
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
+  switch (stile) {
+    case 'balconi':
+    case 'persiane': {
+      finestraPiatta(ctx, 46, 22, 36, 60);
+      ctx.fillStyle = '#3d8a55';
+      ctx.fillRect(26, 20, 16, 64);
+      ctx.fillRect(86, 20, 16, 64);
+      break;
+    }
+    case 'nastro':
+      finestraPiatta(ctx, 6, 34, 116, 40);
+      ctx.fillStyle = '#fbf6ec';
+      for (let x = 34; x < w; x += 30) ctx.fillRect(x, 31, 4, 46);
+      break;
+    case 'vetrine':
+      finestraPiatta(ctx, 10, 30, 108, 84);
+      ctx.fillStyle = '#fbf6ec';
+      ctx.fillRect(62, 30, 4, 84);
+      break;
+    case 'lamiera':
+    case 'industriale':
+      for (let x = 0; x < w; x += 8) {
+        ctx.fillStyle = 'rgba(0,0,0,0.10)';
+        ctx.fillRect(x, 0, 3, h);
+      }
+      if (stile === 'industriale') {
+        ctx.fillStyle = '#2f4f72';
+        ctx.fillRect(0, h * 0.1, w, h * 0.14);
+        ctx.fillStyle = '#fbf6ec';
+        for (let x = 0; x < w; x += 16) ctx.fillRect(x, h * 0.1, 3, h * 0.14);
+        ctx.fillStyle = '#5b6470';
+        ctx.fillRect(w * 0.58, h * 0.62, w * 0.3, h * 0.38);
+      }
+      break;
+    case 'cieco':
+      ctx.fillStyle = 'rgba(0,0,0,0.08)';
+      ctx.fillRect(0, 0, 3, h);
+      ctx.fillRect(0, h - 4, w, 4);
+      break;
+  }
+}
+
+/** Facciata con molto dettaglio dipinto (variante predisegnata): la base di T12 più i dettagli. */
+function facciataRicca(stile: StileFacciata, ctx: Ctx, w: number, h: number): void {
+  facciata(stile, ctx, w, h);
+  // Intonaco vissuto: velature calde e fredde, leggere.
+  for (let i = 0; i < 26; i++) {
+    ctx.fillStyle = hash01(i, 31) < 0.5 ? `rgba(255,236,200,${0.06 + hash01(i, 32) * 0.08})` : `rgba(90,70,55,${0.03 + hash01(i, 33) * 0.05})`;
+    ctx.fillRect(hash01(i, 34) * w, hash01(i, 35) * h, 8 + hash01(i, 36) * 26, 4 + hash01(i, 37) * 18);
+  }
+  switch (stile) {
+    case 'balconi':
+    case 'persiane': {
+      // Persiane a stecche con il chiaro in alto, davanzale di pietra con l'ombra sotto.
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      for (let y = 24; y < 82; y += 6) {
+        ctx.fillRect(26, y, 16, 1);
+        ctx.fillRect(86, y, 16, 1);
+      }
+      ctx.fillStyle = '#efe6d2';
+      ctx.fillRect(38, 84, 52, 5);
+      ctx.fillStyle = 'rgba(40,30,20,0.35)';
+      ctx.fillRect(40, 89, 48, 3);
+      // Architrave e un'ombra sottile sopra la finestra.
+      ctx.fillStyle = 'rgba(40,30,20,0.22)';
+      ctx.fillRect(40, 15, 48, 3);
+      // Un vaso di gerani o un condizionatore, a seconda della campata.
+      ctx.fillStyle = '#b8553a';
+      ctx.fillRect(50, 78, 10, 6);
+      ctx.fillStyle = '#4f9a3c';
+      ctx.fillRect(48, 72, 14, 6);
+      ctx.fillStyle = '#e34c4c';
+      ctx.fillRect(51, 71, 3, 3);
+      ctx.fillRect(57, 72, 3, 3);
+      ctx.fillStyle = '#e8e6e0';
+      ctx.fillRect(96, 92, 20, 12);
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.fillRect(98, 95, 16, 1);
+      ctx.fillRect(98, 99, 16, 1);
+      break;
+    }
+    case 'vetrine': {
+      // Insegna chiara senza scritte, serranda a metà, gradino.
+      ctx.fillStyle = '#f7f2e6';
+      ctx.fillRect(10, 2, 108, 6);
+      ctx.fillStyle = 'rgba(120,120,125,0.85)';
+      ctx.fillRect(10, 18, 108, 14);
+      ctx.fillStyle = 'rgba(0,0,0,0.18)';
+      for (let y = 20; y < 32; y += 3) ctx.fillRect(10, y, 108, 1);
+      ctx.fillStyle = '#d8d2c4';
+      ctx.fillRect(0, h - 6, w, 6);
+      break;
+    }
+    case 'nastro': {
+      ctx.fillStyle = 'rgba(40,30,20,0.25)';
+      ctx.fillRect(4, 76, 120, 3);
+      ctx.fillStyle = '#efe6d2';
+      ctx.fillRect(4, 74, 120, 3);
+      break;
+    }
+    case 'cieco': {
+      ctx.fillStyle = 'rgba(120,80,50,0.12)';
+      for (let i = 0; i < 5; i++) ctx.fillRect(hash01(i, 41) * w, 0, 2, h * (0.2 + hash01(i, 42) * 0.5));
+      break;
+    }
+    default:
+      break;
+  }
+  // Umidità di risalita alla base della campata (si vede solo al piano terra con il modulo per piano).
+  const g = ctx.createLinearGradient(0, h, 0, h - 18);
+  g.addColorStop(0, 'rgba(70,55,40,0.18)');
+  g.addColorStop(1, 'rgba(70,55,40,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, h - 18, w, 18);
+}
+
 /** Senza pagina (prove in Node) non c'è la tela: una texture bianca di un pixel ne prende il posto. */
 function segnaposto(): THREE.Texture {
   const t = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1, THREE.RGBAFormat);
@@ -182,7 +329,9 @@ export function textureFacciata(stile: StileFacciata): THREE.Texture {
   if (senzaPagina()) return segnaposto();
   const h = stile === 'industriale' ? 256 : H;
   const { canvas, ctx } = tela(W, h);
-  facciata(stile, ctx, W, h);
+  if (resa === 'piatta') facciataPiatta(stile, ctx, W, h);
+  else if (resa === 'ricca') facciataRicca(stile, ctx, W, h);
+  else facciata(stile, ctx, W, h);
   const texture = ripetibile(canvas);
   cacheFacciate.set(stile, texture);
   return texture;

@@ -49,7 +49,9 @@ export const COLORI = {
   banchina: '#cfc8ba',
   scogliera: '#8f887b',
   molo: '#d8d1c3',
-} as const;
+  /** Fascia chiara sotto costa: vuota nell'aspetto di T12, la tavolozza nuova la accende (aspetto.ts). */
+  bassoFondale: '',
+};
 
 const LARGHEZZE = [0, 16, 13, 10, 7];
 
@@ -454,7 +456,9 @@ function costruisciMare(): { oggetti: THREE.Object3D[]; onde: THREE.Texture; num
   for (const ring of geo.acqua) {
     const area = Math.abs(polygonArea(ring));
     // I bacini chiusi sono più scuri del mare aperto.
-    acqua.flat(ring, LIVELLO_MARE, colore(area > 1e6 ? COLORI.mare : COLORI.mareChiuso), 40);
+    const fondo = colore(area > 1e6 ? COLORI.mare : COLORI.mareChiuso);
+    acqua.flat(ring, LIVELLO_MARE, fondo, 40);
+    const basso = COLORI.bassoFondale === '' ? null : colore(COLORI.bassoFondale);
     // Rive: un muro dal pelo dell'acqua alla terra, rivolto verso l'acqua, per ogni lato che non sta sul bordo della zona.
     for (let i = 0; i < ring.length; i++) {
       const a = ring[i]!;
@@ -469,6 +473,22 @@ function costruisciMare(): { oggetti: THREE.Object3D[]; onde: THREE.Texture; num
       const riva = tipoRiva(mezzo);
       rivePerTipo[riva] += 1;
       const A = (p: Pt, y: number, d = 0) => new THREE.Vector3(p[0] + ix * d, y, -(p[1] + iy * d));
+      if (basso !== null) {
+        // Basso fondale: chiaro a riva, sfuma nel colore del mare in 40 m.
+        const y = LIVELLO_MARE + 0.02;
+        const su = new THREE.Vector3(0, 1, 0);
+        const pa = A(a, y);
+        const pb = A(b, y);
+        const qa = A(a, y, 40);
+        const qb = A(b, y, 40);
+        // Triangoli antiorari visti dall'alto (l'acqua sta a sinistra del lato).
+        acqua.v(pa.x, y, pa.z, su, basso, pa.x / 40, -pa.z / 40);
+        acqua.v(pb.x, y, pb.z, su, basso, pb.x / 40, -pb.z / 40);
+        acqua.v(qb.x, y, qb.z, su, fondo, qb.x / 40, -qb.z / 40);
+        acqua.v(pa.x, y, pa.z, su, basso, pa.x / 40, -pa.z / 40);
+        acqua.v(qb.x, y, qb.z, su, fondo, qb.x / 40, -qb.z / 40);
+        acqua.v(qa.x, y, qa.z, su, fondo, qa.x / 40, -qa.z / 40);
+      }
       if (riva === 'spiaggia') {
         // Spiaggia: un piano inclinato di sabbia che entra in acqua.
         rive.quad(A(a, sopra), A(a, LIVELLO_MARE - 0.2, 9), A(b, LIVELLO_MARE - 0.2, 9), A(b, sopra), colore(FONDO_SUOLO.sabbia));

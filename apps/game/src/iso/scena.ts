@@ -11,6 +11,7 @@ import type { DistrictId } from '@taranto2127/sim';
 import * as THREE from 'three';
 import { DISTRICTS_ON_MODEL, centroid, districtOutline, geo, type Pt } from '../plastico/data.js';
 import { LOT_LOOKS, type LayerValue, type LotLook } from '../plastico/looks.js';
+import { LUCI, PPM_CONTORNI, type Aspetto, type Luce } from './aspetto.js';
 import { costruisciCitta, type Citta } from './citta.js';
 import { Geo3, colore } from './geo3.js';
 import { MEZZA_X, MEZZA_Y } from './griglia.js';
@@ -76,6 +77,8 @@ export interface CittaOptions {
   onFallback?: (motivo: string) => void;
   onLivello?: (livello: Livello, scelta: Scelta, motivo: string) => void;
   scelta?: Scelta;
+  /** Aspetto della città (T12c): quello di T12 o una delle due varianti del campione. */
+  aspetto?: Aspetto;
 }
 
 /** Colore dello sfondo: non dovrebbe vedersi mai (la sonda degli angoli lo cerca). */
@@ -92,14 +95,54 @@ const PPM_RIEMPITIVO = 0.8;
 /** Direzione del sole: da sud-ovest, alto (x verso est, z verso sud). */
 const SOLE = new THREE.Vector3(-0.55, 0.78, 0.32).normalize();
 
-const DETTAGLI = new Set(['cisterne', 'antenne', 'lucernari', 'auto', 'barche', 'scogli']);
+const DETTAGLI = new Set(['cisterne', 'antenne', 'lucernari', 'auto', 'barche', 'scogli', 'parabole']);
+const CONTORNI = new Set(['contorni', 'contorni-impianti']);
+
+/** Rampa della luce a fasce (variante illustrata): pochi valori, senza sfumature tra l'uno e l'altro. */
+function rampa(fasce: number[]): THREE.DataTexture {
+  const t = new THREE.DataTexture(Uint8Array.from(fasce.map((v) => Math.round(v * 255))), fasce.length, 1, THREE.RedFormat);
+  t.minFilter = THREE.NearestFilter;
+  t.magFilter = THREE.NearestFilter;
+  t.generateMipmaps = false;
+  t.needsUpdate = true;
+  return t;
+}
+
+/**
+ * Variante illustrata: i materiali opachi diventano a fasce (MeshToonMaterial),
+ * con gli stessi colori, texture e stencil, spinti un poco indietro perché i
+ * contorni non si mescolino alle facce.
+ */
+function materialiAFasce(radice: THREE.Object3D, luce: Luce, cache: Map<THREE.Material, THREE.Material>): void {
+  if (luce.fasce.length === 0) return;
+  const gradiente = rampa(luce.fasce);
+  radice.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!(mesh.isMesh ?? false) || !(mesh.material instanceof THREE.MeshLambertMaterial)) return;
+    const m = mesh.material;
+    let t = cache.get(m);
+    if (t === undefined) {
+      const toon = new THREE.MeshToonMaterial({ color: m.color, map: m.map, vertexColors: m.vertexColors, side: m.side, transparent: m.transparent, opacity: m.opacity, depthWrite: m.depthWrite, gradientMap: gradiente });
+      Object.assign(toon, { stencilWrite: m.stencilWrite, stencilRef: m.stencilRef, stencilFunc: m.stencilFunc, stencilFail: m.stencilFail, stencilZFail: m.stencilZFail, stencilZPass: m.stencilZPass });
+      toon.polygonOffset = true;
+      toon.polygonOffsetFactor = 1;
+      toon.polygonOffsetUnits = 1;
+      toon.name = m.name;
+      cache.set(m, toon);
+      t = toon;
+    }
+    mesh.material = t;
+  });
+}
 const RIEMPITIVO = new Set(['cespugli', 'alberi-ulivo']);
 
-export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, scelta = 'auto' }: CittaOptions): CittaApi {
+export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, scelta = 'auto', aspetto = 'attuale' }: CittaOptions): CittaApi {
+  const luce = LUCI[aspetto];
+  const aFasce = new Map<THREE.Material, THREE.Material>();
   // Stencil: il mare segna i suoi pixel, i fondi del terreno li saltano (suolo.ts).
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, stencil: true, powerPreference: 'high-performance' });
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.shadowMap.type = luce.ombreMorbide ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
   // La città è quasi ferma: la mappa d'ombra si ridisegna solo quando la vista cambia abbastanza.
   renderer.shadowMap.autoUpdate = false;
   renderer.shadowMap.needsUpdate = true;
@@ -109,14 +152,15 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
   scene.background = new THREE.Color(SFONDO);
 
   // Giornata di sole: cielo diffuso caldo e sole da sud-ovest, alto.
-  scene.add(new THREE.HemisphereLight('#d4e9ff', '#b8a57c', 1.5));
-  const sun = new THREE.DirectionalLight('#fff3d9', 2.6);
+  scene.add(new THREE.HemisphereLight(luce.cielo, luce.terra, luce.emisfero));
+  const sun = new THREE.DirectionalLight(luce.sole, luce.intensitaSole);
   sun.castShadow = true;
   sun.shadow.bias = -0.0003;
   sun.shadow.normalBias = 0.6;
   scene.add(sun, sun.target);
 
-  const citta: Citta = costruisciCitta();
+  const citta: Citta = costruisciCitta(aspetto);
+  materialiAFasce(citta.gruppo, luce, aFasce);
   scene.add(citta.gruppo);
   const cityMeshes: THREE.Mesh[] = [];
   citta.gruppo.traverse((o) => {
@@ -195,6 +239,7 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
   let impostazioni = IMPOSTAZIONI[regolatore.livello];
   let dettagliVisibili = true;
   let riempitivoVisibile = true;
+  let contorniVisibili = true;
   const applicaLivello = (livello: Livello) => {
     const prima = impostazioni;
     impostazioni = IMPOSTAZIONI[livello];
@@ -216,6 +261,7 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
   const aggiornaVisibilita = () => {
     scene.traverse((o) => {
       if (DETTAGLI.has(o.name)) o.visible = impostazioni.dettagli && dettagliVisibili;
+      else if (CONTORNI.has(o.name)) o.visible = contorniVisibili;
       else if (RIEMPITIVO.has(o.name)) o.visible = impostazioni.riempitivo && riempitivoVisibile;
       else if (o instanceof THREE.InstancedMesh && o.name.startsWith('alberi-')) {
         const soglie = o.userData['soglie'] as number[] | undefined;
@@ -348,9 +394,11 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
     // Sotto un certo ingrandimento gli oggetti piccoli non si vedono: si spengono.
     const vis = vista.ora.ppm >= PPM_DETTAGLI;
     const riemp = vista.ora.ppm >= PPM_RIEMPITIVO;
-    if (vis !== dettagliVisibili || riemp !== riempitivoVisibile) {
+    const cont = vista.ora.ppm >= PPM_CONTORNI;
+    if (vis !== dettagliVisibili || riemp !== riempitivoVisibile || cont !== contorniVisibili) {
       dettagliVisibili = vis;
       riempitivoVisibile = riemp;
+      contorniVisibili = cont;
       aggiornaVisibilita();
     }
     let moving = false;
@@ -395,6 +443,7 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
         if (group === undefined) {
           const aspetto = costruisciAspetto(id, geo.lotti[id]!, look);
           group = aspetto.gruppo;
+          materialiAFasce(group, luce, aFasce);
           animati[`${id}:${look}`] = aspetto.animati;
           entry.looks[look] = group;
           entry.root.add(group);

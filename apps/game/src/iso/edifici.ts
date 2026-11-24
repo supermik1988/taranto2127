@@ -6,12 +6,12 @@
  */
 import * as THREE from 'three';
 import { centroid, hash01, pick, pointInPolygon, type GeoBuilding } from '../plastico/data.js';
-import { Geo3, colore, meshDa, obb } from './geo3.js';
+import { Geo3, colore, contorniDa, meshDa, obb } from './geo3.js';
 import { CAMPATA, MODULO_INDUSTRIALE, PIANO, textureFacciata } from './texture.js';
 import { STILI, variante, type StileFacciata, type TipoEdificio, type Variante } from './tipi.js';
 
 /** Categorie di oggetti che i livelli di dettaglio accendono e spengono. */
-export type Dettaglio = 'cisterne' | 'antenne' | 'lucernari' | 'auto' | 'cespugli' | 'barche';
+export type Dettaglio = 'cisterne' | 'antenne' | 'lucernari' | 'auto' | 'cespugli' | 'barche' | 'parabole';
 
 export class CostruttoreEdifici {
   readonly pareti = new Map<StileFacciata, Geo3>(STILI.map((s) => [s, new Geo3()]));
@@ -20,7 +20,24 @@ export class CostruttoreEdifici {
   readonly cisterne: THREE.Matrix4[] = [];
   readonly antenne: THREE.Matrix4[] = [];
   readonly lucernari: THREE.Matrix4[] = [];
+  /** Parti degli edifici del catalogo nuovo (balconi, cornicioni, tende, gronde): colore per vertice, senza texture. */
+  readonly parti = new Geo3();
+  readonly parabole: THREE.Matrix4[] = [];
+  /** Ombre di contatto attorno agli edifici (variante predisegnata), disegnate moltiplicando il suolo. */
+  readonly contatto = new Geo3();
+  /** Spigoli per i contorni (variante illustrata), comuni a tutte le geometrie degli edifici. */
+  readonly linee: number[] = [];
+  /** Edifici costruiti con il catalogo nuovo (catalogo.ts). */
+  nuovi = 0;
+  /** Colori delle ciminiere (fusto e cima). */
+  coloreCiminiera = '#c9c2b6';
   readonly conteggio: Record<TipoEdificio, number> = { palazzina: 0, casa: 0, 'citta-vecchia': 0, pubblico: 0, negozio: 0, capannone: 0, impianto: 0, basso: 0 };
+
+  /** Accende o spegne la raccolta dei contorni su tutte le geometrie degli edifici. */
+  accendiContorni(si: boolean): void {
+    const l = si ? this.linee : null;
+    for (const g of [...this.pareti.values(), this.tetti, this.ciminiere, this.parti]) g.contorni = l;
+  }
 
   /** Aggiunge un edificio; `tag` è il quartiere (per lo strato), `ruggine` scurisce i colori (impianti spenti). */
   aggiungi(b: GeoBuilding, tipo: TipoEdificio, tag = 0, ruggine = false): Variante {
@@ -48,7 +65,7 @@ export class CostruttoreEdifici {
     return v;
   }
 
-  private tettoAFalde(box: ReturnType<typeof obb>, h: number, pendenza: number, tetto: THREE.Color, parete: THREE.Color, tag: number): void {
+  tettoAFalde(box: ReturnType<typeof obb>, h: number, pendenza: number, tetto: THREE.Color, parete: THREE.Color, tag: number): void {
     const { cx, cy, ux, uy, hu, hv } = box;
     const vx = -uy;
     const vy = ux;
@@ -63,13 +80,15 @@ export class CostruttoreEdifici {
     const r2 = P(hu + sporto, 0, colmo);
     this.tetti.quad(a, b, r2, r1, tetto, tag);
     this.tetti.quad(d, e, r1, r2, tetto.clone().multiplyScalar(0.88), tag);
+    this.tetti.spigolo(r1.x, r1.y, r1.z, r2.x, r2.y, r2.z);
+    for (const [p, q] of [[a, b], [b, d], [d, e], [e, a], [a, r1], [b, r2], [d, r2], [e, r1]] as const) this.tetti.spigolo(p.x, p.y, p.z, q.x, q.y, q.z);
     // Timpani del colore delle pareti.
     this.tetti.tri(P(-hu, -hv, h), P(-hu, 0, colmo - 0.1), P(-hu, hv, h), parete, tag);
     this.tetti.tri(P(hu, hv, h), P(hu, 0, colmo - 0.1), P(hu, -hv, h), parete, tag);
   }
 
   /** Lucernari: file di lastre chiare lungo il capannone, sulle falde o sul tetto piano. */
-  private fileLucernari(b: GeoBuilding, box: ReturnType<typeof obb>, y: number, falde: boolean): void {
+  fileLucernari(b: GeoBuilding, box: ReturnType<typeof obb>, y: number, falde: boolean): void {
     if (box.hu < 10 || box.hv < 5) return;
     const m = new THREE.Matrix4();
     const q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.atan2(box.uy, box.ux));
@@ -86,7 +105,7 @@ export class CostruttoreEdifici {
     }
   }
 
-  private dettagliTetto(b: GeoBuilding, box: ReturnType<typeof obb>, h: number, v: Variante): void {
+  dettagliTetto(b: GeoBuilding, box: ReturnType<typeof obb>, h: number, v: Variante): void {
     const m = new THREE.Matrix4();
     const q = new THREE.Quaternion();
     const [cx, cy] = centroid(b.p);
@@ -111,7 +130,7 @@ export class CostruttoreEdifici {
   /** Ciminiera rastremata con una fascia colorata in alto. */
   ciminiera(x: number, y: number, base: number, alta: number, fascia: string): void {
     const r = Math.max(1.6, alta / 28);
-    this.ciminiere.cylinder(x, y, r * 1.5, r, alta * 0.86, base, 12, colore('#c9c2b6'));
+    this.ciminiere.cylinder(x, y, r * 1.5, r, alta * 0.86, base, 12, colore(this.coloreCiminiera));
     this.ciminiere.cylinder(x, y, r * 1.02, r * 1.02, alta * 0.1, base + alta * 0.86, 12, colore(fascia), colore('#3b3631'));
   }
 
@@ -128,6 +147,20 @@ export class CostruttoreEdifici {
     const antenna = unisci([new THREE.BoxGeometry(0.12, 3.2, 0.12), new THREE.BoxGeometry(1.6, 0.08, 0.08).translate(0, 1.2, 0)]);
     out.push(...ripetuti('antenne', antenna, '#4f5357', this.antenne, false));
     out.push(...ripetuti('lucernari', new THREE.BoxGeometry(6, 0.6, 2.2), '#bcd3e0', this.lucernari, false));
+    if (!this.parti.empty) out.push(meshDa(this.parti, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }), { nome: 'parti', proietta: true, strato: true }));
+    const parabola = unisci([new THREE.CylinderGeometry(0.62, 0.12, 0.22, 10).rotateX(-0.2), new THREE.BoxGeometry(0.08, 0.9, 0.08).translate(0, -0.45, 0)]);
+    out.push(...ripetuti('parabole', parabola, '#f4f4f0', this.parabole, false));
+    if (!this.contatto.empty) {
+      // Moltiplica il colore del suolo: niente trasparenza da ordinare, niente profondità scritta.
+      const m = new THREE.Mesh(this.contatto.build(), new THREE.MeshBasicMaterial({ vertexColors: true, blending: THREE.MultiplyBlending, transparent: true, depthWrite: false }));
+      m.name = 'ombre-contatto';
+      m.renderOrder = 1;
+      out.push(m);
+    }
+    const g = new Geo3();
+    g.contorni = this.linee;
+    const contorni = contorniDa(g, '#2b2530');
+    if (contorni !== null) out.push(contorni);
     return out;
   }
 }
@@ -188,7 +221,8 @@ interface PuntoAlbero {
   importanza: Importanza;
 }
 
-const VERDI: Record<Specie, string[]> = {
+/** Verdi delle chiome per specie (la tavolozza nuova li sostituisce: aspetto.ts). */
+export const VERDI: Record<Specie, string[]> = {
   pino: ['#3f6f3a', '#467a3e', '#365f34'],
   latifoglia: ['#5a9a3c', '#67a844', '#4f8f38', '#73b04a'],
   giovane: ['#6fae46', '#7dba50', '#5f9e3e', '#8cc25a'],

@@ -614,7 +614,7 @@ function misura(line: string): void {
   console.log(`MISURA: ${line}`);
 }
 
-async function apriCitta(browser: Browser, width: number, opts: { cpu?: number; livello?: Livello | 'auto' } = {}): Promise<{ page: Page; close: () => Promise<void> }> {
+async function apriCitta(browser: Browser, width: number, opts: { cpu?: number; livello?: Livello | 'auto'; aspetto?: string } = {}): Promise<{ page: Page; close: () => Promise<void> }> {
   const context = await browser.newContext({ viewport: { width, height: width < 600 ? 844 : 900 }, deviceScaleFactor: width < 600 ? 2 : 1, hasTouch: width < 600 });
   await context.addInitScript((livello) => {
     localStorage.setItem('taranto2127:visita-fatta', 'si');
@@ -627,7 +627,7 @@ async function apriCitta(browser: Browser, width: number, opts: { cpu?: number; 
     const cdp = await context.newCDPSession(page);
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: opts.cpu });
   }
-  await page.goto(`${BASE}?seme=${SEED}`, { timeout: 180_000 });
+  await page.goto(`${BASE}?seme=${SEED}${opts.aspetto !== undefined ? `&aspetto=${opts.aspetto}` : ''}`, { timeout: 180_000 });
   await waitForModel(page);
   if (await visible(page, 'avviso')) await page.locator(`${sel('avviso')} button`).click();
   return { page, close: () => context.close() };
@@ -775,6 +775,90 @@ async function schermateCitta(browser: Browser, width: number): Promise<void> {
   }
 }
 
+// ---------- Campione dell'aspetto nuovo (T12c, fase A) ----------
+
+const ASPETTI_CAMPIONE = ['attuale', 'illustrata', 'predisegnata'] as const;
+/** Inquadrature del campione: le stesse per com'è oggi e per le due varianti. */
+const INQUADRATURE: { nome: string; xy: [number, number]; ppm: number }[] = [
+  { nome: 'lontano', xy: [900, -600], ppm: 0.4 },
+  { nome: 'insieme', xy: [900, -600], ppm: 0.9 },
+  { nome: 'stabilimento', xy: [180, 260], ppm: 2.2 },
+  { nome: 'costa', xy: [1560, -1760], ppm: 3 },
+  { nome: 'tamburi', xy: [1700, -150], ppm: 3.2 },
+  { nome: 'vicino', xy: [1760, -220], ppm: 6.5 },
+];
+
+async function schermateCampione(browser: Browser, width: number): Promise<void> {
+  for (const aspetto of ASPETTI_CAMPIONE) {
+    const { page, close } = await apriCitta(browser, width, { livello: 'alto', aspetto });
+    for (const q of INQUADRATURE) {
+      await page.evaluate(
+        ([x, y, ppm]) => {
+          const p = window.taranto2127Plastico!;
+          p.imposta(ppm, 0);
+          p.guarda(x, y, ppm);
+        },
+        [q.xy[0], q.xy[1], q.ppm] as const,
+      );
+      await page.waitForTimeout(1200);
+      await page.screenshot({ path: join(shotsDir, `campione-${q.nome}-${aspetto}-${width}.png`) });
+    }
+    await close();
+  }
+}
+
+/** Il giro di T12 più due fermate nel campione (insieme e da vicino). */
+async function giroCampione(page: Page): Promise<{ media: number; p95: number; livello: string }> {
+  const base = await giro(page);
+  const tempi: number[] = [];
+  for (const [ppm] of [[1.1], [4]] as const) {
+    await page.evaluate(([pp]) => window.taranto2127Plastico!.guarda(1100, -700, pp), [ppm] as const);
+    await page.waitForTimeout(400);
+    await page.evaluate(() => window.taranto2127Plastico!.azzeraTempi());
+    await page.waitForTimeout(2500);
+    tempi.push(...(await page.evaluate(() => window.taranto2127Plastico!.tempi())));
+  }
+  // Media e percentile su tutte le immagini: quelle del giro di T12 pesano 4/6.
+  return { media: (base.media * 4 + media(tempi) * 2) / 6, p95: Math.max(base.p95, p95(tempi)), livello: await page.evaluate(() => window.taranto2127Plastico!.livello()) };
+}
+
+async function prestazioniCampione(browser: Browser, aspetti: readonly string[]): Promise<void> {
+  const casi: { nome: string; width: number; cpu: number; livello: Livello | 'auto'; soglia: number }[] = [
+    { nome: '390 px, CPU 4×, automatico', width: 390, cpu: 4, livello: 'auto', soglia: BUDGET_MS },
+    { nome: '390 px, CPU 4×, medio', width: 390, cpu: 4, livello: 'medio', soglia: BUDGET_MS * (1 - MARGINE_MEDIO) },
+    { nome: '1280 px, alto', width: 1280, cpu: 1, livello: 'alto', soglia: BUDGET_MS },
+  ];
+  for (const aspetto of aspetti) {
+    for (const caso of casi) {
+      for (let run = 1; run <= 3; run++) {
+        const { page, close } = await apriCitta(browser, caso.width, { cpu: caso.cpu, livello: caso.livello, aspetto });
+        const r = await giroCampione(page);
+        misura(`campione ${aspetto}, ${caso.nome}, giro ${run}: media ${r.media.toFixed(1)} ms, 95° percentile ${r.p95.toFixed(1)} ms (livello ${r.livello}; soglia ${caso.soglia.toFixed(1)} ms)`);
+        if (r.p95 >= caso.soglia) fail(`campione ${aspetto}, ${caso.nome}, giro ${run}: 95° percentile ${r.p95.toFixed(1)} ms, sopra ${caso.soglia.toFixed(1)} ms`);
+        await close();
+      }
+    }
+    const { page, close } = await apriCitta(browser, 1280, { livello: 'alto', aspetto });
+    for (const [nome, ppm] of [
+      ['campione, insieme', 1.1],
+      ['campione, da vicino', 4],
+      ['avvio', 1.1],
+    ] as const) {
+      const info = await page.evaluate(
+        ([n, pp]) => {
+          const p = window.taranto2127Plastico!;
+          if (n === 'avvio') p.focus('tamburi', 3000 / pp);
+          else p.guarda(1100, -700, pp);
+          return p.info();
+        },
+        [nome, ppm] as const,
+      );
+      misura(`budget ${aspetto}, ${nome} (${ppm} px/m, livello alto, 1280 px): ${info.ordini} ordini di disegno, ${Math.round(info.triangoli / 1000)} mila triangoli, texture ${(info.memoriaTexture / 1e6).toFixed(2)} MB`);
+    }
+    await close();
+  }
+}
+
 async function main(): Promise<void> {
   const quick = process.argv.includes('--rapida');
   const onlyContrast = process.argv.includes('--misura-strato');
@@ -783,7 +867,10 @@ async function main(): Promise<void> {
   // Solo per le prove inverse: una prova del browser alla volta, senza schermate.
   const onlyCorners = process.argv.includes('--angoli');
   const onlyDescent = process.argv.includes('--scende');
-  const partial = quick || onlyContrast || onlyPerf || onlyCity || onlyCorners || onlyDescent;
+  // T12c, fase A: schermate del campione e misure per variante.
+  const sample = process.argv.includes('--campione');
+  const samplePerf = process.argv.includes('--campione-prestazioni');
+  const partial = quick || onlyContrast || onlyPerf || onlyCity || onlyCorners || onlyDescent || sample || samplePerf;
   mkdirSync(shotsDir, { recursive: true });
   execSync('npx vite build', { cwd: appDir, stdio: 'inherit' });
   const server = spawn(`npx vite preview --port ${PORT} --strictPort`, { cwd: appDir, shell: true, stdio: 'ignore' });
@@ -792,7 +879,14 @@ async function main(): Promise<void> {
     const channel = process.env['BROWSER'] === 'chrome' ? 'chrome' : 'msedge';
     const browser = await chromium.launch({ channel });
     try {
-      if (onlyContrast) {
+      if (sample || samplePerf) {
+        if (sample) {
+          await schermateCampione(browser, 390);
+          await schermateCampione(browser, 1280);
+        }
+        const solo = process.argv.find((a) => a.startsWith('--aspetto='))?.split('=')[1];
+        if (samplePerf) await prestazioniCampione(browser, solo !== undefined ? [solo] : ASPETTI_CAMPIONE);
+      } else if (onlyContrast) {
         console.log(`Contrasto dello strato dell'aria sui Tamburi a 390 px: ${(await layerContrast(browser)).toFixed(2)}`);
       } else if (onlyCorners) {
         await angoliSempreCitta(browser, 390);

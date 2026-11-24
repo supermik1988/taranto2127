@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "art_direction_brief": "docs/GRAFICA.md#città-isometrica-t12-brief-di-direzione-artistica",
-  "note": "Elenco degli elementi grafici della città isometrica (T12), sul modello della skill create-game-assets. Tutti generati dal codice: nessun file esterno, nessuna immagine di altri giochi né dei riferimenti di Michele. Gli elementi del provino sono approvati (fase A); quelli nuovi o cambiati nella fase B aspettano l'approvazione di Michele.",
+  "note": "Elenco degli elementi grafici della città isometrica (T12), sul modello della skill create-game-assets. Tutti generati dal codice: nessun file esterno, nessuna immagine di altri giochi né dei riferimenti di Michele. Gli elementi del provino sono approvati (fase A); quelli nuovi o cambiati nella fase B aspettano l'approvazione di Michele. Gli elementi «campione-» sono del campione di T12c (fase A) e aspettano la scelta della variante da parte di Michele.",
   "assets": [
     {
       "id": "edificio-palazzina",
@@ -1820,6 +1820,686 @@
         "review_capture": "docs/schermate/lotto-mare-1280.png",
         "approved_by": "",
         "approval": "in attesa di Michele (fase B)"
+      }
+    },
+    {
+      "id": "campione-edificio-palazzina",
+      "role": "Palazzina a parti (T12c): corpo con persiane, balconi a ogni piano con ringhiera, panni stesi, cornicione sporgente, terrazza con parapetto di calce, negozi con tende al piano terra in 4 casi su 10",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-tamburi-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-edificio-casa",
+      "role": "Casa bassa a parti (T12c): intonaco chiaro, terrazzo in cotto con parapetto e pergolato, oppure tetto a falde in coppi",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-vicino-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-edificio-pubblico",
+      "role": "Edificio pubblico a parti (T12c): finestre a nastro, cornicione di 0,6 m o tetto in coppi",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-insieme-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-edificio-negozi",
+      "role": "Negozi a parti (T12c): vetrine, tende a righe di colore pieno, cornicione",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-vicino-predisegnata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-edificio-capannone",
+      "role": "Capannone a parti (T12c): lamiera grecata a colori pieni, gronda colorata, tetto a falde con lucernari",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-stabilimento-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-edificio-impianto",
+      "role": "Impianto (T12c): volume di cemento chiaro, ciminiera bianca con la fascia rossa",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-stabilimento-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-edificio-basso",
+      "role": "Garage e annessi (T12c): muro chiaro, tetto piano con parapetto basso",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-vicino-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-parte-balconi",
+      "role": "Balconi: soletta di 1,3 m e ringhiera alta 1 m in tre colori, sui quattro lati più lunghi",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-vicino-predisegnata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-parte-panni",
+      "role": "Panni stesi: tre rettangoli di colore pieno sotto la ringhiera, su un balcone su tre",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-vicino-predisegnata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-parte-tende",
+      "role": "Tende da sole a righe dei negozi, inclinate, sui due lati più lunghi",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-vicino-predisegnata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-parte-cornicione",
+      "role": "Cornicione sporgente con parapetto di calce",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-vicino-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-parte-pergolato",
+      "role": "Pergolato di legno con il verde sui terrazzi delle case basse",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-vicino-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-tetto-parabole",
+      "role": "Parabole bianche sui tetti piani (ripetute in blocco)",
+      "path": "apps/game/src/iso/edifici.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-vicino-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-contorni",
+      "role": "Contorni scuri sottili #2b2530 sugli spigoli (variante illustrata), spenti sotto 0,9 px/m",
+      "path": "apps/game/src/iso/geo3.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-tamburi-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-luce-fasce",
+      "role": "Luce a tre fasce nette (0,30 / 0,62 / 1,0) con MeshToonMaterial (variante illustrata)",
+      "path": "apps/game/src/iso/scena.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-tamburi-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-ombre-contatto",
+      "role": "Ombre di contatto: piede dei muri scurito e fascia scura sul suolo attorno agli edifici (variante predisegnata)",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-vicino-predisegnata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-texture-facciate-piatte",
+      "role": "Facciate a colori pieni e piatti (variante illustrata)",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-vicino-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-texture-facciate-ricche",
+      "role": "Facciate con molto dettaglio dipinto: persiane a stecche, davanzali, vasi, condizionatori, insegne senza scritte, umidità alla base (variante predisegnata)",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-vicino-predisegnata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-mare-basso-fondale",
+      "role": "Fascia chiara #46b3cf sotto costa che sfuma nel mare in 40 m",
+      "path": "apps/game/src/iso/suolo.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-costa-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+      }
+    },
+    {
+      "id": "campione-tavolozza",
+      "role": "Tavolozza nuova con i ruoli: intonaci caldi, verde vivo, mare profondo, cortili e piazze in pietra chiara, asfalto grigio blu",
+      "path": "apps/game/src/iso/aspetto.ts",
+      "status": "campione",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale",
+        "colore": "per vertice, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-24",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/campione-insieme-illustrata-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
       }
     }
   ]

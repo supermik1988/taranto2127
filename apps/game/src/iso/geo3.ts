@@ -24,6 +24,8 @@ export interface OpzioniPareti {
   moduloV?: number;
   /** Etichetta dei vertici (quartiere). */
   tag?: number;
+  /** Ombra di contatto: i primi `alto` metri sfumano da `scuro` (alla base) al colore pieno. */
+  piede?: { alto: number; scuro: number };
 }
 
 export class Geo3 {
@@ -32,6 +34,13 @@ export class Geo3 {
   readonly col: number[] = [];
   readonly uv: number[] = [];
   readonly tag: number[] = [];
+  /** Spigoli per i contorni (coppie di punti); null = non si raccolgono. */
+  contorni: number[] | null = null;
+
+  /** Un segmento di contorno, se si raccolgono. */
+  spigolo(ax: number, ay: number, az: number, bx: number, by: number, bz: number): void {
+    this.contorni?.push(ax, ay, az, bx, by, bz);
+  }
 
   v(x: number, y: number, z: number, nn: THREE.Vector3, c: THREE.Color, u = 0, w = 0, tag = 0): void {
     this.pos.push(x, y, z);
@@ -59,6 +68,19 @@ export class Geo3 {
 
   /** Pareti di un anello antiorario, da y0 a y1, con coordinate di texture in moduli. */
   walls(ring: Pt[], y0: number, y1: number, c: THREE.Color, opz: OpzioniPareti = {}): void {
+    if (opz.piede !== undefined && y1 - y0 > opz.piede.alto * 1.5) {
+      // Fascia bassa sfumata (colore per vertice) e parete piena sopra.
+      const scuro = c.clone().multiplyScalar(opz.piede.scuro);
+      const resto = { ...opz, piede: undefined };
+      this.pareteSfumata(ring, y0, y0 + opz.piede.alto, scuro, c, resto);
+      const prima = this.contorni;
+      this.contorni = null;
+      this.walls(ring, y0 + opz.piede.alto, y1, c, resto);
+      this.contorni = prima;
+      this.contornoPareti(ring, y0, y1);
+      return;
+    }
+    this.contornoPareti(ring, y0, y1);
     const mu = opz.moduloU ?? 0;
     const mv = opz.moduloV ?? 0;
     const tag = opz.tag ?? 0;
@@ -80,6 +102,50 @@ export class Geo3 {
       this.v(x2, y1, -p2, n, c, u1, v1, tag);
       this.v(x1, y1, -p1, n, c, u0, v1, tag);
       along += len;
+    }
+  }
+
+  /** Pareti con il colore che passa da `basso` (a y0) ad `alto` (a y1). */
+  private pareteSfumata(ring: Pt[], y0: number, y1: number, basso: THREE.Color, alto: THREE.Color, opz: OpzioniPareti): void {
+    const mu = opz.moduloU ?? 0;
+    const mv = opz.moduloV ?? 0;
+    const tag = opz.tag ?? 0;
+    let along = 0;
+    for (let i = 0; i < ring.length; i++) {
+      const [x1, p1] = ring[i]!;
+      const [x2, p2] = ring[(i + 1) % ring.length]!;
+      const len = Math.hypot(x2 - x1, p2 - p1);
+      if (len < 0.01) continue;
+      n.set((p2 - p1) / len, 0, (x2 - x1) / len);
+      const u0 = mu > 0 ? along / mu : 0;
+      const u1 = mu > 0 ? (along + len) / mu : 0;
+      const v0 = mv > 0 ? y0 / mv : 0;
+      const v1 = mv > 0 ? y1 / mv : 1;
+      this.v(x1, y0, -p1, n, basso, u0, v0, tag);
+      this.v(x2, y0, -p2, n, basso, u1, v0, tag);
+      this.v(x2, y1, -p2, n, alto, u1, v1, tag);
+      this.v(x1, y0, -p1, n, basso, u0, v0, tag);
+      this.v(x2, y1, -p2, n, alto, u1, v1, tag);
+      this.v(x1, y1, -p1, n, alto, u0, v1, tag);
+      along += len;
+    }
+  }
+
+  /** Contorni di un anello di pareti: spigoli verticali dove la parete gira di più di 25°, bordo in alto e alla base. */
+  private contornoPareti(ring: Pt[], y0: number, y1: number): void {
+    if (this.contorni === null) return;
+    const k = ring.length;
+    for (let i = 0; i < k; i++) {
+      const p0 = ring[(i + k - 1) % k]!;
+      const p1 = ring[i]!;
+      const p2 = ring[(i + 1) % k]!;
+      const a0 = Math.atan2(p1[1] - p0[1], p1[0] - p0[0]);
+      const a1 = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]);
+      let d = Math.abs(a1 - a0);
+      if (d > Math.PI) d = Math.PI * 2 - d;
+      if (d > (25 * Math.PI) / 180) this.spigolo(p1[0], y0, -p1[1], p1[0], y1, -p1[1]);
+      this.spigolo(p1[0], y1, -p1[1], p2[0], y1, -p2[1]);
+      if (y0 <= 0.5) this.spigolo(p1[0], y0 + 0.36, -p1[1], p2[0], y0 + 0.36, -p2[1]);
     }
   }
 
@@ -141,6 +207,13 @@ export class Geo3 {
       n.set(Math.cos(am), 0, -Math.sin(am));
       for (const p of [b0, t1, b1, b0, t0, t1]) this.v(p.x, p.y, p.z, n, c);
     }
+    if (this.contorni !== null) {
+      for (let i = 0; i < lati; i++) {
+        const a0 = (i / lati) * Math.PI * 2;
+        const a1 = ((i + 1) / lati) * Math.PI * 2;
+        this.spigolo(x + Math.cos(a0) * rTop, y0 + h, -(y + Math.sin(a0) * rTop), x + Math.cos(a1) * rTop, y0 + h, -(y + Math.sin(a1) * rTop));
+      }
+    }
     if (rTop > 0) {
       const ring: Pt[] = [];
       for (let i = 0; i < lati; i++) ring.push([x + Math.cos((i / lati) * Math.PI * 2) * rTop, y + Math.sin((i / lati) * Math.PI * 2) * rTop]);
@@ -196,6 +269,36 @@ export function meshDa(g: Geo3, material: THREE.Material, opz: { nome: string; p
     m.userData['base'] = Float32Array.from(g.col);
   }
   return m;
+}
+
+/** Linee dei contorni raccolti da un costruttore (variante illustrata), o null se non ce ne sono. */
+export function contorniDa(g: Geo3, hex: string, nome = 'contorni'): THREE.LineSegments | null {
+  if (g.contorni === null || g.contorni.length === 0) return null;
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(g.contorni, 3));
+  geo.computeBoundingSphere();
+  const linee = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: hex }));
+  linee.name = nome;
+  return linee;
+}
+
+/** Anello allargato di `d` metri verso l'esterno (anello antiorario), con gli spigoli a punta limitati. */
+export function allarga(ring: Pt[], d: number): Pt[] {
+  const k = ring.length;
+  return ring.map((p, i) => {
+    const a = ring[(i + k - 1) % k]!;
+    const b = ring[(i + 1) % k]!;
+    const n1 = norm([p[1] - a[1], -(p[0] - a[0])]);
+    const n2 = norm([b[1] - p[1], -(b[0] - p[0])]);
+    const m = norm([n1[0] + n2[0], n1[1] + n2[1]]);
+    const cos = Math.max(0.5, m[0] * n1[0] + m[1] * n1[1]);
+    return [p[0] + (m[0] * d) / cos, p[1] + (m[1] * d) / cos];
+  });
+}
+
+function norm(v: Pt): Pt {
+  const l = Math.hypot(v[0], v[1]) || 1;
+  return [v[0] / l, v[1] / l];
 }
 
 /** Rettangolo orientato più piccolo che contiene la sagoma (provando la direzione di ogni lato). */

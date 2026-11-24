@@ -14,6 +14,8 @@ porto, della Città Vecchia e del Borgo.
   `docs/grafica-elementi.json`.
 - La disposizione dei comandi resta quella del T11 (qui sotto), con in più i pulsanti
   della vista a sinistra.
+- Aspetto nuovo (T12c, fase A, in attesa della scelta di Michele): sezione
+  «Aspetto illustrato (T12c, fase A): sistema visivo e campione».
 
 ## Disposizione
 
@@ -26,6 +28,135 @@ porto, della Città Vecchia e del Borgo.
   schermo largo stanno a destra, accanto ai pulsanti, che restano attivi.
 - A sinistra, sopra l'attribuzione di OpenStreetMap (T12): «+» e «−» per avvicinare e
   allontanare, «⟳» per ruotare la vista di un quarto di giro.
+
+## Aspetto illustrato (T12c, fase A): sistema visivo e campione
+
+Michele, guardando la fase B di T12, ha indicato quattro difetti: edifici a scatola,
+aspetto da modellino, città ferma, colori spenti. La fase A di T12c scrive il sistema
+visivo con valori osservabili (skill `create-game-assets`, `references/art-direction.md`)
+e lo prova **su un campione nel gioco vero**, in due varianti, prima di estenderlo a
+tutta la zona. La mappa, la vista, la rotazione e i livelli di dettaglio non cambiano.
+
+Skill seguite: `create-game-assets` (sistema per assi, bersaglio approvato prima del
+catalogo, giudizio a tre distanze), `threejs-materials-lighting` (spazio colore sRGB,
+nessuna curva dei toni che sbiadisca, intensità tarate perché il colore pieno arrivi
+allo schermo), `performance-optimization` (budget, tre giri, media e 95° percentile;
+oggetti ripetuti in blocco).
+
+### Come si vede il campione
+
+- Nel gioco: aggiungere `?aspetto=1` (illustrata) o `?aspetto=2` (predisegnata)
+  all'indirizzo. Senza parametro la città è quella di T12 (`68289f1`), uguale a oggi.
+- Il catalogo nuovo di edifici si costruisce solo nel **riquadro del campione**:
+  x da −350 a 2100 m, y da −1950 a 750 m (`aspetto.ts`, `CAMPIONE`). Contiene il lato
+  ovest dei Tamburi, il bordo dello stabilimento con le ciminiere a (7, 578) e
+  (446, 408) e il nastro che scende verso (−267, −534), la costa con i moli a sud dei
+  Tamburi. Tavolozza, luce e resa delle texture valgono invece in tutta la zona, perché
+  sono un fatto dei materiali.
+- Schermate, stesse inquadrature per com'è oggi e per le due varianti, a 390 e 1280 px:
+  `docs/schermate/campione-<inquadratura>-<aspetto>-<larghezza>.png`, con le
+  inquadrature `lontano` (0,4 px/m), `insieme` (0,9), `stabilimento` (2,2), `costa`
+  (3), `tamburi` (3,2) e `vicino` (6,5). Lontano, insieme e vicino sono le tre distanze.
+
+### Sistema visivo (valori)
+
+| Asse | Variante 1 «illustrata» | Variante 2 «pre-disegnata» |
+| --- | --- | --- |
+| Luce diretta | sole `#fff8ec`, intensità 1,95, da sud-ovest alto (direzione di T12) | sole `#fff1dc`, intensità 1,75, stessa direzione |
+| Luce diffusa | emisfero cielo `#f2f6ff` / suolo `#d8c8a8`, 1,25 | emisfero cielo `#e6f0ff` / suolo `#d6c29a`, 1,6 |
+| Fasce d'ombra | **tre fasce nette** sulle facce: in ombra 0,30, di fianco 0,62, al sole 1,0 (rampa senza sfumatura, `MeshToonMaterial`) | ombreggiatura continua (Lambert) |
+| Ombre portate | a bordo netto (PCF, un texel di sfumatura), mappa 4096 px all'alto | morbide (PCF morbido) e **ombre di contatto**: muri scuriti del 42% alla base, sfumati in 2,4 m; suolo scurito del 45% contro il muro, sfumato in 3,5 m |
+| Bordi | **contorni** `#2b2530`, un pixel, su spigoli verticali (dove la parete gira più di 25°), gronde, colmi, cornicioni, ringhiere, tende, ciminiere, serbatoi, nastri; spenti sotto 0,9 px/m | nessun contorno |
+| Facciate | resa «piatta»: finestre blu pieno `#2f4f72` con il chiaro `#5f86ad` in alto, cornici di calce, persiane verdi `#3d8a55`, niente sfumature né riflessi | resa «ricca»: la facciata di T12 più persiane a stecche, davanzali di pietra con l'ombra, architravi, vasi di gerani, condizionatori, velature dell'intonaco, insegne senza scritte, serrande, umidità alla base |
+| Colore al sole | tetto piano al sole: (1,25 + 1,95) / π ≈ 1,02 del colore scritto, senza curva dei toni: il colore pieno arriva com'è scritto | tetto al sole ≈ 0,94 del colore scritto: un poco più morbido |
+
+Valgono per entrambe:
+
+- **Tavolozza con i ruoli** (`aspetto.ts`, `TAVOLOZZA`, `SUOLO_NUOVO`, `COLORI_NUOVI`,
+  `VERDI_NUOVI`):
+
+  | Ruolo | Colori |
+  | --- | --- |
+  | Intonaci delle palazzine (caldi, variati) | `#f2c46d` giallo, `#ec9b6c` albicocca, `#f6dfb2` crema, `#dc7b52` mattone, `#f7ead0` avorio, `#eab09a` rosa, `#f0a95e` arancio, `#e6c98d` sabbia, `#a9c9dc` azzurro |
+  | Intonaci delle case basse | `#fbf3e1`, `#f6d9a8`, `#f3c3a4`, `#fae7b8`, `#d9e6c4` |
+  | Calce (parapetti), cornicioni | `#fbf6ec`, `#fff4dc` |
+  | Terrazze, coppi | `#e3c9a5`, `#d9b893`, `#cfd3d6`; coppi `#d0582f`, `#c24c2b`, `#dd6c3c` |
+  | Lamiere e tetti dei capannoni | `#5f8fb8`, `#8db3cc`, `#d4dde2`, `#6ba59a`, `#b6c7d1`, ruggine `#a85a32`, `#c0703c`; tetti `#6f8798`, `#8a9fab`, `#5b7385`; gronde `#f2efe6`, `#d63a2a`, `#2f6f9f`, `#f0b429` |
+  | Verde | prato `#86c051`, campi sportivi `#5fbf4a`, bosco `#4f9a3c`, chiome da `#245a2e` (cipresso) a `#8fd25e` (giovane) |
+  | Acqua | mare `#1f66b0`, bacini `#1d5f8e`, **fascia sotto costa** `#46b3cf` che sfuma nel mare in 40 m, schiuma `#f2fbff` |
+  | Asfalto e pietra | asfalto `#4f5663` (grigio blu, più scuro di prima), superstrada `#454b57`; **cortili** `#f3e6cf` e **piazze** `#f5d6a0`, chiari e caldi, ben distinti dall'asfalto; marciapiedi `#e2d4ba` |
+  | Terreno | terra `#c39a6b`, piazzali `#c9b99a`, sabbia `#f1dca2` |
+  | Accenti | tende `#d9442c`, `#2f7fbf`, `#2e9d5b`, `#f0b429`; panni stesi `#e94f4f`, `#3a8fd8`, `#f4c842`, `#7bc46a`, `#f08fb0`, bianco; ciminiere `#e6e0d6` con la fascia `#d63a2a` |
+
+- **Edifici a parti** (`catalogo.ts`), varianti scelte dall'identificativo della sagoma:
+
+  | Tipo | Parti |
+  | --- | --- |
+  | Palazzina dei Tamburi | corpo con persiane, balconi a ogni piano sui quattro lati più lunghi (soletta 1,3 m, ringhiera alta 1 m in tre colori), panni stesi su un balcone su tre, cornicione sporgente 0,35 m, terrazza con parapetto di calce, cisterne, antenne, 0-2 parabole; in quattro casi su dieci (dai tre piani in su) negozi al piano terra alti 3,8 m con le tende a righe |
+  | Casa bassa | intonaco chiaro con persiane; terrazzo in cotto con parapetto e, a volte, pergolato con il verde; oppure tetto a falde in coppi |
+  | Edificio pubblico | finestre a nastro, cornicione di 0,6 m o tetto in coppi |
+  | Negozi | vetrine, tende a righe, cornicione |
+  | Capannone | lamiera grecata a colori pieni, gronda colorata, tetto a falde con i lucernari |
+  | Impianto | volume di cemento chiaro, ciminiera bianca con la fascia rossa |
+  | Garage e annessi | muro chiaro, tetto piano con il parapetto basso |
+
+  La tipologia viene da OpenStreetMap come in T12 (`tipi.ts`: tipo dell'edificio,
+  superficie, altezza se c'è). Le chiese e l'edificio del centro con i cornicioni
+  arrivano nella fase B.
+- **Densità del dettaglio per ingrandimento:** sotto 0,8 px/m si spengono cespugli e
+  uliveti; sotto 0,9 px/m i contorni (variante 1); sotto 1,2 px/m cisterne, antenne,
+  parabole, lucernari, auto, barche e scogli. Balconi, cornicioni e tende restano
+  (sono nella stessa geometria degli edifici): da lontano diventano righe di colore.
+- **Cosa si muove (fase B, non nel campione):** auto sulle strade principali (una ogni
+  60-120 m, 30-50 km/h); treni sui binari (uno ogni 2-3 minuti di gioco); barche che
+  entrano ed escono dai moli; fumo dalle ciminiere in proporzione a quanto producono
+  gli impianti del lotto, nulla se il lotto è fermo; persone nelle piazze (punti di
+  2 m, al più qualche decina); gabbiani sul mare. Il traffico e le barche seguono la
+  popolazione e le attività del porto e del lotto «mare e cultura» lette dal motore.
+  Tutto in blocco (una geometria ripetuta per tipo), fermo con «riduci animazioni»,
+  al livello basso solo il fumo. Oggi si muovono solo le onde, le gru e le pale dei
+  lotti, come in T12.
+
+### Misure del campione
+
+Stesso computer (Intel HD 630, Edge), stessa sessione, tre giri per caso: il giro di
+T12 più due fermate nel campione (1,1 e 4 px/m). Media e 95° percentile in ms.
+
+| Caso (soglia) | Com'è oggi | Variante 1 | Variante 2 |
+| --- | --- | --- | --- |
+| 390 px, CPU 4×, automatico (33) | 18,2-18,5 / 25,5-27,9 (scende al medio) | 17,8-19,3 / 24,4-27,8 (scende al medio o al basso) | 19,0-19,5 / 25,9-27,3 (scende al medio o al basso) |
+| 390 px, CPU 4×, medio (26,4: margine del 20%) | 17,5-17,7 / 23,2-23,5 | 19,4-19,6 / 26,3-**27,8** | 18,2-18,9 / 23,8-25,3 |
+| 1280 px, alto (33) | 16,9-17,1 / 18,5-19,3 | 19,1-19,4 / 22,0-22,5 | 18,8-19,2 / 21,8-24,1 |
+
+Una seconda misura della variante 1, con i contorni dei balconi ridotti a una riga per
+balcone, ha dato al medio 20,6-21,2 / 28,6-30,5 e all'alto 19,9-20,4 / 23,1-24,9: il
+costo non viene dai contorni, e il computer era più carico (anche com'è oggi, in questa
+sessione, scende al medio in automatico, cosa che in T12 non faceva). **La variante 1
+al livello medio sul telefono simulato non tiene il margine del 20%** (26,4 ms): due giri
+su tre sopra, di 1-4 ms. La variante 2 lo tiene.
+
+Ordini di disegno e triangoli (1280 px, livello alto):
+
+| Vista | Com'è oggi | Variante 1 | Variante 2 |
+| --- | --- | --- | --- |
+| campione, 1,1 px/m | 73 ordini, 508 mila | 76, 733 mila | 75, 770 mila |
+| campione, 4 px/m | 61, 436 mila | 64, 660 mila | 63, 697 mila |
+| avvio sui Tamburi, 1,1 px/m | 80, 1.035 mila | 84, 1.285 mila | 83, 1.323 mila |
+
+Gli ordini di disegno crescono di 3-4 (+5%), sotto il limite del 20% della scheda. I
+triangoli crescono di circa 225-290 mila per il solo campione (1.821 edifici nuovi sui
+5.136 disegnati fuori dai lotti): estesa a tutta la zona sarebbero circa 400-500 mila in
+più, e la parte a balconi va disegnata più leggera (balconi dipinti nella facciata al livello medio, in rilievo solo all'alto e da
+vicino), altrimenti il budget del telefono non regge. Memoria delle texture invariata,
+1,61 MB (le facciate piatte o ricche sostituiscono quelle di T12, non si aggiungono).
+
+### Cosa resta per la fase B
+
+Estendere la variante scelta a tutta la zona, ai lotti e ai cantieri; chiese, scuole ed
+edifici del centro con i cornicioni; la vita della città; i riflessi del mare uguali
+nei quattro orientamenti; il cantiere grande non più rado; la verifica a pixel dei
+colori della tavolozza; il contrasto dello strato dell'aria (oggi non misurato sulle
+varianti).
 
 ## Città isometrica (T12): brief di direzione artistica
 
