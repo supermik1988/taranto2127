@@ -157,15 +157,18 @@ Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 | T10 | Tempo che scorre e si ferma da solo, niente limite di azioni, visita guidata, bilancio, grafici per telefono, 24 dilemmi, menu della partita | In `main` dal 15 novembre, con le due correzioni; pubblicato |
 | T11 | Plastico 3D di una zona e nuova disposizione | In `main` dal 17 novembre, con le correzioni chieste da Michele; pubblicato |
 | T11b | Prove più veloci; lotto «Banchine» sul Mar Grande | In `main` dal 24 novembre; pubblicato |
-| T12 | Città isometrica (D20) | Fase A approvata da Michele il 24 novembre con quattro correzioni; fase B in corso sul ramo `task/T12-isometrica` |
-| T13 | Interfaccia gestionale (D23) | Scheda pronta; parte dopo l'unione di T12 |
+| T12 | Città isometrica (D20) | In `main` dal 24 novembre (`68289f1`). Michele non è soddisfatto dell'aspetto: correzione in T12c |
+| T12c | Aspetto illustrato, edifici, colori, vita | Scheda pronta; fase A con due varianti di un campione, le sceglie Michele |
+| T13 | Interfaccia gestionale (D23) | Scheda pronta; parte dopo l'unione di T12c |
 | T14 | Consiglieri come personaggi (D21, D22) | Scheda pronta; parte dopo T13; nomi e ritratti li approva Michele |
 
-Ultimo `main` verificato: `4276f4b` (T11b). Su clone pulito: 451 test in
-`pnpm test` (36 s a computer carico, contro 143 s della versione precedente
-misurata nello stesso momento), 56 in `pnpm test:lungo`; verifica nel browser
-riuscita; plastico a 48 immagini al secondo sul telefono simulato. Su GitHub:
-13 s e 70 s; procedura «Pubblica il gioco» arrivata in fondo.
+Ultimo `main` verificato: `68289f1` (T12 fase B). Su clone pulito: 476 test in
+`pnpm test` (30 s), 56 in `pnpm test:lungo`; build e verifica nel browser riuscite;
+95° percentile 20-24 ms a 390 px con processore rallentato 4×; due prove inverse
+dell'architetto sulla discesa automatica di livello, entrambe scoperte. Edifici reali
+arrugginiti nei lotti fermi: scelta dell'esecutore accettata da Michele. Limiti aperti,
+passati a T12c: cantiere rado, riflessi del mare, aspetto giudicato insoddisfacente
+(edifici a scatola, aspetto da modellino, città ferma, colori spenti).
 
 Skill di sviluppo giochi (24 novembre): installate per l'account di Michele le 80 skill di
 `gamedev-skills/awesome-gamedev-agent-skills` (Apache 2.0), lette prima dell'installazione, in

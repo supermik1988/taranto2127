@@ -833,10 +833,108 @@ ciascuna fase.
 
 ---
 
+## T12c — Città isometrica: aspetto illustrato, edifici, colori, vita
+
+- **Agente:** `sim-engineer` (grafica).
+- **Dipende da:** T12 unito in `main` (fatto il 24 novembre 2026, `68289f1`). T13 parte
+  dopo questo task: stessi file.
+- **Ramo:** `task/T12c-aspetto`.
+- **File:** `apps/game/src/iso/`, `apps/game/scripts/verifica.ts`, `docs/GRAFICA.md`,
+  `docs/grafica-elementi.json`, `docs/FONTI.md`, `docs/schermate/`. Il motore e i dati
+  di `packages/content` non si toccano, salvo leggere dallo stato del motore ciò che
+  serve alla vita della città (vedi punto 4).
+- **Perché:** Michele, guardando la fase B di T12, non è soddisfatto della grafica e
+  indica quattro difetti: (1) gli edifici sono scatole; (2) sembra un modellino 3D,
+  non una città «disegnata» come nei gestionali di fine anni '90; (3) la città è
+  ferma, senza vita; (4) i colori sono spenti, troppo beige e grigio. La mappa resta
+  la stessa (dati, vista, rotazione, livelli di dettaglio): cambia come è disegnata.
+- **Ispirazione, non copia (vincolante, come T12).** Nessuna immagine, texture,
+  edificio, icona o palette presa da SimCity o da altri giochi. Le immagini di
+  riferimento di Michele (`reference_grafica_sitoweb/`, fuori dal repository) si
+  possono guardare, non ricalcare né copiare nel progetto. Niente immagini da
+  satellite. Tutto disegnato dal codice.
+- **Skill da leggere** (`~/.claude/skills/<nome>/SKILL.md`): `create-game-assets`
+  (in particolare `references/art-direction.md`: definire un sistema visivo con
+  valori osservabili, approvare **un campione** alla scala del gioco prima di
+  produrre tutto, giudicarlo a tre distanze), `threejs-materials-lighting` (luce,
+  spazio colore, curva dei toni: verificare che i colori pieni non vengano
+  sbiaditi dal rendering), `performance-optimization` (le auto e le barche in
+  movimento vanno disegnate in blocco, non una per una). three.js resta 0.169.
+
+- **Cosa fare, in due fasi.**
+
+  **Fase A — Campione (ci si ferma fino al via di Michele).**
+  1. *Sistema visivo scritto* in `docs/GRAFICA.md`, con valori e non aggettivi:
+     palette con i ruoli (intonaci, tetti, verde, acqua, asfalto, terreno, ruggine,
+     accenti), luce (direzione, colore, quante fasce di ombra), bordi (con o senza
+     contorno, di che spessore e colore), densità del dettaglio a ciascun
+     ingrandimento, cosa si muove e quanto.
+  2. *Un campione nel gioco vero*, alla scala vera, su un pezzo di mappa che
+     contenga tutto: un isolato dei Tamburi, il bordo dello stabilimento con due
+     ciminiere e un nastro, un tratto di costa con un molo. **Due varianti** dello
+     stesso campione, perché Michele scelga la direzione:
+     - **variante 1, «illustrata»:** ombre a poche fasce nette, contorni scuri sottili
+       sugli spigoli, colori pieni e piatti;
+     - **variante 2, «pre-disegnata»:** ombre morbide e ombre di contatto alla base
+       degli edifici, facciate con molto dettaglio dipinto, nessun contorno.
+     Entrambe con gli edifici nuovi (punto 2 della fase B) e la palette nuova.
+  3. *Schermate*, a 390 e 1280 px, dalle stesse inquadrature per: com'è oggi
+     (`68289f1`), variante 1 e variante 2. Più una vista da lontano e una da vicino,
+     così il campione si giudica alle tre distanze.
+  4. Misure di prestazione del campione come in T12, per ciascuna variante.
+
+  **Fase B — Tutta la zona, nella variante scelta da Michele.**
+  1. *Aspetto:* il sistema visivo approvato applicato a terreno, edifici, stabilimento,
+     mare, lotti e cantieri. I colori della palette devono arrivare sullo schermo come
+     sono scritti (verifica a pixel su campioni noti, con margine dichiarato).
+  2. *Edifici con carattere:* un catalogo di tipi riconoscibili, ciascuno composto da
+     parti (corpo, tetto, coronamento, balconi, piano terra), con varianti scelte in
+     modo ripetibile dall'identificativo dell'edificio. Almeno: palazzina
+     residenziale a più piani con balconi e stenditoi; casa bassa con terrazzo;
+     edificio del centro con cornicioni; scuola o edificio pubblico; chiesa;
+     negozi al piano terra con tende; capannone; tetti piani con serbatoi
+     dell'acqua, antenne e parabole, e qualche tetto a falde. La tipologia si
+     ricava da ciò che OpenStreetMap dice dell'edificio (uso, altezza, piani,
+     superficie); dove non lo dice è una stima dichiarata in `docs/GRAFICA.md`.
+     Nessun edificio identificabile come reale è ricostruito in dettaglio.
+  3. *Colori:* meno beige e meno grigio. Cortili e piazze distinti dall'asfalto,
+     verde più vivo, mare più profondo con la fascia più chiara sotto costa,
+     intonaci in toni caldi variati. Lo strato dei dati (T11) deve restare leggibile:
+     contrasto dello strato dell'aria non sotto 40, come oggi.
+  4. *Vita:* auto che percorrono le strade principali, treni sui binari, barche che
+     entrano ed escono dai moli, fumo dalle ciminiere, qualche persona nelle piazze,
+     gabbiani sul mare. **Ciò che racconta lo stato della città lo legge dal motore,
+     non lo inventa:** il fumo dipende da quanto producono gli impianti nel lotto;
+     il traffico e le barche dalla popolazione e dalle attività del porto e del lotto
+     «mare e cultura»; un lotto fermo non fuma. Tutto il movimento si ferma con
+     «riduci animazioni»; al livello di dettaglio basso resta il minimo.
+  5. *Limiti di T12 da chiudere:* il cantiere su un lotto grande non deve sembrare un
+     piazzale vuoto (recinzioni, baracche, mezzi, cumuli, scavi distribuiti su tutta
+     l'area); i riflessi del mare uguali nei quattro orientamenti.
+- **Fatto quando (fase B):** schermate prima/dopo dalle stesse inquadrature di T12,
+  a 390 e 1280 px, nei quattro orientamenti e per ogni aspetto dei lotti; almeno otto
+  tipi di edificio distinti, ciascuno con due o più varianti (prova e foglio delle
+  varianti in `docs/schermate/`); i colori della palette arrivano allo schermo
+  (prova nel browser); il fumo cambia con lo stato del lotto in una partita da
+  copione (prova); con «riduci animazioni» nulla si muove (prova); stesso edificio,
+  stesso aspetto a ogni avvio (prova); prestazioni con le stesse soglie di T12
+  (95° percentile sotto 33 ms a 390 px con processore rallentato 4×, discesa
+  automatica di livello funzionante) e ordini di disegno non oltre il 20% di T12;
+  contrasto dello strato dell'aria almeno 40; tutti gli elementi nuovi nell'elenco
+  degli elementi grafici con origine e licenza; `pnpm test` sotto i 45 secondi,
+  `pnpm test:lungo` e verifica nel browser verdi.
+- **Regole:** come T12. Solo il ramo del task; non unire né inviare `main`; non
+  toccare `CLAUDE.md`, `docs/ARCHITETTO.md`, `docs/DECISIONI.md`, `docs/TASKS.md`;
+  scelte fuori scheda dichiarate come «mia scelta da confermare»; almeno tre prove
+  inverse descritte nel resoconto. **Michele approva la variante dopo la fase A e
+  l'aspetto finale prima dell'unione:** l'architetto gli mostra le schermate.
+
+---
+
 ## T13 — Interfaccia gestionale
 
 - **Agente:** `sim-engineer` (interfaccia), su decisione di Michele (D23).
-- **Dipende da:** T12 fase B unita in `main`. Non si avvia prima: stessi file.
+- **Dipende da:** T12c unito in `main`. Non si avvia prima: stessi file.
 - **Ramo:** `task/T13-interfaccia`.
 - **File:** `apps/game/` (esclusa la scena della mappa, salvo gli agganci),
   `packages/content/data/guida.json` e il suo schema (testi della visita guidata che
