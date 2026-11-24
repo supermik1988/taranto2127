@@ -688,3 +688,118 @@ correzioni qui sotto, sullo stesso ramo e con gli stessi file e le stesse regole
   su clone pulito; niente unione né invio di `main`; non toccare `CLAUDE.md`,
   `docs/ARCHITETTO.md`, `docs/DECISIONI.md`; resoconto in tre parti.
   L'architetto rivede e mostra a Michele la schermata del lotto prima di unire.
+
+---
+
+## T12 — Città isometrica
+
+- **Agente:** `sim-engineer` (interfaccia), su decisione di Michele (D20).
+- **Dipende da:** T11b (in `main` a `8416d42`).
+- **Ramo:** `task/T12-isometrica` (già creato dall'architetto con questa scheda).
+- **File:** `apps/game/`, `packages/content/geo/` (solo se servono dati nuovi sugli
+  edifici, con `stima` e motivazione), `docs/GRAFICA.md`, `docs/FONTI.md`,
+  `docs/schermate/`. Il motore (`packages/sim`) non si tocca.
+- **Perché:** Michele vuole una città nello stile dei gestionali di città di fine
+  anni '90 (suoi riferimenti: schermate di SimCity 3000), non un plastico con i
+  bordi. Decisione D20 in `docs/DECISIONI.md`.
+- **Ispirazione, non copia (vincolante).** Si prende lo stile del genere: vista
+  isometrica, città fitta, tetti, finestre, viali alberati, giardini, moli, colori
+  pieni e saturi, giornata di sole. Non si prende nulla di SimCity né di altri giochi:
+  niente immagini, texture, edifici riconoscibili, icone, pannelli, minimappa a
+  rombo, nomi o loghi. Le immagini di riferimento di Michele non entrano nel
+  repository. Tutto è generato dal codice o disegnato per noi; ogni file esterno ha
+  origine e licenza in `docs/FONTI.md`. Nessuna immagine generata con servizi a
+  pagamento senza il via di Michele.
+- **Skill da leggere prima di cominciare** (scelte dall'architetto con il `router`;
+  file `~/.claude/skills/<nome>/SKILL.md`, da aprire a mano se lavori fuori da
+  Claude Code):
+  - `create-game-assets`: brief di direzione artistica (modello in
+    `assets/art-direction-brief.md`), elenco degli elementi grafici (modello in
+    `assets/asset-manifest.json`), approvazione di un solo bersaglio visivo prima
+    della produzione;
+  - `threejs-scene-setup`, `threejs-materials-lighting`: scena, luce, ombre, spazio
+    colore delle texture, densità di pixel;
+  - `camera-systems`: limiti della vista e movimenti morbidi;
+  - `performance-optimization`: misure in millisecondi, budget, ordini di disegno.
+  Le skill sono scritte per three.js r187; noi usiamo 0.169. Non usare funzioni
+  introdotte dopo la 0.169 (ad esempio `THREE.Timer`, r183). Si aggiorna three.js
+  solo se una funzione indispensabile lo richiede, con versione esatta e motivo
+  nel resoconto come «mia scelta da confermare».
+
+### Fase A — Provino di stile (ci si ferma qui fino al via di Michele)
+
+1. Un isolato dei Tamburi, un tratto di costa del Mar Piccolo e il lotto «Parchi
+   minerali» in due stati (fermo, bosco), nel nuovo stile e alla scala reale del gioco.
+2. In `docs/GRAFICA.md` il brief di direzione artistica, sul modello della skill:
+   vista e angolo, tavolozza con il ruolo di ogni colore, luce, densità di dettaglio,
+   trattamento dei bordi, tipi di edificio previsti e come si riconoscono i luoghi di
+   Taranto (palazzine dei Tamburi con tetti piani e terrazze, Città Vecchia fitta,
+   capannoni e ciminiere dello stabilimento), cosa si prende dal genere e cosa no.
+3. `docs/grafica-elementi.json`: l'elenco degli elementi grafici (tipi di edificio,
+   tetti, alberi, texture disegnate dal codice, aspetti dei lotti) con origine,
+   licenza e stato di approvazione, sul modello della skill.
+4. Schermate a 390 e 1280 px in `docs/schermate/provino-*.png`, più un foglio di
+   confronto con tutti i tipi di edificio affiancati. Invio del ramo e resoconto.
+   **Non si passa alla fase B senza l'approvazione di Michele scritta in questa scheda.**
+
+### Fase B — Tutta la zona
+
+1. *Vista.* Telecamera ortografica isometrica con angolo fisso. Ci si sposta e si
+   ingrandisce (dita, rotella, pulsanti); si ruota solo a scatti di 90° (quattro
+   orientamenti), con un pulsante e un passaggio morbido. I movimenti morbidi usano
+   un fattore che dipende dal tempo trascorso (`1 - exp(-k·dt)`), non un valore fisso
+   per immagine. Si limita la vista, non solo il centro, tenendo conto
+   dell'ingrandimento. Niente sfocatura, niente lastra, niente bordi: oltre la zona
+   il terreno o il mare continuano in forma semplice invece di finire nel vuoto.
+2. *Edifici.* Generati dal codice dalle sagome OpenStreetMap, con dettaglio: tetti
+   piani con terrazze, cisterne e antenne, o tetti a falde secondo il tipo; finestre
+   e balconi con texture disegnate dal codice (spazio colore sRGB); capannoni,
+   ciminiere e nastri nello stabilimento. Varianti ricavate dall'identificativo della
+   sagoma (ripetibili). Almeno sei tipi di edificio distinti. Geometrie raggruppate
+   o ripetute in modo efficiente: migliaia di edifici non devono diventare migliaia
+   di ordini di disegno.
+3. *Strade e verde.* Asfalto con segnaletica e marciapiedi, filari lungo le strade
+   principali, parchi con alberi, binari, moli con barche. Mare con riflessi leggeri.
+4. *Lotti di ILSIDER.* I sei aspetti per stato, rifatti nello stesso stile.
+5. *Livelli di dettaglio.* Alto, medio, basso. Il gioco misura il tempo di ogni
+   immagine e scende di livello da solo quando supera il budget; sotto le 20 immagini
+   al secondo anche al livello basso torna la mappa schematica, come oggi. Il livello
+   si può scegliere a mano da «Strati». Densità di pixel limitata (punto di partenza
+   1,5) e rivista con le misure.
+6. *Tutto il resto resta:* strati, finestre al tocco, evidenza della selezione,
+   «Elenco», visita guidata, attribuzione OpenStreetMap, riserva schematica.
+
+### Fatto quando (fase B)
+
+- la telecamera è ortografica e il suo angolo non cambia spostando o ingrandendo; la
+  rotazione dà solo quattro orientamenti: c'è un test;
+- nessun effetto di sfocatura né base della scena; a ogni ingrandimento e in ogni
+  orientamento i quattro angoli dello schermo mostrano terreno o mare, mai lo sfondo:
+  c'è un test nella verifica nel browser;
+- almeno sei tipi di edificio, ciascuno con un aspetto distinto; altezze, colori e
+  varianti dipendono solo dall'identificativo: ci sono test;
+- prestazioni, misurate sulla stessa scena in tre giri, in millisecondi (media e 95°
+  percentile): nel telefono simulato (390 px, processore rallentato 4 volte, densità
+  2) il 95° percentile resta sotto i 33 ms al livello scelto da solo, con almeno il
+  20% di margine al livello medio; a 1280 px al livello alto sotto i 33 ms. Con il
+  processore rallentato il gioco scende di livello da solo: c'è un test;
+- budget dichiarati in `docs/GRAFICA.md` e misurati nel resoconto: ordini di disegno
+  per immagine, triangoli, memoria delle texture, per ogni livello;
+- `docs/grafica-elementi.json` completo: ogni elemento ha origine, licenza e
+  approvazione;
+- restano verdi tutti i criteri di T11 e T11b (riconoscibilità della zona, lotti,
+  strati, finestre, 360 px, mappa schematica forzata, visita guidata), `pnpm test`
+  sotto i 45 secondi, `pnpm test:lungo`, verifica nel browser senza errori;
+- schermate a 390 e 1280 px: vista d'insieme in due orientamenti, ogni stato di
+  lotto, strato dell'aria, una finestra aperta, il livello basso;
+- nel resoconto: peso del codice e dei dati (normale e compresso).
+
+### Regole
+
+Come T11. Prova inversa per ogni criterio, con un controllo che richiede almeno una
+prova fallita davvero. Invio del solo ramo `task/T12-isometrica` dopo il verde su
+clone pulito; niente unione né invio di `main`; non toccare `CLAUDE.md`,
+`docs/ARCHITETTO.md`, `docs/DECISIONI.md`. Ogni scelta fuori scheda va dichiarata nel
+resoconto come «mia scelta da confermare», mai attribuita ad altri. Resoconto in tre
+parti. L'architetto rivede e mostra le schermate a Michele prima di approvare
+ciascuna fase.

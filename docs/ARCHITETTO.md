@@ -115,6 +115,7 @@ simulazioni sociali.
 | D17 | Consiglieri indicati per delega, senza nomi di persona |
 | D18 | Grafica: plastico 3D della città, effetto modellino, luce morbida, colori pieni. Mappa a tutto schermo che si ingrandisce, comandi ai bordi, finestre al tocco |
 | D19 | Lo sviluppo prosegue interamente dentro Antigravity, con l'architetto lì |
+| D20 | Mappa isometrica in stile gestionale di città anni '90, ricca e a colori pieni, senza effetto modellino; ispirata al genere, niente di copiato; vista fissa con rotazione a 90°; si parte dalla zona attuale; dettaglio ridotto da solo sui dispositivi lenti. Sostituisce l'effetto modellino di D18 |
 
 Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 
@@ -153,13 +154,18 @@ Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 | T10 | Tempo che scorre e si ferma da solo, niente limite di azioni, visita guidata, bilancio, grafici per telefono, 24 dilemmi, menu della partita | In `main` dal 15 novembre, con le due correzioni; pubblicato |
 | T11 | Plastico 3D di una zona e nuova disposizione | In `main` dal 17 novembre, con le correzioni chieste da Michele; pubblicato |
 | T11b | Prove più veloci; lotto «Banchine» sul Mar Grande | In `main` dal 24 novembre; pubblicato |
-| T12 | Grafica del plastico | Da definire: Michele vuole installare una skill per la grafica; il plastico attuale non lo convince |
+| T12 | Città isometrica (D20) | Scheda pronta, ramo `task/T12-isometrica`; prima un provino di stile da mostrare a Michele |
 
 Ultimo `main` verificato: `4276f4b` (T11b). Su clone pulito: 451 test in
 `pnpm test` (36 s a computer carico, contro 143 s della versione precedente
 misurata nello stesso momento), 56 in `pnpm test:lungo`; verifica nel browser
 riuscita; plastico a 48 immagini al secondo sul telefono simulato. Su GitHub:
 13 s e 70 s; procedura «Pubblica il gioco» arrivata in fondo.
+
+Skill di sviluppo giochi (24 novembre): installate per l'account di Michele le 80 skill di
+`gamedev-skills/awesome-gamedev-agent-skills` (Apache 2.0), lette prima dell'installazione, in
+`~/.claude/skills/`. Scritte per three.js r187 (noi 0.169). Per ogni task grafico l'architetto passa
+dal `router` e cita nella scheda le skill da leggere.
 
 Aperti dopo T11b: un vertice del lotto «Parchi minerali» esce dallo stabilimento
 (da correggere in T05b); nel lotto «mare e cultura» i binari del pontile

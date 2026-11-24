@@ -24,6 +24,7 @@ di architettura (GDD) non coincidono, vale questo file.
 | D17 | Consiglieri              | Indicati per delega, senza nomi di persona                                               |
 | D18 | Grafica                  | Plastico 3D della città, effetto modellino, luce morbida, colori pieni. Mappa a tutto schermo che si ingrandisce, comandi ai bordi, finestre al tocco. Sostituisce «Grafica e strumenti creativi» qui sotto per la mappa |
 | D19 | Ambiente di sviluppo     | Lo sviluppo prosegue interamente dentro Antigravity, con l'architetto lì. Passaggio di consegne in `docs/ARCHITETTO.md` |
+| D20 | Stile della mappa        | (24 novembre 2026) Città isometrica nello stile dei gestionali di città di fine anni '90, ricca di dettagli e a colori pieni, senza effetto modellino né bordi. Ispirata al genere, nessun elemento copiato da giochi esistenti. Vista fissa con rotazione a scatti di 90°; si parte dalla zona già fatta (Tamburi, stabilimento, Mar Piccolo) e poi si estende; dettaglio ricco, ridotto da solo sui dispositivi lenti. Sostituisce l'effetto modellino di D18 |
 
 ## Cosa ne discende
 
