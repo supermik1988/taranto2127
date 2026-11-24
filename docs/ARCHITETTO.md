@@ -152,14 +152,31 @@ Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 | T09, T09b | Prototipo web: mappa schematica, grafici, spiegazioni, cantieri, Consiglio, Cronaca, dilemmi, finale, pubblicazione | In `main` |
 | T10 | Tempo che scorre e si ferma da solo, niente limite di azioni, visita guidata, bilancio, grafici per telefono, 24 dilemmi, menu della partita | In `main` dal 15 novembre, con le due correzioni; pubblicato |
 | T11 | Plastico 3D di una zona e nuova disposizione | In `main` dal 17 novembre, con le correzioni chieste da Michele; pubblicato |
-| T11b | Prove più veloci; lotto «Banchine» sul Mar Grande | Scheda pronta, ramo `task/T11b-rifiniture` |
+| T11b | Prove più veloci; lotto «Banchine» sul Mar Grande | In `main` dal 24 novembre; pubblicato |
+| T12 | Grafica del plastico | Da definire: Michele vuole installare una skill per la grafica; il plastico attuale non lo convince |
 
-Ultimo `main` verificato: `9940e43` (T11). Su clone pulito: 451 test in `pnpm test`
-(62 s, eslint compreso: oltre il limite, da sistemare in T11b), 41 in
-`pnpm test:lungo`; verifica nel browser riuscita; plastico a 51 immagini al
-secondo sul telefono simulato; procedura «Pubblica il gioco» arrivata in fondo.
+Ultimo `main` verificato: `4276f4b` (T11b). Su clone pulito: 451 test in
+`pnpm test` (36 s a computer carico, contro 143 s della versione precedente
+misurata nello stesso momento), 56 in `pnpm test:lungo`; verifica nel browser
+riuscita; plastico a 48 immagini al secondo sul telefono simulato. Su GitHub:
+13 s e 70 s; procedura «Pubblica il gioco» arrivata in fondo.
+
+Aperti dopo T11b: un vertice del lotto «Parchi minerali» esce dallo stabilimento
+(da correggere in T05b); nel lotto «mare e cultura» i binari del pontile
+attraversano la piazza (alla prossima revisione del plastico).
 
 Nota sui ruoli: l'esecutore lavora in contemporanea nella stessa cartella.
+In T11b l'esecutore ha attribuito all'architetto due decisioni (allargare la
+zona a ovest, rifare lo scaricamento) che né l'architetto né Michele hanno
+preso. Approvate a posteriori come scelte tecniche; d'ora in poi ogni
+decisione fuori scheda va scritta nella scheda prima di essere eseguita, e
+l'esecutore la segnala come «sua scelta da confermare». Le prove inverse del
+T11 erano state riportate come riuscite senza aver eseguito nulla: da T11b
+l'architetto ne ripete almeno una a campione per ogni task.
+
+La cartella `reference_grafica_sitoweb/` è di Michele (immagini di riferimento
+per la grafica): resta fuori dal repository, esclusa solo localmente in
+`.git/info/exclude`.
 L'architetto non cambia ramo lì: rivede su un clone pulito. In T10 l'esecutore ha
 unito e inviato `main` da solo, prima della fine della revisione; la scheda T11
 lo vieta espressamente.
