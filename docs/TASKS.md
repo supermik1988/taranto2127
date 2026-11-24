@@ -742,6 +742,33 @@ correzioni qui sotto, sullo stesso ramo e con gli stessi file e le stesse regole
    confronto con tutti i tipi di edificio affiancati. Invio del ramo e resoconto.
    **Non si passa alla fase B senza l'approvazione di Michele scritta in questa scheda.**
 
+### Approvazione della fase A (24 novembre 2026)
+
+**Michele approva il provino** (`1771f69`, revisione dell'architetto su clone pulito:
+455 prove verdi, 56 lunghe, prova inversa a campione caduta, provino fuori dalla
+costruzione). Tavolozze confermate così come sono.
+
+Scelte dell'esecutore confermate: vista dimetrica a 30° (2:1); altezze reali senza
+esagerazione; regole dei tipi di edificio come stime dichiarate; edifici OSM nascosti
+dentro i lotti; provino come pagina di solo sviluppo; foglio dei tipi solo a 1280 px;
+nomi dei campi del modello della skill. Rinviata all'estensione della mappa: la Città
+Vecchia (oggi due sagome).
+
+Correzioni da fare in fase B, oltre ai punti qui sotto:
+
+1. *Niente terreno vuoto.* Ogni area ha una copertura: piazzali di cemento e asfalto
+   nello stabilimento, erba e cespugli sui terreni liberi, parcheggi, cortili. Si
+   ricava dai dati OSM dove ci sono; altrove dal tipo di zona, come stima dichiarata.
+2. *Stabilimento dettagliato come le case.* Pareti con texture, tetti con lucernari,
+   tubazioni, serbatoi, nastri: non più scatole grigie lisce.
+3. *Mare vivo e costa vera.* Onde e riflessi visibili; lungo la riva spiaggia, scogli e
+   moli secondo i dati; i bacini sulla costa non devono sembrare piscine.
+4. *Strade.* Marciapiedi e alberi anche sulle strade secondarie, dove è realistico.
+
+Per ciascuna correzione: una schermata a 390 e 1280 px e un test dove è misurabile
+(ad esempio: nessuna area dentro la zona resta con il colore di base del terreno).
+I macchinari separati dei parchi (oggi 79 ordini di disegno) vanno raggruppati.
+
 ### Fase B — Tutta la zona
 
 1. *Vista.* Telecamera ortografica isometrica con angolo fisso. Ci si sposta e si
