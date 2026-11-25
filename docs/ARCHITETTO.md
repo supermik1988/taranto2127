@@ -119,6 +119,7 @@ simulazioni sociali.
 | D21 | Consiglieri come personaggi inventati, con volto e nome; mai persone reali. Sostituisce D17 |
 | D22 | Ritratti dei consiglieri illustrati dal codice, con più espressioni |
 | D23 | Interfaccia da gestionale di città, ispirata al genere, dopo la mappa isometrica |
+| D24 | Grafica premium: catalogo di modelli 3D generati con l'IA, stile 3D moderno; sostituisce D13 per la grafica di gioco |
 
 Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 
@@ -158,8 +159,9 @@ Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 | T11 | Plastico 3D di una zona e nuova disposizione | In `main` dal 17 novembre, con le correzioni chieste da Michele; pubblicato |
 | T11b | Prove più veloci; lotto «Banchine» sul Mar Grande | In `main` dal 24 novembre; pubblicato |
 | T12 | Città isometrica (D20) | In `main` dal 24 novembre (`68289f1`). Michele non è soddisfatto dell'aspetto: correzione in T12c |
-| T12c | Aspetto illustrato, edifici, colori, vita | Fase A: Michele sceglie la variante 1 «illustrata» il 24 novembre; fase B in corso sul ramo `task/T12c-aspetto` |
-| T13 | Interfaccia gestionale (D23) | Scheda pronta; parte dopo l'unione di T12c |
+| T12c | Aspetto illustrato, edifici, colori, vita | Fase B approvata da unire (Michele, 25 novembre) dopo la prova sul fumo che manca; poi superata da D24 |
+| T15 | Grafica premium (D24) | Prova: tre edifici generati con Higgsfield, se Michele approva il costo; poi scheda |
+| T13 | Interfaccia gestionale (D23) | Scheda pronta; si decide dopo la prova di T15 se farla prima o dopo |
 | T14 | Consiglieri come personaggi (D21, D22) | Scheda pronta; parte dopo T13; nomi e ritratti li approva Michele |
 
 Ultimo `main` verificato: `68289f1` (T12 fase B). Su clone pulito: 476 test in

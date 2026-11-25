@@ -28,6 +28,7 @@ di architettura (GDD) non coincidono, vale questo file.
 | D21 | Consiglieri              | (24 novembre 2026) Personaggi inventati con volto, nome, età, mestiere e una storia legata a Taranto. Mai persone reali. Sostituisce D17 |
 | D22 | Ritratti                 | (24 novembre 2026) Ritratti dei consiglieri illustrati dal codice, nello stile della mappa, con più espressioni. Niente immagini esterne né servizi a pagamento |
 | D23 | Interfaccia              | (24 novembre 2026) Interfaccia da gestionale di città (barra di stato, notizie che scorrono, comandi a icone, minimappa), ispirata al genere senza copiare nessun gioco. Si fa dopo la mappa isometrica (T12) |
+| D24 | Grafica premium          | (25 novembre 2026) Città in 3D moderno, liscio e pulito, a colori vivi, come i gestionali per telefono di oggi: ispirata al genere, nessun elemento copiato. Gli edifici diventano un catalogo di modelli 3D tipici di Taranto, generati con l'intelligenza artificiale (Higgsfield) e controllati uno per uno, collocati sulle piante vere della mappa. Ogni generazione si fa solo dopo che Michele ha approvato il costo in crediti. Le foto di riferimento dei luoghi servono a descriverli a parole e non si caricano nei generatori. Origine, licenza e uso dell'IA di ogni modello registrati e dichiarati nei crediti. Sostituisce, per la grafica di gioco, «Grafica e strumenti creativi» (D13) e lo stile illustrato di T12c |
 
 ## Cosa ne discende
 
@@ -133,6 +134,9 @@ dell'area in 10-15 anni.
   subito. Una partita raccolta senza consenso valido non potrà mai entrare in uno studio.
 
 ### Grafica e strumenti creativi (D13)
+
+> Superato da D24 per la grafica di gioco: i modelli degli edifici possono essere generati
+> con l'intelligenza artificiale. Resta valido per bozzetti, trailer e video.
 
 - Mappa e interfaccia disegnate dal codice in stile vettoriale: leggere,
   nitide su ogni schermo, coerenti, modificabili dagli agenti.
