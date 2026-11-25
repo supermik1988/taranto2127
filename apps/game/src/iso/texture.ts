@@ -3,8 +3,8 @@
  * sRGB per quelle di colore, lineare per la mappa delle onde.
  *
  * - Facciate: un modulo di una campata (3,6 m) per un piano (3,2 m), ripetuto
- *   lungo le pareti. I chiari restano quasi bianchi: il colore dell'intonaco
- *   arriva dalla geometria e moltiplica la texture. La facciata industriale copre
+ *   lungo le pareti, a colori pieni e piatti (T12c). I chiari restano bianchi:
+ *   il colore dell'intonaco arriva dalla geometria e moltiplica la texture. La facciata industriale copre
  *   invece tutta l'altezza della parete: zoccolo, lamiera, finestre in alto.
  * - Suolo: piastrelle ripetibili, a colori pieni, una ogni `SCALA_SUOLO` metri.
  * - Mare: mappa delle normali con onde ripetibili, fatta scorrere nel tempo.
@@ -25,149 +25,8 @@ const H = 114; // stesse proporzioni del modulo, 3,6 × 3,2
 
 type Ctx = CanvasRenderingContext2D;
 
+/** Finestra di colore pieno, con la cornice di calce e il chiaro del cielo in alto. */
 function finestra(ctx: Ctx, x: number, y: number, w: number, h: number): void {
-  ctx.fillStyle = '#f4f1ea'; // cornice
-  ctx.fillRect(x - 3, y - 3, w + 6, h + 6);
-  const vetro = ctx.createLinearGradient(x, y, x + w, y + h);
-  vetro.addColorStop(0, '#3e5a78');
-  vetro.addColorStop(1, '#22344a');
-  ctx.fillStyle = vetro;
-  ctx.fillRect(x, y, w, h);
-  ctx.fillStyle = 'rgba(255,255,255,0.35)'; // riflesso del cielo
-  ctx.fillRect(x + 2, y + 2, w * 0.35, h * 0.28);
-  ctx.fillStyle = '#f4f1ea'; // traverso
-  ctx.fillRect(x + w / 2 - 1, y, 2, h);
-}
-
-function facciata(stile: StileFacciata, ctx: Ctx, w: number, h: number): void {
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, w, h);
-  if (stile !== 'industriale') {
-    // Marcapiano: una riga d'ombra leggera a ogni piano.
-    ctx.fillStyle = 'rgba(0,0,0,0.10)';
-    ctx.fillRect(0, h - 4, w, 4);
-  }
-  switch (stile) {
-    case 'balconi': {
-      finestra(ctx, 40, 22, 48, 62);
-      // Balcone: soletta chiara con l'ombra sotto e la ringhiera.
-      ctx.fillStyle = 'rgba(0,0,0,0.28)';
-      ctx.fillRect(20, 92, 88, 8);
-      ctx.fillStyle = '#f7f5f0';
-      ctx.fillRect(18, 84, 92, 8);
-      ctx.fillStyle = '#5c5f63';
-      for (let x = 22; x < 108; x += 6) ctx.fillRect(x, 64, 2, 20);
-      ctx.fillRect(18, 62, 92, 3);
-      break;
-    }
-    case 'persiane': {
-      finestra(ctx, 46, 24, 36, 58);
-      ctx.fillStyle = '#3f7a4b'; // persiane verdi, aperte
-      ctx.fillRect(26, 22, 16, 62);
-      ctx.fillRect(86, 22, 16, 62);
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
-      for (let y = 26; y < 82; y += 6) {
-        ctx.fillRect(27, y, 14, 2);
-        ctx.fillRect(87, y, 14, 2);
-      }
-      ctx.fillStyle = 'rgba(0,0,0,0.18)'; // davanzale
-      ctx.fillRect(40, 86, 48, 4);
-      break;
-    }
-    case 'nastro': {
-      finestra(ctx, 6, 34, 116, 40);
-      ctx.fillStyle = '#f4f1ea';
-      for (let x = 34; x < w; x += 30) ctx.fillRect(x, 31, 3, 46);
-      break;
-    }
-    case 'vetrine': {
-      finestra(ctx, 10, 18, 108, 72);
-      ctx.fillStyle = '#c4473a'; // tenda da sole, senza scritte
-      ctx.fillRect(4, 6, 120, 10);
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      for (let x = 4; x < 124; x += 16) ctx.fillRect(x, 6, 8, 10);
-      break;
-    }
-    case 'lamiera': {
-      for (let x = 0; x < w; x += 8) {
-        ctx.fillStyle = 'rgba(0,0,0,0.16)';
-        ctx.fillRect(x, 0, 3, h);
-        ctx.fillStyle = 'rgba(255,255,255,0.4)';
-        ctx.fillRect(x + 4, 0, 2, h);
-      }
-      break;
-    }
-    case 'cieco': {
-      // Pannelli di cemento con i giunti e qualche macchia.
-      ctx.fillStyle = 'rgba(0,0,0,0.12)';
-      ctx.fillRect(0, 0, 2, h);
-      ctx.fillRect(w / 2, 0, 2, h);
-      ctx.fillRect(0, h / 2, w, 2);
-      for (let i = 0; i < 18; i++) {
-        ctx.fillStyle = `rgba(60,50,40,${0.04 + hash01(i, 3) * 0.05})`;
-        ctx.fillRect(hash01(i, 1) * w, hash01(i, 2) * h, 6 + hash01(i, 4) * 14, 3 + hash01(i, 5) * 10);
-      }
-      break;
-    }
-    case 'industriale': {
-      // Tutta l'altezza della parete, dal basso (fondo della tela) all'alto.
-      // Lamiera grecata con le nervature verticali.
-      for (let x = 0; x < w; x += 6) {
-        ctx.fillStyle = 'rgba(0,0,0,0.15)';
-        ctx.fillRect(x, 0, 2, h);
-        ctx.fillStyle = 'rgba(255,255,255,0.35)';
-        ctx.fillRect(x + 3, 0, 2, h);
-      }
-      // Nastro di finestre in alto, sotto la gronda.
-      ctx.fillStyle = '#e9edf0';
-      ctx.fillRect(0, h * 0.1, w, h * 0.16);
-      ctx.fillStyle = '#4b6680';
-      for (let x = 4; x < w; x += 16) ctx.fillRect(x, h * 0.12, 12, h * 0.12);
-      ctx.fillStyle = 'rgba(255,255,255,0.35)';
-      for (let x = 4; x < w; x += 16) ctx.fillRect(x + 1, h * 0.125, 4, h * 0.05);
-      // Gronda scura in cima.
-      ctx.fillStyle = 'rgba(0,0,0,0.35)';
-      ctx.fillRect(0, 0, w, h * 0.04);
-      // Zoccolo di cemento e un portone a metà modulo.
-      ctx.fillStyle = '#c9c4ba';
-      ctx.fillRect(0, h * 0.88, w, h * 0.12);
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
-      ctx.fillRect(0, h * 0.88, w, 2);
-      ctx.fillStyle = '#6d747b';
-      ctx.fillRect(w * 0.58, h * 0.62, w * 0.3, h * 0.38);
-      ctx.fillStyle = 'rgba(255,255,255,0.18)';
-      for (let y = h * 0.64; y < h; y += 6) ctx.fillRect(w * 0.58, y, w * 0.3, 2);
-      // Colature di ruggine sotto la gronda.
-      for (let i = 0; i < 6; i++) {
-        ctx.fillStyle = `rgba(120,70,40,${0.08 + hash01(i, 7) * 0.1})`;
-        ctx.fillRect(hash01(i, 8) * w, h * 0.04, 2 + hash01(i, 9) * 3, h * (0.1 + hash01(i, 10) * 0.35));
-      }
-      break;
-    }
-  }
-}
-
-const cacheFacciate = new Map<StileFacciata, THREE.Texture>();
-
-/**
- * Resa delle facciate (T12c): «attuale» come in T12; «piatta» per la variante
- * illustrata (finestre di colore pieno, niente sfumature né riflessi); «ricca»
- * per la variante predisegnata (cornici, davanzali con l'ombra, persiane a
- * stecche, vasi, condizionatori, macchie d'umidità alla base, colature).
- */
-export type Resa = 'attuale' | 'piatta' | 'ricca';
-let resa: Resa = 'attuale';
-
-/** Cambia la resa delle texture: le facciate già fatte si rifanno al prossimo uso. */
-export function impostaResa(r: Resa): void {
-  if (r === resa) return;
-  resa = r;
-  cacheFacciate.clear();
-  cacheSuolo.clear();
-}
-
-/** Finestra di colore pieno, con la cornice chiara (resa piatta). */
-function finestraPiatta(ctx: Ctx, x: number, y: number, w: number, h: number): void {
   ctx.fillStyle = '#fbf6ec';
   ctx.fillRect(x - 3, y - 3, w + 6, h + 6);
   ctx.fillStyle = '#2f4f72';
@@ -176,125 +35,153 @@ function finestraPiatta(ctx: Ctx, x: number, y: number, w: number, h: number): v
   ctx.fillRect(x, y, w, Math.round(h * 0.3));
 }
 
-/** Facciata a colori pieni e piatti (variante illustrata). */
-function facciataPiatta(stile: StileFacciata, ctx: Ctx, w: number, h: number): void {
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, w, h);
-  switch (stile) {
-    case 'balconi':
-    case 'persiane': {
-      finestraPiatta(ctx, 46, 22, 36, 60);
-      ctx.fillStyle = '#3d8a55';
-      ctx.fillRect(26, 20, 16, 64);
-      ctx.fillRect(86, 20, 16, 64);
-      break;
-    }
-    case 'nastro':
-      finestraPiatta(ctx, 6, 34, 116, 40);
-      ctx.fillStyle = '#fbf6ec';
-      for (let x = 34; x < w; x += 30) ctx.fillRect(x, 31, 4, 46);
-      break;
-    case 'vetrine':
-      finestraPiatta(ctx, 10, 30, 108, 84);
-      ctx.fillStyle = '#fbf6ec';
-      ctx.fillRect(62, 30, 4, 84);
-      break;
-    case 'lamiera':
-    case 'industriale':
-      for (let x = 0; x < w; x += 8) {
-        ctx.fillStyle = 'rgba(0,0,0,0.10)';
-        ctx.fillRect(x, 0, 3, h);
-      }
-      if (stile === 'industriale') {
-        ctx.fillStyle = '#2f4f72';
-        ctx.fillRect(0, h * 0.1, w, h * 0.14);
-        ctx.fillStyle = '#fbf6ec';
-        for (let x = 0; x < w; x += 16) ctx.fillRect(x, h * 0.1, 3, h * 0.14);
-        ctx.fillStyle = '#5b6470';
-        ctx.fillRect(w * 0.58, h * 0.62, w * 0.3, h * 0.38);
-      }
-      break;
-    case 'cieco':
-      ctx.fillStyle = 'rgba(0,0,0,0.08)';
-      ctx.fillRect(0, 0, 3, h);
-      ctx.fillRect(0, h - 4, w, 4);
-      break;
+/** Persiane verdi aperte ai lati di una finestra. */
+function persiane(ctx: Ctx, x: number, y: number, w: number, h: number, colore = '#3d8a55'): void {
+  ctx.fillStyle = colore;
+  ctx.fillRect(x - 20, y - 2, 16, h + 4);
+  ctx.fillRect(x + w + 4, y - 2, 16, h + 4);
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  for (let yy = y + 4; yy < y + h; yy += 7) {
+    ctx.fillRect(x - 19, yy, 14, 2);
+    ctx.fillRect(x + w + 5, yy, 14, 2);
   }
 }
 
-/** Facciata con molto dettaglio dipinto (variante predisegnata): la base di T12 più i dettagli. */
-function facciataRicca(stile: StileFacciata, ctx: Ctx, w: number, h: number): void {
-  facciata(stile, ctx, w, h);
-  // Intonaco vissuto: velature calde e fredde, leggere.
-  for (let i = 0; i < 26; i++) {
-    ctx.fillStyle = hash01(i, 31) < 0.5 ? `rgba(255,236,200,${0.06 + hash01(i, 32) * 0.08})` : `rgba(90,70,55,${0.03 + hash01(i, 33) * 0.05})`;
-    ctx.fillRect(hash01(i, 34) * w, hash01(i, 35) * h, 8 + hash01(i, 36) * 26, 4 + hash01(i, 37) * 18);
-  }
+/**
+ * Facciate a colori pieni e piatti (T12c, sistema visivo «illustrato»): i chiari
+ * restano bianchi, perché il colore dell'intonaco arriva dalla geometria e
+ * moltiplica la texture.
+ */
+function facciata(stile: StileFacciata, ctx: Ctx, w: number, h: number): void {
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
   switch (stile) {
-    case 'balconi':
     case 'persiane': {
-      // Persiane a stecche con il chiaro in alto, davanzale di pietra con l'ombra sotto.
-      ctx.fillStyle = 'rgba(255,255,255,0.18)';
-      for (let y = 24; y < 82; y += 6) {
-        ctx.fillRect(26, y, 16, 1);
-        ctx.fillRect(86, y, 16, 1);
-      }
-      ctx.fillStyle = '#efe6d2';
-      ctx.fillRect(38, 84, 52, 5);
-      ctx.fillStyle = 'rgba(40,30,20,0.35)';
-      ctx.fillRect(40, 89, 48, 3);
-      // Architrave e un'ombra sottile sopra la finestra.
-      ctx.fillStyle = 'rgba(40,30,20,0.22)';
-      ctx.fillRect(40, 15, 48, 3);
-      // Un vaso di gerani o un condizionatore, a seconda della campata.
-      ctx.fillStyle = '#b8553a';
-      ctx.fillRect(50, 78, 10, 6);
-      ctx.fillStyle = '#4f9a3c';
-      ctx.fillRect(48, 72, 14, 6);
-      ctx.fillStyle = '#e34c4c';
-      ctx.fillRect(51, 71, 3, 3);
-      ctx.fillRect(57, 72, 3, 3);
-      ctx.fillStyle = '#e8e6e0';
-      ctx.fillRect(96, 92, 20, 12);
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
-      ctx.fillRect(98, 95, 16, 1);
-      ctx.fillRect(98, 99, 16, 1);
+      finestra(ctx, 46, 22, 36, 60);
+      persiane(ctx, 46, 22, 36, 60);
+      ctx.fillStyle = '#efe6d2'; // davanzale
+      ctx.fillRect(40, 85, 48, 5);
       break;
     }
-    case 'vetrine': {
-      // Insegna chiara senza scritte, serranda a metà, gradino.
-      ctx.fillStyle = '#f7f2e6';
-      ctx.fillRect(10, 2, 108, 6);
-      ctx.fillStyle = 'rgba(120,120,125,0.85)';
-      ctx.fillRect(10, 18, 108, 14);
-      ctx.fillStyle = 'rgba(0,0,0,0.18)';
-      for (let y = 20; y < 32; y += 3) ctx.fillRect(10, y, 108, 1);
-      ctx.fillStyle = '#d8d2c4';
-      ctx.fillRect(0, h - 6, w, 6);
+    case 'balconi': {
+      // Balcone dipinto (livello medio e da lontano): portafinestra, soletta chiara, ringhiera scura.
+      finestra(ctx, 44, 14, 40, 70);
+      persiane(ctx, 44, 14, 40, 70);
+      ctx.fillStyle = 'rgba(0,0,0,0.22)';
+      ctx.fillRect(14, 98, 100, 6);
+      ctx.fillStyle = '#fbf6ec';
+      ctx.fillRect(12, 90, 104, 8);
+      ctx.fillStyle = '#3b3f45';
+      ctx.fillRect(12, 66, 104, 3);
+      for (let x = 14; x < 116; x += 7) ctx.fillRect(x, 66, 2, 24);
+      break;
+    }
+    case 'centro': {
+      // Finestre alte con la cornice e il timpano, persiane, marcapiano.
+      finestra(ctx, 46, 20, 36, 66);
+      persiane(ctx, 46, 20, 36, 66, '#4f7a8a');
+      ctx.fillStyle = '#fff4dc';
+      ctx.beginPath();
+      ctx.moveTo(38, 14);
+      ctx.lineTo(64, 4);
+      ctx.lineTo(90, 14);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillRect(38, 88, 52, 5);
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.fillRect(0, h - 5, w, 5);
       break;
     }
     case 'nastro': {
-      ctx.fillStyle = 'rgba(40,30,20,0.25)';
-      ctx.fillRect(4, 76, 120, 3);
-      ctx.fillStyle = '#efe6d2';
-      ctx.fillRect(4, 74, 120, 3);
+      finestra(ctx, 6, 34, 116, 40);
+      ctx.fillStyle = '#fbf6ec';
+      for (let x = 34; x < w; x += 30) ctx.fillRect(x, 31, 4, 46);
+      // Marcapiano colorato: si legge da lontano come una scuola o un ufficio.
+      ctx.fillStyle = 'rgba(0,0,0,0.14)';
+      ctx.fillRect(0, h - 8, w, 8);
+      break;
+    }
+    case 'vetrine': {
+      finestra(ctx, 10, 30, 108, 84);
+      ctx.fillStyle = '#fbf6ec';
+      ctx.fillRect(62, 30, 4, 84);
+      ctx.fillStyle = '#f7f2e6'; // insegna senza scritte
+      ctx.fillRect(10, 12, 108, 12);
+      break;
+    }
+    case 'chiesa': {
+      // Finestre alte ad arco, una per campata, e una fascia chiara in basso.
+      ctx.fillStyle = '#fbf6ec';
+      ctx.fillRect(50, 18, 28, 76);
+      ctx.beginPath();
+      ctx.arc(64, 18, 14, Math.PI, 0);
+      ctx.fill();
+      ctx.fillStyle = '#7d5a9a';
+      ctx.fillRect(54, 22, 20, 70);
+      ctx.beginPath();
+      ctx.arc(64, 22, 10, Math.PI, 0);
+      ctx.fill();
+      ctx.fillStyle = '#e9b84a';
+      ctx.fillRect(54, 46, 20, 6);
+      break;
+    }
+    case 'lamiera': {
+      for (let x = 0; x < w; x += 8) {
+        ctx.fillStyle = 'rgba(0,0,0,0.12)';
+        ctx.fillRect(x, 0, 3, h);
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.fillRect(x + 4, 0, 2, h);
+      }
       break;
     }
     case 'cieco': {
-      ctx.fillStyle = 'rgba(120,80,50,0.12)';
-      for (let i = 0; i < 5; i++) ctx.fillRect(hash01(i, 41) * w, 0, 2, h * (0.2 + hash01(i, 42) * 0.5));
+      // Pannelli con i giunti, una porta di servizio, una griglia di ventilazione.
+      ctx.fillStyle = 'rgba(0,0,0,0.10)';
+      ctx.fillRect(0, 0, 3, h);
+      ctx.fillRect(0, h / 2, w, 2);
+      ctx.fillRect(0, h - 4, w, 4);
+      ctx.fillStyle = '#6a7480';
+      ctx.fillRect(84, 22, 28, 18);
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      for (let y = 25; y < 40; y += 4) ctx.fillRect(86, y, 24, 1);
       break;
     }
-    default:
+    case 'industriale': {
+      // Tutta l'altezza della parete, dal basso (fondo della tela) all'alto.
+      for (let x = 0; x < w; x += 6) {
+        ctx.fillStyle = 'rgba(0,0,0,0.13)';
+        ctx.fillRect(x, 0, 2, h);
+        ctx.fillStyle = 'rgba(255,255,255,0.32)';
+        ctx.fillRect(x + 3, 0, 2, h);
+      }
+      // Nastro di finestre sotto la gronda, con i montanti.
+      ctx.fillStyle = '#2f4f72';
+      ctx.fillRect(0, h * 0.1, w, h * 0.14);
+      ctx.fillStyle = '#5f86ad';
+      ctx.fillRect(0, h * 0.1, w, h * 0.04);
+      ctx.fillStyle = '#fbf6ec';
+      for (let x = 0; x < w; x += 16) ctx.fillRect(x, h * 0.1, 3, h * 0.14);
+      // Fascia di colore a metà parete e scritta-colore della ditta (senza lettere).
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.fillRect(0, h * 0.42, w, h * 0.03);
+      // Zoccolo di cemento, portone sezionale con le righe, porta pedonale verde.
+      ctx.fillStyle = '#d9d3c7';
+      ctx.fillRect(0, h * 0.88, w, h * 0.12);
+      ctx.fillStyle = '#5b6470';
+      ctx.fillRect(w * 0.58, h * 0.62, w * 0.3, h * 0.38);
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      for (let y = h * 0.64; y < h; y += 6) ctx.fillRect(w * 0.58, y, w * 0.3, 2);
+      ctx.fillStyle = '#2e7d5b';
+      ctx.fillRect(w * 0.2, h * 0.76, w * 0.08, h * 0.24);
+      // Gronda scura in cima.
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillRect(0, 0, w, h * 0.04);
       break;
+    }
   }
-  // Umidità di risalita alla base della campata (si vede solo al piano terra con il modulo per piano).
-  const g = ctx.createLinearGradient(0, h, 0, h - 18);
-  g.addColorStop(0, 'rgba(70,55,40,0.18)');
-  g.addColorStop(1, 'rgba(70,55,40,0)');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, h - 18, w, 18);
 }
+
+const cacheFacciate = new Map<StileFacciata, THREE.Texture>();
 
 /** Senza pagina (prove in Node) non c'è la tela: una texture bianca di un pixel ne prende il posto. */
 function segnaposto(): THREE.Texture {
@@ -329,9 +216,7 @@ export function textureFacciata(stile: StileFacciata): THREE.Texture {
   if (senzaPagina()) return segnaposto();
   const h = stile === 'industriale' ? 256 : H;
   const { canvas, ctx } = tela(W, h);
-  if (resa === 'piatta') facciataPiatta(stile, ctx, W, h);
-  else if (resa === 'ricca') facciataRicca(stile, ctx, W, h);
-  else facciata(stile, ctx, W, h);
+  facciata(stile, ctx, W, h);
   const texture = ripetibile(canvas);
   cacheFacciate.set(stile, texture);
   return texture;
@@ -347,18 +232,18 @@ export const SUOLI: Suolo[] = ['erba', 'cortile', 'piazzale', 'parcheggio', 'sab
 
 /** Colore di fondo di ogni suolo: è anche il colore medio della texture (tavolozza in docs/GRAFICA.md). */
 export const FONDO_SUOLO: Record<Suolo, string> = {
-  erba: '#9cb75e', // erba mediterranea, un po' secca, con cespugli
-  cortile: '#ddd4c2', // cortili e marciapiedi delle case
-  piazzale: '#c9bfae', // piazzali di cemento dello stabilimento
-  parcheggio: '#6a6d72', // asfalto con gli stalli bianchi
-  sabbia: '#e8d6a6', // spiaggia
-  roccia: '#a19a8c', // scogli
-  ghiaia: '#8d8377', // massicciata dei fasci di binari
-  terra: '#b49a78', // terra battuta, aree dismesse e cantieri
-  lastricato: '#e6dccb', // piazze lastricate
-  campi: '#c8c46e', // campi coltivati, a file
-  sottobosco: '#5f9447', // bosco e macchia
-  campo: '#6fae4c', // campi sportivi
+  erba: '#86c051', // prato vivo, con cespugli
+  cortile: '#f3e6cf', // cortili e marciapiedi delle case: pietra chiara
+  piazzale: '#c9b99a', // piazzali dello stabilimento
+  parcheggio: '#5c6470', // asfalto con gli stalli bianchi
+  sabbia: '#f1dca2', // spiaggia
+  roccia: '#a3988a', // scogli
+  ghiaia: '#8f8172', // massicciata dei fasci di binari
+  terra: '#c39a6b', // terra battuta, aree dismesse e cantieri
+  lastricato: '#f5d6a0', // piazze lastricate: pietra calda, distinta dai cortili
+  campi: '#d4cc62', // campi coltivati, a file
+  sottobosco: '#4f9a3c', // bosco e macchia
+  campo: '#5fbf4a', // campi sportivi
 };
 
 const cacheSuolo = new Map<Suolo, THREE.Texture>();

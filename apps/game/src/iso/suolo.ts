@@ -37,21 +37,21 @@ export interface Pezza {
 
 /** Tavolozza del mare, delle strade e della costa (docs/GRAFICA.md). */
 export const COLORI = {
-  mare: '#2f83c4',
-  mareChiuso: '#2a6f98', // bacini e canali: più scuri e verdi del mare aperto
-  schiuma: '#e8f3f7',
-  asfalto: '#56595f',
-  asfaltoSuperstrada: '#4c4f55',
-  servizio: '#6b6c6e',
-  marciapiede: '#d3ccbf',
-  segnaletica: '#f4f2ea',
-  rotaia: '#4a4440',
-  banchina: '#cfc8ba',
-  scogliera: '#8f887b',
-  molo: '#d8d1c3',
-  /** Fascia chiara sotto costa: vuota nell'aspetto di T12, la tavolozza nuova la accende (aspetto.ts). */
-  bassoFondale: '',
-};
+  mare: '#1f66b0',
+  mareChiuso: '#1d5f8e', // bacini e canali: più scuri del mare aperto
+  /** Fascia chiara sotto costa (basso fondale), sfuma verso il mare in 40 m. */
+  bassoFondale: '#46b3cf',
+  schiuma: '#f2fbff',
+  asfalto: '#4f5663',
+  asfaltoSuperstrada: '#454b57',
+  servizio: '#6a6660',
+  marciapiede: '#e2d4ba',
+  segnaletica: '#fbf8ee',
+  rotaia: '#4a4038',
+  banchina: '#d9cdb5',
+  scogliera: '#958a7a',
+  molo: '#e6dcc6',
+} as const;
 
 const LARGHEZZE = [0, 16, 13, 10, 7];
 
@@ -406,19 +406,22 @@ function materialeSuolo(tipo: Suolo): THREE.MeshLambertMaterial {
 
 // ---------- Mare e costa ----------
 
-let mareMateriale: THREE.MeshPhongMaterial | null = null;
+let mareMateriale: THREE.MeshLambertMaterial | null = null;
 
-function materialeMare(): THREE.MeshPhongMaterial {
+/**
+ * Mare: luce diffusa con la mappa delle onde (T12c). Niente riflesso speculare,
+ * che dipende dalla direzione della vista: così il mare è uguale nei quattro
+ * orientamenti. Le onde si vedono perché cambiano l'angolo con il sole e il cielo.
+ * Resta fuori dalle fasce (userData.continuo): le onde sono sfumature.
+ */
+function materialeMare(): THREE.MeshLambertMaterial {
   if (mareMateriale !== null) return mareMateriale;
   const onde = textureOnde();
   onde.repeat.set(1, 1);
-  mareMateriale = new THREE.MeshPhongMaterial({
+  mareMateriale = new THREE.MeshLambertMaterial({
     vertexColors: true,
-    // Riflessi leggeri: le onde si vedono in ogni orientamento senza accecare quando si guarda verso il sole.
-    shininess: 40,
-    specular: new THREE.Color('#4a6880'),
     normalMap: onde,
-    normalScale: new THREE.Vector2(0.7, 0.7),
+    normalScale: new THREE.Vector2(1.6, 1.6),
     side: THREE.DoubleSide,
     stencilWrite: true,
     stencilRef: STENCIL_MARE,
@@ -426,6 +429,7 @@ function materialeMare(): THREE.MeshPhongMaterial {
     stencilZPass: THREE.ReplaceStencilOp,
   });
   mareMateriale.name = 'mare';
+  mareMateriale.userData['continuo'] = true;
   return mareMateriale;
 }
 
@@ -444,6 +448,8 @@ export function tipoRiva(p: Pt): Riva {
 
 function costruisciMare(): { oggetti: THREE.Object3D[]; onde: THREE.Texture; numeri: Pick<NumeriSuolo, 'rive' | 'scogli' | 'barche'> } {
   const acqua = new Geo3();
+  // Fascia chiara sotto costa: a parte, senza stencil, così dove sconfina sulla terra il suolo la copre.
+  const fascia = new Geo3();
   const rive = new Geo3();
   const schiuma = new Geo3();
   const massi: THREE.Matrix4[] = [];
@@ -455,10 +461,12 @@ function costruisciMare(): { oggetti: THREE.Object3D[]; onde: THREE.Texture; num
 
   for (const ring of geo.acqua) {
     const area = Math.abs(polygonArea(ring));
+    // Alcuni anelli dei dati girano in senso orario: l'acqua sta allora a destra dei lati.
+    const verso = polygonArea(ring) >= 0 ? 1 : -1;
     // I bacini chiusi sono più scuri del mare aperto.
     const fondo = colore(area > 1e6 ? COLORI.mare : COLORI.mareChiuso);
     acqua.flat(ring, LIVELLO_MARE, fondo, 40);
-    const basso = COLORI.bassoFondale === '' ? null : colore(COLORI.bassoFondale);
+    const basso = colore(COLORI.bassoFondale);
     // Rive: un muro dal pelo dell'acqua alla terra, rivolto verso l'acqua, per ogni lato che non sta sul bordo della zona.
     for (let i = 0; i < ring.length; i++) {
       const a = ring[i]!;
@@ -466,14 +474,14 @@ function costruisciMare(): { oggetti: THREE.Object3D[]; onde: THREE.Texture; num
       if (sulBordo(a) && sulBordo(b)) continue;
       const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
       if (len < 0.5) continue;
-      // Anello antiorario: l'acqua sta a sinistra, verso (−dy, dx).
-      const ix = -(b[1] - a[1]) / len;
-      const iy = (b[0] - a[0]) / len;
+      // Anello antiorario: l'acqua sta a sinistra, verso (−dy, dx); orario: a destra.
+      const ix = (-(b[1] - a[1]) / len) * verso;
+      const iy = ((b[0] - a[0]) / len) * verso;
       const mezzo: Pt = [(a[0] + b[0]) / 2 - ix * 6, (a[1] + b[1]) / 2 - iy * 6];
       const riva = tipoRiva(mezzo);
       rivePerTipo[riva] += 1;
       const A = (p: Pt, y: number, d = 0) => new THREE.Vector3(p[0] + ix * d, y, -(p[1] + iy * d));
-      if (basso !== null) {
+      {
         // Basso fondale: chiaro a riva, sfuma nel colore del mare in 40 m.
         const y = LIVELLO_MARE + 0.02;
         const su = new THREE.Vector3(0, 1, 0);
@@ -481,13 +489,16 @@ function costruisciMare(): { oggetti: THREE.Object3D[]; onde: THREE.Texture; num
         const pb = A(b, y);
         const qa = A(a, y, 40);
         const qb = A(b, y, 40);
-        // Triangoli antiorari visti dall'alto (l'acqua sta a sinistra del lato).
-        acqua.v(pa.x, y, pa.z, su, basso, pa.x / 40, -pa.z / 40);
-        acqua.v(pb.x, y, pb.z, su, basso, pb.x / 40, -pb.z / 40);
-        acqua.v(qb.x, y, qb.z, su, fondo, qb.x / 40, -qb.z / 40);
-        acqua.v(pa.x, y, pa.z, su, basso, pa.x / 40, -pa.z / 40);
-        acqua.v(qb.x, y, qb.z, su, fondo, qb.x / 40, -qb.z / 40);
-        acqua.v(qa.x, y, qa.z, su, fondo, qa.x / 40, -qa.z / 40);
+        // Triangoli antiorari visti dall'alto: [a, b, b+40·i] con i verso l'acqua.
+        const [p1, p2] = verso === 1 ? [pb, qb] : [qb, pb];
+        const [c1, c2] = verso === 1 ? [basso, fondo] : [fondo, basso];
+        fascia.v(pa.x, y, pa.z, su, basso, pa.x / 40, -pa.z / 40);
+        fascia.v(p1.x, y, p1.z, su, c1, p1.x / 40, -p1.z / 40);
+        fascia.v(p2.x, y, p2.z, su, c2, p2.x / 40, -p2.z / 40);
+        const [r1, r2] = verso === 1 ? [qb, qa] : [qa, qb];
+        fascia.v(pa.x, y, pa.z, su, basso, pa.x / 40, -pa.z / 40);
+        fascia.v(r1.x, y, r1.z, su, fondo, r1.x / 40, -r1.z / 40);
+        fascia.v(r2.x, y, r2.z, su, fondo, r2.x / 40, -r2.z / 40);
       }
       if (riva === 'spiaggia') {
         // Spiaggia: un piano inclinato di sabbia che entra in acqua.
@@ -537,6 +548,12 @@ function costruisciMare(): { oggetti: THREE.Object3D[]; onde: THREE.Texture; num
   const acquaMesh = meshDa(acqua, materialeMare(), { nome: 'mare' });
   acquaMesh.renderOrder = ORDINE_MARE;
   oggetti.push(acquaMesh);
+  const fasciaMat = materialeMare().clone();
+  Object.assign(fasciaMat, { stencilWrite: false, side: THREE.FrontSide });
+  fasciaMat.userData['continuo'] = true;
+  const fasciaMesh = meshDa(fascia, fasciaMat, { nome: 'basso-fondale' });
+  fasciaMesh.renderOrder = ORDINE_MARE + 1;
+  oggetti.push(fasciaMesh);
   oggetti.push(meshDa(rive, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }), { nome: 'rive' }));
   oggetti.push(meshDa(schiuma, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }), { nome: 'schiuma' }));
   oggetti.push(meshDa(moli, new THREE.MeshLambertMaterial({ vertexColors: true }), { nome: 'moli', proietta: true }));

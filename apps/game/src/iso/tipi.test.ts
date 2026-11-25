@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { centroid, districtAt, geo, pointInPolygon } from '../plastico/data.js';
-import { INTONACI, TIPI, tipoEdificio, variante, type TipoEdificio } from './tipi.js';
+import { INTONACI, TIPI, firmaVariante, tipoEdificio, variante, type TipoEdificio } from './tipi.js';
 
 function tipoDi(b: (typeof geo.edifici)[number]): TipoEdificio {
   const ctr = centroid(b.p);
@@ -40,6 +40,21 @@ describe('tipi di edificio', () => {
       expect(variante(spostata, tipo, false)).toEqual(a);
       expect(INTONACI[tipo]).toContain(a.parete);
     }
+  });
+
+  it('T12c: almeno otto tipi distinti nella zona, e ognuno con due o più varianti visibili', () => {
+    const presenti = new Set(geo.edifici.map((b) => tipoDi(b)));
+    expect(presenti.size).toBeGreaterThanOrEqual(8);
+    for (const tipo of TIPI) {
+      const firme = new Set<string>();
+      for (let id = 1; id <= 400; id++) firme.add(firmaVariante(variante({ id, p: [[0, 0], [24, 0], [24, 14], [0, 14]], k: 'altro' }, tipo, true)));
+      // Oltre al colore dell'intonaco: negozi, balconi, campanile o cupola, tetto, gronda, pergolato, cornicione.
+      const colori = new Set(Array.from({ length: 50 }, (_, i) => variante({ id: i + 1, p: [[0, 0], [24, 0], [24, 14], [0, 14]], k: 'altro' }, tipo, true).parete));
+      expect(firme.size + (colori.size > 1 ? 1 : 0), tipo).toBeGreaterThanOrEqual(2);
+    }
+    // Chiese: campanile e cupola compaiono entrambi.
+    const campanili = new Set(Array.from({ length: 50 }, (_, i) => variante({ id: i + 1, p: [[0, 0], [30, 0], [30, 13], [0, 13]], k: 'pubblico' }, 'chiesa', true).campanile));
+    expect([...campanili].sort()).toEqual(['campanile', 'cupola']);
   });
 
   it('identificativi diversi danno colori diversi', () => {

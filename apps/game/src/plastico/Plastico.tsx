@@ -7,8 +7,8 @@ import type { DistrictId, GameState } from '@taranto2127/sim';
 import { useEffect, useRef, useState } from 'react';
 import { content } from '../engine.js';
 import { MIN_IMMAGINI, type Livello, type Scelta } from '../iso/livelli.js';
-import { aspettoDa } from '../iso/aspetto.js';
 import { createCitta, type CittaApi, type InfoDisegno } from '../iso/scena.js';
+import { vitaDaStato } from '../iso/vita.js';
 import type { MapIndicator } from '../map.js';
 import { geo } from './data.js';
 import { layerValues, lotLook, type LotLook } from './looks.js';
@@ -35,6 +35,11 @@ export interface PlasticoProbe {
   tempi(): number[];
   azzeraTempi(): void;
   angoli(): boolean[];
+  luminosita(x0: number, y0: number, x1: number, y1: number): number;
+  movimento(): { accesi: number; fermi: boolean };
+  mostraCatalogo(): { x: number; y: number };
+  nascondi(prefissi: string[]): number;
+  campioneColori(colori: string[]): { atteso: string; letto: [number, number, number] }[];
   camera(): { ortografica: boolean; elevazione: number; azimut: number };
   imposta(ppm: number, orientamento?: number): void;
   guarda(x: number, y: number, ppm: number): void;
@@ -125,7 +130,6 @@ export default function Plastico({
           detailChanged.current?.(livello);
         },
         scelta: detail,
-        aspetto: aspettoDa(window.location.search),
       });
     } catch (error) {
       fallback.current(`il browser non riesce a disegnare la città (${error instanceof Error ? error.message : String(error)})`);
@@ -151,6 +155,11 @@ export default function Plastico({
       tempi: () => instance.tempi(),
       azzeraTempi: () => instance.azzeraTempi(),
       angoli: () => instance.angoli(),
+      luminosita: (a, b, c, d) => instance.luminosita(a, b, c, d),
+      movimento: () => instance.movimento(),
+      mostraCatalogo: () => instance.mostraCatalogo(),
+      nascondi: (p) => instance.nascondi(p),
+      campioneColori: (c) => instance.campioneColori(c),
       camera: () => instance.camera(),
       imposta: (ppm, o) => instance.imposta(ppm, o),
       guarda: (x, y, ppm) => instance.guarda(x, y, ppm),
@@ -174,7 +183,10 @@ export default function Plastico({
 
   // Aspetto dei lotti, dallo stato del motore.
   useEffect(() => {
-    if (ready) api.current?.setLots(looks());
+    if (ready) {
+      api.current?.setLots(looks());
+      api.current?.setVita(vitaDaStato(state));
+    }
   }, [ready, state]);
 
   // Ciò che è aperto in una finestra resta evidenziato e, dopo che la finestra si è disposta, in vista.

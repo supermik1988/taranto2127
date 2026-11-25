@@ -8,8 +8,10 @@
 import * as THREE from 'three';
 import { geo, hash01, pick, pointInPolygon, type Pt } from '../plastico/data.js';
 import type { CostruttoreEdifici } from './edifici.js';
+import { TAVOLOZZA } from './aspetto.js';
 import { Geo3, colore, contorniDa, meshDa } from './geo3.js';
 import { Griglia, OCCUPATO, datiSuolo } from './griglia.js';
+import type { Camino } from './vita.js';
 
 const dentroLotto = (p: Pt) => Object.values(geo.lotti).some((q) => pointInPolygon(p, q));
 const nelloStabilimento = (p: Pt) => geo.stabilimento.some((r) => pointInPolygon(p, r)) || geo.industria.some((r) => pointInPolygon(p, r));
@@ -21,56 +23,72 @@ export interface NumeriImpianti {
   tubazioni: number;
 }
 
+/** Lotto più vicino a un punto (dal centro): da lui dipende il fumo di una ciminiera fuori dai lotti (stima). */
+function lottoVicino(p: Pt): string {
+  let best = '';
+  let dist = Infinity;
+  for (const [id, q] of Object.entries(geo.lotti)) {
+    const c = q.reduce((a, b) => [a[0] + b[0] / q.length, a[1] + b[1] / q.length] as Pt, [0, 0] as Pt);
+    const d = Math.hypot(c[0] - p[0], c[1] - p[1]);
+    if (d < dist) {
+      dist = d;
+      best = id;
+    }
+  }
+  return best;
+}
+
 export function costruisciImpianti(
   edifici: CostruttoreEdifici,
   griglia: Griglia,
-  /** Dove raccogliere i contorni (variante illustrata, T12c); assente = da nessuna parte. */
-  contorniIn?: (x: number, y: number) => boolean,
-): { oggetti: THREE.Object3D[]; numeri: NumeriImpianti } {
+): { oggetti: THREE.Object3D[]; numeri: NumeriImpianti; camini: Camino[] } {
   const g = new Geo3();
+  // Contorni come per le case (T12c): serbatoi, ciminiere, torri, nastri.
   const linee: number[] = [];
-  const contorni = (p: Pt) => {
-    const si = contorniIn?.(p[0], p[1]) ?? false;
-    g.contorni = si ? linee : null;
-    edifici.accendiContorni(si);
+  const contorni = () => {
+    g.contorni = linee;
+    edifici.accendiContorni(true);
   };
   const numeri: NumeriImpianti = { serbatoi: 0, ciminiere: 0, nastri: 0, tubazioni: 0 };
+  const camini: Camino[] = [];
 
   // Serbatoi e silos: cilindri con il tetto a cupola bassa, bianchi, grigi o arrugginiti.
   for (const { p, r } of datiSuolo.serbatoi) {
     if (dentroLotto(p) || (griglia.get(p[0], p[1]) & OCCUPATO.acqua) !== 0) continue;
-    contorni(p);
+    contorni();
     const seed = Math.round(p[0] * 7 + p[1] * 13);
     const raggio = Math.min(30, Math.max(3, r));
     const alto = Math.min(28, raggio * (0.9 + hash01(seed, 701) * 0.6));
-    const tinta = colore(pick(['#eef0f0', '#e2e4e3', '#c9ccc9', '#b98d6a', '#d9d2c4'], hash01(seed, 702)));
+    const tinta = colore(pick(TAVOLOZZA.serbatoi, hash01(seed, 702)));
     g.cylinder(p[0], p[1], raggio, raggio, alto, 0, raggio > 10 ? 20 : 12, tinta, tinta.clone().multiplyScalar(0.92));
     g.cylinder(p[0], p[1], raggio, raggio * 0.35, raggio * 0.18, alto, raggio > 10 ? 20 : 12, tinta.clone().multiplyScalar(0.95));
     // Una fascia scura e una scala.
-    g.cylinder(p[0], p[1], raggio * 1.01, raggio * 1.01, 0.6, alto * 0.62, raggio > 10 ? 20 : 12, colore('#7a7a76'));
+    g.cylinder(p[0], p[1], raggio * 1.01, raggio * 1.01, 0.8, alto * 0.62, raggio > 10 ? 20 : 12, colore(hash01(seed, 703) < 0.5 ? TAVOLOZZA.fasciaCiminiera : '#2f6f9f'));
     numeri.serbatoi += 1;
   }
 
   // Ciminiere dei dati: altezza vera se c'è, altrimenti 60-110 m.
   for (const { p, h } of datiSuolo.ciminiere) {
     if (dentroLotto(p)) continue;
-    contorni(p);
+    contorni();
     const seed = Math.round(p[0] * 3 + p[1] * 5);
-    edifici.ciminiera(p[0], p[1], 0, h ?? 60 + hash01(seed, 711) * 50, hash01(seed, 712) < 0.6 ? '#c0392b' : '#7a7470');
+    const alta = h ?? 60 + hash01(seed, 711) * 50;
+    edifici.ciminiera(p[0], p[1], 0, alta, hash01(seed, 712) < 0.6 ? TAVOLOZZA.fasciaCiminiera : '#7a7470');
+    camini.push({ x: p[0], y: p[1], quota: alta, lotto: lottoVicino(p) });
     numeri.ciminiere += 1;
   }
   for (const { p, h } of datiSuolo.torri) {
     if (dentroLotto(p)) continue;
-    contorni(p);
-    g.box(p[0], p[1], 6, 6, h ?? 40, 0, 0, colore('#b9b2a6'));
+    contorni();
+    g.box(p[0], p[1], 6, 6, h ?? 40, 0, 0, colore('#d9cbb4'));
   }
 
   // Nastri trasportatori: gallerie su cavalletti, a 12 m da terra.
-  const nastro = colore('#9b8a74');
-  const cavalletto = colore('#7d6a58');
+  const nastro = colore(TAVOLOZZA.nastro);
+  const cavalletto = colore(TAVOLOZZA.cavalletto);
   for (const line of datiSuolo.nastri) {
     numeri.nastri += 1;
-    contorni(line[0]!);
+    contorni();
     for (let i = 1; i < line.length; i++) {
       const a = line[i - 1]!;
       const b = line[i]!;
@@ -87,14 +105,14 @@ export function costruisciImpianti(
   }
 
   // Rastrelliere di tubazioni lungo una via di servizio su tre, dentro lo stabilimento.
-  const tubi = [colore('#8c8f91'), colore('#b0633c'), colore('#d4b24a')];
+  const tubi = TAVOLOZZA.tubi.map((c) => colore(c));
   const portale = colore('#6f7275');
   for (const line of datiSuolo.servizio) {
     const mezzo = line[Math.floor(line.length / 2)]!;
     if (!nelloStabilimento(mezzo) || dentroLotto(mezzo)) continue;
     if (hash01(Math.round(mezzo[0]), Math.round(mezzo[1]), 721) > 0.34) continue;
     numeri.tubazioni += 1;
-    contorni(mezzo);
+    contorni();
     for (let i = 1; i < line.length; i++) {
       const a = line[i - 1]!;
       const b = line[i]!;
@@ -122,5 +140,5 @@ export function costruisciImpianti(
   const oggetti: THREE.Object3D[] = g.empty ? [] : [meshDa(g, new THREE.MeshLambertMaterial({ vertexColors: true }), { nome: 'impianti', proietta: true })];
   const l = contorniDa(g, '#2b2530', 'contorni-impianti');
   if (l !== null) oggetti.push(l);
-  return { oggetti, numeri };
+  return { oggetti, numeri, camini };
 }

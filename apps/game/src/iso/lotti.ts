@@ -15,7 +15,8 @@ import * as THREE from 'three';
 import { centroid, geo, hash01, hashString, pick, pointInPolygon, type GeoBuilding, type Pt } from '../plastico/data.js';
 import type { LotLook } from '../plastico/looks.js';
 import { Alberi, CostruttoreEdifici, unisci } from './edifici.js';
-import { Geo3, Indice, colore, meshDa, nelLotto } from './geo3.js';
+import { TAVOLOZZA } from './aspetto.js';
+import { Geo3, Indice, colore, contorniDa, meshDa, nelLotto } from './geo3.js';
 import { COLORI, LIVELLO_MARE, QUOTE } from './suolo.js';
 import { MODULO_INDUSTRIALE, SCALA_SUOLO, textureFacciata, textureSuolo, type Suolo } from './texture.js';
 
@@ -116,6 +117,8 @@ export function costruisciAspetto(id: string, quad: Pt[], look: LotLook): Aspett
   fondo.flat(quad, QUOTE.lotti, colore(FONDO[look].tinta), SCALA_SUOLO);
   gruppo.add(meshDa(fondo, new THREE.MeshLambertMaterial({ vertexColors: true, map: textureSuolo(FONDO[look].suolo) }), { nome: 'fondo-lotto' }));
   const solidi = new Geo3();
+  // Contorni come per la città (T12c).
+  solidi.contorni = [];
   switch (look) {
     case 'fermo':
       fermo(id, t, solidi, gruppo, rnd);
@@ -137,6 +140,8 @@ export function costruisciAspetto(id: string, quad: Pt[], look: LotLook): Aspett
       break;
   }
   if (!solidi.empty) gruppo.add(meshDa(solidi, new THREE.MeshLambertMaterial({ vertexColors: true }), { nome: 'strutture-lotto', proietta: true }));
+  const linee = contorniDa(solidi, TAVOLOZZA.contorno, 'contorni-lotto');
+  if (linee !== null) gruppo.add(linee);
   return { gruppo, animati };
 }
 
@@ -333,11 +338,65 @@ function lavori(t: Telaio, g: Geo3, gruppo: THREE.Group, animati: Animato[], rnd
     const b = t.quad[(i + 1) % 4]!;
     g.walls([a, b, b, a], QUOTE.lotti, 2.2, arancio);
   }
-  // Mucchi di terra, strutture a metà (pilastri e solai), baracche e ruspe.
-  for (let k = 0; k < 9; k++) {
-    const [x, y] = t.P(0.08 + rnd() * 0.84, 0.08 + rnd() * 0.84);
-    mucchio(g, x, y, 14 + rnd() * 10, 6 + rnd() * 5, colore('#b8935f'));
+  // Tutta l'area lavorata (T12c): una griglia di celle di circa 110 m, in ognuna un pezzo di
+  // cantiere scelto in modo ripetibile. Nessun piazzale vuoto, anche sui lotti di un chilometro.
+  const nu = Math.max(3, Math.round(t.larghezza / 110));
+  const nv = Math.max(3, Math.round(t.profondita / 110));
+  const terra = colore('#b8935f');
+  const cemento = colore('#d9d2c4');
+  const ux = Math.cos(t.angolo);
+  const uy = Math.sin(t.angolo);
+  for (let i = 0; i < nu; i++) {
+    for (let j = 0; j < nv; j++) {
+      const u = (i + 0.5) / nu;
+      const v = (j + 0.5) / nv;
+      // Le celle della fila delle strutture a metà e delle gru restano a loro.
+      if (v > 0.62 && v < 0.82) continue;
+      const [x, y] = t.P(u + (rnd() - 0.5) * 0.3 / nu, v + (rnd() - 0.5) * 0.3 / nv);
+      const scelta = rnd();
+      const R = (a: number, b: number): Pt => [x + ux * a - uy * b, y + uy * a + ux * b];
+      if (scelta < 0.22) {
+        // Scavo: fondo scuro, quattro scarpate, una rampa.
+        const w = 34 + rnd() * 30;
+        const d = 24 + rnd() * 20;
+        const fondo = QUOTE.lotti + 0.02;
+        g.flat([R(-w / 2, -d / 2), R(w / 2, -d / 2), R(w / 2, d / 2), R(-w / 2, d / 2)], fondo, colore('#8a6a45'));
+        g.flat([R(-w / 2 + 4, -d / 2 + 4), R(w / 2 - 4, -d / 2 + 4), R(w / 2 - 4, d / 2 - 4), R(-w / 2 + 4, d / 2 - 4)], fondo + 0.02, colore('#6f5236'));
+        g.walls([R(-w / 2, -d / 2), R(w / 2, -d / 2), R(w / 2, d / 2), R(-w / 2, d / 2)], fondo, fondo + 0.9, colore('#e07b39'));
+      } else if (scelta < 0.42) {
+        for (let k = 0; k < 3; k++) mucchio(g, x + (rnd() - 0.5) * 50, y + (rnd() - 0.5) * 50, 8 + rnd() * 9, 4 + rnd() * 5, k === 2 ? colore('#a9a39a') : terra);
+      } else if (scelta < 0.58) {
+        // Baracche di cantiere in fila, bianche e blu, con il bagno chimico.
+        for (let k = 0; k < 4; k++) {
+          const [bx, by] = R(-12 + k * 7, 0);
+          g.box(bx, by, 6, 2.5, 2.6, t.angolo, QUOTE.lotti, colore(pick(['#f2f2ee', '#3f7a9b', '#e2c35a'], rnd())));
+        }
+        const [wx, wy] = R(18, 0);
+        g.box(wx, wy, 1.3, 1.3, 2.3, t.angolo, QUOTE.lotti, colore('#2e9d5b'));
+      } else if (scelta < 0.74) {
+        // Mezzi: escavatore (scocca, braccio), camion con il cassone, rullo.
+        g.box(x, y, 5, 3, 2.4, t.angolo + rnd(), QUOTE.lotti, colore('#f2b632'));
+        g.box(x + 3, y, 6, 0.8, 0.8, t.angolo + 0.6, 3.2, colore('#e0a520'));
+        const [cx, cy] = R(14, 6);
+        g.box(cx, cy, 9, 2.6, 2.8, t.angolo, QUOTE.lotti, colore('#d63a2a'));
+        g.box(cx - 2, cy, 5, 2.6, 1.2, t.angolo, 2.9, colore('#9a8a72'));
+        const [rx, ry] = R(-12, -8);
+        g.box(rx, ry, 4, 2, 2, t.angolo, QUOTE.lotti, colore('#f2b632'));
+      } else if (scelta < 0.88) {
+        // Cataste: tubi e pallet di blocchi.
+        for (let k = 0; k < 6; k++) {
+          const [px, py] = R(-15 + (k % 3) * 10, -6 + Math.floor(k / 3) * 10);
+          g.box(px, py, 6, 4, 1.4 + rnd() * 1.4, t.angolo, QUOTE.lotti, k % 2 === 0 ? cemento : colore('#9aa4ab'));
+        }
+      } else {
+        // Recinto interno con i new jersey e un'area di stoccaggio di ghiaia.
+        const w = 40;
+        g.walls([R(-w / 2, -w / 2), R(w / 2, -w / 2), R(w / 2, w / 2), R(-w / 2, w / 2)], QUOTE.lotti, 1.1, colore('#f4f2ea'));
+        mucchio(g, x, y, 12, 5, colore('#a9a39a'));
+      }
+    }
   }
+  // Strutture a metà (pilastri e solai), baracche e ruspe.
   for (let k = 0; k < 3; k++) {
     const [x, y] = t.P(0.2 + k * 0.3, 0.72);
     const piani = 2 + Math.floor(rnd() * 3);
@@ -420,7 +479,15 @@ function acciaio(id: string, t: Telaio, g: Geo3, gruppo: THREE.Group, animati: A
   const [cx, cy] = t.P(0.85, 0.5);
   edifici.ciminiera(cx, cy, 0, 110, '#c4483a');
   for (const m of edifici.meshes()) gruppo.add(m);
-  fumo(gruppo, animati, cx, cy, 112, rnd);
+  // Il fumo lo disegna la vita della città (vita.ts), secondo la produzione letta dal motore.
+  void animati;
+  void rnd;
+}
+
+/** Camino dell'aspetto «acciaio» di un lotto: posizione e quota della bocca (il fumo è in vita.ts). */
+export function caminoAcciaio(quad: Pt[]): { x: number; y: number; quota: number } {
+  const [x, y] = telaio(quad).P(0.85, 0.5);
+  return { x, y, quota: 112 };
 }
 
 function navataTetto(g: Geo3, x: number, y: number, lunga: number, larga: number, alta: number, angolo: number, tetto: THREE.Color): void {
@@ -442,30 +509,6 @@ function rettangolo(x: number, y: number, w: number, d: number, angolo: number):
   const uy = Math.sin(angolo);
   const R = (a: number, b: number): Pt => [x + ux * a - uy * b, y + uy * a + ux * b];
   return [R(-w / 2, -d / 2), R(w / 2, -d / 2), R(w / 2, d / 2), R(-w / 2, d / 2)];
-}
-
-/** Poco fumo bianco che sale e si allarga (cinque sbuffi ripetuti). */
-function fumo(gruppo: THREE.Group, animati: Animato[], x: number, y: number, quota: number, rnd: () => number): void {
-  const n = 5;
-  const sbuffi = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(6, 1), new THREE.MeshLambertMaterial({ color: '#f6f6f4', transparent: true, opacity: 0.55, depthWrite: false }), n);
-  sbuffi.name = 'fumo';
-  gruppo.add(sbuffi);
-  const deriva = rnd();
-  const m = new THREE.Matrix4();
-  const q = new THREE.Quaternion();
-  const s = new THREE.Vector3();
-  animati.push({
-    update: (tempo) => {
-      for (let i = 0; i < n; i++) {
-        const k = (tempo * 0.12 + i / n) % 1;
-        s.setScalar(0.6 + k * 1.6);
-        m.compose(new THREE.Vector3(x + k * 30 + deriva * 10, quota + k * 60, -(y + k * 12)), q, s);
-        sbuffi.setMatrixAt(i, m);
-      }
-      sbuffi.instanceMatrix.needsUpdate = true;
-    },
-  });
-  animati[animati.length - 1]!.update(0);
 }
 
 // ---------- Bosco giovane ----------

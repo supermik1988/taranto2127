@@ -1,44 +1,15 @@
 /**
- * Aspetto della città isometrica (T12c, fase A): il sistema visivo nuovo in due
- * varianti, da provare su un campione prima di estenderlo a tutta la zona.
- *
- * - «attuale»: com'è la città dopo T12 (68289f1). Resta l'aspetto predefinito
- *   finché Michele non sceglie una variante.
- * - «illustrata» (variante 1): luce a tre fasce nette, contorni scuri sottili
- *   sugli spigoli, colori pieni e piatti.
- * - «predisegnata» (variante 2): ombre morbide, ombre di contatto alla base
- *   degli edifici, facciate con molto dettaglio dipinto, nessun contorno.
- *
- * Le due varianti usano la stessa tavolozza nuova e gli stessi edifici nuovi
- * (catalogo.ts), che nella fase A si costruiscono solo dentro il riquadro del
- * campione. Tutti i valori sono scritti in docs/GRAFICA.md («Sistema visivo»).
+ * Aspetto della città isometrica (T12c): il sistema visivo «illustrato» scelto da
+ * Michele nella fase A (variante 1) e reso l'unico aspetto della città. Luce a tre
+ * fasce nette, contorni scuri sottili che si alleggeriscono con la distanza, colori
+ * pieni e piatti. Tutti i valori sono scritti in docs/GRAFICA.md («Sistema visivo»).
  * Modulo puro: niente three.js, niente pagina.
  */
 
-export type Aspetto = 'attuale' | 'illustrata' | 'predisegnata';
-export const ASPETTI: Aspetto[] = ['attuale', 'illustrata', 'predisegnata'];
-
-/** Aspetto chiesto dall'indirizzo della pagina (?aspetto=1, 2, illustrata, predisegnata); altrimenti quello di oggi. */
-export function aspettoDa(search: string): Aspetto {
-  const v = new URLSearchParams(search).get('aspetto');
-  if (v === '1' || v === 'illustrata') return 'illustrata';
-  if (v === '2' || v === 'predisegnata') return 'predisegnata';
-  return 'attuale';
-}
-
 /**
- * Riquadro del campione, in metri (x verso est, y verso nord): il lato ovest dei
- * Tamburi, il bordo dello stabilimento con le ciminiere a (7, 578) e (446, 408) e il
- * nastro che scende verso (−267, −534), la costa con i moli a sud dei Tamburi.
- */
-export const CAMPIONE = { minX: -350, maxX: 2100, minY: -1950, maxY: 750 } as const;
-
-export const nelCampione = (x: number, y: number): boolean => x >= CAMPIONE.minX && x <= CAMPIONE.maxX && y >= CAMPIONE.minY && y <= CAMPIONE.maxY;
-
-/**
- * Tavolozza nuova, con i ruoli (sRGB esadecimale). Meno beige e meno grigio:
- * intonaci caldi variati, verde vivo, mare profondo con la fascia chiara sotto
- * costa, cortili e piazze in pietra calda distinti dall'asfalto blu-grigio.
+ * Tavolozza con i ruoli (sRGB esadecimale). Meno beige e meno grigio: intonaci
+ * caldi variati, verde vivo, mare profondo con la fascia chiara sotto costa, cortili
+ * e piazze in pietra chiara distinti dall'asfalto grigio blu.
  */
 export const TAVOLOZZA = {
   /** Intonaci delle palazzine e delle case: toni caldi, variati. */
@@ -47,8 +18,8 @@ export const TAVOLOZZA = {
   case: ['#fbf3e1', '#f6d9a8', '#f3c3a4', '#fae7b8', '#d9e6c4'],
   /** Calce dei parapetti e delle soglie. */
   calce: '#fbf6ec',
-  /** Piano terra (zoccolo in pietra o intonaco scuro) e cornicioni. */
-  zoccolo: '#b98d68',
+  /** Zoccolo bugnato e cornicioni. */
+  zoccolo: '#c9a27c',
   cornice: '#fff4dc',
   /** Terrazze sui tetti piani: cotto chiaro e guaina. */
   terrazze: ['#e3c9a5', '#d9b893', '#cfd3d6'],
@@ -56,86 +27,65 @@ export const TAVOLOZZA = {
   coppi: ['#d0582f', '#c24c2b', '#dd6c3c'],
   /** Lamiere dei capannoni: azzurri, bianchi, verde acqua e qualche ruggine. */
   lamiere: ['#5f8fb8', '#8db3cc', '#d4dde2', '#6ba59a', '#b6c7d1', '#a85a32', '#c0703c'],
+  /** Lamiere e tetti degli impianti fermi (lotti di ILSIDER). */
+  ruggini: ['#9c5a3a', '#8a5a44', '#a8673f', '#7f5e4c', '#94603f'],
+  tettiRuggine: ['#7d4630', '#6f5a49', '#8a4b2c'],
   /** Tetti dei capannoni. */
   tettiLamiera: ['#6f8798', '#8a9fab', '#5b7385'],
-  /** Accenti: tende dei negozi, panni stesi, persiane. */
+  /** Accenti: tende dei negozi, panni stesi, ringhiere. */
   tende: ['#d9442c', '#2f7fbf', '#2e9d5b', '#f0b429', '#e9e2d0'],
   panni: ['#ffffff', '#e94f4f', '#3a8fd8', '#f4c842', '#7bc46a', '#f08fb0'],
   ringhiere: ['#3b3f45', '#f2efe6', '#4b6b5a'],
+  /** Serbatoi dello stabilimento. */
+  serbatoi: ['#f4f5f2', '#e6e9ea', '#d7dcdf', '#c9744a', '#f0e6d2'],
   /** Ciminiere: fusto chiaro e fascia rossa. */
   ciminiera: '#e6e0d6',
   fasciaCiminiera: '#d63a2a',
-  /** Ruggine (impianti fermi, colature). */
-  ruggine: '#9c4f2a',
-  /** Contorno della variante illustrata. */
+  /** Nastri trasportatori e tubazioni. */
+  nastro: '#c08a4e',
+  cavalletto: '#6d5a4a',
+  tubi: ['#9aa4ab', '#c6633a', '#e2b83e'],
+  /** Contorno. */
   contorno: '#2b2530',
 } as const;
 
-/** Colori del suolo, del mare e delle strade che cambiano con la tavolozza nuova (stesse chiavi di suolo.ts e texture.ts). */
-export const SUOLO_NUOVO = {
-  erba: '#86c051',
-  cortile: '#f3e6cf',
-  piazzale: '#c9b99a',
-  parcheggio: '#5c6470',
-  sabbia: '#f1dca2',
-  roccia: '#a3988a',
-  ghiaia: '#8f8172',
-  terra: '#c39a6b',
-  lastricato: '#f5d6a0',
-  campi: '#d4cc62',
-  sottobosco: '#4f9a3c',
-  campo: '#5fbf4a',
+/** Luce: emisfero (cielo e suolo), sole, rampa delle fasce. */
+export const LUCE = {
+  cielo: '#f2f6ff',
+  terra: '#d8c8a8',
+  emisfero: 1.25,
+  sole: '#fff8ec',
+  intensitaSole: 1.95,
+  /**
+   * Fasce della luce diretta: in ombra, di fianco, al sole. La fascia in ombra è più
+   * chiara di quella del campione (0,30): da lontano i Tamburi restavano scuri.
+   */
+  fasce: [0.5, 0.74, 1],
 } as const;
 
-export const COLORI_NUOVI = {
-  mare: '#1f66b0',
-  mareChiuso: '#1d5f8e',
-  /** Fascia chiara sotto costa (basso fondale), sfuma verso il mare in 40 m. */
-  bassoFondale: '#46b3cf',
-  schiuma: '#f2fbff',
-  asfalto: '#4f5663',
-  asfaltoSuperstrada: '#454b57',
-  servizio: '#6a6660',
-  marciapiede: '#e2d4ba',
-  segnaletica: '#fbf8ee',
-  rotaia: '#4a4038',
-  banchina: '#d9cdb5',
-  scogliera: '#958a7a',
-  molo: '#e6dcc6',
-} as const;
+/**
+ * Contorni che si alleggeriscono con la distanza (approvazione della fase A,
+ * punto 2): l'opacità sale in modo continuo da 0 a CONTORNO_PIENO tra
+ * PPM_CONTORNI_DA e PPM_CONTORNI_A pixel per metro. Nessuno scatto: sotto la soglia
+ * l'opacità è già zero quando le linee si spengono.
+ */
+export const PPM_CONTORNI_DA = 1;
+export const PPM_CONTORNI_A = 3;
+export const CONTORNO_PIENO = 0.9;
+/**
+ * Sotto questa opacità le linee non si disegnano affatto (risparmio: sono centinaia di
+ * migliaia di segmenti). Una riga di un pixel al 6% non si distingue: nessuno scatto visibile.
+ */
+export const OPACITA_MINIMA_CONTORNI = 0.06;
 
-export const VERDI_NUOVI = {
-  pino: ['#2f7a3a', '#3a8742', '#2a6b34'],
-  latifoglia: ['#4fa33a', '#5db544', '#46973a', '#6cbd48'],
-  giovane: ['#6cc04a', '#7fcb55', '#5cae40', '#8fd25e'],
-  cespuglio: ['#3f8a35', '#4d983d', '#5aa346'],
-  ulivo: ['#7a9a5a', '#86a565', '#6e8f52'],
-  cipresso: ['#245a2e', '#2c6636'],
-} as const;
-
-/** Luce di ogni aspetto: cielo e suolo dell'emisfero, sole, tipo di ombra, fasce. */
-export interface Luce {
-  cielo: string;
-  terra: string;
-  emisfero: number;
-  sole: string;
-  intensitaSole: number;
-  /** Ombre morbide (PCF morbido) o a bordo netto. */
-  ombreMorbide: boolean;
-  /** Fasce della luce diretta (variante illustrata): valori della rampa; vuoto = luce continua. */
-  fasce: number[];
-  /** Contorni scuri sugli spigoli. */
-  contorni: boolean;
-  /** Ombre di contatto alla base degli edifici. */
-  contatto: boolean;
+export function opacitaContorni(ppm: number): number {
+  const t = Math.min(1, Math.max(0, (ppm - PPM_CONTORNI_DA) / (PPM_CONTORNI_A - PPM_CONTORNI_DA)));
+  // Curva morbida (smoothstep): nessun gradino né all'inizio né alla fine.
+  return CONTORNO_PIENO * t * t * (3 - 2 * t);
 }
 
-export const LUCI: Record<Aspetto, Luce> = {
-  attuale: { cielo: '#d4e9ff', terra: '#b8a57c', emisfero: 1.5, sole: '#fff3d9', intensitaSole: 2.6, ombreMorbide: false, fasce: [], contorni: false, contatto: false },
-  // Tetto al sole: (1,25 + 1,95) / π ≈ 1,02 → il colore scritto arriva quasi tale e quale.
-  illustrata: { cielo: '#f2f6ff', terra: '#d8c8a8', emisfero: 1.25, sole: '#fff8ec', intensitaSole: 1.95, ombreMorbide: false, fasce: [0.3, 0.62, 1], contorni: true, contatto: false },
-  predisegnata: { cielo: '#e6f0ff', terra: '#d6c29a', emisfero: 1.6, sole: '#fff1dc', intensitaSole: 1.75, ombreMorbide: true, fasce: [], contorni: false, contatto: true },
-};
-
-/** Sotto questo ingrandimento (pixel per metro) i contorni coprirebbero tutto: si spengono. */
-export const PPM_CONTORNI = 0.9;
+/**
+ * Balconi in rilievo solo al livello alto e da vicino (approvazione, punto 3):
+ * altrimenti sono dipinti nella facciata.
+ */
+export const PPM_BALCONI = 2;

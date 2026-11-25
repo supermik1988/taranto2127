@@ -35,6 +35,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium, type Browser, type Page } from 'playwright-core';
+import { TAVOLOZZA } from '../src/iso/aspetto.js';
 
 // VERIFICA_APP permette di misurare un'altra copia del gioco (per esempio una versione precedente, per confronto).
 const appDir = process.env['VERIFICA_APP'] ?? join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -207,8 +208,9 @@ async function checkSaves(page: Page, width: number, shot: Shot): Promise<void> 
 
 async function waitForModel(page: Page): Promise<void> {
   // La città si costruisce in qualche secondo; con il processore rallentato anche dieci volte tanto.
-  await page.waitForSelector(sel('mappa-3d'), { timeout: 120_000 });
-  await page.waitForFunction(() => window.taranto2127Plastico !== undefined, undefined, { timeout: 120_000 });
+  // Con il processore rallentato 10× la costruzione blocca la pagina a lungo: 240 s (T12c; erano 120, al limite già in T12).
+  await page.waitForSelector(sel('mappa-3d'), { timeout: 240_000 });
+  await page.waitForFunction(() => window.taranto2127Plastico !== undefined, undefined, { timeout: 240_000 });
   await page.waitForTimeout(800);
 }
 
@@ -614,8 +616,8 @@ function misura(line: string): void {
   console.log(`MISURA: ${line}`);
 }
 
-async function apriCitta(browser: Browser, width: number, opts: { cpu?: number; livello?: Livello | 'auto'; aspetto?: string } = {}): Promise<{ page: Page; close: () => Promise<void> }> {
-  const context = await browser.newContext({ viewport: { width, height: width < 600 ? 844 : 900 }, deviceScaleFactor: width < 600 ? 2 : 1, hasTouch: width < 600 });
+async function apriCitta(browser: Browser, width: number, opts: { cpu?: number; livello?: Livello | 'auto'; riduci?: boolean } = {}): Promise<{ page: Page; close: () => Promise<void> }> {
+  const context = await browser.newContext({ viewport: { width, height: width < 600 ? 844 : 900 }, deviceScaleFactor: width < 600 ? 2 : 1, hasTouch: width < 600, reducedMotion: opts.riduci === true ? 'reduce' : 'no-preference' });
   await context.addInitScript((livello) => {
     localStorage.setItem('taranto2127:visita-fatta', 'si');
     if (livello !== undefined) localStorage.setItem('taranto2127:dettaglio', livello);
@@ -627,7 +629,7 @@ async function apriCitta(browser: Browser, width: number, opts: { cpu?: number; 
     const cdp = await context.newCDPSession(page);
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: opts.cpu });
   }
-  await page.goto(`${BASE}?seme=${SEED}${opts.aspetto !== undefined ? `&aspetto=${opts.aspetto}` : ''}`, { timeout: 180_000 });
+  await page.goto(`${BASE}?seme=${SEED}`, { timeout: 240_000 });
   await waitForModel(page);
   if (await visible(page, 'avviso')) await page.locator(`${sel('avviso')} button`).click();
   return { page, close: () => context.close() };
@@ -667,7 +669,8 @@ async function prestazioniCitta(browser: Browser): Promise<void> {
     { nome: '390 px, processore rallentato 4×, densità 2, livello medio', width: 390, cpu: 4, livello: 'medio', soglia: BUDGET_MS * (1 - MARGINE_MEDIO) },
     { nome: '1280 px, densità 1, livello alto', width: 1280, cpu: 1, livello: 'alto', soglia: BUDGET_MS },
   ];
-  for (const caso of casi) {
+  // CASO=testo: solo i casi che lo contengono (per misure mirate durante lo sviluppo).
+  for (const caso of casi.filter((c) => process.env['CASO'] === undefined || c.nome.includes(process.env['CASO']))) {
     for (let run = 1; run <= 3; run++) {
       const { page, close } = await apriCitta(browser, caso.width, { cpu: caso.cpu, livello: caso.livello });
       const r = await giro(page);
@@ -775,86 +778,220 @@ async function schermateCitta(browser: Browser, width: number): Promise<void> {
   }
 }
 
-// ---------- Campione dell'aspetto nuovo (T12c, fase A) ----------
+// ---------- Prima e dopo (T12c, fase B) ----------
 
-const ASPETTI_CAMPIONE = ['attuale', 'illustrata', 'predisegnata'] as const;
-/** Inquadrature del campione: le stesse per com'è oggi e per le due varianti. */
-const INQUADRATURE: { nome: string; xy: [number, number]; ppm: number }[] = [
-  { nome: 'lontano', xy: [900, -600], ppm: 0.4 },
-  { nome: 'insieme', xy: [900, -600], ppm: 0.9 },
-  { nome: 'stabilimento', xy: [180, 260], ppm: 2.2 },
-  { nome: 'costa', xy: [1560, -1760], ppm: 3 },
-  { nome: 'tamburi', xy: [1700, -150], ppm: 3.2 },
-  { nome: 'vicino', xy: [1760, -220], ppm: 6.5 },
-];
-
-async function schermateCampione(browser: Browser, width: number): Promise<void> {
-  for (const aspetto of ASPETTI_CAMPIONE) {
-    const { page, close } = await apriCitta(browser, width, { livello: 'alto', aspetto });
-    for (const q of INQUADRATURE) {
+/** Vista d'insieme dei Tamburi a più ingrandimenti: luminosità media del riquadro centrale della tela. */
+const VISTE_LUMINOSITA = [0.45, 0.9, 1.6] as const;
+async function luminositaTamburi(page: Page, width: number): Promise<number[]> {
+  const h = width < 600 ? 844 : 900;
+  const out: number[] = [];
+  for (const ppm of VISTE_LUMINOSITA) {
+    out.push(
       await page.evaluate(
-        ([x, y, ppm]) => {
+        ([pp, w, hh]) => {
           const p = window.taranto2127Plastico!;
-          p.imposta(ppm, 0);
-          p.guarda(x, y, ppm);
+          p.imposta(pp, 0);
+          p.guarda(1800, -250, pp);
+          return p.luminosita(w * 0.3, hh * 0.35, w * 0.7, hh * 0.65);
         },
-        [q.xy[0], q.xy[1], q.ppm] as const,
+        [ppm, width, h] as const,
+      ),
+    );
+  }
+  return out;
+}
+
+/** Inquadrature di T12 (schermateCitta), ripetute nei quattro orientamenti. */
+const INQUADRATURE_T12: { nome: string; ppm: number; xy?: [number, number]; id?: string }[] = [
+  { nome: 'insieme', ppm: 0.45, id: 'tamburi' },
+  { nome: 'suolo', ppm: 1.6, xy: [-250, -900] },
+  { nome: 'stabilimento', ppm: 2.2, xy: [-1150, -500] },
+  { nome: 'mare', ppm: 3, xy: [1700, -1750] },
+  { nome: 'strade', ppm: 4, id: 'tamburi' },
+];
+const LOOKS_LOTTI = ['fermo', 'lavori', 'acciaio', 'bosco', 'energia', 'mare'] as const;
+
+/** Schermate «prima» o «dopo»: inquadrature di T12 nei quattro orientamenti e i sei aspetti dei lotti. */
+async function serieSchermate(browser: Browser, width: number, prefisso: 'dopo'): Promise<void> {
+  const { page, close } = await apriCitta(browser, width, { livello: 'alto' });
+  for (const s of INQUADRATURE_T12) {
+    for (let o = 0; o < 4; o++) {
+      await page.evaluate(
+        ([id, ppm, oo, xy]) => {
+          const p = window.taranto2127Plastico!;
+          if (id !== null) p.focus(id, 3000 / ppm);
+          p.imposta(ppm, oo);
+          if (xy !== null) p.guarda(xy[0], xy[1], ppm);
+        },
+        [s.id ?? null, s.ppm, o, s.xy ?? null] as const,
       );
-      await page.waitForTimeout(1200);
-      await page.screenshot({ path: join(shotsDir, `campione-${q.nome}-${aspetto}-${width}.png`) });
+      await page.waitForTimeout(900);
+      await page.screenshot({ path: join(shotsDir, `${prefisso}-${s.nome}-o${o + 1}-${width}.png`) });
     }
+  }
+  for (const look of LOOKS_LOTTI) {
+    await page.evaluate((l) => {
+      const p = window.taranto2127Plastico!;
+      const looks = Object.fromEntries(Object.keys(p.looks()).map((id) => [id, l]));
+      p.preview(looks as never);
+      p.imposta(1.6, 0);
+      p.focus('lotto-cokerie', 3000 / 1.6);
+    }, look);
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: join(shotsDir, `${prefisso}-lotto-${look}-${width}.png`) });
+  }
+  await close();
+}
+
+// ---------- Aspetto illustrato (T12c, fase B) ----------
+
+/**
+ * Luminosità media del riquadro centrale sui Tamburi nella variante 2 «pre-disegnata»
+ * (senza contorni), misurata il 25 novembre 2026 prima di togliere la variante, a
+ * 0,45 / 0,9 / 1,6 pixel per metro. I contorni non devono scurire la vista di oltre il 10%.
+ */
+const RIF_LUMINOSITA: Record<number, readonly number[]> = { 390: [145.6, 148.0, 136.4], 1280: [144.2, 145.4, 139.9] };
+const MARGINE_LUMINOSITA = 0.1;
+/** Margine della prova a pixel dei colori: per canale, su 255 (circa il 5%). */
+const MARGINE_COLORE = 14;
+/** Il mare nei quattro orientamenti: luminosità entro il 5% tra il più chiaro e il più scuro. */
+const MARGINE_MARE = 0.05;
+
+const rgb = (hex: string): [number, number, number] => {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+};
+
+/** Contorni che si alleggeriscono: luminosità dei Tamburi a tre distanze contro la variante 2. */
+async function contorniLeggeri(browser: Browser, width: number): Promise<void> {
+  const { page, close } = await apriCitta(browser, width, { livello: 'alto' });
+  const valori = await luminositaTamburi(page, width);
+  const rif = RIF_LUMINOSITA[width]!;
+  misura(`luminosità dei Tamburi a ${width} px, a ${VISTE_LUMINOSITA.join(' / ')} px/m: ${valori.map((v) => v.toFixed(1)).join(' / ')} (variante 2: ${rif.join(' / ')}; minimo −10%)`);
+  valori.forEach((v, i) => {
+    if (v < rif[i]! * (1 - MARGINE_LUMINOSITA)) fail(`a ${width} px e ${VISTE_LUMINOSITA[i]} px/m i Tamburi sono troppo scuri: ${v.toFixed(1)} contro ${rif[i]} della variante 2 (oltre il 10% in meno)`);
+  });
+  await close();
+}
+
+/** I colori della tavolozza arrivano sullo schermo come sono scritti (rettangoli al sole, materiale della città). */
+async function coloriAlloSchermo(browser: Browser, width: number): Promise<void> {
+  const { page, close } = await apriCitta(browser, width, { livello: 'alto' });
+  const colori = [...TAVOLOZZA.intonaci, TAVOLOZZA.coppi[0], TAVOLOZZA.lamiere[0], TAVOLOZZA.tende[1], TAVOLOZZA.calce, TAVOLOZZA.fasciaCiminiera];
+  // Due file, perché ogni rettangolo sia largo abbastanza anche a 390 px.
+  const righe: { atteso: string; letto: [number, number, number] }[] = [];
+  for (const parte of [colori.slice(0, 7), colori.slice(7)]) {
+    righe.push(
+      ...(await page.evaluate((c) => {
+        const p = window.taranto2127Plastico!;
+        p.imposta(2, 0);
+        p.guarda(0, 1400, 2);
+        return p.campioneColori(c);
+      }, parte)),
+    );
+  }
+  let peggiore = 0;
+  for (const r of righe) {
+    const a = rgb(r.atteso);
+    const d = Math.max(...a.map((v, i) => Math.abs(v - r.letto[i]!)));
+    peggiore = Math.max(peggiore, d);
+    if (d > MARGINE_COLORE) fail(`a ${width} px il colore ${r.atteso} arriva sullo schermo come rgb(${r.letto.join(', ')}): scarto ${d} oltre ${MARGINE_COLORE}`);
+  }
+  misura(`colori della tavolozza allo schermo a ${width} px: ${righe.length} colori, scarto massimo ${peggiore} su 255 per canale (margine ${MARGINE_COLORE})`);
+  await close();
+}
+
+/** Il mare è uguale nei quattro orientamenti (nessun riflesso che dipenda dalla vista). */
+async function mareUguale(browser: Browser): Promise<void> {
+  const { page, close } = await apriCitta(browser, 1280, { livello: 'alto' });
+  const valori: number[] = [];
+  for (let o = 0; o < 4; o++) {
+    valori.push(
+      await page.evaluate((oo) => {
+        const p = window.taranto2127Plastico!;
+        p.imposta(1.5, oo);
+        p.guarda(-3600, -1600, 1.5);
+        return p.luminosita(400, 300, 880, 600);
+      }, o),
+    );
+  }
+  const scarto = (Math.max(...valori) - Math.min(...valori)) / Math.max(...valori);
+  misura(`mare nei quattro orientamenti: luminosità ${valori.map((v) => v.toFixed(1)).join(' / ')}, scarto ${(scarto * 100).toFixed(1)}% (margine 5%)`);
+  if (scarto > MARGINE_MARE) fail(`il mare cambia con l'orientamento: luminosità ${valori.map((v) => v.toFixed(1)).join(' / ')}`);
+  await close();
+}
+
+/** Con «riduci animazioni» nulla si muove; senza, le auto si muovono (la prova ha i denti). */
+async function riduciAnimazioni(browser: Browser): Promise<void> {
+  for (const riduci of [true, false]) {
+    const { page, close } = await apriCitta(browser, 1280, { livello: 'alto', riduci });
+    await page.evaluate(() => {
+      const p = window.taranto2127Plastico!;
+      p.imposta(3, 0);
+      p.guarda(1700, -150, 3);
+    });
+    await page.waitForTimeout(1500);
+    const a = await page.locator('canvas').first().screenshot();
+    await page.waitForTimeout(1500);
+    const b = await page.locator('canvas').first().screenshot();
+    const m = await page.evaluate(() => window.taranto2127Plastico!.movimento());
+    const uguali = a.equals(b);
+    misura(`riduci animazioni ${riduci ? 'acceso' : 'spento'}: ${m.accesi} oggetti della vita accesi, due immagini a 1,5 s ${uguali ? 'uguali' : 'diverse'}`);
+    if (riduci && (!uguali || !m.fermi)) fail('con «riduci animazioni» la città si muove ancora');
+    if (!riduci && (uguali || m.accesi === 0)) fail('senza «riduci animazioni» la città è ferma: la vita non si muove');
     await close();
   }
 }
 
-/** Il giro di T12 più due fermate nel campione (insieme e da vicino). */
-async function giroCampione(page: Page): Promise<{ media: number; p95: number; livello: string }> {
-  const base = await giro(page);
-  const tempi: number[] = [];
-  for (const [ppm] of [[1.1], [4]] as const) {
-    await page.evaluate(([pp]) => window.taranto2127Plastico!.guarda(1100, -700, pp), [ppm] as const);
-    await page.waitForTimeout(400);
-    await page.evaluate(() => window.taranto2127Plastico!.azzeraTempi());
-    await page.waitForTimeout(2500);
-    tempi.push(...(await page.evaluate(() => window.taranto2127Plastico!.tempi())));
+/** Foglio delle varianti: dieci tipi di edificio, tre varianti ciascuno. */
+async function foglioVarianti(browser: Browser, width: number): Promise<void> {
+  const { page, close } = await apriCitta(browser, width, { livello: 'alto' });
+  const viste: [string, number, number, number][] =
+    width < 600
+      ? [['foglio-varianti-1', -3700, -1540, 2.4], ['foglio-varianti-2', -3500, -1660, 2.4]]
+      : [['foglio-varianti', -3600, -1600, 1.25], ['foglio-varianti-vicino-1', -3780, -1560, 3.2], ['foglio-varianti-vicino-2', -3420, -1660, 3.2]];
+  for (const [nome, x, y, ppm] of viste) {
+    await page.evaluate(
+      ([xx, yy, pp]) => {
+        const p = window.taranto2127Plastico!;
+        p.mostraCatalogo();
+        p.imposta(pp, 0);
+        p.guarda(xx, yy, pp);
+      },
+      [x, y, ppm] as const,
+    );
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: join(shotsDir, `${nome}-${width}.png`) });
   }
-  // Media e percentile su tutte le immagini: quelle del giro di T12 pesano 4/6.
-  return { media: (base.media * 4 + media(tempi) * 2) / 6, p95: Math.max(base.p95, p95(tempi)), livello: await page.evaluate(() => window.taranto2127Plastico!.livello()) };
+  await close();
 }
 
-async function prestazioniCampione(browser: Browser, aspetti: readonly string[]): Promise<void> {
-  const casi: { nome: string; width: number; cpu: number; livello: Livello | 'auto'; soglia: number }[] = [
-    { nome: '390 px, CPU 4×, automatico', width: 390, cpu: 4, livello: 'auto', soglia: BUDGET_MS },
-    { nome: '390 px, CPU 4×, medio', width: 390, cpu: 4, livello: 'medio', soglia: BUDGET_MS * (1 - MARGINE_MEDIO) },
-    { nome: '1280 px, alto', width: 1280, cpu: 1, livello: 'alto', soglia: BUDGET_MS },
+async function controlliT12c(browser: Browser): Promise<void> {
+  await contorniLeggeri(browser, 390);
+  await contorniLeggeri(browser, 1280);
+  await coloriAlloSchermo(browser, 390);
+  await coloriAlloSchermo(browser, 1280);
+  await mareUguale(browser);
+  await riduciAnimazioni(browser);
+  await foglioVarianti(browser, 1280);
+  await foglioVarianti(browser, 390);
+}
+
+/** Diagnosi: il giro al livello medio a 390 px con CPU 4×, spegnendo un gruppo di oggetti alla volta. */
+async function diagnosiMedio(browser: Browser): Promise<void> {
+  const novita = ['contorni', 'auto-in-movimento', 'treni', 'barche-in-movimento', 'fumo', 'persone', 'gabbiani', 'parti', 'balconi', 'parabole', 'basso-fondale', 'pareti-centro', 'pareti-chiesa'];
+  const gruppi: [string, string[]][] = [
+    ['tutto acceso (1)', []],
+    ['senza le novità di T12c (1)', novita],
+    ['tutto acceso (2)', []],
+    ['senza le novità di T12c (2)', novita],
   ];
-  for (const aspetto of aspetti) {
-    for (const caso of casi) {
-      for (let run = 1; run <= 3; run++) {
-        const { page, close } = await apriCitta(browser, caso.width, { cpu: caso.cpu, livello: caso.livello, aspetto });
-        const r = await giroCampione(page);
-        misura(`campione ${aspetto}, ${caso.nome}, giro ${run}: media ${r.media.toFixed(1)} ms, 95° percentile ${r.p95.toFixed(1)} ms (livello ${r.livello}; soglia ${caso.soglia.toFixed(1)} ms)`);
-        if (r.p95 >= caso.soglia) fail(`campione ${aspetto}, ${caso.nome}, giro ${run}: 95° percentile ${r.p95.toFixed(1)} ms, sopra ${caso.soglia.toFixed(1)} ms`);
-        await close();
-      }
-    }
-    const { page, close } = await apriCitta(browser, 1280, { livello: 'alto', aspetto });
-    for (const [nome, ppm] of [
-      ['campione, insieme', 1.1],
-      ['campione, da vicino', 4],
-      ['avvio', 1.1],
-    ] as const) {
-      const info = await page.evaluate(
-        ([n, pp]) => {
-          const p = window.taranto2127Plastico!;
-          if (n === 'avvio') p.focus('tamburi', 3000 / pp);
-          else p.guarda(1100, -700, pp);
-          return p.info();
-        },
-        [nome, ppm] as const,
-      );
-      misura(`budget ${aspetto}, ${nome} (${ppm} px/m, livello alto, 1280 px): ${info.ordini} ordini di disegno, ${Math.round(info.triangoli / 1000)} mila triangoli, texture ${(info.memoriaTexture / 1e6).toFixed(2)} MB`);
-    }
+
+  for (const [nome, prefissi] of gruppi) {
+    const { page, close } = await apriCitta(browser, 390, { cpu: 4, livello: 'medio' });
+    await page.evaluate((p) => window.taranto2127Plastico!.nascondi(p), prefissi);
+    const r = await giro(page);
+    misura(`diagnosi medio, ${nome}: media ${r.media.toFixed(1)} ms, 95° percentile ${r.p95.toFixed(1)} ms`);
     await close();
   }
 }
@@ -867,10 +1004,10 @@ async function main(): Promise<void> {
   // Solo per le prove inverse: una prova del browser alla volta, senza schermate.
   const onlyCorners = process.argv.includes('--angoli');
   const onlyDescent = process.argv.includes('--scende');
-  // T12c, fase A: schermate del campione e misure per variante.
-  const sample = process.argv.includes('--campione');
-  const samplePerf = process.argv.includes('--campione-prestazioni');
-  const partial = quick || onlyContrast || onlyPerf || onlyCity || onlyCorners || onlyDescent || sample || samplePerf;
+  // T12c: schermate «dopo» e controlli dell'aspetto illustrato.
+  const after = process.argv.includes('--dopo');
+  const t12c = process.argv.includes('--t12c');
+  const partial = quick || onlyContrast || onlyPerf || onlyCity || onlyCorners || onlyDescent || after || t12c || process.argv.includes('--diagnosi');
   mkdirSync(shotsDir, { recursive: true });
   execSync('npx vite build', { cwd: appDir, stdio: 'inherit' });
   const server = spawn(`npx vite preview --port ${PORT} --strictPort`, { cwd: appDir, shell: true, stdio: 'ignore' });
@@ -879,13 +1016,13 @@ async function main(): Promise<void> {
     const channel = process.env['BROWSER'] === 'chrome' ? 'chrome' : 'msedge';
     const browser = await chromium.launch({ channel });
     try {
-      if (sample || samplePerf) {
-        if (sample) {
-          await schermateCampione(browser, 390);
-          await schermateCampione(browser, 1280);
-        }
-        const solo = process.argv.find((a) => a.startsWith('--aspetto='))?.split('=')[1];
-        if (samplePerf) await prestazioniCampione(browser, solo !== undefined ? [solo] : ASPETTI_CAMPIONE);
+      if (process.argv.includes('--diagnosi')) {
+        await diagnosiMedio(browser);
+      } else if (t12c) {
+        await controlliT12c(browser);
+      } else if (after) {
+        await serieSchermate(browser, 1280, 'dopo');
+        if (!process.argv.includes('--solo-1280')) await serieSchermate(browser, 390, 'dopo');
       } else if (onlyContrast) {
         console.log(`Contrasto dello strato dell'aria sui Tamburi a 390 px: ${(await layerContrast(browser)).toFixed(2)}`);
       } else if (onlyCorners) {
@@ -911,6 +1048,9 @@ async function main(): Promise<void> {
         await angoliSempreCitta(browser, 1280);
         await schermateCitta(browser, 390);
         await schermateCitta(browser, 1280);
+        await serieSchermate(browser, 1280, 'dopo');
+        await serieSchermate(browser, 390, 'dopo');
+        await controlliT12c(browser);
         await checkLayerContrast(browser);
         await playAt(390, browser, 'completa');
         await playAt(1280, browser, 'salta');

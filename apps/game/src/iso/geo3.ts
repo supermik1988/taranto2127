@@ -24,8 +24,6 @@ export interface OpzioniPareti {
   moduloV?: number;
   /** Etichetta dei vertici (quartiere). */
   tag?: number;
-  /** Ombra di contatto: i primi `alto` metri sfumano da `scuro` (alla base) al colore pieno. */
-  piede?: { alto: number; scuro: number };
 }
 
 export class Geo3 {
@@ -68,18 +66,6 @@ export class Geo3 {
 
   /** Pareti di un anello antiorario, da y0 a y1, con coordinate di texture in moduli. */
   walls(ring: Pt[], y0: number, y1: number, c: THREE.Color, opz: OpzioniPareti = {}): void {
-    if (opz.piede !== undefined && y1 - y0 > opz.piede.alto * 1.5) {
-      // Fascia bassa sfumata (colore per vertice) e parete piena sopra.
-      const scuro = c.clone().multiplyScalar(opz.piede.scuro);
-      const resto = { ...opz, piede: undefined };
-      this.pareteSfumata(ring, y0, y0 + opz.piede.alto, scuro, c, resto);
-      const prima = this.contorni;
-      this.contorni = null;
-      this.walls(ring, y0 + opz.piede.alto, y1, c, resto);
-      this.contorni = prima;
-      this.contornoPareti(ring, y0, y1);
-      return;
-    }
     this.contornoPareti(ring, y0, y1);
     const mu = opz.moduloU ?? 0;
     const mv = opz.moduloV ?? 0;
@@ -101,32 +87,6 @@ export class Geo3 {
       this.v(x1, y0, -p1, n, c, u0, v0, tag);
       this.v(x2, y1, -p2, n, c, u1, v1, tag);
       this.v(x1, y1, -p1, n, c, u0, v1, tag);
-      along += len;
-    }
-  }
-
-  /** Pareti con il colore che passa da `basso` (a y0) ad `alto` (a y1). */
-  private pareteSfumata(ring: Pt[], y0: number, y1: number, basso: THREE.Color, alto: THREE.Color, opz: OpzioniPareti): void {
-    const mu = opz.moduloU ?? 0;
-    const mv = opz.moduloV ?? 0;
-    const tag = opz.tag ?? 0;
-    let along = 0;
-    for (let i = 0; i < ring.length; i++) {
-      const [x1, p1] = ring[i]!;
-      const [x2, p2] = ring[(i + 1) % ring.length]!;
-      const len = Math.hypot(x2 - x1, p2 - p1);
-      if (len < 0.01) continue;
-      n.set((p2 - p1) / len, 0, (x2 - x1) / len);
-      const u0 = mu > 0 ? along / mu : 0;
-      const u1 = mu > 0 ? (along + len) / mu : 0;
-      const v0 = mv > 0 ? y0 / mv : 0;
-      const v1 = mv > 0 ? y1 / mv : 1;
-      this.v(x1, y0, -p1, n, basso, u0, v0, tag);
-      this.v(x2, y0, -p2, n, basso, u1, v0, tag);
-      this.v(x2, y1, -p2, n, alto, u1, v1, tag);
-      this.v(x1, y0, -p1, n, basso, u0, v0, tag);
-      this.v(x2, y1, -p2, n, alto, u1, v1, tag);
-      this.v(x1, y1, -p1, n, alto, u0, v1, tag);
       along += len;
     }
   }

@@ -112,9 +112,10 @@ describe('stabilimento dettagliato come le case (correzione 2)', () => {
 describe('mare vivo e costa vera (correzione 3)', () => {
   it('il mare ha le onde ed è più basso della terra; la riva ha spiagge, banchine e scogli', () => {
     const mare = meshes.find((m) => m.name === 'mare')!;
-    const mat = mare.material as THREE.MeshPhongMaterial;
+    const mat = mare.material as THREE.MeshLambertMaterial;
     expect(mat.normalMap).not.toBeNull();
-    expect(mat.shininess).toBeGreaterThan(0);
+    // T12c: nessun riflesso che dipenda dalla vista (uguale nei quattro orientamenti).
+    expect(mat).toBeInstanceOf(THREE.MeshLambertMaterial);
     expect(mare.geometry.boundingBox!.max.y).toBeLessThan(0);
     expect(LIVELLO_MARE).toBeLessThan(-0.5);
     const { rive, scogli, barche } = citta.suolo;

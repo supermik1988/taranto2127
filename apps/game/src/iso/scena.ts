@@ -11,14 +11,17 @@ import type { DistrictId } from '@taranto2127/sim';
 import * as THREE from 'three';
 import { DISTRICTS_ON_MODEL, centroid, districtOutline, geo, type Pt } from '../plastico/data.js';
 import { LOT_LOOKS, type LayerValue, type LotLook } from '../plastico/looks.js';
-import { LUCI, PPM_CONTORNI, type Aspetto, type Luce } from './aspetto.js';
+import { LUCE, OPACITA_MINIMA_CONTORNI, PPM_BALCONI, opacitaContorni } from './aspetto.js';
+import { CostruttoreEdifici } from './edifici.js';
+import { TIPI, firmaVariante, variante, type TipoEdificio } from './tipi.js';
 import { costruisciCitta, type Citta } from './citta.js';
 import { Geo3, colore } from './geo3.js';
 import { MEZZA_X, MEZZA_Y } from './griglia.js';
 import { IMPOSTAZIONI, Regolatore, type Livello, type Scelta } from './livelli.js';
-import { costruisciAspetto, type Animato } from './lotti.js';
-import { memoriaTexture } from './texture.js';
+import { caminoAcciaio, costruisciAspetto, type Animato } from './lotti.js';
+import { memoriaTexture, textureFacciata } from './texture.js';
 import { Vista, direzioneCamera, impronta } from './vista.js';
+import { Vita, type StatoVita } from './vita.js';
 
 export interface PlasticoApi {
   /** Aspetto di ogni lotto, dallo stato di gioco. */
@@ -64,6 +67,21 @@ export interface CittaApi extends PlasticoApi {
   angoli(): boolean[];
   /** Angolo della camera: elevazione e azimut in gradi, e se è ortografica. */
   camera(): { ortografica: boolean; elevazione: number; azimut: number };
+  /** Ridisegna e dà la luminosità media (0-255, Rec. 709 sui valori sRGB) di un rettangolo della tela, in pixel CSS. */
+  luminosita(x0: number, y0: number, x1: number, y1: number): number;
+  /** La vita della città letta dal motore (vita.ts, vitaDaStato). */
+  setVita(stato: StatoVita): void;
+  /** Oggetti in movimento accesi ora, e se «riduci animazioni» li tiene fermi. */
+  movimento(): { accesi: number; fermi: boolean };
+  /** Costruisce (una volta) il foglio delle varianti su un tratto di mare aperto e ne dà il centro. */
+  mostraCatalogo(): { x: number; y: number };
+  /**
+   * Disegna rettangoli rivolti in alto, al sole, con i colori dati, sopra il centro della
+   * vista, e legge il colore che arriva sullo schermo (sRGB 0-255). Per la prova della tavolozza.
+   */
+  campioneColori(colori: string[]): { atteso: string; letto: [number, number, number] }[];
+  /** Diagnosi delle prestazioni: nasconde per sempre gli oggetti il cui nome comincia con uno dei prefissi. */
+  nascondi(prefissi: string[]): number;
   /** Imposta ingrandimento (pixel per metro) e orientamento, subito: per le prove. */
   imposta(ppm: number, orientamento?: number): void;
   /** Centra un punto della zona (metri, x verso est e y verso nord), subito: per le prove. */
@@ -77,8 +95,6 @@ export interface CittaOptions {
   onFallback?: (motivo: string) => void;
   onLivello?: (livello: Livello, scelta: Scelta, motivo: string) => void;
   scelta?: Scelta;
-  /** Aspetto della città (T12c): quello di T12 o una delle due varianti del campione. */
-  aspetto?: Aspetto;
 }
 
 /** Colore dello sfondo: non dovrebbe vedersi mai (la sonda degli angoli lo cerca). */
@@ -96,7 +112,9 @@ const PPM_RIEMPITIVO = 0.8;
 const SOLE = new THREE.Vector3(-0.55, 0.78, 0.32).normalize();
 
 const DETTAGLI = new Set(['cisterne', 'antenne', 'lucernari', 'auto', 'barche', 'scogli', 'parabole']);
-const CONTORNI = new Set(['contorni', 'contorni-impianti']);
+/** Dettagli che al livello medio si spengono (sul telefono sono meno di un pixel): T12c. */
+const SOLO_ALTO = new Set(['antenne', 'parabole']);
+
 
 /** Rampa della luce a fasce (variante illustrata): pochi valori, senza sfumature tra l'uno e l'altro. */
 function rampa(fasce: number[]): THREE.DataTexture {
@@ -108,21 +126,31 @@ function rampa(fasce: number[]): THREE.DataTexture {
   return t;
 }
 
+let gradiente: THREE.DataTexture | null = null;
+
 /**
- * Variante illustrata: i materiali opachi diventano a fasce (MeshToonMaterial),
- * con gli stessi colori, texture e stencil, spinti un poco indietro perché i
- * contorni non si mescolino alle facce.
+ * Aspetto illustrato (T12c): i materiali opachi diventano a fasce
+ * (MeshToonMaterial), con gli stessi colori, texture e stencil, spinti un poco
+ * indietro perché i contorni non si mescolino alle facce. I contorni diventano
+ * trasparenti: la loro opacità segue l'ingrandimento.
  */
-function materialiAFasce(radice: THREE.Object3D, luce: Luce, cache: Map<THREE.Material, THREE.Material>): void {
-  if (luce.fasce.length === 0) return;
-  const gradiente = rampa(luce.fasce);
+function materialiAFasce(radice: THREE.Object3D, cache: Map<THREE.Material, THREE.Material>, contorni: THREE.LineSegments[]): void {
+  gradiente ??= rampa([...LUCE.fasce]);
+  radice.traverse((o) => {
+    if (o instanceof THREE.LineSegments && o.name.startsWith('contorni')) {
+      const m = o.material as THREE.LineBasicMaterial;
+      m.transparent = true;
+      m.depthWrite = false;
+      contorni.push(o);
+    }
+  });
   radice.traverse((o) => {
     const mesh = o as THREE.Mesh;
-    if (!(mesh.isMesh ?? false) || !(mesh.material instanceof THREE.MeshLambertMaterial)) return;
+    if (!(mesh.isMesh ?? false) || !(mesh.material instanceof THREE.MeshLambertMaterial) || mesh.material.userData['continuo'] === true) return;
     const m = mesh.material;
     let t = cache.get(m);
     if (t === undefined) {
-      const toon = new THREE.MeshToonMaterial({ color: m.color, map: m.map, vertexColors: m.vertexColors, side: m.side, transparent: m.transparent, opacity: m.opacity, depthWrite: m.depthWrite, gradientMap: gradiente });
+      const toon = new THREE.MeshToonMaterial({ color: m.color, map: m.map, vertexColors: m.vertexColors, side: m.side, transparent: m.transparent, opacity: m.opacity, depthWrite: m.depthWrite, gradientMap: gradiente, blending: m.blending });
       Object.assign(toon, { stencilWrite: m.stencilWrite, stencilRef: m.stencilRef, stencilFunc: m.stencilFunc, stencilFail: m.stencilFail, stencilZFail: m.stencilZFail, stencilZPass: m.stencilZPass });
       toon.polygonOffset = true;
       toon.polygonOffsetFactor = 1;
@@ -136,13 +164,13 @@ function materialiAFasce(radice: THREE.Object3D, luce: Luce, cache: Map<THREE.Ma
 }
 const RIEMPITIVO = new Set(['cespugli', 'alberi-ulivo']);
 
-export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, scelta = 'auto', aspetto = 'attuale' }: CittaOptions): CittaApi {
-  const luce = LUCI[aspetto];
+export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, scelta = 'auto' }: CittaOptions): CittaApi {
   const aFasce = new Map<THREE.Material, THREE.Material>();
+  const contorni: THREE.LineSegments[] = [];
   // Stencil: il mare segna i suoi pixel, i fondi del terreno li saltano (suolo.ts).
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, stencil: true, powerPreference: 'high-performance' });
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = luce.ombreMorbide ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   // La città è quasi ferma: la mappa d'ombra si ridisegna solo quando la vista cambia abbastanza.
   renderer.shadowMap.autoUpdate = false;
   renderer.shadowMap.needsUpdate = true;
@@ -152,15 +180,50 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
   scene.background = new THREE.Color(SFONDO);
 
   // Giornata di sole: cielo diffuso caldo e sole da sud-ovest, alto.
-  scene.add(new THREE.HemisphereLight(luce.cielo, luce.terra, luce.emisfero));
-  const sun = new THREE.DirectionalLight(luce.sole, luce.intensitaSole);
+  // Luce del sistema visivo (aspetto.ts): il tetto al sole riceve circa il colore scritto.
+  scene.add(new THREE.HemisphereLight(LUCE.cielo, LUCE.terra, LUCE.emisfero));
+  const sun = new THREE.DirectionalLight(LUCE.sole, LUCE.intensitaSole);
   sun.castShadow = true;
   sun.shadow.bias = -0.0003;
   sun.shadow.normalBias = 0.6;
   scene.add(sun, sun.target);
 
-  const citta: Citta = costruisciCitta(aspetto);
-  materialiAFasce(citta.gruppo, luce, aFasce);
+  const citta: Citta = costruisciCitta();
+  materialiAFasce(citta.gruppo, aFasce, contorni);
+  // Vita: auto, treni, barche, fumo, persone, gabbiani (vita.ts).
+  const vita = new Vita();
+  vita.impostaCamini([...citta.camini, ...Object.entries(geo.lotti).map(([id, q]) => ({ ...caminoAcciaio(q), lotto: id }))]);
+  materialiAFasce(vita.gruppo, aFasce, contorni);
+  scene.add(vita.gruppo);
+  // «Riduci animazioni» del sistema: nulla si muove (né vita, né onde, né gru e pale).
+  const riduci = typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  let tempoAnim = 0;
+  // Balconi: in rilievo solo al livello alto e da vicino, altrimenti dipinti nella facciata.
+  const balconiRilievo: THREE.Object3D[] = [];
+  let pareteBalconi: THREE.MeshToonMaterial | null = null;
+  citta.gruppo.traverse((o) => {
+    if (o.name === 'balconi' || o.name === 'contorni-balconi') balconiRilievo.push(o);
+    if (o.name === 'pareti-balconi') pareteBalconi = (o as THREE.Mesh).material as THREE.MeshToonMaterial;
+  });
+  let rilievo: boolean | null = null;
+  let opacita = -1;
+  const aggiornaContorni = (ppm: number) => {
+    const op = opacitaContorni(ppm);
+    const r = impostazioni.dettagli && regolatore.livello === 'alto' && ppm >= PPM_BALCONI;
+    if (Math.abs(op - opacita) < 0.004 && r === rilievo) return;
+    opacita = op;
+    if (r !== rilievo) {
+      rilievo = r;
+      const pb = pareteBalconi as THREE.MeshToonMaterial | null;
+      if (pb !== null) pb.map = textureFacciata(r ? 'persiane' : 'balconi');
+      shadowDirty = true;
+    }
+    for (const l of contorni) {
+      (l.material as THREE.LineBasicMaterial).opacity = op;
+      l.visible = op >= OPACITA_MINIMA_CONTORNI && (l.name !== 'contorni-balconi' || r);
+    }
+    for (const o of balconiRilievo) if (o.name === 'balconi') o.visible = r;
+  };
   scene.add(citta.gruppo);
   const cityMeshes: THREE.Mesh[] = [];
   citta.gruppo.traverse((o) => {
@@ -239,7 +302,6 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
   let impostazioni = IMPOSTAZIONI[regolatore.livello];
   let dettagliVisibili = true;
   let riempitivoVisibile = true;
-  let contorniVisibili = true;
   const applicaLivello = (livello: Livello) => {
     const prima = impostazioni;
     impostazioni = IMPOSTAZIONI[livello];
@@ -256,12 +318,12 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
       });
     }
     aggiornaVisibilita();
+    rilievo = null;
     shadowDirty = true;
   };
   const aggiornaVisibilita = () => {
     scene.traverse((o) => {
-      if (DETTAGLI.has(o.name)) o.visible = impostazioni.dettagli && dettagliVisibili;
-      else if (CONTORNI.has(o.name)) o.visible = contorniVisibili;
+      if (DETTAGLI.has(o.name)) o.visible = impostazioni.dettagli && dettagliVisibili && (regolatore.livello === 'alto' || !SOLO_ALTO.has(o.name));
       else if (RIEMPITIVO.has(o.name)) o.visible = impostazioni.riempitivo && riempitivoVisibile;
       else if (o instanceof THREE.InstancedMesh && o.name.startsWith('alberi-')) {
         const soglie = o.userData['soglie'] as number[] | undefined;
@@ -379,7 +441,6 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
   const intervals: number[] = [];
   let raf = 0;
   let last = performance.now();
-  let tempo = 0;
   let frame = 0;
   const loop = () => {
     raf = requestAnimationFrame(loop);
@@ -387,28 +448,30 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
     const ms = now - last;
     last = now;
     const dt = Math.min(0.1, ms / 1000);
-    tempo += dt;
     frame += 1;
     vista.aggiorna(dt);
     vista.applica(camera);
     // Sotto un certo ingrandimento gli oggetti piccoli non si vedono: si spengono.
     const vis = vista.ora.ppm >= PPM_DETTAGLI;
     const riemp = vista.ora.ppm >= PPM_RIEMPITIVO;
-    const cont = vista.ora.ppm >= PPM_CONTORNI;
-    if (vis !== dettagliVisibili || riemp !== riempitivoVisibile || cont !== contorniVisibili) {
+    if (vis !== dettagliVisibili || riemp !== riempitivoVisibile) {
       dettagliVisibili = vis;
       riempitivoVisibile = riemp;
-      contorniVisibili = cont;
       aggiornaVisibilita();
     }
+    aggiornaContorni(vista.ora.ppm);
+    const dtAnim = riduci?.matches === true ? 0 : dt;
+    tempoAnim += dtAnim;
+    vita.impostaVista(regolatore.livello, vista.ora.ppm);
+    vita.aggiorna(tempoAnim, dtAnim);
     let moving = false;
     for (const [key, list] of Object.entries(animati)) {
       const [id, look] = key.split(':');
       if (lotGroups[id!]?.current !== look) continue;
-      for (const a of list) a.update(tempo);
+      for (const a of list) a.update(tempoAnim);
       moving = moving || list.length > 0;
     }
-    if (impostazioni.onde) citta.onde.offset.set((tempo * 0.012) % 1, (tempo * 0.007) % 1);
+    if (impostazioni.onde) citta.onde.offset.set((tempoAnim * 0.012) % 1, (tempoAnim * 0.007) % 1);
     if (impostazioni.ombre) {
       fitShadow();
       // Con parti in movimento (pale, gru, fumo) le ombre si aggiornano ogni 12 immagini.
@@ -418,7 +481,7 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
       const p = project(l.point);
       l.el.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -50%)`;
     }
-    if (highlight !== null) highlightMaterial.opacity = 0.7 + 0.3 * Math.sin(tempo * 3);
+    if (highlight !== null) highlightMaterial.opacity = 0.7 + 0.3 * Math.sin(tempoAnim * 3);
     renderer.render(scene, camera);
     frameTimes.push(now);
     while (frameTimes.length > 0 && now - frameTimes[0]! > 2000) frameTimes.shift();
@@ -443,7 +506,8 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
         if (group === undefined) {
           const aspetto = costruisciAspetto(id, geo.lotti[id]!, look);
           group = aspetto.gruppo;
-          materialiAFasce(group, luce, aFasce);
+          materialiAFasce(group, aFasce, contorni);
+          opacita = -1;
           animati[`${id}:${look}`] = aspetto.animati;
           entry.looks[look] = group;
           entry.root.add(group);
@@ -453,6 +517,95 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
       }
       aggiornaVisibilita();
       shadowDirty = true;
+    },
+    mostraCatalogo() {
+      const centro = { x: -3600, y: -1600 };
+      if (scene.getObjectByName('foglio-varianti') !== undefined) return centro;
+      const gruppo = new THREE.Group();
+      gruppo.name = 'foglio-varianti';
+      const c = new CostruttoreEdifici();
+      const misure: Record<TipoEdificio, [number, number]> = {
+        palazzina: [26, 14], casa: [11, 8], 'citta-vecchia': [10, 9], centro: [24, 16], pubblico: [40, 20],
+        chiesa: [30, 13], negozio: [16, 10], capannone: [50, 24], impianto: [22, 16], basso: [9, 6],
+      };
+      const piastra = new Geo3();
+      piastra.flat([[centro.x - 480, centro.y - 130], [centro.x + 480, centro.y - 130], [centro.x + 480, centro.y + 130], [centro.x - 480, centro.y + 130]], 0, colore('#ece4d4'));
+      TIPI.forEach((tipo, n) => {
+        // Tre identificativi con varianti diverse (firma o colore), cercati in ordine: ripetibile.
+        const scelti: number[] = [];
+        const viste = new Set<string>();
+        for (let id = 1; scelti.length < 3 && id < 5000; id++) {
+          const [w, d] = misure[tipo];
+          const v = variante({ id, p: [[0, 0], [w, 0], [w, d], [0, d]], k: 'altro' }, tipo, true);
+          const firma = `${firmaVariante(v)}|${scelti.length === 2 ? '' : v.parete}`;
+          if (viste.has(firma)) continue;
+          viste.add(firma);
+          scelti.push(id);
+        }
+        const col = n % 5;
+        const riga = Math.floor(n / 5);
+        scelti.forEach((id, k) => {
+          const [w, d] = misure[tipo];
+          const x = centro.x - 400 + col * 190 + k * 60;
+          const y = centro.y + 60 - riga * 120;
+          c.aggiungi({ id, p: [[x - w / 2, y - d / 2], [x + w / 2, y - d / 2], [x + w / 2, y + d / 2], [x - w / 2, y + d / 2]], k: 'altro' }, tipo);
+        });
+      });
+      gruppo.add(new THREE.Mesh(piastra.build(), new THREE.MeshLambertMaterial({ vertexColors: true })));
+      for (const m of c.meshes()) gruppo.add(m);
+      materialiAFasce(gruppo, aFasce, contorni);
+      opacita = -1;
+      rilievo = null;
+      scene.add(gruppo);
+      shadowDirty = true;
+      return centro;
+    },
+    campioneColori(colori) {
+      aggiornaContorni(vista.ora.ppm);
+      const gruppo = new THREE.Group();
+      const quota = 150;
+      // Rettangoli larghi il 70% dello spazio tra uno e l'altro: nessuna sovrapposizione.
+      const lato = ((0.7 * vista.w) / Math.max(1, colori.length) / Math.max(0.3, vista.ora.ppm)) * 0.7;
+      const punti = colori.map((hex, i) => {
+        const sx = vista.w * (0.15 + (0.7 * (i + 0.5)) / colori.length);
+        const p = vista.aTerra(sx, vista.h * 0.6);
+        const g = new Geo3();
+        g.flat([[p[0] - lato / 2, p[1] - lato / 2], [p[0] + lato / 2, p[1] - lato / 2], [p[0] + lato / 2, p[1] + lato / 2], [p[0] - lato / 2, p[1] + lato / 2]], quota, colore('#ffffff'));
+        gruppo.add(new THREE.Mesh(g.build(), new THREE.MeshLambertMaterial({ color: hex, vertexColors: true })));
+        return new THREE.Vector3(p[0], quota, -p[1]);
+      });
+      materialiAFasce(gruppo, new Map(), []);
+      scene.add(gruppo);
+      vista.applica(camera);
+      renderer.render(scene, camera);
+      const gl = renderer.getContext();
+      const k = gl.drawingBufferWidth / Math.max(1, canvas.clientWidth);
+      const px = new Uint8Array(4);
+      const out = colori.map((hex, i) => {
+        const s = project(punti[i]!);
+        gl.readPixels(Math.round(s.x * k), gl.drawingBufferHeight - Math.round(s.y * k), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+        return { atteso: hex, letto: [px[0]!, px[1]!, px[2]!] as [number, number, number] };
+      });
+      scene.remove(gruppo);
+      gruppo.traverse((o) => (o as THREE.Mesh).geometry?.dispose());
+      return out;
+    },
+    nascondi(prefissi) {
+      let n = 0;
+      scene.traverse((o) => {
+        if (prefissi.some((p) => o.name.startsWith(p))) {
+          o.visible = false;
+          o.layers.set(31);
+          n += 1;
+        }
+      });
+      return n;
+    },
+    setVita(stato) {
+      vita.impostaStato(stato);
+    },
+    movimento() {
+      return { accesi: vita.accesi(), fermi: riduci?.matches === true };
     },
     setLayer(layer) {
       const tint = DISTRICTS_ON_MODEL.map((id) => (layer === null ? null : new THREE.Color(layer.values[id].color)));
@@ -572,6 +725,7 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
       return regolatore.livello;
     },
     info() {
+      aggiornaContorni(vista.ora.ppm);
       renderer.render(scene, camera);
       return {
         ordini: renderer.info.render.calls,
@@ -590,6 +744,7 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
       intervals.length = 0;
     },
     angoli() {
+      aggiornaContorni(vista.ora.ppm);
       vista.applica(camera);
       renderer.render(scene, camera);
       const gl = renderer.getContext();
@@ -609,6 +764,23 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
         const diff = Math.abs(px[0]! - ref[0]!) + Math.abs(px[1]! - ref[1]!) + Math.abs(px[2]! - ref[2]!);
         return diff > 6;
       });
+    },
+    luminosita(x0, y0, x1, y1) {
+      aggiornaContorni(vista.ora.ppm);
+      vista.applica(camera);
+      renderer.render(scene, camera);
+      const gl = renderer.getContext();
+      const k = gl.drawingBufferWidth / Math.max(1, canvas.clientWidth);
+      const h = gl.drawingBufferHeight;
+      const ax = Math.round(x0 * k);
+      const w = Math.max(1, Math.round((x1 - x0) * k));
+      const hh = Math.max(1, Math.round((y1 - y0) * k));
+      const ay = h - Math.round(y0 * k) - hh;
+      const px = new Uint8Array(w * hh * 4);
+      gl.readPixels(ax, ay, w, hh, gl.RGBA, gl.UNSIGNED_BYTE, px);
+      let somma = 0;
+      for (let i = 0; i < px.length; i += 4) somma += 0.2126 * px[i]! + 0.7152 * px[i + 1]! + 0.0722 * px[i + 2]!;
+      return somma / (w * hh);
     },
     camera() {
       const d = direzioneCamera(vista.ora.azimut);

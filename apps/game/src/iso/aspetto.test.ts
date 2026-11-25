@@ -1,14 +1,13 @@
 /**
- * Prove del campione dell'aspetto nuovo (T12c, fase A): le due varianti si
- * costruiscono con gli edifici nuovi solo nel campione, la tavolozza si applica e
- * si ritira, i contorni ci sono solo nella variante illustrata, le ombre di
- * contatto solo nella predisegnata, lo stesso edificio ha lo stesso aspetto a
- * ogni avvio, il mare (con la fascia sotto costa) guarda verso l'alto.
+ * Prove dell'aspetto illustrato (T12c, fase B): una sola città, con i contorni che
+ * si alleggeriscono con la distanza senza scatti, i balconi in rilievo a parte, la
+ * fascia chiara sotto costa rivolta in alto e lo stesso aspetto a ogni avvio.
  */
 import * as THREE from 'three';
-import { afterAll, describe, expect, it } from 'vitest';
-import { CAMPIONE, COLORI_NUOVI, LUCI, aspettoDa, nelCampione } from './aspetto.js';
-import { applicaTavolozza, costruisciCitta, type Citta } from './citta.js';
+import { describe, expect, it } from 'vitest';
+import { CONTORNO_PIENO, PPM_CONTORNI_A, PPM_CONTORNI_DA, TAVOLOZZA, opacitaContorni } from './aspetto.js';
+import { costruisciCitta, type Citta } from './citta.js';
+import { geo, pointInPolygon } from '../plastico/data.js';
 import { COLORI } from './suolo.js';
 
 const cerca = (c: Citta, nome: string): THREE.Object3D[] => {
@@ -19,109 +18,124 @@ const cerca = (c: Citta, nome: string): THREE.Object3D[] => {
   return out;
 };
 
-const illustrata = costruisciCitta('illustrata');
-const predisegnata = costruisciCitta('predisegnata');
-const attuale = costruisciCitta('attuale');
+const citta = costruisciCitta();
 
-afterAll(() => {
-  applicaTavolozza('attuale');
-});
+describe('contorni che si alleggeriscono con la distanza', () => {
+  it('da lontano spariscono, da vicino sono pieni, in mezzo salgono senza scatti', () => {
+    expect(opacitaContorni(0.3)).toBe(0);
+    expect(opacitaContorni(PPM_CONTORNI_DA)).toBe(0);
+    expect(opacitaContorni(PPM_CONTORNI_A)).toBeCloseTo(CONTORNO_PIENO);
+    expect(opacitaContorni(8)).toBeCloseTo(CONTORNO_PIENO);
+    let prima = 0;
+    for (let ppm = 0.3; ppm <= 8; ppm += 0.01) {
+      const o = opacitaContorni(ppm);
+      expect(o).toBeGreaterThanOrEqual(prima - 1e-12);
+      // Nessun gradino: tra due ingrandimenti vicini l'opacità cambia di poco.
+      expect(Math.abs(o - prima)).toBeLessThan(0.01);
+      prima = o;
+    }
+  });
 
-describe('aspetto dalla pagina', () => {
-  it("si sceglie con ?aspetto=, altrimenti resta quello di T12", () => {
-    expect(aspettoDa('')).toBe('attuale');
-    expect(aspettoDa('?seme=3')).toBe('attuale');
-    expect(aspettoDa('?aspetto=1')).toBe('illustrata');
-    expect(aspettoDa('?seme=3&aspetto=predisegnata')).toBe('predisegnata');
-    expect(aspettoDa('?aspetto=boh')).toBe('attuale');
+  it('la città ha i contorni degli edifici, dei balconi e dello stabilimento', () => {
+    for (const nome of ['contorni', 'contorni-balconi', 'contorni-impianti']) {
+      const l = cerca(citta, nome)[0] as THREE.LineSegments | undefined;
+      expect(l, nome).toBeDefined();
+      expect(l!.geometry.getAttribute('position').count, nome).toBeGreaterThan(1000);
+    }
   });
 });
 
-describe('campione nelle due varianti', () => {
-  it('gli edifici nuovi ci sono nel campione e solo lì; com\'è oggi non ne ha', () => {
-    expect(illustrata.nuovi).toBeGreaterThan(300);
-    expect(predisegnata.nuovi).toBe(illustrata.nuovi);
-    expect(attuale.nuovi).toBe(0);
-    // Le parti nuove (balconi, cornicioni, tende) stanno dentro il riquadro del campione, più la misura degli edifici grandi che lo toccano.
-    const parti = cerca(illustrata, 'parti')[0] as THREE.Mesh;
-    const box = new THREE.Box3().setFromBufferAttribute(parti.geometry.getAttribute('position') as THREE.BufferAttribute);
-    expect(box.min.x).toBeGreaterThan(CAMPIONE.minX - 250);
-    expect(box.max.x).toBeLessThan(CAMPIONE.maxX + 250);
-    expect(-box.max.z).toBeGreaterThan(CAMPIONE.minY - 250);
-    expect(-box.min.z).toBeLessThan(CAMPIONE.maxY + 250);
-    expect(cerca(attuale, 'parti')).toHaveLength(0);
-    expect(nelCampione(1700, -150)).toBe(true);
-    expect(nelCampione(3500, -2400)).toBe(false);
+describe('una sola città', () => {
+  it('niente più varianti: nessuna ombra di contatto, la tavolozza nuova in uso', () => {
+    expect(cerca(citta, 'ombre-contatto')).toHaveLength(0);
+    expect(COLORI.mare).toBe('#1f66b0');
+    expect(COLORI.bassoFondale).toBe('#46b3cf');
   });
 
-  it('variante 1: contorni scuri sugli spigoli, nessuna ombra di contatto', () => {
-    expect(LUCI.illustrata.fasce.length).toBeGreaterThanOrEqual(2);
-    expect(LUCI.illustrata.fasce.length).toBeLessThanOrEqual(4);
-    const contorni = cerca(illustrata, 'contorni')[0] as THREE.LineSegments | undefined;
-    expect(contorni).toBeDefined();
-    expect(contorni!.geometry.getAttribute('position').count).toBeGreaterThan(20_000);
-    expect(cerca(illustrata, 'contorni-impianti')).toHaveLength(1);
-    expect(cerca(illustrata, 'ombre-contatto')).toHaveLength(0);
-  });
-
-  it('variante 2: ombre di contatto, nessun contorno', () => {
-    expect(cerca(predisegnata, 'ombre-contatto')).toHaveLength(1);
-    expect(cerca(predisegnata, 'contorni')).toHaveLength(0);
-    expect(cerca(predisegnata, 'contorni-impianti')).toHaveLength(0);
-    expect(LUCI.predisegnata.ombreMorbide).toBe(true);
-  });
-
-  it('com\'è oggi resta com\'era: niente contorni, niente ombre di contatto, niente parabole', () => {
-    for (const nome of ['contorni', 'contorni-impianti', 'ombre-contatto', 'parabole', 'parti']) expect(cerca(attuale, nome)).toHaveLength(0);
-  });
-
-  it('nel campione ci sono almeno sei tipi di edificio', () => {
-    // I conteggi includono tutta la zona; i tipi del campione si contano a parte nel catalogo.
-    const tipi = Object.entries(illustrata.conteggio).filter(([, n]) => n > 0);
-    expect(tipi.length).toBeGreaterThanOrEqual(6);
+  it('i balconi in rilievo stanno in una geometria a parte, leggera', () => {
+    const b = cerca(citta, 'balconi')[0] as THREE.Mesh;
+    expect(b).toBeDefined();
+    const triangoli = b.geometry.getAttribute('position').count / 3;
+    expect(triangoli).toBeGreaterThan(20_000);
+    expect(triangoli).toBeLessThan(150_000);
+    // Le palazzine hanno la facciata con i balconi dipinti (livello medio e da lontano).
+    expect(cerca(citta, 'pareti-balconi')).toHaveLength(1);
   });
 
   it('stesso edificio, stesso aspetto a ogni avvio', () => {
-    // Due costruzioni separate (le varianti cambiano luce e contorni, non le parti): stesse posizioni e stessi colori.
-    const a = (cerca(illustrata, 'parti')[0] as THREE.Mesh).geometry;
-    const b = (cerca(predisegnata, 'parti')[0] as THREE.Mesh).geometry;
-    const diversi = (x: ArrayLike<number>, y: ArrayLike<number>) => {
-      if (x.length !== y.length) return -1;
-      let n = 0;
-      for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) n += 1;
-      return n;
-    };
-    expect(a.getAttribute('position').count).toBeGreaterThan(100_000);
-    expect(diversi(a.getAttribute('position').array, b.getAttribute('position').array)).toBe(0);
-    expect(diversi(a.getAttribute('color').array, b.getAttribute('color').array)).toBe(0);
-  });
-
-  it('la tavolozza nuova si applica e si ritira', () => {
-    applicaTavolozza('predisegnata');
-    expect(COLORI.mare).toBe(COLORI_NUOVI.mare);
-    expect(COLORI.bassoFondale).toBe(COLORI_NUOVI.bassoFondale);
-    applicaTavolozza('attuale');
-    expect(COLORI.mare).toBe('#2f83c4');
-    expect(COLORI.bassoFondale).toBe('');
-  });
-
-  it("il mare, con la fascia chiara sotto costa, guarda tutto verso l'alto", () => {
-    const mare = cerca(illustrata, 'mare')[0] as THREE.Mesh;
-    const pos = mare.geometry.getAttribute('position');
-    const a = new THREE.Vector3();
-    const b = new THREE.Vector3();
-    const c = new THREE.Vector3();
-    let giu = 0;
-    for (let i = 0; i < pos.count; i += 3) {
-      a.fromBufferAttribute(pos, i);
-      b.fromBufferAttribute(pos, i + 1);
-      c.fromBufferAttribute(pos, i + 2);
-      const n = b.clone().sub(a).cross(c.clone().sub(a));
-      if (n.y < -1e-6) giu += 1;
+    const ancora = costruisciCitta();
+    for (const nome of ['balconi', 'tetti']) {
+      const a = (cerca(citta, nome)[0] as THREE.Mesh).geometry;
+      const b = (cerca(ancora, nome)[0] as THREE.Mesh).geometry;
+      const pa = a.getAttribute('position').array;
+      const pb = b.getAttribute('position').array;
+      const ca = a.getAttribute('color').array;
+      const cb = b.getAttribute('color').array;
+      expect(pb.length, nome).toBe(pa.length);
+      let diversi = 0;
+      for (let i = 0; i < pa.length; i++) if (pa[i] !== pb[i] || ca[i] !== cb[i]) diversi += 1;
+      expect(diversi, nome).toBe(0);
     }
-    expect(giu).toBe(0);
-    // La fascia aggiunge triangoli rispetto al mare di T12.
-    const mareOggi = cerca(attuale, 'mare')[0] as THREE.Mesh;
-    expect(pos.count).toBeGreaterThan(mareOggi.geometry.getAttribute('position').count);
+  });
+
+  it("il mare e la fascia sotto costa guardano tutti verso l'alto", () => {
+    for (const nome of ['mare', 'basso-fondale']) {
+      const m = cerca(citta, nome)[0] as THREE.Mesh;
+      const pos = m.geometry.getAttribute('position');
+      const a = new THREE.Vector3();
+      const b = new THREE.Vector3();
+      const c = new THREE.Vector3();
+      let giu = 0;
+      for (let i = 0; i < pos.count; i += 3) {
+        a.fromBufferAttribute(pos, i);
+        b.fromBufferAttribute(pos, i + 1);
+        c.fromBufferAttribute(pos, i + 2);
+        if (b.clone().sub(a).cross(c.clone().sub(a)).y < -1e-6) giu += 1;
+      }
+      expect(pos.count, nome).toBeGreaterThan(300);
+      expect(giu, nome).toBe(0);
+    }
+  });
+
+  it('la fascia sotto costa va verso il mare, non sulla terra', () => {
+    const f = cerca(citta, 'basso-fondale')[0] as THREE.Mesh;
+    const pos = f.geometry.getAttribute('position');
+    const col = f.geometry.getAttribute('color');
+    const chiaro = new THREE.Color(COLORI.bassoFondale);
+    const acqua = (x: number, y: number) => geo.acqua.some((w) => pointInPolygon([x, y], w));
+    let n = 0;
+    let versoMare = 0;
+    let versoTerra = 0;
+    // Un triangolo su dieci: il primo vertice sta a riva; quello del colore del mare sta a 40 m.
+    // Il punto lontano deve cadere in acqua molto più spesso del suo speculare verso terra
+    // (nei canali stretti la fascia sconfina, e lì il suolo la copre).
+    for (let i = 0; i < pos.count; i += 30) {
+      const rx = pos.getX(i);
+      const ry = -pos.getZ(i);
+      for (let k = i + 1; k < i + 3 && k < pos.count; k++) {
+        if (Math.abs(col.getX(k) - chiaro.r) < 1e-3) continue;
+        // A 10 m dalla riva (un quarto della fascia): i canali stretti contano poco.
+        const ox = rx + (pos.getX(k) - rx) * 0.25;
+        const oy = ry + (-pos.getZ(k) - ry) * 0.25;
+        n += 1;
+        if (acqua(ox, oy)) versoMare += 1;
+        if (acqua(2 * rx - ox, 2 * ry - oy)) versoTerra += 1;
+        break;
+      }
+    }
+    expect(n).toBeGreaterThan(100);
+    expect(versoMare / n).toBeGreaterThan(0.5);
+    expect(versoMare).toBeGreaterThan(versoTerra * 2.5);
+  });
+
+  it('la fascia sotto costa non scrive lo stencil: dove sconfina sulla terra, il suolo la copre', () => {
+    const f = cerca(citta, 'basso-fondale')[0] as THREE.Mesh;
+    expect((f.material as THREE.Material).stencilWrite).toBe(false);
+  });
+
+  it('i colori della tavolozza sono validi e distinti', () => {
+    const tutti = [...TAVOLOZZA.intonaci, ...TAVOLOZZA.coppi, ...TAVOLOZZA.lamiere];
+    for (const c of tutti) expect(c).toMatch(/^#[0-9a-f]{6}$/);
+    expect(new Set(tutti).size).toBe(tutti.length);
   });
 });

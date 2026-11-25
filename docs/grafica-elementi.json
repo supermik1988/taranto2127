@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "art_direction_brief": "docs/GRAFICA.md#città-isometrica-t12-brief-di-direzione-artistica",
-  "note": "Elenco degli elementi grafici della città isometrica (T12), sul modello della skill create-game-assets. Tutti generati dal codice: nessun file esterno, nessuna immagine di altri giochi né dei riferimenti di Michele. Gli elementi del provino sono approvati (fase A); quelli nuovi o cambiati nella fase B aspettano l'approvazione di Michele. Gli elementi «campione-» sono del campione di T12c (fase A) e aspettano la scelta della variante da parte di Michele.",
+  "note": "Elenco degli elementi grafici della città isometrica (T12), sul modello della skill create-game-assets. Tutti generati dal codice: nessun file esterno, nessuna immagine di altri giochi né dei riferimenti di Michele. Gli elementi del provino sono approvati (fase A); quelli nuovi o cambiati nella fase B aspettano l'approvazione di Michele. T12c: gli elementi «campione-» sono stati approvati con la variante 1 «illustrata» (fase A) ed estesi a tutta la zona; quelli della variante 2 sono stati tolti; gli elementi nuovi della fase B aspettano l'approvazione dell'aspetto finale.",
   "assets": [
     {
       "id": "edificio-palazzina",
@@ -1826,7 +1826,7 @@
       "id": "campione-edificio-palazzina",
       "role": "Palazzina a parti (T12c): corpo con persiane, balconi a ogni piano con ringhiera, panni stesi, cornicione sporgente, terrazza con parapetto di calce, negozi con tende al piano terra in 4 casi su 10",
       "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -1852,15 +1852,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-tamburi-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-edificio-casa",
       "role": "Casa bassa a parti (T12c): intonaco chiaro, terrazzo in cotto con parapetto e pergolato, oppure tetto a falde in coppi",
       "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -1886,15 +1886,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-vicino-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-edificio-pubblico",
       "role": "Edificio pubblico a parti (T12c): finestre a nastro, cornicione di 0,6 m o tetto in coppi",
       "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -1920,15 +1920,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-insieme-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-edificio-negozi",
       "role": "Negozi a parti (T12c): vetrine, tende a righe di colore pieno, cornicione",
       "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -1954,15 +1954,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-vicino-predisegnata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-edificio-capannone",
       "role": "Capannone a parti (T12c): lamiera grecata a colori pieni, gronda colorata, tetto a falde con lucernari",
       "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -1988,15 +1988,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-stabilimento-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-edificio-impianto",
       "role": "Impianto (T12c): volume di cemento chiaro, ciminiera bianca con la fascia rossa",
       "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2022,15 +2022,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-stabilimento-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-edificio-basso",
       "role": "Garage e annessi (T12c): muro chiaro, tetto piano con parapetto basso",
       "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2056,15 +2056,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-vicino-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-parte-balconi",
       "role": "Balconi: soletta di 1,3 m e ringhiera alta 1 m in tre colori, sui quattro lati più lunghi",
       "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2090,15 +2090,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-vicino-predisegnata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-parte-panni",
       "role": "Panni stesi: tre rettangoli di colore pieno sotto la ringhiera, su un balcone su tre",
       "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2124,15 +2124,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-vicino-predisegnata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-parte-tende",
       "role": "Tende da sole a righe dei negozi, inclinate, sui due lati più lunghi",
       "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2158,15 +2158,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-vicino-predisegnata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-parte-cornicione",
       "role": "Cornicione sporgente con parapetto di calce",
       "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2192,15 +2192,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-vicino-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-parte-pergolato",
       "role": "Pergolato di legno con il verde sui terrazzi delle case basse",
       "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2226,15 +2226,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-vicino-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-tetto-parabole",
       "role": "Parabole bianche sui tetti piani (ripetute in blocco)",
       "path": "apps/game/src/iso/edifici.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2260,15 +2260,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-vicino-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-contorni",
-      "role": "Contorni scuri sottili #2b2530 sugli spigoli (variante illustrata), spenti sotto 0,9 px/m",
+      "role": "Contorni scuri sottili #2b2530 sugli spigoli, spenti sotto 0,9 px/m",
       "path": "apps/game/src/iso/geo3.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2294,15 +2294,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-tamburi-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-luce-fasce",
-      "role": "Luce a tre fasce nette (0,30 / 0,62 / 1,0) con MeshToonMaterial (variante illustrata)",
+      "role": "Luce a tre fasce nette (0,30 / 0,62 / 1,0) con MeshToonMaterial",
       "path": "apps/game/src/iso/scena.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2328,49 +2328,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-tamburi-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
-      }
-    },
-    {
-      "id": "campione-ombre-contatto",
-      "role": "Ombre di contatto: piede dei muri scurito e fascia scura sul suolo attorno agli edifici (variante predisegnata)",
-      "path": "apps/game/src/iso/catalogo.ts",
-      "status": "campione",
-      "technical": {
-        "geometria": "dal codice, raggruppata per materiale",
-        "colore": "per vertice, sRGB",
-        "varianti": "hash01(identificativo)"
-      },
-      "visual_locks": [
-        "tavolozza",
-        "angolo della vista",
-        "direzione della luce",
-        "scala reale"
-      ],
-      "source": {
-        "kind": "generato dal codice",
-        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
-        "creator": "TARANTO2127 (codice del progetto)",
-        "created_at": "2026-11-24",
-        "license": "AGPL-3.0-only (come il codice)",
-        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
-      },
-      "verification": {
-        "native_scale_reviewed": true,
-        "in_engine_reviewed": true,
-        "technical_checks_passed": true,
-        "review_capture": "docs/schermate/campione-vicino-predisegnata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-texture-facciate-piatte",
-      "role": "Facciate a colori pieni e piatti (variante illustrata)",
+      "role": "Facciate a colori pieni e piatti",
       "path": "apps/game/src/iso/texture.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2396,49 +2362,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-vicino-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
-      }
-    },
-    {
-      "id": "campione-texture-facciate-ricche",
-      "role": "Facciate con molto dettaglio dipinto: persiane a stecche, davanzali, vasi, condizionatori, insegne senza scritte, umidità alla base (variante predisegnata)",
-      "path": "apps/game/src/iso/texture.ts",
-      "status": "campione",
-      "technical": {
-        "geometria": "dal codice, raggruppata per materiale",
-        "colore": "per vertice, sRGB",
-        "varianti": "hash01(identificativo)"
-      },
-      "visual_locks": [
-        "tavolozza",
-        "angolo della vista",
-        "direzione della luce",
-        "scala reale"
-      ],
-      "source": {
-        "kind": "generato dal codice",
-        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
-        "creator": "TARANTO2127 (codice del progetto)",
-        "created_at": "2026-11-24",
-        "license": "AGPL-3.0-only (come il codice)",
-        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
-        "prompt_or_source_record": "Scritto nel codice (T12c, fase A). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
-      },
-      "verification": {
-        "native_scale_reviewed": true,
-        "in_engine_reviewed": true,
-        "technical_checks_passed": true,
-        "review_capture": "docs/schermate/campione-vicino-predisegnata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-mare-basso-fondale",
       "role": "Fascia chiara #46b3cf sotto costa che sfuma nel mare in 40 m",
       "path": "apps/game/src/iso/suolo.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2464,15 +2396,15 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-costa-illustrata-1280.png",
-        "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
       }
     },
     {
       "id": "campione-tavolozza",
       "role": "Tavolozza nuova con i ruoli: intonaci caldi, verde vivo, mare profondo, cortili e piazze in pietra chiara, asfalto grigio blu",
       "path": "apps/game/src/iso/aspetto.ts",
-      "status": "campione",
+      "status": "approvato",
       "technical": {
         "geometria": "dal codice, raggruppata per materiale",
         "colore": "per vertice, sRGB",
@@ -2498,8 +2430,484 @@
         "in_engine_reviewed": true,
         "technical_checks_passed": true,
         "review_capture": "docs/schermate/campione-insieme-illustrata-1280.png",
+        "approved_by": "Michele",
+        "approval": "approvato da Michele nella fase A di T12c (variante 1 «illustrata», 24 novembre 2026), esteso a tutta la zona nella fase B"
+      }
+    },
+    {
+      "id": "edificio-chiesa",
+      "role": "Chiesa (T12c): navata con tetto in coppi, finestre ad arco dipinte, campanile con cuspide o cupola su tamburo",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/foglio-varianti-vicino-1-1280.png",
         "approved_by": "",
-        "approval": "in attesa di Michele (T12c, fase A: scelta della variante)"
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "edificio-centro",
+      "role": "Palazzo del centro (Borgo, T12c): zoccolo bugnato, marcapiano, finestre con timpano dipinto, cornicione 0,7-1,1 m, balconcini",
+      "path": "apps/game/src/iso/catalogo.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/foglio-varianti-vicino-1-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "texture-facciata-centro",
+      "role": "Facciata del centro: finestre alte con cornice, timpano e persiane azzurre",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/foglio-varianti-vicino-1-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "texture-facciata-chiesa",
+      "role": "Facciata della chiesa: finestre alte ad arco",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/foglio-varianti-vicino-1-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "texture-facciata-balconi-dipinti",
+      "role": "Balconi dipinti nella facciata (livello medio e da lontano): portafinestra, soletta, ringhiera",
+      "path": "apps/game/src/iso/texture.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/dopo-strade-o1-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "contorni-distanza",
+      "role": "Contorni che si alleggeriscono con la distanza: opacità continua da 0 a 0,9 tra 0,8 e 3 px/m",
+      "path": "apps/game/src/iso/aspetto.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/dopo-insieme-o1-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "mare-diffuso",
+      "role": "Mare a luce diffusa con la mappa delle onde, senza riflesso speculare: uguale nei quattro orientamenti",
+      "path": "apps/game/src/iso/suolo.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/dopo-mare-o1-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "lotto-lavori-celle",
+      "role": "Cantiere su tutta l'area del lotto: scavi, cumuli, baracche, mezzi, cataste, recinti, in celle di circa 110 m",
+      "path": "apps/game/src/iso/lotti.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/dopo-lotto-lavori-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "vita-auto",
+      "role": "Auto in movimento sulle strade principali (ripetute in blocco), quante la popolazione del motore",
+      "path": "apps/game/src/iso/vita.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/dopo-strade-o1-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "vita-treni",
+      "role": "Treni di sette vagoni sui binari più lunghi",
+      "path": "apps/game/src/iso/vita.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/dopo-stabilimento-o1-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "vita-barche",
+      "role": "Barche che escono dai moli e tornano, secondo le attività del mare e della cultura",
+      "path": "apps/game/src/iso/vita.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/dopo-mare-o1-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "vita-fumo",
+      "role": "Fumo dalle ciminiere, quanto producono gli impianti del lotto (nulla se il lotto è fermo)",
+      "path": "apps/game/src/iso/vita.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/dopo-lotto-acciaio-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "vita-persone",
+      "role": "Persone nelle piazze, su piccoli giri (livello alto, da vicino)",
+      "path": "apps/game/src/iso/vita.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/dopo-mare-o1-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
+      }
+    },
+    {
+      "id": "vita-gabbiani",
+      "role": "Gabbiani in cerchio sul mare vicino ai moli",
+      "path": "apps/game/src/iso/vita.ts",
+      "status": "nuovo",
+      "technical": {
+        "geometria": "dal codice, raggruppata per materiale o ripetuta in blocco",
+        "colore": "per vertice o per istanza, sRGB",
+        "varianti": "hash01(identificativo)"
+      },
+      "visual_locks": [
+        "tavolozza",
+        "angolo della vista",
+        "direzione della luce",
+        "scala reale"
+      ],
+      "source": {
+        "kind": "generato dal codice",
+        "url_or_tool": "three.js 0.169.0 (MIT) e Canvas 2D del browser",
+        "creator": "TARANTO2127 (codice del progetto)",
+        "created_at": "2026-11-25",
+        "license": "AGPL-3.0-only (come il codice)",
+        "attribution": "Sagome e posizioni: © OpenStreetMap contributors, ODbL (vedi docs/FONTI.md)",
+        "prompt_or_source_record": "Scritto nel codice (T12c, fase B). Nessuna immagine esterna, nessun servizio di generazione, nulla da altri giochi né dai riferimenti di Michele."
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "review_capture": "docs/schermate/dopo-mare-o1-1280.png",
+        "approved_by": "",
+        "approval": "in attesa di Michele (T12c, fase B: aspetto finale prima dell'unione)"
       }
     }
   ]

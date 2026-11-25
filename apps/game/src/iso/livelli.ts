@@ -44,8 +44,8 @@ export interface Impostazioni {
 
 export const IMPOSTAZIONI: Record<Livello, Impostazioni> = {
   alto: { pixel: 1.5, ombre: true, mappaOmbre: 4096, dettagli: true, riempitivo: true, alberiParchi: true, onde: true },
-  medio: { pixel: 1.1, ombre: true, mappaOmbre: 2048, dettagli: true, riempitivo: false, alberiParchi: true, onde: true },
-  basso: { pixel: 1, ombre: false, mappaOmbre: 1024, dettagli: false, riempitivo: false, alberiParchi: false, onde: false },
+  medio: { pixel: 1, ombre: true, mappaOmbre: 2048, dettagli: true, riempitivo: false, alberiParchi: true, onde: true },
+  basso: { pixel: 0.9, ombre: false, mappaOmbre: 1024, dettagli: false, riempitivo: false, alberiParchi: false, onde: false },
 };
 
 /** 95° percentile di una lista di tempi. */
