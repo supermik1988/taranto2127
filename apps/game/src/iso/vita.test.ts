@@ -9,7 +9,7 @@ import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { act, closeYear, content, newGame } from '../engine.js';
 import { lotLook } from '../plastico/looks.js';
-import { Vita, vitaDaStato } from './vita.js';
+import { ADDETTI_PER_LOTTO, Vita, vitaDaStato } from './vita.js';
 
 /** Partita da copione: l'altoforno torna all'acciaio, il resto come in plastico.test.ts. */
 function partita(): GameState[] {
@@ -39,6 +39,22 @@ describe('vita letta dal motore', { timeout: 30_000 }, () => {
       else expect(fumo[i]).toBe(0);
     });
     expect(Math.max(...fumo)).toBeLessThanOrEqual(1);
+  });
+
+  it('il fumo di un lotto «acciaio» cresce con gli addetti all\'acciaio, fino alla piena produzione', () => {
+    const s = states.find((x) => lotLook(x, 'lotto-altoforni') === 'acciaio')!;
+    expect(s).toBeDefined();
+    // Stesso stato, cambiano solo gli addetti all'acciaio (un solo lotto in produzione).
+    const conAddetti = (steel: number) => vitaDaStato({ ...s, labor: { ...s.labor, employed: { ...s.labor.employed, steel } } }).fumo['lotto-altoforni']!;
+    const pochi = conAddetti(450);
+    const meta = conAddetti(750);
+    const molti = conAddetti(1200);
+    expect(pochi).toBeGreaterThan(0);
+    expect(meta).toBeGreaterThan(pochi);
+    expect(molti).toBeGreaterThan(meta);
+    expect(molti).toBeCloseTo(1200 / ADDETTI_PER_LOTTO, 5);
+    // Oltre la piena produzione non cresce più.
+    expect(conAddetti(ADDETTI_PER_LOTTO * 3)).toBe(1);
   });
 
   it('un lotto mai toccato non fuma mai', () => {
