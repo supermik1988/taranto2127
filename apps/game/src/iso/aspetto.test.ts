@@ -62,7 +62,8 @@ describe('una sola città', () => {
     expect(cerca(citta, 'pareti-balconi')).toHaveLength(1);
   });
 
-  it('stesso edificio, stesso aspetto a ogni avvio', () => {
+  // Ricostruisce la città intera: sotto carico supera i 5 secondi di serie.
+  it('stesso edificio, stesso aspetto a ogni avvio', { timeout: 30_000 }, () => {
     const ancora = costruisciCitta();
     for (const nome of ['balconi', 'tetti']) {
       const a = (cerca(citta, nome)[0] as THREE.Mesh).geometry;
