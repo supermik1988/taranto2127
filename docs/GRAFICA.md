@@ -15,6 +15,8 @@ porto, della Città Vecchia e del Borgo.
   `docs/grafica-elementi.json`.
 - La disposizione dei comandi resta quella del T11 (qui sotto), con in più i pulsanti
   della vista a sinistra.
+- Compatibilità con i browser, avvio a prova di dati vecchi, messaggio di guasto (T12d):
+  sezione «Compatibilità e avvio (T12d): mai più pagina bianca».
 - Aspetto illustrato (T12c): sistema visivo, edifici a parti, vita della città, prove e
   misure: sezione «Aspetto illustrato (T12c): sistema visivo». Vale sopra le sezioni di
   T12 dove dicono cose diverse (tavolozza, luce, mare, livelli).
@@ -30,6 +32,85 @@ porto, della Città Vecchia e del Borgo.
   schermo largo stanno a destra, accanto ai pulsanti, che restano attivi.
 - A sinistra, sopra l'attribuzione di OpenStreetMap (T12): «+» e «−» per avvicinare e
   allontanare, «⟳» per ruotare la vista di un quarto di giro.
+
+## Compatibilità e avvio (T12d): mai più pagina bianca
+
+Il 26 novembre 2026, sul telefono Android di Michele, il gioco pubblicato restava bianco,
+anche con `?mappa=schematica`. **Causa** (trovata dall'architetto): il salvataggio
+automatico conserva seme e mosse e all'avvio le rigioca con il motore e i dati di oggi;
+una partita salvata con una versione precedente conteneva la risposta a un dilemma che oggi
+non è più aperto, il motore lanciava «nessun dilemma aperto» dentro l'inizializzazione di
+React e la pagina restava vuota. Lo stesso valeva per il link di una partita e per i posti.
+
+### Avvio a prova di dati vecchi
+
+- All'avvio (`engine.ts`, `avvioSicuro`) la partita del link o quella salvata nel browser si
+  riapre con `apriPartita`. Se non si può (rigiocarla fallisce, o è stata fatta con dati di
+  gioco diversi), **non si apre**: compare l'avviso «Questa partita è stata salvata con una
+  versione precedente del gioco e non si può riaprire», parte una partita nuova e la vecchia
+  si conserva da parte (`taranto2127:partita:vecchia`) finché il giocatore non la cancella
+  con il pulsante «Cancella la partita vecchia» accanto all'avviso. Mai un'eccezione verso
+  React.
+- Un posto di salvataggio o un file che non si possono riaprire danno lo stesso avviso; la
+  partita in corso resta aperta.
+- **Versioni nel salvataggio:** ogni salvataggio registra `versioneGioco` (il commit da cui
+  è compilato il gioco, impostato da `vite.config.ts`) e `versioneDati` (impronta FNV-1a
+  delle regole e dei contenuti iniziali). Se `versioneDati` non è quella di oggi la partita
+  non si rigioca nemmeno: con dati diversi le stesse mosse darebbero un'altra partita. I
+  salvataggi più vecchi, senza versione, si provano a rigiocare.
+
+### Se qualcosa si rompe lo stesso
+
+- **Sentinella** in `index.html`: script classico in sintassi vecchia (niente `let`,
+  `const`, frecce), eseguito prima di tutto. Registra gli errori della pagina e le promesse
+  rifiutate; se dopo 10 secondi il gioco non ha detto di essere partito
+  (`window.__taranto2127Avviato`), mostra il messaggio «Il gioco non è riuscito a partire»
+  con l'errore, il nome e la versione del browser e i pulsanti «Riprova» (ricarica) e
+  «Riparti da zero» (cancella dall'archivio del browser le sole chiavi `taranto2127:` e
+  ricarica senza parametri). Stili scritti nella pagina: funziona anche se il resto non si
+  carica. Senza script attivi, un messaggio `<noscript>`.
+- **Contenitore degli errori di React** (`errori.tsx`, `Riserva`): attorno al gioco mostra
+  lo stesso messaggio con gli stessi pulsanti; attorno alla città 3D fa ripiegare sulla mappa
+  schematica, senza fermare il gioco. Anche un errore nel ciclo delle immagini della città
+  ripiega sulla mappa schematica.
+
+### Browser minimi e bersaglio
+
+| | |
+| --- | --- |
+| Browser minimi | Chrome e Chrome per Android 87 (novembre 2020), Samsung Internet 14 (2021), Edge 88, Firefox 78, Safari e Safari per iOS 15 (2021) |
+| Bersaglio di compilazione (`vite.config.ts`, da `src/bersaglio.ts`) | `es2020`, `chrome87`, `edge88`, `firefox78`, `safari15`: la sintassi più recente viene tradotta |
+
+Funzioni più recenti dei browser minimi usate dal motore e dai contenuti, coperte da un
+sostituto in `src/compat.ts` (caricato per primo in `main.tsx`, installato solo se il
+browser non ha la funzione vera):
+
+| Funzione | Da quando c'è | Usi oggi |
+| --- | --- | --- |
+| `structuredClone` | Chrome 98, Safari 15.4 | 16, nel motore e nei contenuti |
+| `Object.hasOwn` | Chrome 93, Safari 15.4 | 9 |
+| `Array.prototype.at` (e `.at` di stringhe e array tipizzati) | Chrome 92, Safari 15.4 | 6 |
+
+Il **controllo automatico** della pagina compilata (`scripts/verifica.ts`, `--t12d` e nella
+verifica completa) ricompila ogni file JavaScript della pagina due volte, con il bersaglio
+dichiarato e senza limiti: se i due risultati differiscono c'è sintassi oltre il bersaglio.
+Poi cerca le funzioni recenti dell'elenco `RECENTI` (`src/bersaglio.ts`: anche `findLast`,
+`toSorted`, `Object.groupBy`, `Promise.withResolvers`, `crypto.randomUUID`,
+`requestIdleCallback` e altre): ognuna trovata deve avere un sostituto.
+
+### Prove nel browser (`--t12d`)
+
+- La partita della scheda (risposta a `dilemma-di-una-versione-vecchia`) nell'archivio, nel
+  link e nel posto 1: il gioco parte con l'avviso e una partita nuova (anno 2027); la
+  vecchia è conservata e il pulsante la cancella.
+- Un browser senza `structuredClone`, `Object.hasOwn` e `.at()` (tolti prima che la pagina
+  parta): il gioco parte, in 3D e con la mappa schematica, senza errori.
+- Guasti di prova voluti, scritti nell'archivio del browser alla chiave
+  `taranto2127:prova-guasto` (così «Riparti da zero» li toglie davvero): `modulo` (errore
+  prima di React: la sentinella), `avvio` (errore dentro React: il contenitore), `citta`
+  (errore nel ciclo delle immagini della città) e `citta-disegno` (errore nel disegno della
+  città): nei primi due casi il messaggio, negli altri la mappa schematica.
+- «Riparti da zero» dal messaggio: le chiavi del gioco spariscono e il gioco riparte.
 
 ## Aspetto illustrato (T12c): sistema visivo
 

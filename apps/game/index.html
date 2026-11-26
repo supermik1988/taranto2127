@@ -6,8 +6,113 @@
     <meta name="description" content="TARANTO2127: un gioco civico sul futuro di Taranto, dal 2027 al 2127." />
     <title>TARANTO2127</title>
     <link rel="icon" href="data:," />
+    <!--
+      Sentinella (T12d): script classico, sintassi vecchia (niente let, const, frecce),
+      eseguito prima di tutto. Registra gli errori della pagina; se dopo 10 secondi il gioco
+      non è partito, mostra un messaggio leggibile con l'errore, il browser e due pulsanti.
+      Il gioco dice di essere partito con window.__taranto2127Avviato = true (errori.tsx).
+    -->
+    <script>
+      (function () {
+        var errori = [];
+        var ATTESA = 10000;
+        function testo(e) {
+          if (!e) return '';
+          if (e.message) return String(e.message);
+          return String(e);
+        }
+        window.addEventListener('error', function (ev) {
+          var t = testo(ev.error) || ev.message || '';
+          if (!t && ev.target && ev.target.src) t = 'file non caricato: ' + ev.target.src;
+          if (t) errori.push(t);
+        }, true);
+        window.addEventListener('unhandledrejection', function (ev) {
+          errori.push(testo(ev.reason) || 'promessa rifiutata');
+        });
+        function browser() {
+          var ua = navigator.userAgent;
+          var prove = [
+            [/SamsungBrowser\/([\d.]+)/, 'Samsung Internet'],
+            [/EdgA?\/([\d.]+)/, 'Edge'],
+            [/OPR\/([\d.]+)/, 'Opera'],
+            [/Firefox\/([\d.]+)/, 'Firefox'],
+            [/CriOS\/([\d.]+)/, 'Chrome per iOS'],
+            [/Chrome\/([\d.]+)/, 'Chrome'],
+            [/Version\/([\d.]+).*Safari/, 'Safari']
+          ];
+          for (var i = 0; i < prove.length; i++) {
+            var m = prove[i][0].exec(ua);
+            if (m) {
+              var v = m[1].split('.').slice(0, 2).join('.');
+              var os = /Android/.test(ua) ? ' (Android)' : /iPhone|iPad/.test(ua) ? ' (iOS)' : '';
+              return prove[i][1] + ' ' + v + os;
+            }
+          }
+          return ua.slice(0, 80);
+        }
+        function ripartiDaZero() {
+          var archivi = [];
+          try { archivi.push(window.localStorage); } catch (e) {}
+          try { archivi.push(window.sessionStorage); } catch (e) {}
+          for (var a = 0; a < archivi.length; a++) {
+            try {
+              var chiavi = [];
+              for (var i = 0; i < archivi[a].length; i++) {
+                var k = archivi[a].key(i);
+                if (k && k.indexOf('taranto2127:') === 0) chiavi.push(k);
+              }
+              for (var j = 0; j < chiavi.length; j++) archivi[a].removeItem(chiavi[j]);
+            } catch (e) {}
+          }
+          window.location.replace(window.location.pathname);
+        }
+        function bottone(etichetta, prova, azione) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.appendChild(document.createTextNode(etichetta));
+          b.setAttribute('data-testid', prova);
+          b.style.cssText = 'font:inherit;padding:10px 16px;margin:6px 8px 0 0;border:1px solid #1f6fd1;border-radius:8px;background:#fff;color:#1f6fd1;';
+          b.onclick = azione;
+          return b;
+        }
+        function paragrafo(t, stile) {
+          var p = document.createElement('p');
+          p.appendChild(document.createTextNode(t));
+          if (stile) p.style.cssText = stile;
+          return p;
+        }
+        function mostra() {
+          if (window.__taranto2127Avviato || document.getElementById('sentinella')) return;
+          var box = document.createElement('div');
+          box.id = 'sentinella';
+          box.setAttribute('role', 'alert');
+          box.setAttribute('data-testid', 'messaggio-guasto');
+          box.style.cssText = 'position:fixed;inset:0;top:0;left:0;right:0;bottom:0;z-index:99999;overflow:auto;background:#f7f3ea;color:#222;font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:24px 16px;';
+          var h = document.createElement('h1');
+          h.appendChild(document.createTextNode('Il gioco non è riuscito a partire'));
+          h.style.cssText = 'font-size:22px;margin:0 0 12px;';
+          box.appendChild(h);
+          box.appendChild(paragrafo(errori.length > 0
+            ? 'Qualcosa si è rotto mentre il gioco si avviava in questo browser. Non è colpa tua: puoi riprovare, oppure ripartire da zero cancellando la partita salvata in questo browser.'
+            : 'Il gioco non è partito entro 10 secondi: forse la connessione è lenta o questo browser non riesce a caricarlo. Puoi riprovare, oppure ripartire da zero cancellando la partita salvata in questo browser.'));
+          box.appendChild(paragrafo('Errore: ' + (errori.length > 0 ? errori.slice(0, 3).join(' · ') : 'nessun errore registrato'), 'font-family:monospace;font-size:14px;background:#fff;padding:8px;border-radius:6px;word-break:break-word;'));
+          box.appendChild(paragrafo('Browser: ' + browser(), 'font-size:14px;'));
+          box.appendChild(bottone('Riprova', 'guasto-riprova', function () { window.location.reload(); }));
+          box.appendChild(bottone('Riparti da zero', 'guasto-riparti', ripartiDaZero));
+          document.body.appendChild(box);
+        }
+        window.__taranto2127Sentinella = { errori: errori, mostra: mostra };
+        setTimeout(mostra, ATTESA);
+      })();
+    </script>
   </head>
   <body>
+    <noscript>
+      <p style="font: 16px/1.45 system-ui, sans-serif; padding: 24px 16px">
+        TARANTO2127 è un gioco che gira nel browser: per giocare servono gli script attivi. Attivali nelle
+        impostazioni del browser e ricarica la pagina.
+      </p>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="./src/main.tsx"></script>
   </body>

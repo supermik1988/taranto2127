@@ -17,7 +17,8 @@ import {
   type StopReason,
 } from '@taranto2127/sim';
 import { fmt } from '@taranto2127/play/describe';
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { guastoDiProva, segnaAvvio } from './errori.js';
 import { BudgetView, fundName } from './budget.js';
 import {
   ConfirmSheet,
@@ -41,9 +42,12 @@ import {
   lastLocalSave,
   markTourDone,
   newGame,
-  restoreGame,
+  AVVISO_PARTITA_VECCHIA,
+  PartitaNonApribile,
+  apriPartita,
+  cancellaPartitaVecchia,
   saveLocal,
-  startingGame,
+  avvioSicuro,
   tourDone,
   type Game,
   type SavedGame,
@@ -241,7 +245,14 @@ interface Pending {
 }
 
 export function App() {
-  const [game, setGame] = useState<Game>(() => startingGame(window.location));
+  // Avvio a prova di dati vecchi (T12d): un salvataggio che non si apre più si ignora con un avviso.
+  const [avvio] = useState(() => {
+    if (guastoDiProva() === 'avvio') throw new Error('guasto di prova all’avvio');
+    return avvioSicuro(window.location);
+  });
+  const [game, setGame] = useState<Game>(avvio.game);
+  // Il gioco è partito: la sentinella di index.html non deve più intervenire.
+  useLayoutEffect(() => segnaAvvio(), []);
   const initial = useMemo(() => newGame(game.state.seed).state, [game.state.seed]);
   const [panel, setPanel] = useState<Panel | null>(null);
   const [layer, setLayer] = useState<MapIndicator | null>(null);
@@ -252,7 +263,9 @@ export function App() {
   const [pending, setPending] = useState<Pending | null>(null);
   const [cronaca, setCronaca] = useState<{ year: number; headlines: string[] } | null>(null);
   const [paperOpen, setPaperOpen] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(avvio.avviso === null ? null : `${avvio.avviso}.`);
+  /** C'è una partita vecchia conservata da parte: l'avviso offre di cancellarla (T12d). */
+  const [vecchia, setVecchia] = useState(avvio.avviso !== null && avvio.vecchia);
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
   /** Motivi dell'ultima fermata, con il loro tipo: rispondendo al dilemma restano gli altri. */
@@ -371,7 +384,17 @@ export function App() {
   };
 
   const load = (saved: SavedGame, message: string) => {
-    setGame(restoreGame(saved));
+    let aperta: Game;
+    try {
+      aperta = apriPartita(saved);
+    } catch (e) {
+      // Partita di una versione precedente (posto o file): non si apre, la partita in corso resta.
+      if (!(e instanceof PartitaNonApribile)) throw e;
+      setMenu(false);
+      setNotice(`${AVVISO_PARTITA_VECCHIA}. La partita in corso resta aperta.`);
+      return;
+    }
+    setGame(aperta);
     resetUi();
     setMenu(false);
     setNotice(message);
@@ -442,7 +465,21 @@ export function App() {
           <TopBar state={state} onHelp={() => setHelp(true)} onMenu={() => setMenu(true)} onBudget={() => openPanel('bilancio')} />
           {notice !== null && (
             <p className="notice" role="status" data-testid="avviso">
-              {notice} <button type="button" onClick={() => setNotice(null)}>Ok</button>
+              {notice}{' '}
+              {vecchia && notice.startsWith(AVVISO_PARTITA_VECCHIA) && (
+                <button
+                  type="button"
+                  data-testid="cancella-partita-vecchia"
+                  onClick={() => {
+                    cancellaPartitaVecchia();
+                    setVecchia(false);
+                    setNotice('Partita vecchia cancellata.');
+                  }}
+                >
+                  Cancella la partita vecchia
+                </button>
+              )}{' '}
+              <button type="button" onClick={() => setNotice(null)}>Ok</button>
             </p>
           )}
           {cronaca !== null && !ended && <CronacaStrip year={cronaca.year} headlines={cronaca.headlines} onOpen={() => setPaperOpen(true)} />}

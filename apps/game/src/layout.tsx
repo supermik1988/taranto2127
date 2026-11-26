@@ -3,6 +3,7 @@
  * sopra la mappa, il pannello degli strati, l'elenco testuale con ogni
  * informazione della mappa, la scelta tra plastico 3D e mappa schematica.
  */
+import { Riserva } from './errori.js';
 import { fmt } from '@taranto2127/play/describe';
 import { DISTRICT_IDS, type DistrictId, type GameState } from '@taranto2127/sim';
 import { Suspense, lazy, type ReactNode } from 'react';
@@ -100,9 +101,12 @@ export function MapStage({
   return (
     <div className="map-stage" data-tour="mappa" data-testid="mappa-palco">
       {mode === 'plastico' ? (
-        <Suspense fallback={<p className="plastico-loading">Preparo la città…</p>}>
-          <Plastico state={state} layer={layer} selected={selected} detail={detail} onSelect={onSelect} onFallback={onFallback} onDetail={onDetail} />
-        </Suspense>
+        // Un errore nella città 3D non ferma il gioco: si ripiega sulla mappa schematica (T12d).
+        <Riserva onErrore={onFallback}>
+          <Suspense fallback={<p className="plastico-loading">Preparo la città…</p>}>
+            <Plastico state={state} layer={layer} selected={selected} detail={detail} onSelect={onSelect} onFallback={onFallback} onDetail={onDetail} />
+          </Suspense>
+        </Riserva>
       ) : (
         <div className="schematic">
           <TarantoMap state={state} indicator={layer ?? 'airQuality'} selected={selected} onSelect={onSelect} />

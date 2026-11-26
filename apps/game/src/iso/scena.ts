@@ -22,6 +22,7 @@ import { caminoAcciaio, costruisciAspetto, type Animato } from './lotti.js';
 import { memoriaTexture, textureFacciata } from './texture.js';
 import { Vista, direzioneCamera, impronta } from './vista.js';
 import { Vita, type StatoVita } from './vita.js';
+import { guastoDiProva } from '../errori.js';
 
 export interface PlasticoApi {
   /** Aspetto di ogni lotto, dallo stato di gioco. */
@@ -442,8 +443,19 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
   let raf = 0;
   let last = performance.now();
   let frame = 0;
+  // Un errore nel ciclo delle immagini non deve lasciare una tela ferma: si ripiega sulla mappa schematica (T12d).
+  const guasto = guastoDiProva() === 'citta';
   const loop = () => {
+    try {
+      passo();
+    } catch (e) {
+      cancelAnimationFrame(raf);
+      onFallback?.(`la città 3D si è fermata per un errore (${e instanceof Error ? e.message : String(e)})`);
+    }
+  };
+  const passo = () => {
     raf = requestAnimationFrame(loop);
+    if (guasto && frame === 30) throw new Error('guasto di prova nel ciclo della città');
     const now = performance.now();
     const ms = now - last;
     last = now;
