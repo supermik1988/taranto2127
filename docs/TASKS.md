@@ -1058,3 +1058,45 @@ ciascuna fase.
   browser verdi.
 - **Regole:** come T12. **Nomi, biografie e ritratti li approva Michele** prima della
   fase B e prima dell'unione: sono contenuti, il giudizio è suo.
+
+---
+
+## T12d — Mai più pagina bianca (urgente)
+
+- **Agente:** `sim-engineer` (interfaccia).
+- **Dipende da:** niente. Ha la precedenza su ogni altro lavoro.
+- **Ramo:** `task/T12d-pagina-bianca`.
+- **File:** `apps/game/index.html`, `apps/game/src/` (avvio e gestione degli errori),
+  `apps/game/vite.config.ts`, `apps/game/scripts/verifica.ts`, `docs/GRAFICA.md`.
+- **Perché:** il 26 novembre 2026, sul telefono Android di Michele, sia
+  `https://supermik1988.github.io/taranto2127/` sia `?mappa=schematica` mostrano una
+  pagina completamente bianca. Sul telefono simulato (Pixel 7, Edge) il gioco parte in 2
+  secondi senza errori, anche con il processore rallentato 4× e con un salvataggio non
+  valido nell'archivio del browser. Oggi, se qualcosa si rompe all'avvio, il giocatore non
+  vede nulla e nessuno può capire perché.
+- **Cosa fare.**
+  1. *Sentinella nella pagina:* in `index.html` un piccolo script classico (non modulo,
+     sintassi vecchia, compatibile anche con browser di dieci anni fa) registra gli errori
+     della pagina e, se dopo 10 secondi il gioco non è partito, mostra un messaggio leggibile
+     in italiano: cosa è successo, il testo dell'errore se c'è, il nome e la versione del
+     browser, e due pulsanti: «Riprova» e «Riparti da zero» (cancella i dati del gioco salvati
+     nel browser e ricarica). Senza script attivi, un messaggio `<noscript>`.
+  2. *Errori dentro il gioco:* un contenitore che intercetta gli errori di React mostra lo
+     stesso messaggio, con gli stessi pulsanti, invece della pagina vuota. Un errore nella
+     città 3D fa ripiegare sulla mappa schematica, senza fermare il gioco.
+  3. *Compatibilità dichiarata:* scegliere e scrivere in `vite.config.ts` il bersaglio di
+     compilazione, con i browser minimi supportati (almeno Chrome per Android e Samsung
+     Internet degli ultimi quattro anni, Safari iOS 15). Le funzioni recenti usate senza
+     traduzione (oggi per esempio `structuredClone`, `Object.hasOwn`, `Array.prototype.at`)
+     vanno tolte o sostituite se non coperte da quei browser. Elenco in `docs/GRAFICA.md`.
+  4. *Avvio a prova di dati vecchi:* se il salvataggio o le preferenze nel browser non si
+     possono usare, si ignorano con un avviso e si parte con una partita nuova.
+- **Fatto quando:** nella verifica nel browser, (a) un errore lanciato apposta all'avvio
+  mostra il messaggio e non una pagina bianca; (b) un errore lanciato apposta nella città 3D
+  fa comparire la mappa schematica; (c) «Riparti da zero» svuota i dati del gioco e il gioco
+  riparte; (d) la pagina compilata non contiene sintassi né funzioni fuori dal bersaglio
+  dichiarato (controllo automatico); `pnpm test` sotto i 45 secondi, `pnpm test:lungo` e
+  verifica nel browser verdi; almeno tre prove inverse descritte nel resoconto.
+- **Regole:** come sempre. Solo il ramo del task; non unire né inviare `main`; non toccare
+  `CLAUDE.md`, `docs/ARCHITETTO.md`, `docs/DECISIONI.md`, `docs/TASKS.md`; scelte fuori
+  scheda dichiarate come «mia scelta da confermare».

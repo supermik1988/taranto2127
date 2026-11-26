@@ -159,7 +159,8 @@ Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 | T11 | Plastico 3D di una zona e nuova disposizione | In `main` dal 17 novembre, con le correzioni chieste da Michele; pubblicato |
 | T11b | Prove più veloci; lotto «Banchine» sul Mar Grande | In `main` dal 24 novembre; pubblicato |
 | T12 | Città isometrica (D20) | In `main` dal 24 novembre (`68289f1`). Michele non è soddisfatto dell'aspetto: correzione in T12c |
-| T12c | Aspetto illustrato, edifici, colori, vita | Fase B approvata da unire (Michele, 25 novembre) dopo la prova sul fumo che manca; poi superata da D24 |
+| T12c | Aspetto illustrato, edifici, colori, vita | In `main` dal 26 novembre (`9cd63f9`); superato da D24 |
+| T12d | Mai più pagina bianca | Urgente: pagina bianca sull'Android di Michele, anche con la mappa schematica |
 | T15 | Grafica premium (D24) | Prova: tre edifici generati con Higgsfield, se Michele approva il costo; poi scheda |
 | T13 | Interfaccia gestionale (D23) | Scheda pronta; si decide dopo la prova di T15 se farla prima o dopo |
 | T14 | Consiglieri come personaggi (D21, D22) | Scheda pronta; parte dopo T13; nomi e ritratti li approva Michele |
