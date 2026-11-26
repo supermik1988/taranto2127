@@ -1149,6 +1149,23 @@ ciascuna fase.
   spingendo la vista verso ciascun bordo, il vertice di quel lato si porta nell'area libera;
   schermate prima/dopo alla distanza massima; `pnpm test` sotto i 45 secondi, `pnpm test:lungo` e
   verifica nel browser verdi; almeno due prove inverse descritte.
+- **Correzione dopo la revisione (26 novembre 2026, decisa da Michele).** Il primo invio
+  (`9f95381`) rispetta il punto 2 alla lettera, ma sul telefono in verticale la zona, vista di
+  sbieco, diventa un rombo largo e basso: per farla entrare tutta la città si riduce a un rombo
+  minuscolo in mezzo a un prato finto con una striscia di mare dritta. Michele sceglie la via di
+  mezzo. Il punto 2 diventa:
+  - alla distanza massima la zona *riempie in larghezza* l'area libera: la larghezza del suo
+    ingombro sullo schermo è almeno quella dell'area libera, in ogni orientamento della mappa;
+    se a quella distanza la zona entra già tutta (schermi larghi, come il computer), si usa la
+    distanza a cui entra tutta, con il 4% d'aria;
+  - alla distanza massima almeno il 70% dell'area libera cade sopra la zona (calcolo
+    geometrico, a 360, 390 px e 1080×2340 nei quattro orientamenti);
+  - i lati che restano fuori si raggiungono trascinando: restano validi i punti 1, 3 e 4 e le
+    prove delle spinte verso i bordi;
+  - schermate nuove alla distanza massima, prima e dopo la correzione, alle stesse quattro
+    larghezze e nei quattro orientamenti.
+  Il resto del primo invio è accettato, comprese le scelte da confermare (margine di 8 pixel,
+  terreno fino a 60 km, comandi riconosciuti dalle classi, rimozione di `startingGame`).
 - **Regole:** come sempre.
 
 ---
