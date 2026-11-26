@@ -1114,3 +1114,85 @@ ciascuna fase.
 - **Regole:** come sempre. Solo il ramo del task; non unire né inviare `main`; non toccare
   `CLAUDE.md`, `docs/ARCHITETTO.md`, `docs/DECISIONI.md`, `docs/TASKS.md`; scelte fuori
   scheda dichiarate come «mia scelta da confermare».
+
+---
+
+## T12e — Tutta la mappa sul telefono
+
+- **Agente:** `sim-engineer` (interfaccia).
+- **Dipende da:** T12d unito in `main`.
+- **Ramo:** `task/T12e-mappa-telefono`.
+- **File:** `apps/game/src/iso/vista.ts` e i suoi test, `apps/game/src/iso/scena.ts`,
+  `apps/game/src/plastico/`, `apps/game/src/layout.tsx` e lo stile, `apps/game/scripts/verifica.ts`,
+  `docs/GRAFICA.md`, `docs/schermate/`.
+- **Perché:** sul telefono di Michele (Android, verticale), anche allontanando la mappa al
+  massimo, alcune parti della zona non si vedono. Riprodotto dall'architetto il 26 novembre su
+  telefono simulato: (1) alla distanza massima la zona non entra nella larghezza dello schermo
+  verticale; (2) il limite dello spostamento non tiene conto dei comandi sopra la mappa (barra in
+  alto, comandi del tempo in basso, colonna dei pulsanti a destra, pulsanti di ingrandimento a
+  sinistra), quindi i bordi della zona restano nascosti sotto i comandi e non si possono portare
+  in vista.
+- **Skill da leggere:** `camera-systems` (limiti della vista, zone morte), `game-ui-ux`
+  (zona sicura, area libera dai comandi).
+- **Cosa fare.**
+  1. Calcolare l'*area libera* della mappa: la tela meno i rettangoli dei comandi che la coprono,
+     ricalcolata quando la finestra cambia, quando un pannello si apre o si chiude e quando il
+     telefono ruota.
+  2. Alla distanza massima, l'intera zona entra nell'area libera in ogni orientamento della
+     mappa e a ogni larghezza (360, 390, 1280 px e telefono lungo 1080×2340).
+  3. Il limite dello spostamento si calcola sull'area libera: ogni punto della zona si può
+     portare dentro l'area libera, nessuno resta per forza sotto un comando.
+  4. Restano valide le prove di T12: gli angoli dello schermo non mostrano mai lo sfondo (oltre la
+     zona continuano terreno e mare).
+- **Fatto quando:** prova nel browser a 360, 390, 1280 px e 1080×2340, nei quattro
+  orientamenti: alla distanza massima i quattro vertici della zona cadono dentro l'area libera;
+  spingendo la vista verso ciascun bordo, il vertice di quel lato si porta nell'area libera;
+  schermate prima/dopo alla distanza massima; `pnpm test` sotto i 45 secondi, `pnpm test:lungo` e
+  verifica nel browser verdi; almeno due prove inverse descritte.
+- **Regole:** come sempre.
+
+---
+
+## T16 — Partita guidata (tutorial dei primi cinque anni)
+
+- **Agenti:** `sim-engineer` (interfaccia) e `content-designer` (testi). Su proposta di Michele
+  del 26 novembre 2026: chi non conosce il gioco non sa cosa fare, anche con la visita guidata.
+- **Dipende da:** T12e unito in `main`.
+- **Ramo:** `task/T16-partita-guidata`.
+- **File:** `apps/game/` (interfaccia del tutorial), `packages/content/data/tutorial.json` e il
+  suo schema (nuovi), `packages/content/data/guida.json` se cambia il ruolo della visita,
+  `docs/CONTENUTI.md`, `docs/GRAFICA.md`, `docs/schermate/`. Il motore non si tocca: il tutorial
+  legge lo stato e aspetta le azioni del giocatore, non ne fa al suo posto (regola 1).
+- **Skill da leggere:** `game-ui-ux` (fuoco da tastiera, finestre a pila, evidenziazione,
+  accessibilità, prove a più larghezze).
+- **Cosa fare.**
+  1. *Scelta all'avvio:* «Partita guidata (consigliata la prima volta)» oppure «Partita
+     libera». La scelta si ricorda; la visita guidata di oggi non si apre più da sola e resta
+     consultabile dal pulsante «?».
+  2. *Seme fisso:* la partita guidata usa un seme scelto e documentato perché nei primi cinque
+     anni succeda ciò che il tutorial insegna (per esempio un dilemma entro il secondo o terzo
+     anno, una notizia nella Cronaca, un cantiere che passa di fase). Una prova verifica che con
+     quel seme gli eventi arrivino davvero quando il tutorial li annuncia.
+  3. *Un passo alla volta, facendo:* ogni passo ha un testo breve (al massimo due frasi, parole
+     semplici), evidenzia il comando da toccare e scurisce il resto, e va avanti solo quando il
+     giocatore ha fatto l'azione (non a tempo). Traccia indicativa, da rifinire: guardare la città
+     e gli strati; aprire il Consiglio e leggere un consiglio; scegliere un lotto e avviare il
+     primo cantiere; guardare il bilancio; far passare un anno e leggere la Cronaca; rispondere al
+     primo dilemma e vedere il contatore Red/Blu; capire le fasi di un cantiere; seguire i
+     cantieri aperti; arrivare alla fine del quinto anno. Il tutorial non suggerisce mai la
+     scelta "giusta": spiega cosa si può fare e dove guardare le conseguenze (regola 5).
+  4. *Sempre facoltativo:* «Esci dal tutorial» in ogni passo; si riprende da «?» dal punto in cui
+     si era. Alla fine del quinto anno la partita continua normalmente.
+  5. *Testi nei dati:* in `tutorial.json` con schema, in italiano, tono sobrio (regola 8). Ogni
+     passo indica il comando da evidenziare con l'identificativo stabile già usato dalle prove
+     (`data-testid`), così l'interfaccia nuova di T13 dovrà solo mantenerli.
+  6. *Accessibilità:* testo letto dai lettori di schermo, fuoco da tastiera sul comando
+     evidenziato, nessuna animazione con «riduci animazioni», funziona a 360 px in verticale e
+     anche con la mappa schematica.
+- **Fatto quando:** una partita da copione completa il tutorial a 360, 390 e 1280 px, con la città
+  3D e con la mappa schematica; uscire e riprendere funziona (prova); ogni passo trova il suo
+  comando sullo schermo e non lo copre (prova); con il seme fisso gli eventi annunciati arrivano
+  (prova); i testi passano i controlli di contenuto; `pnpm test` sotto i 45 secondi,
+  `pnpm test:lungo` e verifica nel browser verdi; almeno tre prove inverse descritte. **Michele
+  approva testi e schermate prima dell'unione.**
+- **Regole:** come sempre.

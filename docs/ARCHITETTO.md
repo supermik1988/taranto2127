@@ -161,6 +161,8 @@ Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 | T12 | Città isometrica (D20) | In `main` dal 24 novembre (`68289f1`). Michele non è soddisfatto dell'aspetto: correzione in T12c |
 | T12c | Aspetto illustrato, edifici, colori, vita | In `main` dal 26 novembre (`9cd63f9`); superato da D24 |
 | T12d | Mai più pagina bianca | Urgente: pagina bianca sull'Android di Michele, anche con la mappa schematica |
+| T12e | Tutta la mappa sul telefono | Scheda pronta; dopo T12d |
+| T16 | Partita guidata (tutorial dei primi cinque anni) | Scheda pronta; dopo T12e. Ordine deciso con Michele: T12d, T12e, T16, poi grafica premium (T15) |
 | T15 | Grafica premium (D24) | Prova: tre edifici generati con Higgsfield, se Michele approva il costo; poi scheda |
 | T13 | Interfaccia gestionale (D23) | Scheda pronta; si decide dopo la prova di T15 se farla prima o dopo |
 | T14 | Consiglieri come personaggi (D21, D22) | Scheda pronta; parte dopo T13; nomi e ritratti li approva Michele |
