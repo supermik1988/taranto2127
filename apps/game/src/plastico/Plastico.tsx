@@ -6,6 +6,7 @@
 import type { DistrictId, GameState } from '@taranto2127/sim';
 import { useEffect, useRef, useState } from 'react';
 import { content } from '../engine.js';
+import { guastoDiProva } from '../errori.js';
 import { MIN_IMMAGINI, type Livello, type Scelta } from '../iso/livelli.js';
 import { createCitta, type CittaApi, type InfoDisegno } from '../iso/scena.js';
 import { vitaDaStato } from '../iso/vita.js';
@@ -103,6 +104,11 @@ export default function Plastico({
   const canvas = useRef<HTMLCanvasElement>(null);
   const labels = useRef<HTMLDivElement>(null);
   const api = useRef<CittaApi | null>(null);
+  // Guasto di prova nel disegno della città (T12d): lo raccoglie la Riserva attorno, che ripiega sulla mappa schematica.
+  useState(() => {
+    if (guastoDiProva() === 'citta-disegno') throw new Error('guasto di prova nel disegno della città');
+    return null;
+  });
   const select = useRef(onSelect);
   select.current = onSelect;
   const fallback = useRef(onFallback);

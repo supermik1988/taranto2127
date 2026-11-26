@@ -30,11 +30,13 @@
  *   BROWSER=chrome pnpm --filter @taranto2127/game verifica
  */
 import { execSync, spawn } from 'node:child_process';
-import { mkdirSync, mkdtempSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium, type Browser, type Page } from 'playwright-core';
+import { transformWithEsbuild } from 'vite';
+import { BERSAGLIO, RECENTI, SOSTITUITE } from '../src/bersaglio.js';
 import { TAVOLOZZA } from '../src/iso/aspetto.js';
 
 // VERIFICA_APP permette di misurare un'altra copia del gioco (per esempio una versione precedente, per confronto).
@@ -996,6 +998,166 @@ async function diagnosiMedio(browser: Browser): Promise<void> {
   }
 }
 
+// ---------- Mai più pagina bianca (T12d) ----------
+
+/** La partita della scheda T12d: una risposta a un dilemma che oggi non è aperto. */
+const PARTITA_VECCHIA = JSON.stringify({
+  formato: 'taranto2127-partita',
+  versione: 1,
+  seme: 42,
+  turno: 1,
+  storia: [{ turn: 0, action: { kind: 'answer-dilemma', dilemmaId: 'dilemma-di-una-versione-vecchia', optionId: 'a' } }],
+});
+const AVVISO_VECCHIA = 'Questa partita è stata salvata con una versione precedente del gioco e non si può riaprire';
+
+/**
+ * Apre il gioco a 390 px con delle chiavi nell'archivio, un frammento nell'indirizzo e,
+ * se richiesto, un browser «vecchio» (senza structuredClone, Object.hasOwn e .at()).
+ * Le chiavi si scrivono una volta sola (una pagina vuota dello stesso indirizzo, poi il gioco):
+ * così una ricarica, per esempio dopo «Riparti da zero», non le rimette.
+ */
+async function apriConArchivio(
+  browser: Browser,
+  chiavi: Record<string, string>,
+  opts: { hash?: string; vecchio?: boolean; mappa?: 'schematica'; width?: number } = {},
+): Promise<{ page: Page; errori: string[]; close: () => Promise<void> }> {
+  const width = opts.width ?? 390;
+  const context = await browser.newContext({ viewport: { width, height: width < 600 ? 844 : 900 }, deviceScaleFactor: width < 600 ? 2 : 1, hasTouch: width < 600 });
+  if (opts.vecchio === true) {
+    await context.addInitScript(() => {
+      const w = window as unknown as Record<string, unknown>;
+      delete w['structuredClone'];
+      delete (Object as unknown as Record<string, unknown>)['hasOwn'];
+      delete (Array.prototype as unknown as Record<string, unknown>)['at'];
+      delete (String.prototype as unknown as Record<string, unknown>)['at'];
+      delete (Object.getPrototypeOf(Int8Array.prototype) as Record<string, unknown>)['at'];
+    });
+  }
+  const page = await context.newPage();
+  const errori: string[] = [];
+  page.on('pageerror', (err) => errori.push(err.message));
+  // Prima una pagina vuota dello stesso indirizzo (servita dalla prova), per scrivere l'archivio senza avviare il gioco.
+  await page.route(`${BASE}pagina-vuota`, (r) => r.fulfill({ body: '<!doctype html><title>vuota</title>', contentType: 'text/html' }));
+  await page.goto(`${BASE}pagina-vuota`);
+  await page.evaluate((k) => {
+    localStorage.clear();
+    localStorage.setItem('taranto2127:visita-fatta', 'si');
+    for (const [c, v] of Object.entries(k)) localStorage.setItem(c, v);
+  }, chiavi);
+  // Senza seme nell'indirizzo: con un seme diverso il gioco ignorerebbe la partita salvata.
+  const query = opts.mappa === 'schematica' ? '?mappa=schematica' : '';
+  await page.goto(`${BASE}${query}${opts.hash ?? ''}`, { timeout: 240_000 });
+  return { page, errori, close: () => context.close() };
+}
+
+/** Il gioco è partito: c'è l'anno nella barra in alto, nessun messaggio di guasto. */
+async function partito(page: Page, dove: string): Promise<string> {
+  await page.waitForSelector(sel('anno'), { timeout: 60_000 });
+  if (await visible(page, 'messaggio-guasto')) fail(`${dove}: c'è il messaggio di guasto invece del gioco`);
+  return (await page.locator(sel('anno')).textContent()) ?? '';
+}
+
+async function controlliT12d(browser: Browser): Promise<void> {
+  // (0) La causa vera: la partita della scheda nell'archivio, nel link, in un posto.
+  {
+    const { page, close } = await apriConArchivio(browser, { 'taranto2127:partita': PARTITA_VECCHIA });
+    const anno = await partito(page, 'partita vecchia nell\'archivio');
+    const avviso = (await page.locator(sel('avviso')).textContent()) ?? '';
+    const conservata = await page.evaluate(() => localStorage.getItem('taranto2127:partita:vecchia'));
+    if (!avviso.includes(AVVISO_VECCHIA)) fail(`partita vecchia nell'archivio: manca l'avviso (c'è «${avviso}»)`);
+    if (anno !== '2027') fail(`partita vecchia nell'archivio: non è una partita nuova (anno ${anno})`);
+    if (conservata === null) fail('partita vecchia nell\'archivio: non è stata conservata da parte');
+    // Il giocatore la cancella quando vuole.
+    await page.locator(sel('cancella-partita-vecchia')).click();
+    const dopo = await page.evaluate(() => localStorage.getItem('taranto2127:partita:vecchia'));
+    if (dopo !== null) fail('«Cancella la partita vecchia» non la cancella');
+    misura(`partita vecchia nell'archivio: il gioco parte (anno ${anno}) con l'avviso; la vecchia conservata e poi cancellata con il pulsante`);
+    await close();
+  }
+  {
+    const { page, close } = await apriConArchivio(browser, {}, { hash: `#partita=${encodeURIComponent(PARTITA_VECCHIA)}` });
+    const anno = await partito(page, 'partita vecchia nel link');
+    const avviso = (await page.locator(sel('avviso')).textContent()) ?? '';
+    if (!avviso.includes(AVVISO_VECCHIA) || anno !== '2027') fail(`partita vecchia nel link: anno ${anno}, avviso «${avviso}»`);
+    misura(`partita vecchia nel link: il gioco parte (anno ${anno}) con l'avviso`);
+    await close();
+  }
+  {
+    const { page, close } = await apriConArchivio(browser, { 'taranto2127:posto:1': JSON.stringify({ partita: JSON.parse(PARTITA_VECCHIA), ora: '2026-11-20T10:00:00.000Z' }) });
+    await partito(page, 'partita vecchia in un posto');
+    await page.locator(sel('menu')).click();
+    await page.locator(sel('carica-1')).click();
+    const avviso = (await page.locator(sel('avviso')).textContent()) ?? '';
+    const anno = (await page.locator(sel('anno')).textContent()) ?? '';
+    if (!avviso.includes(AVVISO_VECCHIA) || anno !== '2027' || (await visible(page, 'messaggio-guasto'))) fail(`partita vecchia in un posto: anno ${anno}, avviso «${avviso}»`);
+    misura(`partita vecchia nel posto 1: «Carica» dà l'avviso, la partita in corso resta (anno ${anno})`);
+    await close();
+  }
+  // Browser vecchio (senza le funzioni recenti): il gioco parte lo stesso, in 3D e con la mappa schematica.
+  for (const mappa of [undefined, 'schematica'] as const) {
+    const { page, errori, close } = await apriConArchivio(browser, {}, { vecchio: true, ...(mappa !== undefined ? { mappa } : {}) });
+    const anno = await partito(page, `browser senza funzioni recenti${mappa !== undefined ? ', mappa schematica' : ''}`);
+    await page.waitForSelector(mappa === 'schematica' ? sel('mappa') : sel('mappa-3d'), { timeout: 240_000 });
+    if (errori.length > 0) fail(`browser senza funzioni recenti: errori nella pagina: ${errori.join(' · ')}`);
+    misura(`browser senza structuredClone, Object.hasOwn e .at()${mappa !== undefined ? ', mappa schematica' : ', città 3D'}: il gioco parte (anno ${anno}), nessun errore`);
+    await close();
+  }
+  // (a) Errore all'avvio dentro React: il messaggio, subito. Errore prima di React: la sentinella, entro 10 s.
+  for (const guasto of ['avvio', 'modulo']) {
+    const { page, close } = await apriConArchivio(browser, { 'taranto2127:prova-guasto': guasto });
+    await page.waitForSelector(sel('messaggio-guasto'), { timeout: guasto === 'modulo' ? 20_000 : 30_000 }).catch(() => undefined);
+    const testo = (await page.locator(sel('messaggio-guasto')).first().textContent().catch(() => null)) ?? '';
+    if (!testo.includes('non è riuscito a partire') || !testo.includes('Riprova') || !testo.includes('Riparti da zero') || !testo.includes('Browser:')) fail(`errore di prova «${guasto}»: nessun messaggio leggibile (pagina bianca?) — «${testo.slice(0, 80)}»`);
+    else misura(`errore di prova «${guasto}»: messaggio di guasto con l'errore, il browser e i due pulsanti`);
+    if (guasto === 'avvio') {
+      // (c) «Riparti da zero» svuota i dati del gioco e il gioco riparte.
+      await page.locator(sel('guasto-riparti')).first().click();
+      await page.waitForSelector(sel('anno'), { timeout: 120_000 }).catch(() => undefined);
+      const chiavi = await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('taranto2127:') && k !== 'taranto2127:partita' && k !== 'taranto2127:partita:ora'));
+      const riparte = await visible(page, 'anno');
+      if (!riparte || chiavi.includes('taranto2127:prova-guasto')) fail(`«Riparti da zero»: il gioco non riparte o i dati restano (${chiavi.join(', ')})`);
+      else misura(`«Riparti da zero»: dati del gioco cancellati, il gioco riparte (chiavi rimaste del gioco nuovo: ${chiavi.length === 0 ? 'nessuna' : chiavi.join(', ')})`);
+    }
+    await close();
+  }
+  // (b) Errore nella città 3D (nel ciclo delle immagini e nel disegno): compare la mappa schematica.
+  for (const guasto of ['citta', 'citta-disegno']) {
+    const { page, close } = await apriConArchivio(browser, { 'taranto2127:prova-guasto': guasto });
+    await partito(page, `errore di prova «${guasto}»`);
+    await page.waitForSelector(sel('mappa'), { timeout: 240_000 }).catch(() => undefined);
+    const schematica = await visible(page, 'mappa');
+    const avviso = (await page.locator(sel('avviso')).textContent().catch(() => null)) ?? '';
+    if (!schematica) fail(`errore di prova «${guasto}»: la mappa schematica non compare`);
+    else misura(`errore di prova «${guasto}»: il gioco continua sulla mappa schematica («${avviso.trim().slice(0, 90)}»)`);
+    await close();
+  }
+}
+
+/** (d) La pagina compilata non contiene sintassi né funzioni fuori dal bersaglio dichiarato. */
+async function controlloBersaglio(): Promise<void> {
+  const cartella = join(appDir, 'dist', 'assets');
+  const file = readdirSync(cartella).filter((f) => f.endsWith('.js'));
+  const trovate = new Map<string, string[]>();
+  for (const f of file) {
+    const codice = readFileSync(join(cartella, f), 'utf8');
+    // Sintassi: tradotto per il bersaglio, il codice deve restare identico a quello tradotto senza limiti.
+    const conBersaglio = await transformWithEsbuild(codice, f, { target: BERSAGLIO, minify: false, format: 'esm' });
+    const senzaLimiti = await transformWithEsbuild(codice, f, { target: 'esnext', minify: false, format: 'esm' });
+    if (conBersaglio.code !== senzaLimiti.code) {
+      const a = conBersaglio.code.split('\n');
+      const b = senzaLimiti.code.split('\n');
+      const riga = a.findIndex((r, i) => r !== b[i]);
+      fail(`${f}: sintassi oltre il bersaglio ${BERSAGLIO.join(', ')} (prima differenza alla riga ${riga + 1}: «${(b[riga] ?? '').trim().slice(0, 100)}»)`);
+    }
+    for (const r of RECENTI) if (r.cerca.test(codice)) trovate.set(r.nome, [...(trovate.get(r.nome) ?? []), f]);
+  }
+  for (const [nome, dove] of trovate) {
+    if (!SOSTITUITE.includes(nome)) fail(`funzione recente senza sostituto nella pagina compilata: ${nome} (${dove.join(', ')})`);
+  }
+  // Il sostituto si carica prima del motore: il modulo d'ingresso comincia installandolo.
+  misura(`pagina compilata: ${file.length} file JavaScript, sintassi dentro il bersaglio ${BERSAGLIO.join(', ')}; funzioni recenti trovate: ${[...trovate.keys()].join(', ') || 'nessuna'} (tutte con sostituto: ${[...trovate.keys()].every((n) => SOSTITUITE.includes(n)) ? 'sì' : 'no'})`);
+}
+
 async function main(): Promise<void> {
   const quick = process.argv.includes('--rapida');
   const onlyContrast = process.argv.includes('--misura-strato');
@@ -1007,7 +1169,8 @@ async function main(): Promise<void> {
   // T12c: schermate «dopo» e controlli dell'aspetto illustrato.
   const after = process.argv.includes('--dopo');
   const t12c = process.argv.includes('--t12c');
-  const partial = quick || onlyContrast || onlyPerf || onlyCity || onlyCorners || onlyDescent || after || t12c || process.argv.includes('--diagnosi');
+  const t12d = process.argv.includes('--t12d');
+  const partial = quick || onlyContrast || onlyPerf || onlyCity || onlyCorners || onlyDescent || after || t12c || t12d || process.argv.includes('--diagnosi');
   mkdirSync(shotsDir, { recursive: true });
   execSync('npx vite build', { cwd: appDir, stdio: 'inherit' });
   const server = spawn(`npx vite preview --port ${PORT} --strictPort`, { cwd: appDir, shell: true, stdio: 'ignore' });
@@ -1016,7 +1179,10 @@ async function main(): Promise<void> {
     const channel = process.env['BROWSER'] === 'chrome' ? 'chrome' : 'msedge';
     const browser = await chromium.launch({ channel });
     try {
-      if (process.argv.includes('--diagnosi')) {
+      if (t12d) {
+        await controlloBersaglio();
+        await controlliT12d(browser);
+      } else if (process.argv.includes('--diagnosi')) {
         await diagnosiMedio(browser);
       } else if (t12c) {
         await controlliT12c(browser);
@@ -1051,6 +1217,8 @@ async function main(): Promise<void> {
         await serieSchermate(browser, 1280, 'dopo');
         await serieSchermate(browser, 390, 'dopo');
         await controlliT12c(browser);
+        await controlloBersaglio();
+        await controlliT12d(browser);
         await checkLayerContrast(browser);
         await playAt(390, browser, 'completa');
         await playAt(1280, browser, 'salta');
