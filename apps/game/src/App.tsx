@@ -53,6 +53,7 @@ import {
   type SavedGame,
 } from './engine.js';
 import { HelpSheet, Term, TipProvider, Tour, fill } from './guide.js';
+import { SceltaPartita, Tutorial, leggiProgresso, salvaProgresso, salvaScelta, sceltaFatta, tutorial, type Progresso } from './tutorial.js';
 import type { Livello, Scelta } from './iso/livelli.js';
 import { LayersPanel, MapList, MapStage, MapWindow, chooseMapMode, readStoredDetail, readStoredMode, storeDetail, storeMode, webglAvailable, type MapMode } from './layout.js';
 import type { MapIndicator } from './map.js';
@@ -271,7 +272,15 @@ export function App() {
   /** Motivi dell'ultima fermata, con il loro tipo: rispondendo al dilemma restano gli altri. */
   const [stop, setStop] = useState<{ kind: StopReason['kind']; line: string }[] | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(() => lastLocalSave());
-  const [tour, setTour] = useState(() => !tourDone());
+  // T16: la visita guidata non si apre più da sola; chi arriva per la prima volta sceglie tra partita guidata e libera.
+  const [tour, setTour] = useState(false);
+  const [scelta, setScelta] = useState(
+    () => sceltaFatta() === null && !tourDone() && avvio.avviso === null && avvio.game.state.turn === 0 && avvio.game.state.history.length === 0 && !window.location.hash.startsWith('#partita='),
+  );
+  const [guida, setGuida] = useState<Progresso | null>(() => {
+    const p = leggiProgresso();
+    return p !== null && p.attivo && !p.finito ? p : null;
+  });
   const [help, setHelp] = useState(false);
   const [menu, setMenu] = useState(false);
 
@@ -406,6 +415,46 @@ export function App() {
     setMenu(false);
     setNotice('Nuova partita: il tempo è in pausa. Avvialo quando vuoi.');
   };
+
+  // ---------- Partita guidata (T16) ----------
+  const scegliPartita = (s: 'guidata' | 'libera') => {
+    salvaScelta(s);
+    markTourDone();
+    setScelta(false);
+    if (s === 'guidata') {
+      // Il seme della partita guidata: gli eventi che il tutorial annuncia arrivano davvero (tutorial.json).
+      setGame(newGame(tutorial.seme));
+      resetUi();
+      setRunning(false);
+      setNotice(null);
+      const p: Progresso = { passo: 0, attivo: true, finito: false };
+      salvaProgresso(p);
+      setGuida(p);
+    } else {
+      setNotice('Il tempo è in pausa: avvialo quando vuoi. La visita e la partita guidata sono nel pulsante «?».');
+    }
+  };
+  const avantiGuida = useCallback((da: number) => {
+    setGuida((g) => {
+      // Si avanza solo dal passo che lo chiede: due controlli dello stesso passo non ne fanno saltare uno.
+      if (g === null || g.passo !== da || g.passo >= tutorial.passi.length - 1) return g;
+      const p: Progresso = { passo: g.passo + 1, attivo: true, finito: false };
+      salvaProgresso(p);
+      return p;
+    });
+  }, []);
+  const esciGuida = () => {
+    if (guida !== null) salvaProgresso({ ...guida, attivo: false });
+    setGuida(null);
+    setNotice('Partita guidata sospesa: la riprendi quando vuoi dal pulsante «?».');
+  };
+  const fineGuida = () => {
+    salvaProgresso({ passo: tutorial.passi.length - 1, attivo: false, finito: true });
+    setGuida(null);
+    setNotice('Partita guidata finita. La partita continua: il tempo è in pausa.');
+  };
+  const progresso = leggiProgresso();
+  const riprendibile = guida === null && progresso !== null && !progresso.finito;
 
   const endTour = (completed: boolean) => {
     markTourDone();
@@ -579,10 +628,31 @@ export function App() {
               setTour(true);
             }}
             onClose={() => setHelp(false)}
+            {...(riprendibile
+              ? {
+                  onTutorial: () => {
+                    const p: Progresso = { ...progresso, attivo: true };
+                    salvaProgresso(p);
+                    setHelp(false);
+                    setRunning(false);
+                    setGuida(p);
+                  },
+                }
+              : {})}
           />
         )}
         {menu && <GameMenu state={state} lastSaved={lastSaved} onLoad={load} onNew={startNew} onClose={() => setMenu(false)} />}
         {tour && <Tour onEnd={endTour} onStep={onTourStep} />}
+        {scelta && <SceltaPartita onScegli={scegliPartita} />}
+        {guida !== null && !scelta && !tour && (
+          <Tutorial
+            indice={guida.passo}
+            contesto={{ state, panel, layer: mapMode === 'schematica' ? (layer ?? 'airQuality') : layer, selected, paperOpen }}
+            onAvanti={avantiGuida}
+            onEsci={esciGuida}
+            onFine={fineGuida}
+          />
+        )}
       </div>
     </TipProvider>
   );

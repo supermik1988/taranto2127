@@ -12,6 +12,7 @@ import consiglio from '../data/consiglio.json';
 import cronaca from '../data/cronaca.json';
 import spiegazioni from '../data/spiegazioni.json';
 import guida from '../data/guida.json';
+import tutorial from '../data/tutorial.json';
 import dilemmi from '../data/dilemmi.json';
 import parametri from '../data/parametri.json';
 import partenza from '../data/partenza.json';
@@ -24,6 +25,7 @@ import consiglioSchema from '../schema/consiglio.schema.json';
 import cronacaSchema from '../schema/cronaca.schema.json';
 import spiegazioniSchema from '../schema/spiegazioni.schema.json';
 import guidaSchema from '../schema/guida.schema.json';
+import tutorialSchema from '../schema/tutorial.schema.json';
 import comuneSchema from '../schema/comune.schema.json';
 import dilemmiSchema from '../schema/dilemmi.schema.json';
 import parametriSchema from '../schema/parametri.schema.json';
@@ -53,6 +55,7 @@ export interface ContentFiles {
   cronaca: unknown;
   spiegazioni: unknown;
   guida: unknown;
+  tutorial: unknown;
 }
 
 export const CONTENT_FILES: ContentFiles = {
@@ -68,6 +71,7 @@ export const CONTENT_FILES: ContentFiles = {
   cronaca,
   spiegazioni,
   guida,
+  tutorial,
 };
 
 const SCHEMAS: Record<keyof ContentFiles, object> = {
@@ -83,6 +87,7 @@ const SCHEMAS: Record<keyof ContentFiles, object> = {
   cronaca: cronacaSchema,
   spiegazioni: spiegazioniSchema,
   guida: guidaSchema,
+  tutorial: tutorialSchema,
 };
 
 // strictRequired spento: quartieri e settori sono chiavi obbligatorie elencate con propertyNames, non con properties.
@@ -234,6 +239,22 @@ export interface GuideTexts {
   time: { avvia: string; pausa: string; unAnno: string; velocita: string[]; secondiPerAnno: number[]; inPausa: string; inCorso: string };
 }
 
+/** Attesa di un passo della partita guidata: l'azione del giocatore che lo fa andare avanti. */
+export type AttesaTutorial =
+  | { tipo: 'pannello'; pannello: string }
+  | { tipo: 'anno'; anno: number }
+  | { tipo: 'vede'; testid: string }
+  | { tipo: 'strato' | 'finestra-chiusa' | 'lotto-aperto' | 'cantiere-avviato' | 'cronaca' | 'dilemma-aperto' | 'dilemma-risposto' | 'fine' };
+
+/** Partita guidata (T16): seme, testi della scelta all'avvio, passi. Solo per l'interfaccia. */
+export interface TutorialTexts {
+  seme: number;
+  scelta: { titolo: string; testo: string; guidata: string; libera: string };
+  /** Frase aggiunta quando, prima del comando del passo, va chiusa una finestra che lo copre. */
+  primaChiudi: string;
+  passi: { id: string; testo: string; evidenzia: string[]; attesa: AttesaTutorial }[];
+}
+
 export interface LoadedContent {
   initialContent: InitialContent;
   rules: TurnRules;
@@ -243,6 +264,7 @@ export interface LoadedContent {
   chronicle: ChronicleTexts;
   explanations: ExplanationTexts;
   guide: GuideTexts;
+  tutorial: TutorialTexts;
 }
 
 /**
@@ -325,5 +347,21 @@ export function loadContent(files: ContentFiles = CONTENT_FILES): LoadedContent 
     tempo: GuideTexts['time'];
   };
   const guide: GuideTexts = { tour: g.visita, howTo: g.comeSiGioca, glossary: g.glossario, budget: g.bilancio, stops: g.fermate, time: toEngineData(g.tempo) as GuideTexts['time'] };
-  return { initialContent, rules, texts: allTexts, council, councilLabels, chronicle, explanations, guide };
+  const t = files.tutorial as {
+    seme: { valore: number };
+    scelta: TutorialTexts['scelta'];
+    primaChiudi: string;
+    passi: { id: string; testo: string; evidenzia: string[]; attesa: Record<string, unknown> }[];
+  };
+  const tutorialTexts: TutorialTexts = {
+    seme: t.seme.valore,
+    scelta: t.scelta,
+    primaChiudi: t.primaChiudi,
+    passi: t.passi.map((p) => ({
+      ...p,
+      // Gli anni sono numeri annotati (stima e motivazione): all'interfaccia serve solo il valore.
+      attesa: (p.attesa['tipo'] === 'anno' ? { tipo: 'anno', anno: (p.attesa['anno'] as { valore: number }).valore } : p.attesa) as AttesaTutorial,
+    })),
+  };
+  return { initialContent, rules, texts: allTexts, council, councilLabels, chronicle, explanations, guide, tutorial: tutorialTexts };
 }

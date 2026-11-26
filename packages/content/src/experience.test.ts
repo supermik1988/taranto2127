@@ -95,3 +95,36 @@ describe('guida al gioco', () => {
     for (const word of ['ilva', 'arcelor', 'mittal', 'italsider', 'morti', 'decessi', 'vittime', 'mortalità']) expect(all, word).not.toContain(word);
   });
 });
+
+describe('partita guidata (T16)', () => {
+  const tutorial = loadContent().tutorial;
+  const frasi = (t: string) => t.split(/(?<=[.!?])\s+/).filter((f) => f.trim().length > 0).length;
+
+  it('ogni passo ha al massimo due frasi brevi, identificativi unici', () => {
+    const ids = new Set<string>();
+    for (const p of tutorial.passi) {
+      expect(ids.has(p.id), p.id).toBe(false);
+      ids.add(p.id);
+      expect(frasi(p.testo), `${p.id}: «${p.testo}»`).toBeLessThanOrEqual(2);
+      expect(p.testo.length, p.id).toBeLessThanOrEqual(180);
+    }
+    expect(frasi(tutorial.scelta.testo)).toBeLessThanOrEqual(2);
+  });
+
+  it('non suggerisce mai la scelta giusta: spiega cosa si può fare e dove guardare', () => {
+    for (const p of tutorial.passi) {
+      expect(p.testo.toLowerCase(), p.id).not.toMatch(/\b(conviene|meglio|dovresti|migliore|peggiore|sbagliat\w*|ti consiglio|la scelta giusta è)\b/);
+    }
+  });
+
+  it('tono sobrio: nessun nome reale di azienda, nessuna morte a punteggio', () => {
+    const all = JSON.stringify(tutorial).toLowerCase();
+    for (const word of ['ilva', 'arcelor', 'mittal', 'italsider', 'morti', 'decessi', 'vittime', 'mortalità']) expect(all, word).not.toContain(word);
+  });
+
+  it("il seme è un numero intero e la scelta all'avvio ha i suoi testi", () => {
+    expect(Number.isInteger(tutorial.seme)).toBe(true);
+    expect(tutorial.scelta.guidata).toContain('consigliata la prima volta');
+    expect(tutorial.scelta.libera).toBe('Partita libera');
+  });
+});

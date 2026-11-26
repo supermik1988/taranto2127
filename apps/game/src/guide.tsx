@@ -121,7 +121,7 @@ export function HowToPlay() {
 }
 
 /** Il pannello del pulsante «?»: rivedere la visita o leggere come si gioca. */
-export function HelpSheet({ onTour, onClose }: { onTour: () => void; onClose: () => void }) {
+export function HelpSheet({ onTour, onClose, onTutorial }: { onTour: () => void; onClose: () => void; onTutorial?: () => void }) {
   const [page, setPage] = useState(false);
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-label="Aiuto" data-testid="aiuto-pannello">
@@ -139,7 +139,10 @@ export function HelpSheet({ onTour, onClose }: { onTour: () => void; onClose: ()
           </>
         ) : (
           <div className="buttons column">
-            <button type="button" className="primary" onClick={onTour} data-testid="aiuto-visita">Rivedi la visita guidata</button>
+            {onTutorial !== undefined && (
+              <button type="button" className="primary" onClick={onTutorial} data-testid="aiuto-tutorial">Riprendi la partita guidata</button>
+            )}
+            <button type="button" className={onTutorial === undefined ? 'primary' : ''} onClick={onTour} data-testid="aiuto-visita">Rivedi la visita guidata</button>
             <button type="button" onClick={() => setPage(true)} data-testid="aiuto-come-si-gioca">Come si gioca: tutte le funzioni</button>
           </div>
         )}

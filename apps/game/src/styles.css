@@ -363,3 +363,45 @@ button.link-button { display: inline; min-height: 0; padding: 0; border: 0; back
   background: #fff;
   color: #1f6fd1;
 }
+
+/* Partita guidata (T16): il comando evidenziato con il resto scurito, il fumetto con il testo.
+   Niente animazioni (vale anche con «riduci animazioni»); l'ombra non blocca i tocchi. */
+.tutorial-evidenza {
+  position: fixed;
+  z-index: 900;
+  border: 3px solid #f0b429;
+  border-radius: 10px;
+  box-shadow: 0 0 0 9999px rgba(20, 20, 24, 0.45);
+  pointer-events: none;
+}
+.tutorial-fumetto {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  margin: 0 auto;
+  max-width: 440px;
+  z-index: 901;
+  overflow-y: auto;
+  background: var(--card, #fff);
+  color: var(--ink, #1d1d1f);
+  border-radius: 12px;
+  padding: 10px 14px 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
+}
+.tutorial-fumetto .kicker {
+  margin: 0 0 4px;
+}
+.tutorial-testo {
+  margin: 0 0 8px;
+  font-size: 1.02rem;
+  line-height: 1.4;
+}
+.tutorial-fumetto .buttons {
+  margin: 0;
+}
+.scelta h2 {
+  margin-top: 0;
+}
+.tutorial-prima {
+  font-weight: 600;
+}

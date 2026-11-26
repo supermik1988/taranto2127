@@ -11,6 +11,8 @@ export {
   type ContentFiles,
   type ContentTexts,
   type ExplanationTexts,
+  type AttesaTutorial,
   type GuideTexts,
   type LoadedContent,
+  type TutorialTexts,
 } from './load.js';

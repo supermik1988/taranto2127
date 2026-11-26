@@ -174,11 +174,12 @@ export function LotCard({ state, lotId, onRequest, onClose }: { state: GameState
       </p>
       {project !== undefined && <ProjectBar project={project} state={state} prev={undefined} />}
       <h3>Destinare il lotto</h3>
-      <div className="buttons wrap">
+      <div className="buttons wrap" data-testid="strade-lotto">
         {PATHS.filter((p) => p !== lot.path).map((path) => (
           <button
             key={path}
             type="button"
+            data-testid={`strada-${path}`}
             onClick={() =>
               onRequest({ kind: 'convert-lot', lotId: lot.id, path }, `Destinare «${lotName(lot.id)}» a ${PATH_NAMES[path]}`, [
                 ...(lot.path !== 'idle' ? ['Il progetto in corso sul lotto si annulla.'] : []),

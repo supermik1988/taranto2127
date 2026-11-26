@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.taranto2127.invalid/tutorial.json",
+  "title": "Partita guidata: scelta all'avvio, seme, passi con il comando da evidenziare e l'azione che li fa avanzare",
+  "type": "object",
+  "required": ["descrizione", "seme", "scelta", "primaChiudi", "passi"],
+  "properties": {
+    "descrizione": { "$ref": "comune.json#/$defs/testo" },
+    "seme": { "$ref": "comune.json#/$defs/intero" },
+    "scelta": {
+      "type": "object",
+      "required": ["titolo", "testo", "guidata", "libera"],
+      "properties": {
+        "titolo": { "$ref": "comune.json#/$defs/testo" },
+        "testo": { "$ref": "comune.json#/$defs/testo" },
+        "guidata": { "$ref": "comune.json#/$defs/testo" },
+        "libera": { "$ref": "comune.json#/$defs/testo" }
+      },
+      "additionalProperties": false
+    },
+    "primaChiudi": { "$ref": "comune.json#/$defs/testo" },
+    "passi": {
+      "type": "array",
+      "minItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["id", "testo", "evidenzia", "attesa"],
+        "properties": {
+          "id": { "$ref": "comune.json#/$defs/id" },
+          "testo": { "$ref": "comune.json#/$defs/testo" },
+          "evidenzia": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9-]*$" }
+          },
+          "attesa": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["tipo", "pannello"],
+                "properties": {
+                  "tipo": { "const": "pannello" },
+                  "pannello": { "enum": ["strati", "consiglio", "cantieri", "bilancio", "grafici", "politiche", "elenco"] }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": ["tipo", "anno"],
+                "properties": { "tipo": { "const": "anno" }, "anno": { "$ref": "comune.json#/$defs/interoPositivo" } },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": ["tipo", "testid"],
+                "properties": { "tipo": { "const": "vede" }, "testid": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9-]*$" } },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": ["tipo"],
+                "properties": {
+                  "tipo": { "enum": ["strato", "finestra-chiusa", "lotto-aperto", "cantiere-avviato", "cronaca", "dilemma-aperto", "dilemma-risposto", "fine"] }
+                },
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -41,10 +41,54 @@ numero ne sia privo; un altro, solo per questa versione, che non ci siano fonti.
 | `politiche.json` | Otto politiche, una delle quali di formazione |
 | `dilemmi.json` | Sei dilemmi, con i testi e le conseguenze di ogni opzione |
 | `parametri.json` | Ritmo dei dilemmi, parametri del contatore morale ed economici |
+| `tutorial.json` | La partita guidata dei primi cinque anni: scelta all'avvio, seme, quindici passi (T16) |
 
 I testi (`nome`, `descrizione`, `titolo`, `testo`, `etichetta`, `conseguenze`) restano
 in italiano nei file e il caricatore li restituisce a parte, per interfaccia e voci.
 Le chiavi dei dati sono quelle del motore, in inglese.
+
+## La partita guidata (T16)
+
+`tutorial.json` (schema `schema/tutorial.schema.json`) contiene la partita guidata dei primi
+cinque anni: la scelta all'avvio, il seme e quindici passi. Il caricatore la restituisce in
+`content.tutorial`, solo per l'interfaccia: il motore non la legge e il tutorial non fa
+azioni al posto del giocatore (regola 1).
+
+- **Scelta all'avvio:** «Partita guidata (consigliata la prima volta)» o «Partita libera».
+  Compare solo a chi arriva per la prima volta (nessuna scelta salvata, nessuna visita già
+  fatta, nessuna partita salvata o nel link) e si ricorda.
+- **Seme:** 24, con stima e motivazione come ogni numero. Trovato cercando tra i primi semi
+  quello per cui, con qualunque lotto e qualunque strada, il primo cantiere cambia fase alla
+  fine del primo anno (il passo «cantieri» lo annuncia dopo il dilemma) e il primo dilemma
+  arriva alla fine del secondo anno, mai prima (il passo «dilemma-attesa» lo annuncia dopo la
+  prima Cronaca); la Cronaca ha titoli ogni anno. Lo verifica
+  `apps/game/src/tutorial.test.ts`, per i sei lotti e le quattro strade.
+- **Passi:** ognuno ha `id`, `testo` (al massimo due frasi, parole semplici),
+  `evidenzia` (i `data-testid` dei comandi, in ordine di preferenza: si evidenzia il primo
+  sullo schermo e non coperto; per esempio «Chiudi» quando una finestra copre il comando) e
+  `attesa`, l'azione del giocatore che fa andare avanti il passo:
+
+  | Attesa | Quando è fatta |
+  | --- | --- |
+  | `pannello` | è aperta la finestra indicata (strati, consiglio, cantieri, bilancio…) |
+  | `strato` | uno strato colora i quartieri |
+  | `finestra-chiusa` | nessuna finestra è aperta |
+  | `lotto-aperto` | è aperta la finestra di un lotto |
+  | `cantiere-avviato` | un lotto ha una strada |
+  | `anno` | la partita è arrivata alla fine dell'anno indicato (numero annotato) |
+  | `cronaca` | la Cronaca è aperta |
+  | `dilemma-aperto`, `dilemma-risposto` | un dilemma è arrivato, oppure ha avuto risposta |
+  | `vede` | il comando indicato è sullo schermo (per esempio una spiegazione) |
+  | `fine` | il giocatore tocca «Fine» |
+
+- `primaChiudi` è la frase aggiunta quando il passo deve evidenziare un pulsante di chiusura
+  al posto del suo comando.
+- **Controlli dei testi** (`packages/content/src/experience.test.ts`): al massimo due frasi
+  e 180 caratteri per passo; nessuna parola che suggerisca una scelta giusta («conviene»,
+  «meglio», «dovresti», «migliore», «sbagliato» e simili, regola 5); nessun nome reale di
+  azienda né morti a punteggio (regola 8). I comandi indicati devono esistere
+  nell'interfaccia (`apps/game/src/tutorial.test.ts`): sono i `data-testid` stabili che
+  l'interfaccia nuova di T13 dovrà mantenere.
 
 ## Gli indici da 0 a 100
 

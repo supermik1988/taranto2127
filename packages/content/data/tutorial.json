@@ -1,0 +1,113 @@
+{
+  "descrizione": "Partita guidata dei primi cinque anni (T16): la scelta all'avvio e i passi del tutorial. Ogni passo ha un testo breve (al massimo due frasi), i comandi da evidenziare indicati con il loro data-testid in ordine di preferenza (si evidenzia il primo visibile e non coperto) e l'azione del giocatore che lo fa andare avanti. Il tutorial spiega cosa si può fare e dove guardare, non suggerisce mai una scelta.",
+  "seme": {
+    "valore": 24,
+    "stima": true,
+    "motivazione": "Seme scelto con una ricerca sui primi semi: con qualunque lotto e qualunque strada il primo cantiere cambia fase alla fine del primo anno e il primo dilemma arriva alla fine del secondo, mai prima; la Cronaca ha titoli ogni anno. Lo verifica una prova (apps/game/src/tutorial.test.ts)."
+  },
+  "scelta": {
+    "titolo": "Come vuoi cominciare?",
+    "testo": "Puoi giocare i primi cinque anni con una guida che ti mostra i comandi uno alla volta, oppure cominciare da solo.",
+    "guidata": "Partita guidata (consigliata la prima volta)",
+    "libera": "Partita libera"
+  },
+  "primaChiudi": "Prima chiudi la finestra aperta: il comando che serve è sotto.",
+  "passi": [
+    {
+      "id": "strati",
+      "testo": "Taranto, 2027: lo stabilimento ILSIDER ha chiuso e la città deve decidere cosa diventare. Tocca «Strati» per vedere come stanno i quartieri.",
+      "evidenzia": ["scheda-strati", "finestra-chiudi"],
+      "attesa": { "tipo": "pannello", "pannello": "strati" }
+    },
+    {
+      "id": "strato",
+      "testo": "Scegli un indicatore: ogni quartiere si colora con un valore da 0 a 100.",
+      "evidenzia": ["strato-airQuality"],
+      "attesa": { "tipo": "strato" }
+    },
+    {
+      "id": "consiglio",
+      "testo": "Il Consiglio comunale ha sei consiglieri, ognuno con la sua idea di città. Tocca «Consiglio» per sentirli.",
+      "evidenzia": ["scheda-consiglio", "finestra-chiudi"],
+      "attesa": { "tipo": "pannello", "pannello": "consiglio" }
+    },
+    {
+      "id": "consiglio-leggi",
+      "testo": "Ogni consigliere dice come vede la città e quanto è disposto a sostenerti. Quando hai letto, chiudi la finestra.",
+      "evidenzia": ["finestra-chiudi"],
+      "attesa": { "tipo": "finestra-chiusa" }
+    },
+    {
+      "id": "lotto",
+      "testo": "I sei lotti dello stabilimento aspettano una nuova strada. Apri «Elenco» e tocca un lotto, quello che vuoi.",
+      "evidenzia": ["elenco-lotto-lotto-parchi-minerali", "scheda-elenco", "finestra-chiudi"],
+      "attesa": { "tipo": "lotto-aperto" }
+    },
+    {
+      "id": "cantiere",
+      "testo": "Scegli una strada per il lotto e conferma: parte il tuo primo cantiere. Nessuna strada è giusta in sé, e la conferma dice tempi e costi.",
+      "evidenzia": ["conferma-si", "strade-lotto"],
+      "attesa": { "tipo": "cantiere-avviato" }
+    },
+    {
+      "id": "bilancio",
+      "testo": "Ogni cantiere pesa sulle casse della città. Tocca «Bilancio» per vedere entrate e spese dell'anno.",
+      "evidenzia": ["scheda-bilancio", "finestra-chiudi"],
+      "attesa": { "tipo": "pannello", "pannello": "bilancio" }
+    },
+    {
+      "id": "anno",
+      "testo": "Le decisioni contano quando il tempo passa. Tocca «Un anno avanti».",
+      "evidenzia": ["un-anno", "finestra-chiudi"],
+      "attesa": {
+        "tipo": "anno",
+        "anno": { "valore": 1, "stima": true, "motivazione": "La fine del primo anno: il momento della prima Cronaca." }
+      }
+    },
+    {
+      "id": "cronaca",
+      "testo": "Ogni anno la Cronaca racconta cosa è cambiato in città. Tocca «Leggi» per aprirla.",
+      "evidenzia": ["leggi-cronaca"],
+      "attesa": { "tipo": "cronaca" }
+    },
+    {
+      "id": "dilemma-attesa",
+      "testo": "Chiudi la Cronaca e fai passare un altro anno. Presto arriverà una decisione da prendere.",
+      "evidenzia": ["un-anno", "continua", "finestra-chiudi"],
+      "attesa": { "tipo": "dilemma-aperto" }
+    },
+    {
+      "id": "dilemma",
+      "testo": "Leggi le opzioni e scegline una. Ogni scelta ha le sue conseguenze, nessuna è quella giusta.",
+      "evidenzia": ["dilemma"],
+      "attesa": { "tipo": "dilemma-risposto" }
+    },
+    {
+      "id": "coscienza",
+      "testo": "In alto, Coscienza e Reputazione raccontano come governi: verità, parola data, cura, legalità, ascolto. Tocca «Coscienza» per sapere cosa misura.",
+      "evidenzia": ["termine-coscienza"],
+      "attesa": { "tipo": "vede", "testid": "spiegazione" }
+    },
+    {
+      "id": "cantieri",
+      "testo": "Ogni cantiere passa per fasi con durate realistiche, e il tuo ne ha già cominciata una nuova. Tocca «Cantieri» per vedere a che punto è.",
+      "evidenzia": ["scheda-cantieri", "spiegazione-chiudi", "finestra-chiudi"],
+      "attesa": { "tipo": "pannello", "pannello": "cantieri" }
+    },
+    {
+      "id": "quinto-anno",
+      "testo": "Accompagna la città fino alla fine del quinto anno, con «Un anno avanti» o «Avvia». Se arriva un altro dilemma, decidi come preferisci.",
+      "evidenzia": ["dilemma", "un-anno", "spiegazione-chiudi", "finestra-chiudi"],
+      "attesa": {
+        "tipo": "anno",
+        "anno": { "valore": 5, "stima": true, "motivazione": "La fine del quinto anno: la partita guidata copre i primi cinque (scheda T16)." }
+      }
+    },
+    {
+      "id": "fine",
+      "testo": "Hai visto gli strumenti principali: da qui la partita continua senza guida. Le spiegazioni restano nel pulsante «?».",
+      "evidenzia": ["aiuto"],
+      "attesa": { "tipo": "fine" }
+    }
+  ]
+}

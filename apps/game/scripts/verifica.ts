@@ -37,6 +37,7 @@ import { fileURLToPath } from 'node:url';
 import { chromium, type Browser, type Page } from 'playwright-core';
 import { transformWithEsbuild } from 'vite';
 import { BERSAGLIO, RECENTI, SOSTITUITE } from '../src/bersaglio.js';
+import { loadContent } from '@taranto2127/content';
 import { TAVOLOZZA } from '../src/iso/aspetto.js';
 import { COPERTURA_MINIMA, copertura } from '../src/iso/vista.js';
 
@@ -135,6 +136,14 @@ async function closeOutside(page: Page): Promise<void> {
 
 /** La visita guidata: completata passo per passo, oppure saltata. A ogni passo un elemento è evidenziato. */
 async function tour(page: Page, width: number, mode: 'completa' | 'salta', shot?: Shot): Promise<void> {
+  // T16: chi arriva per la prima volta sceglie tra partita guidata e libera; la visita non si apre più da sola.
+  await page.waitForSelector(sel('scelta-partita'));
+  if (shot !== undefined) await shot('scelta-partita', false);
+  await click(page, 'scelta-libera');
+  if (await visible(page, 'visita')) fail(`a ${width} px la visita guidata si apre da sola dopo la scelta della partita libera`);
+  if (await visible(page, 'avviso')) await page.locator(`${sel('avviso')} button`).last().click();
+  await click(page, 'aiuto');
+  await click(page, 'aiuto-visita');
   await page.waitForSelector(sel('visita'));
   if (shot !== undefined) await shot('visita', false);
   if (mode === 'salta') {
@@ -465,6 +474,11 @@ async function check360(browser: Browser): Promise<void> {
   page.on('pageerror', (err) => fail(`errore nella pagina (360 px): ${err.message}`));
   await page.goto(`${BASE}?seme=${SEED + 1}`);
   await waitForModel(page);
+  await page.waitForSelector(sel('scelta-partita'));
+  await noHorizontalScroll(page, 'scelta della partita');
+  await click(page, 'scelta-libera');
+  await click(page, 'aiuto');
+  await click(page, 'aiuto-visita');
   await page.waitForSelector(sel('visita'));
   await noHorizontalScroll(page, 'visita guidata');
   await click(page, 'visita-salta');
@@ -1325,6 +1339,171 @@ async function controlliT12e(browser: Browser): Promise<void> {
   await schermateDistanzaMassima(browser, 'dopo');
 }
 
+// ---------- Partita guidata (T16) ----------
+
+/** Apre il gioco come un giocatore nuovo (nessuna scelta, nessuna visita fatta) e sceglie la partita guidata. */
+async function apriGuidata(browser: Browser, width: number, mappa: '3d' | 'schematica'): Promise<{ page: Page; close: () => Promise<void> }> {
+  const context = await browser.newContext({ viewport: { width, height: width < 600 ? (width < 380 ? 740 : 844) : 900 }, deviceScaleFactor: width < 600 ? 2 : 1, hasTouch: width < 600 });
+  const page = await context.newPage();
+  page.on('pageerror', (err) => fail(`errore nella pagina (partita guidata, ${width} px): ${err.message}`));
+  await page.goto(`${BASE}${mappa === 'schematica' ? '?mappa=schematica' : ''}`, { timeout: 240_000 });
+  await page.waitForSelector(sel('scelta-partita'), { timeout: 240_000 });
+  if (width === 390 && mappa === '3d') await page.screenshot({ path: join(shotsDir, 't16-scelta-390.png') });
+  await click(page, 'scelta-guidata');
+  await page.waitForSelector(sel('tutorial'));
+  if (mappa === '3d') await waitForModel(page);
+  return { page, close: () => context.close() };
+}
+
+/** Il passo corrente: identificativo e comando evidenziato (vuoto se non trovato). */
+async function passoOra(page: Page): Promise<{ id: string; bersaglio: string } | null> {
+  if (!(await visible(page, 'tutorial'))) return null;
+  return page.evaluate(() => {
+    const t = document.querySelector('[data-testid="tutorial"]');
+    return t === null ? null : { id: t.getAttribute('data-passo') ?? '', bersaglio: t.getAttribute('data-bersaglio') ?? '' };
+  });
+}
+
+/** Il comando evidenziato è sullo schermo, visibile, e il fumetto non lo copre. */
+async function controllaPasso(page: Page, dove: string, bersaglio: string): Promise<void> {
+  const r = await page.evaluate((b) => {
+    const el = document.querySelector<HTMLElement>(`[data-testid="${b}"]`);
+    const f = document.querySelector<HTMLElement>('[data-testid="tutorial"]');
+    if (el === null || f === null) return null;
+    const a = el.getBoundingClientRect();
+    const c = f.getBoundingClientRect();
+    const x = a.left + a.width / 2;
+    const y = a.top + a.height / 2;
+    const sopra = document.elementFromPoint(x, y);
+    return {
+      dentro: a.left >= -1 && a.top >= -1 && a.right <= window.innerWidth + 1 && a.bottom <= window.innerHeight + 1,
+      coperto: !(a.right <= c.left || a.left >= c.right || a.bottom <= c.top || a.top >= c.bottom),
+      inCima: sopra !== null && (el.contains(sopra) || sopra.contains(el)),
+      fuoco: document.activeElement === el || el.contains(document.activeElement),
+      // Comandi che possono ricevere il fuoco da tastiera (un pulsante, un collegamento, un campo).
+      focusabile: el.matches('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+      // Niente animazioni né transizioni, anche con «riduci animazioni».
+      animato: [f, document.querySelector('[data-testid="tutorial-evidenza"]')].some((x) => {
+        if (x === null) return false;
+        const st = getComputedStyle(x);
+        return st.animationName !== 'none' || (st.transitionDuration.split(',').some((d) => parseFloat(d) > 0) && st.transitionProperty !== 'none');
+      }),
+    };
+  }, bersaglio);
+  if (r === null) fail(`${dove}: il comando «${bersaglio}» non c'è sulla pagina`);
+  else {
+    if (!r.dentro) fail(`${dove}: il comando «${bersaglio}» esce dallo schermo`);
+    if (r.coperto) fail(`${dove}: il fumetto copre il comando «${bersaglio}»`);
+    if (!r.inCima) fail(`${dove}: il comando «${bersaglio}» è coperto da altro`);
+    if (r.focusabile && !r.fuoco) fail(`${dove}: il fuoco da tastiera non è sul comando «${bersaglio}»`);
+    if (r.animato) fail(`${dove}: il fumetto o l'evidenza hanno un'animazione`);
+  }
+}
+
+/** Fa l'azione che il passo chiede sul comando evidenziato. */
+async function azionePasso(page: Page, bersaglio: string): Promise<void> {
+  if (bersaglio === 'strade-lotto') await page.locator(`${sel('strade-lotto')} button`).first().click();
+  else if (bersaglio === 'dilemma') {
+    await page.locator(sel('opzione')).first().click();
+    await click(page, 'scegli');
+  } else if (bersaglio === 'aiuto') await click(page, 'tutorial-fine');
+  else await page.locator(sel(bersaglio)).first().click();
+}
+
+/** Una partita da copione completa il tutorial; a 390 px con la città 3D, una schermata per passo. */
+async function tutorialDaCopione(browser: Browser, width: number, mappa: '3d' | 'schematica'): Promise<void> {
+  const { page, close } = await apriGuidata(browser, width, mappa);
+  const dove = `partita guidata, ${width} px, ${mappa === '3d' ? 'città 3D' : 'mappa schematica'}`;
+  const visti: string[] = [];
+  let azioni = 0;
+  for (let giro = 0; giro < 80; giro++) {
+    const p = await passoOra(page);
+    if (p === null) break;
+    if (p.bersaglio === '') {
+      await page.waitForTimeout(400);
+      const di = await passoOra(page);
+      if (di !== null && di.bersaglio === '') {
+        await page.screenshot({ path: join(shotsDir, `t16-errore-${width}-${mappa}-${p.id}.png`) });
+        fail(`${dove}, passo «${p.id}»: nessun comando evidenziato sullo schermo`);
+        break;
+      }
+      continue;
+    }
+    if (!visti.includes(p.id)) {
+      visti.push(p.id);
+      await controllaPasso(page, `${dove}, passo «${p.id}»`, p.bersaglio);
+      if (width === 390 && mappa === '3d') {
+        await page.waitForTimeout(500);
+        await page.screenshot({ path: join(shotsDir, `t16-passo-${String(visti.length).padStart(2, '0')}-${p.id}-390.png`) });
+      }
+    }
+    if (process.env['T16LOG'] === '1') console.log(`LOG ${width} ${mappa} passo ${p.id} bersaglio ${p.bersaglio}`);
+    await azionePasso(page, p.bersaglio);
+    azioni += 1;
+    await page.waitForTimeout(450);
+  }
+  const passi = (await page.evaluate(() => document.querySelectorAll('[data-testid="tutorial"]').length)) === 0;
+  if (!(await visible(page, 'anno'))) {
+    await page.screenshot({ path: join(shotsDir, `t16-errore-${width}-${mappa}.png`) });
+    fail(`${dove}: dopo il tutorial la barra con l'anno non c'è (schermata t16-errore-${width}-${mappa}.png; ultimo passo «${visti.at(-1) ?? '—'}»)`);
+    await close();
+    return;
+  }
+  const anno = Number((await page.locator(sel('anno')).textContent()) ?? '0');
+  if (!passi) fail(`${dove}: il tutorial non arriva alla fine (ultimo passo visto «${visti.at(-1) ?? '—'}»)`);
+  if (anno < 2032) fail(`${dove}: alla fine del tutorial la partita è al ${anno}, non alla fine del quinto anno`);
+  // Ogni passo dei dati si vede; con la mappa schematica lo strato è sempre acceso, quindi «strato» si salta da solo.
+  const attesi = loadContent().tutorial.passi.map((x) => x.id).filter((id) => !(mappa === 'schematica' && id === 'strato'));
+  const mancanti = attesi.filter((id) => !visti.includes(id));
+  if (mancanti.length > 0 || visti.join() !== attesi.join()) fail(`${dove}: passi non visti o fuori ordine (mancano ${mancanti.join(', ') || 'nessuno'}; visti ${visti.join(', ')})`);
+  misura(`${dove}: tutorial completato, ${visti.length} passi (${visti.join(' → ')}), ${azioni} azioni, partita al ${anno}`);
+  await close();
+}
+
+/** Uscire dal tutorial e riprenderlo da «?» dal punto in cui si era; la scelta si ricorda. */
+async function esciERiprendi(browser: Browser): Promise<void> {
+  const { page, close } = await apriGuidata(browser, 390, '3d');
+  for (let i = 0; i < 3; i++) {
+    const p = await passoOra(page);
+    if (p !== null && p.bersaglio !== '') await azionePasso(page, p.bersaglio);
+    await page.waitForTimeout(450);
+  }
+  const prima = await passoOra(page);
+  await click(page, 'tutorial-esci');
+  await page.waitForTimeout(300);
+  if (await visible(page, 'tutorial')) fail('«Esci dal tutorial» non chiude il tutorial');
+  // Chiusa qualunque finestra, si riprende da «?».
+  if (await visible(page, 'finestra-chiudi')) await click(page, 'finestra-chiudi');
+  await click(page, 'aiuto');
+  await click(page, 'aiuto-tutorial');
+  await page.waitForSelector(sel('tutorial'));
+  const dopo = await passoOra(page);
+  if (prima === null || dopo === null || prima.id !== dopo.id) fail(`ripresa del tutorial: si era al passo «${prima?.id}», si riprende da «${dopo?.id}»`);
+  // Ricaricando, la scelta non si ripresenta e il tutorial riprende da dove era.
+  await page.reload();
+  await waitForModel(page);
+  const ricaricato = await passoOra(page);
+  if (await visible(page, 'scelta-partita')) fail('dopo una ricarica la scelta all\'avvio si ripresenta');
+  if (ricaricato === null || ricaricato.id !== prima?.id) fail(`dopo una ricarica il tutorial è al passo «${ricaricato?.id}», non a «${prima?.id}»`);
+  misura(`uscita e ripresa: si esce al passo «${prima?.id}», si riprende da «?» allo stesso passo, e anche dopo una ricarica`);
+  await close();
+}
+
+async function controlliT16(browser: Browser): Promise<void> {
+  if (process.env['T16CASO'] !== undefined) {
+    const [w, m] = process.env['T16CASO'].split(':');
+    await tutorialDaCopione(browser, Number(w), m as '3d' | 'schematica');
+    return;
+  }
+  await tutorialDaCopione(browser, 390, '3d');
+  await tutorialDaCopione(browser, 360, '3d');
+  await tutorialDaCopione(browser, 1280, '3d');
+  await tutorialDaCopione(browser, 390, 'schematica');
+  await tutorialDaCopione(browser, 360, 'schematica');
+  await tutorialDaCopione(browser, 1280, 'schematica');
+  await esciERiprendi(browser);
+}
+
 async function main(): Promise<void> {
   const quick = process.argv.includes('--rapida');
   const onlyContrast = process.argv.includes('--misura-strato');
@@ -1338,9 +1517,10 @@ async function main(): Promise<void> {
   const t12c = process.argv.includes('--t12c');
   const t12d = process.argv.includes('--t12d');
   const t12e = process.argv.includes('--t12e');
+  const t16 = process.argv.includes('--t16');
   // Solo le schermate «prima» alla distanza massima, sulla copia indicata da VERIFICA_APP (per esempio main).
   const t12ePrima = process.argv.includes('--t12e-prima');
-  const partial = quick || onlyContrast || onlyPerf || onlyCity || onlyCorners || onlyDescent || after || t12c || t12d || t12e || t12ePrima || process.argv.includes('--diagnosi');
+  const partial = quick || onlyContrast || onlyPerf || onlyCity || onlyCorners || onlyDescent || after || t12c || t12d || t12e || t12ePrima || t16 || process.argv.includes('--diagnosi');
   mkdirSync(shotsDir, { recursive: true });
   execSync('npx vite build', { cwd: appDir, stdio: 'inherit' });
   const server = spawn(`npx vite preview --port ${PORT} --strictPort`, { cwd: appDir, shell: true, stdio: 'ignore' });
@@ -1349,7 +1529,9 @@ async function main(): Promise<void> {
     const channel = process.env['BROWSER'] === 'chrome' ? 'chrome' : 'msedge';
     const browser = await chromium.launch({ channel });
     try {
-      if (t12ePrima) {
+      if (t16) {
+        await controlliT16(browser);
+      } else if (t12ePrima) {
         await schermateDistanzaMassima(browser, 'prima');
       } else if (t12e) {
         await controlliT12e(browser);
@@ -1395,6 +1577,7 @@ async function main(): Promise<void> {
         await controlloBersaglio();
         await controlliT12d(browser);
         await controlliT12e(browser);
+        await controlliT16(browser);
         await checkLayerContrast(browser);
         await playAt(390, browser, 'completa');
         await playAt(1280, browser, 'salta');

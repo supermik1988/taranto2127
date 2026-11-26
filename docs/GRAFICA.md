@@ -15,6 +15,7 @@ porto, della Città Vecchia e del Borgo.
   `docs/grafica-elementi.json`.
 - La disposizione dei comandi resta quella del T11 (qui sotto), con in più i pulsanti
   della vista a sinistra.
+- Partita guidata dei primi cinque anni, scelta all'avvio (T16): sezione «Partita guidata (T16)».
 - Tutta la mappa sul telefono, area libera dai comandi e distanza massima (T12e): sezione
   «Tutta la mappa sul telefono (T12e)».
 - Compatibilità con i browser, avvio a prova di dati vecchi, messaggio di guasto (T12d):
@@ -34,6 +35,42 @@ porto, della Città Vecchia e del Borgo.
   schermo largo stanno a destra, accanto ai pulsanti, che restano attivi.
 - A sinistra, sopra l'attribuzione di OpenStreetMap (T12): «+» e «−» per avvicinare e
   allontanare, «⟳» per ruotare la vista di un quarto di giro.
+
+## Partita guidata (T16)
+
+- **All'avvio**, chi arriva per la prima volta sceglie tra «Partita guidata (consigliata la
+  prima volta)» e «Partita libera» (`tutorial.tsx`, `SceltaPartita`; il fuoco va sul primo
+  pulsante). La visita guidata di T08 non si apre più da sola: resta in «?», «Rivedi la visita
+  guidata».
+- **Un passo alla volta** (`tutorial.tsx`, `Tutorial`): un riquadro giallo di 3 pixel attorno
+  al comando da toccare e il resto scurito al 45% (un'ombra che non blocca i tocchi); un
+  fumetto con «Partita guidata · passo N di 15», il testo e «Esci dal tutorial». Il fumetto
+  sta sopra o sotto il comando, dove c'è più spazio, e non lo copre mai; se lo spazio è poco,
+  il testo scorre. Il comando evidenziato è il primo dell'elenco del passo che è sullo schermo
+  e non è coperto da altro: sul telefono, se una finestra copre il pulsante, si evidenzia
+  «Chiudi» e il fumetto aggiunge «Prima chiudi la finestra aperta: il comando che serve è
+  sotto».
+- **Avanti solo facendo:** il passo cambia quando il giocatore ha fatto l'azione, controllata
+  a ogni cambio dello stato e ogni 300 ms per ciò che sta solo nella pagina; mai a tempo.
+  L'avanzamento porta con sé il passo da cui parte, così due controlli dello stesso passo non
+  ne fanno saltare uno.
+- **Facoltativa:** «Esci dal tutorial» in ogni passo; da «?» si riprende dal passo in cui si
+  era, anche dopo una ricarica (il punto è salvato nel browser, `taranto2127:tutorial`). Alla
+  fine del quinto anno «Fine» chiude la guida e la partita continua.
+- **Accessibilità:** il fumetto è una finestra non modale con `aria-live`, letta dai lettori di
+  schermo; il fuoco da tastiera va sul comando evidenziato; nessuna animazione né transizione;
+  funziona a 360 px in verticale e con la mappa schematica (dove lo strato è sempre acceso e
+  il passo «strato» si salta da solo).
+- **Identificativi nuovi:** `scelta-partita`, `scelta-guidata`, `scelta-libera`, `tutorial`
+  (con `data-passo` e `data-bersaglio`), `tutorial-evidenza`, `tutorial-esci`, `tutorial-fine`,
+  `tutorial-prima-chiudi`, `aiuto-tutorial`; nella finestra del lotto `strade-lotto` e
+  `strada-<strada>`.
+- **Prove nel browser** (`scripts/verifica.ts --t16`, anche nella verifica completa): una
+  partita da copione completa il tutorial a 360, 390 e 1280 px, con la città 3D e con la mappa
+  schematica; a ogni passo il comando è sullo schermo, in cima, non coperto dal fumetto, con
+  il fuoco se può riceverlo, senza animazioni; alla fine la partita è al 2032. Uscita e ripresa
+  da «?», anche dopo una ricarica. Schermate di ogni passo a 390 px:
+  `docs/schermate/t16-passo-NN-<passo>-390.png`, e la scelta all'avvio `t16-scelta-390.png`.
 
 ## Tutta la mappa sul telefono (T12e)
 
