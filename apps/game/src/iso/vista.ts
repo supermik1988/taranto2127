@@ -12,8 +12,9 @@
  *   portare dentro l'area libera, e non oltre: quando un estremo della zona arriva al bordo
  *   dell'area libera la vista si ferma. Se la zona è più piccola dell'area libera, resta al
  *   centro dell'area libera.
- * - Alla distanza massima l'intera zona entra nell'area libera, in ogni orientamento e a
- *   ogni larghezza (ingrandimento minimo calcolato, non fisso).
+ * - Distanza massima calcolata, non fissa (correzione di T12e decisa da Michele): sul
+ *   telefono in verticale la zona riempie in larghezza l'area libera e almeno il 70%
+ *   dell'area libera cade sopra la zona; sugli schermi larghi la zona entra tutta.
  */
 import * as THREE from 'three';
 import type { Pt } from '../plastico/data.js';
@@ -120,6 +121,98 @@ export function ppmPerTutta(azimut: number, lim: Limiti, area: Area): number {
   return RESPIRO * Math.min(largo / (a1 - a0), alto / ((b1 - b0) * Math.sin(ELEVAZIONE)));
 }
 
+/** Quota dell'area libera che, alla distanza massima sul telefono in verticale, deve cadere sopra la zona. */
+export const COPERTURA_MINIMA = 0.7;
+/** Il calcolo cerca un po' di più, perché la prova non stia sul filo (centraggio e arrotondamenti). */
+const COPERTURA_CERCATA = 0.74;
+
+/** Area di un poligono (formula di Gauss), in valore assoluto. */
+function areaPoligono(p: Pt[]): number {
+  let s = 0;
+  for (let i = 0; i < p.length; i++) {
+    const [x1, y1] = p[i]!;
+    const [x2, y2] = p[(i + 1) % p.length]!;
+    s += x1 * y2 - x2 * y1;
+  }
+  return Math.abs(s) / 2;
+}
+
+/** Ritaglia un poligono convesso con un rettangolo (Sutherland-Hodgman). */
+export function ritaglia(poligono: Pt[], r: Area): Pt[] {
+  let out = poligono;
+  const lati: [(p: Pt) => boolean, (a: Pt, b: Pt) => Pt][] = [
+    [(p) => p[0] >= r.left, (a, b) => [r.left, a[1] + ((b[1] - a[1]) * (r.left - a[0])) / (b[0] - a[0])]],
+    [(p) => p[0] <= r.right, (a, b) => [r.right, a[1] + ((b[1] - a[1]) * (r.right - a[0])) / (b[0] - a[0])]],
+    [(p) => p[1] >= r.top, (a, b) => [a[0] + ((b[0] - a[0]) * (r.top - a[1])) / (b[1] - a[1]), r.top]],
+    [(p) => p[1] <= r.bottom, (a, b) => [a[0] + ((b[0] - a[0]) * (r.bottom - a[1])) / (b[1] - a[1]), r.bottom]],
+  ];
+  for (const [dentro, taglio] of lati) {
+    const prima = out;
+    out = [];
+    for (let i = 0; i < prima.length; i++) {
+      const a = prima[i]!;
+      const b = prima[(i + 1) % prima.length]!;
+      if (dentro(b)) {
+        if (!dentro(a)) out.push(taglio(a, b));
+        out.push(b);
+      } else if (dentro(a)) out.push(taglio(a, b));
+    }
+    if (out.length === 0) return [];
+  }
+  return out;
+}
+
+/** Quota di un rettangolo dello schermo che cade sopra un poligono dello schermo (0-1). */
+export function copertura(poligono: Pt[], r: Area): number {
+  const tot = Math.max(1e-9, (r.right - r.left) * (r.bottom - r.top));
+  return areaPoligono(ritaglia(poligono, r)) / tot;
+}
+
+/** Quota dell'area libera sopra la zona, con il centro della zona al centro dell'area libera. */
+export function coperturaCentrata(ppm: number, azimut: number, lim: Limiti, area: Area): number {
+  const { destra, avanti, a0, a1, b0, b1 } = estremi(azimut, lim);
+  const am = (a0 + a1) / 2;
+  const bm = (b0 + b1) / 2;
+  const mx = (area.left + area.right) / 2;
+  const my = (area.top + area.bottom) / 2;
+  const kv = ppm * Math.sin(ELEVAZIONE);
+  const poligono: Pt[] = [
+    [lim.minX, lim.minY],
+    [lim.maxX, lim.minY],
+    [lim.maxX, lim.maxY],
+    [lim.minX, lim.maxY],
+  ].map(([x, y]) => {
+    const a = x! * destra[0] + y! * destra[1];
+    const b = x! * avanti[0] + y! * avanti[1];
+    return [mx + (a - am) * ppm, my - (b - bm) * kv] as Pt;
+  });
+  return copertura(poligono, area);
+}
+
+/**
+ * Distanza massima (T12e, correzione decisa da Michele). Se l'area libera è più alta che
+ * larga (telefono in verticale): l'ingrandimento più piccolo a cui la zona riempie in
+ * larghezza l'area libera e almeno il 70% dell'area libera cade sopra la zona. Altrimenti
+ * (computer, telefono in orizzontale): quello a cui la zona entra tutta, con il 4% d'aria.
+ */
+export function ppmDistanzaMassima(azimut: number, lim: Limiti, area: Area): number {
+  const largo = area.right - area.left;
+  const alto = area.bottom - area.top;
+  if (alto <= largo) return ppmPerTutta(azimut, lim, area);
+  const { a0, a1 } = estremi(azimut, lim);
+  let basso = largo / (a1 - a0); // la zona riempie in larghezza
+  if (coperturaCentrata(basso, azimut, lim, area) >= COPERTURA_CERCATA) return basso;
+  let altoPpm = basso;
+  while (coperturaCentrata(altoPpm, azimut, lim, area) < COPERTURA_CERCATA && altoPpm < PPM_MAX) altoPpm *= 2;
+  // Ricerca per bisezione: la copertura cresce con l'ingrandimento.
+  for (let i = 0; i < 40; i++) {
+    const m = (basso + altoPpm) / 2;
+    if (coperturaCentrata(m, azimut, lim, area) >= COPERTURA_CERCATA) altoPpm = m;
+    else basso = m;
+  }
+  return altoPpm;
+}
+
 /**
  * Centro ammesso: ogni punto della zona si può portare dentro l'area libera, e la vista si
  * ferma quando un estremo della zona arriva al bordo dell'area libera. Su un asse in cui la
@@ -199,9 +292,9 @@ export class Vista {
     this.dimensioni(this.w, this.h);
   }
 
-  /** Ingrandimento minimo: la zona intera entra nell'area libera (al più PPM_MIN). */
+  /** Ingrandimento minimo (distanza massima): vedi ppmDistanzaMassima; al più PPM_MIN. */
   ppmMinimo(azimut = this.meta.azimut): number {
-    return Math.min(PPM_MIN, ppmPerTutta(azimut, this.limiti, this.libera));
+    return Math.min(PPM_MIN, ppmDistanzaMassima(azimut, this.limiti, this.libera));
   }
 
   private limita(): void {

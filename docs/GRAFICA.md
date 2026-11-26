@@ -50,10 +50,20 @@ comandi sopra la mappa, quindi i bordi della zona restavano sotto i comandi.
   cambio di dimensione e ogni dieci immagini, quindi segue le finestre che si aprono e si
   chiudono e il telefono che ruota. Dentro l'area libera si tiene un margine di 8 pixel
   (`MARGINE_PX`), uguale a ogni ingrandimento.
-- **Distanza massima** (`iso/vista.ts`, `ppmPerTutta`): non più fissa. È l'ingrandimento a
-  cui l'intera zona (che a 45° appare come un rombo) entra nell'area libera, con il 4%
-  d'aria, nei quattro orientamenti; al più 0,3 pixel per metro come prima. Misurata:
-  0,017 px/m a 360 px, 0,020 a 390, 0,022 sul telefono lungo 1080×2340, 0,098 a 1280.
+- **Distanza massima** (`iso/vista.ts`, `ppmDistanzaMassima`), non più fissa, con la
+  correzione decisa da Michele dopo la revisione del primo invio (`9f95381`, in cui sul
+  telefono la zona entrava tutta ma diventava un rombo minuscolo in mezzo a un prato finto):
+  - **area libera più alta che larga** (telefono in verticale): l'ingrandimento più piccolo
+    a cui la zona riempie in larghezza l'area libera e almeno il 70% dell'area libera cade
+    sopra la zona, con il centro della zona al centro dell'area libera (il calcolo cerca il
+    74%, per non stare sul filo). La copertura è geometrica: il quadrilatero della zona sullo
+    schermo ritagliato con il rettangolo libero. I lati che restano fuori si raggiungono
+    trascinando. Misurata: 0,085 px/m a 360 px, 0,099 a 390, 0,108 sul telefono lungo
+    1080×2340 (nel primo invio circa 0,02), zona larga 924-1177 px su un'area libera di
+    212-264 px, copertura 72%;
+  - **area libera più larga che alta** (computer, telefono in orizzontale): l'ingrandimento a
+    cui la zona entra tutta, con il 4% d'aria, come nel primo invio (0,098 px/m a 1280 px).
+  - Al più 0,3 pixel per metro, come in T12.
 - **Limite dello spostamento** (`limitaCentro`): calcolato sugli assi dello schermo e
   sull'area libera. Ogni estremo della zona può arrivare al bordo dell'area libera, e lì la
   vista si ferma; su un asse in cui la zona è più piccola dell'area libera, la zona resta al
@@ -64,16 +74,21 @@ comandi sopra la mappa, quindi i bordi della zona restavano sotto i comandi.
   quanto serve perché nulla resti dietro di lei o oltre il piano di fondo: gli angoli dello
   schermo non mostrano mai lo sfondo, anche alla distanza massima.
 
-**Prove.** In `vista.test.ts`: alla distanza massima i quattro vertici nell'area libera (cinque
-schermi, quattro orientamenti); spingendo verso ciascun bordo il vertice di quel lato entra
+**Prove.** In `vista.test.ts`: sugli schermi larghi alla distanza massima i quattro vertici
+nell'area libera; sul telefono in verticale la zona riempie in larghezza e copre almeno il 70%
+(tre telefoni, quattro orientamenti); la copertura geometrica su casi noti; spingendo verso ciascun bordo il vertice di quel lato entra
 nell'area libera e la vista si ferma; arresto esatto al bordo efficace; un'area libera
 assurda non blocca la vista. Nel browser (`scripts/verifica.ts --t12e`, anche nella verifica
 completa): a 360, 390, 1280 px e 1080×2340 (412×892 a densità 2,625), nei quattro
 orientamenti, i vertici alla distanza massima e dopo 48 spinte per schermo stanno nell'area
 libera e, con un controllo indipendente dal gioco, sotto nessun comando misurato nel DOM;
-l'area libera segue la finestra «Elenco»; angoli dello schermo anche a 1e-4 px/m.
-Schermate prima e dopo alla distanza massima: `docs/schermate/t12e-prima-*` (da `main`,
-`9694485`) e `t12e-dopo-*`, quattro orientamenti, quattro schermi.
+l'area libera segue la finestra «Elenco»; angoli dello schermo anche a 1e-4 px/m. Sul
+telefono in verticale, alla distanza massima, la prova misura dal DOM l'area libera e
+controlla che la zona la riempia in larghezza e ne copra almeno il 70%; a 1280 px che la
+zona entri tutta.
+Schermate alla distanza massima, quattro orientamenti, quattro schermi:
+`docs/schermate/t12e-prima-*` (T12, da `main` `9694485`), `t12e-primo-invio-*` (primo invio,
+prima della correzione) e `t12e-dopo-*` (dopo la correzione).
 
 ## Compatibilità e avvio (T12d): mai più pagina bianca
 

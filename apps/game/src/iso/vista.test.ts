@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import type { Pt } from '../plastico/data.js';
-import { AZIMUT_BASE, ELEVAZIONE, MARGINE_PX, PPM_MAX, PPM_MIN, Vista, fattore, type Area, type Limiti } from './vista.js';
+import { AZIMUT_BASE, COPERTURA_MINIMA, ELEVAZIONE, MARGINE_PX, PPM_MAX, PPM_MIN, Vista, copertura, coperturaCentrata, fattore, type Area, type Limiti } from './vista.js';
 
 const LIM: Limiti = { minX: -5000, maxX: 5000, minY: -3200, maxY: 3200 };
 const gradi = (r: number) => (r * 180) / Math.PI;
@@ -100,8 +100,8 @@ describe('vista della città isometrica', () => {
   ];
   const dentro = (s: { x: number; y: number }, a: Area, tol = 1e-6) => s.x >= a.left - tol && s.x <= a.right + tol && s.y >= a.top - tol && s.y <= a.bottom + tol;
 
-  it('alla distanza massima la zona intera entra nell\'area libera, a ogni larghezza e in ogni orientamento', () => {
-    for (const sc of SCHERMI) {
+  it('schermi larghi: alla distanza massima la zona intera entra nell\'area libera, in ogni orientamento', () => {
+    for (const sc of SCHERMI.filter((x) => x.area.bottom - x.area.top <= x.area.right - x.area.left)) {
       for (let o = 0; o < 4; o++) {
         const v = new Vista([1234, -567], 1, LIM);
         v.dimensioni(sc.w, sc.h);
@@ -111,10 +111,44 @@ describe('vista della città isometrica', () => {
         v.ingrandisci(1e-6, sc.w / 2, sc.h / 2, true);
         assesta(v);
         expect(v.ora.ppm, sc.nome).toBeCloseTo(v.ppmMinimo(), 9);
-        expect(v.ppmMinimo(), sc.nome).toBeLessThanOrEqual(PPM_MIN);
         for (const p of VERTICI) expect(dentro(v.aSchermo(p), sc.area), `${sc.nome} o${o} vertice ${p.join(',')}`).toBe(true);
       }
     }
+  });
+
+  it('telefono in verticale: alla distanza massima la zona riempie in larghezza e copre almeno il 70% dell\'area libera', () => {
+    const telefoni = SCHERMI.filter((x) => x.area.bottom - x.area.top > x.area.right - x.area.left);
+    expect(telefoni.length).toBe(3);
+    for (const sc of telefoni) {
+      for (let o = 0; o < 4; o++) {
+        const v = new Vista([1234, -567], 1, LIM);
+        v.dimensioni(sc.w, sc.h);
+        v.impostaAreaLibera(sc.area);
+        for (let k = 0; k < o; k++) v.ruota(1);
+        assesta(v);
+        v.ingrandisci(1e-6, sc.w / 2, sc.h / 2, true);
+        assesta(v);
+        const a = v.libera;
+        // Il centro della zona al centro dell'area libera.
+        v.porta([(LIM.minX + LIM.maxX) / 2, (LIM.minY + LIM.maxY) / 2], (a.left + a.right) / 2, (a.top + a.bottom) / 2);
+        const s = VERTICI.map((p) => v.aSchermo(p));
+        const xs = s.map((q) => q.x);
+        const msg = `${sc.nome} o${o}`;
+        expect(Math.max(...xs) - Math.min(...xs), `${msg}: ingombro in larghezza`).toBeGreaterThanOrEqual(a.right - a.left - 1e-6);
+        expect(copertura(s.map((q) => [q.x, q.y] as Pt), a), `${msg}: copertura`).toBeGreaterThanOrEqual(COPERTURA_MINIMA);
+        // Non più vicino del necessario: un po' più lontano la copertura scende sotto quella cercata.
+        expect(coperturaCentrata(v.ora.ppm * 0.9, v.ora.azimut, LIM, a), msg).toBeLessThan(0.74);
+      }
+    }
+  });
+
+  it('la copertura geometrica è giusta su casi noti', () => {
+    const r: Area = { left: 0, top: 0, right: 10, bottom: 10 };
+    expect(copertura([[0, 0], [10, 0], [10, 10], [0, 10]], r)).toBeCloseTo(1, 12);
+    expect(copertura([[-5, -5], [5, -5], [5, 5], [-5, 5]], r)).toBeCloseTo(0.25, 12);
+    expect(copertura([[5, -5], [15, 5], [5, 15], [-5, 5]], r)).toBeCloseTo(1, 12);
+    expect(copertura([[5, 0], [10, 5], [5, 10], [0, 5]], r)).toBeCloseTo(0.5, 12);
+    expect(copertura([[20, 20], [30, 20], [30, 30]], r)).toBe(0);
   });
 
   it("spingendo la vista verso un bordo, il vertice di quel lato entra nell'area libera e la vista non va oltre", () => {

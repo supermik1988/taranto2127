@@ -38,6 +38,7 @@ import { chromium, type Browser, type Page } from 'playwright-core';
 import { transformWithEsbuild } from 'vite';
 import { BERSAGLIO, RECENTI, SOSTITUITE } from '../src/bersaglio.js';
 import { TAVOLOZZA } from '../src/iso/aspetto.js';
+import { COPERTURA_MINIMA, copertura } from '../src/iso/vista.js';
 
 // VERIFICA_APP permette di misurare un'altra copia del gioco (per esempio una versione precedente, per confronto).
 const appDir = process.env['VERIFICA_APP'] ?? join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -1189,11 +1190,16 @@ async function schermateDistanzaMassima(browser: Browser, prefisso: 'prima' | 'd
   for (const s of SCHERMI_T12E) {
     const { page, close } = await apriSchermo(browser, s);
     for (let o = 0; o < 4; o++) {
-      await page.evaluate((oo) => {
-        const p = window.taranto2127Plastico!;
-        p.imposta(1e-4, oo);
-        p.guarda(0, 0, 1e-4);
-      }, o);
+      await page.evaluate(
+        ([oo, centra]) => {
+          const p = window.taranto2127Plastico!;
+          p.imposta(1e-4, oo);
+          // Il centro della zona al centro dell'area libera (la copia di prima non ha questa sonda).
+          if (centra) p.spingi([0, 0], 0, 0);
+          else p.guarda(0, 0, 1e-4);
+        },
+        [o, prefisso === 'dopo'] as const,
+      );
       await page.waitForTimeout(1200);
       await page.screenshot({ path: join(schermateRamo, `t12e-${prefisso}-distanza-massima-o${o + 1}-${s.nome}.png`) });
     }
@@ -1233,15 +1239,33 @@ async function controlliT12e(browser: Browser): Promise<void> {
       const r = await page.evaluate((oo) => {
         const p = window.taranto2127Plastico!;
         p.imposta(1e-4, oo);
-        p.guarda(0, 0, 1e-4);
+        p.spingi([0, 0], 0, 0);
         return p.areaLibera();
       }, o);
-      const fuori = r.vertici.filter((v) => v.x < r.area.left - tol || v.x > r.area.right + tol || v.y < r.area.top - tol || v.y > r.area.bottom + tol);
-      if (fuori.length > 0) fail(`${s.nome}, orientamento ${o + 1}, distanza massima: ${fuori.length} vertici della zona fuori dall'area libera ${JSON.stringify(r.area)}: ${JSON.stringify(fuori)}`);
-      // Controllo indipendente dal gioco: nessun vertice sotto un comando misurato nel DOM, nessuno fuori dalla tela.
-      const nascosti = r.vertici.filter((v) => !visibileSullaMappa(v, dom));
-      if (nascosti.length > 0) fail(`${s.nome}, orientamento ${o + 1}, distanza massima: ${nascosti.length} vertici della zona sotto un comando o fuori dalla tela: ${JSON.stringify(nascosti)}`);
-      if (o === 0) misura(`${s.nome}: area libera ${Math.round(r.area.left)}-${Math.round(r.area.right)} × ${Math.round(r.area.top)}-${Math.round(r.area.bottom)} px su ${s.width}×${s.height}; distanza massima ${r.ppmMinimo.toFixed(3)} px/m (era 0,3)`);
+      // Area libera misurata dal DOM, non quella del gioco: tela meno i comandi.
+      const libera = {
+        left: Math.max(0, ...dom.comandi.filter((c) => c.x1 - c.x0 < dom.tela.w / 2 && c.x0 < dom.tela.w / 2).map((c) => c.x1)),
+        right: Math.min(dom.tela.w, ...dom.comandi.filter((c) => c.x1 - c.x0 < dom.tela.w / 2 && c.x0 >= dom.tela.w / 2).map((c) => c.x0)),
+        top: Math.max(0, ...dom.comandi.filter((c) => c.x1 - c.x0 >= dom.tela.w / 2 && c.y0 < dom.tela.h / 2).map((c) => c.y1)),
+        bottom: Math.min(dom.tela.h, ...dom.comandi.filter((c) => c.x1 - c.x0 >= dom.tela.w / 2 && c.y0 >= dom.tela.h / 2).map((c) => c.y0)),
+      };
+      const verticale = libera.bottom - libera.top > libera.right - libera.left;
+      if (verticale) {
+        // Telefono in verticale (correzione dopo la revisione): la zona riempie in larghezza e copre almeno il 70% dell'area libera.
+        const xs = r.vertici.map((v) => v.x);
+        const largo = Math.max(...xs) - Math.min(...xs);
+        const quota = copertura(r.vertici.map((v) => [v.x, v.y] as [number, number]), libera);
+        if (largo < libera.right - libera.left - tol) fail(`${s.nome}, orientamento ${o + 1}, distanza massima: la zona non riempie in larghezza l'area libera (${Math.round(largo)} contro ${Math.round(libera.right - libera.left)} px)`);
+        if (quota < COPERTURA_MINIMA) fail(`${s.nome}, orientamento ${o + 1}, distanza massima: solo il ${(quota * 100).toFixed(0)}% dell'area libera è sopra la zona (almeno 70%)`);
+        if (o === 0) misura(`${s.nome}: area libera ${Math.round(libera.left)}-${Math.round(libera.right)} × ${Math.round(libera.top)}-${Math.round(libera.bottom)} px su ${s.width}×${s.height}; distanza massima ${r.ppmMinimo.toFixed(3)} px/m (era 0,3; nel primo invio circa 0,02): la zona è larga ${Math.round(largo)} px e copre il ${(quota * 100).toFixed(0)}% dell'area libera`);
+      } else {
+        // Schermo largo: la zona entra tutta, e nessun vertice sta sotto un comando misurato nel DOM.
+        const fuori = r.vertici.filter((v) => v.x < r.area.left - tol || v.x > r.area.right + tol || v.y < r.area.top - tol || v.y > r.area.bottom + tol);
+        if (fuori.length > 0) fail(`${s.nome}, orientamento ${o + 1}, distanza massima: ${fuori.length} vertici della zona fuori dall'area libera ${JSON.stringify(r.area)}: ${JSON.stringify(fuori)}`);
+        const nascosti = r.vertici.filter((v) => !visibileSullaMappa(v, dom));
+        if (nascosti.length > 0) fail(`${s.nome}, orientamento ${o + 1}, distanza massima: ${nascosti.length} vertici della zona sotto un comando o fuori dalla tela: ${JSON.stringify(nascosti)}`);
+        if (o === 0) misura(`${s.nome}: area libera ${Math.round(libera.left)}-${Math.round(libera.right)} × ${Math.round(libera.top)}-${Math.round(libera.bottom)} px; distanza massima ${r.ppmMinimo.toFixed(3)} px/m: la zona entra tutta`);
+      }
       // Spingendo verso ciascun bordo, il vertice di quel lato si porta nell'area libera.
       for (const ppm of [0.3, 1, 3]) {
         for (const [dx, dy, lato] of [
@@ -1283,7 +1307,7 @@ async function controlliT12e(browser: Browser): Promise<void> {
         }
       }
     }
-    misura(`${s.nome}: alla distanza massima i quattro vertici nell'area libera nei quattro orientamenti; ${spinte} spinte verso i bordi, ogni vertice portato nell'area libera`);
+    misura(`${s.nome}: distanza massima a posto nei quattro orientamenti; ${spinte} spinte verso i bordi, ogni vertice portato nell'area libera`);
     // L'area libera si ricalcola quando una finestra si apre e si chiude.
     const chiusa = (await page.evaluate(() => window.taranto2127Plastico!.areaLibera())).area;
     await openPanel(page, 'elenco');
