@@ -1074,6 +1074,15 @@ ciascuna fase.
   secondi senza errori, anche con il processore rallentato 4× e con un salvataggio non
   valido nell'archivio del browser. Oggi, se qualcosa si rompe all'avvio, il giocatore non
   vede nulla e nessuno può capire perché.
+- **Causa trovata dall'architetto (26 novembre).** In incognito il gioco funziona anche sul
+  telefono di Michele. Il salvataggio automatico conserva seme e mosse; all'avvio
+  `startingGame` → `restoreGame` le rigioca con il motore e i contenuti di oggi. Una partita
+  salvata con una versione precedente contiene una risposta a un dilemma che oggi, con lo
+  stesso seme, non è più aperto: il motore lancia `ActionError` («nessun dilemma aperto: non si
+  può rispondere a …») dentro l'inizializzazione di React e la pagina resta bianca. Riprodotto
+  sul sito pubblicato (`9cd63f9`) mettendo nell'archivio del browser una partita con
+  `{ kind: 'answer-dilemma', dilemmaId: 'dilemma-di-una-versione-vecchia', optionId: 'a' }`.
+  Lo stesso vale per il link di una partita (`#partita=`) e per i posti di salvataggio.
 - **Cosa fare.**
   1. *Sentinella nella pagina:* in `index.html` un piccolo script classico (non modulo,
      sintassi vecchia, compatibile anche con browser di dieci anni fa) registra gli errori
@@ -1089,9 +1098,14 @@ ciascuna fase.
      Internet degli ultimi quattro anni, Safari iOS 15). Le funzioni recenti usate senza
      traduzione (oggi per esempio `structuredClone`, `Object.hasOwn`, `Array.prototype.at`)
      vanno tolte o sostituite se non coperte da quei browser. Elenco in `docs/GRAFICA.md`.
-  4. *Avvio a prova di dati vecchi:* se il salvataggio o le preferenze nel browser non si
-     possono usare, si ignorano con un avviso e si parte con una partita nuova.
-- **Fatto quando:** nella verifica nel browser, (a) un errore lanciato apposta all'avvio
+  4. *Avvio a prova di dati vecchi (la causa vera):* se rigiocare un salvataggio, un link o un
+     posto fallisce, la partita non si apre, il giocatore vede un avviso chiaro («Questa
+     partita è stata salvata con una versione precedente del gioco e non si può riaprire»)
+     e parte una partita nuova; il salvataggio vecchio si conserva da parte finché il
+     giocatore non lo cancella. Il salvataggio registra anche la versione del gioco e dei
+     dati con cui è stato fatto, così l'incompatibilità si riconosce prima di rigiocare.
+- **Fatto quando:** nella verifica nel browser, (0) con la partita salvata descritta sopra
+  nell'archivio, nel link e in un posto, il gioco parte con l'avviso e una partita nuova; (a) un errore lanciato apposta all'avvio
   mostra il messaggio e non una pagina bianca; (b) un errore lanciato apposta nella città 3D
   fa comparire la mappa schematica; (c) «Riparti da zero» svuota i dati del gioco e il gioco
   riparte; (d) la pagina compilata non contiene sintassi né funzioni fuori dal bersaglio
