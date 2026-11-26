@@ -15,6 +15,8 @@ porto, della Città Vecchia e del Borgo.
   `docs/grafica-elementi.json`.
 - La disposizione dei comandi resta quella del T11 (qui sotto), con in più i pulsanti
   della vista a sinistra.
+- Tutta la mappa sul telefono, area libera dai comandi e distanza massima (T12e): sezione
+  «Tutta la mappa sul telefono (T12e)».
 - Compatibilità con i browser, avvio a prova di dati vecchi, messaggio di guasto (T12d):
   sezione «Compatibilità e avvio (T12d): mai più pagina bianca».
 - Aspetto illustrato (T12c): sistema visivo, edifici a parti, vita della città, prove e
@@ -32,6 +34,46 @@ porto, della Città Vecchia e del Borgo.
   schermo largo stanno a destra, accanto ai pulsanti, che restano attivi.
 - A sinistra, sopra l'attribuzione di OpenStreetMap (T12): «+» e «−» per avvicinare e
   allontanare, «⟳» per ruotare la vista di un quarto di giro.
+
+## Tutta la mappa sul telefono (T12e)
+
+Sul telefono di Michele (Android, verticale), anche allontanando al massimo, alcune parti
+della zona non si vedevano: alla distanza massima di T12 (0,3 pixel per metro) la zona non
+entrava nella larghezza dello schermo, e il limite dello spostamento non teneva conto dei
+comandi sopra la mappa, quindi i bordi della zona restavano sotto i comandi.
+
+- **Area libera** (`plastico/Plastico.tsx`, `areaLiberaDa`): la tela meno i comandi che la
+  coprono, cioè barra in alto (`.hud-top`), comandi del tempo (`.timebar`), colonna dei
+  pulsanti (`.rail`), pulsanti di ingrandimento (`.map-controls`) e finestre aperte
+  (`.map-window`). Un comando largo almeno metà della tela toglie spazio in alto o in basso,
+  gli altri a sinistra o a destra, secondo da che parte stanno. La scena la rilegge a ogni
+  cambio di dimensione e ogni dieci immagini, quindi segue le finestre che si aprono e si
+  chiudono e il telefono che ruota. Dentro l'area libera si tiene un margine di 8 pixel
+  (`MARGINE_PX`), uguale a ogni ingrandimento.
+- **Distanza massima** (`iso/vista.ts`, `ppmPerTutta`): non più fissa. È l'ingrandimento a
+  cui l'intera zona (che a 45° appare come un rombo) entra nell'area libera, con il 4%
+  d'aria, nei quattro orientamenti; al più 0,3 pixel per metro come prima. Misurata:
+  0,017 px/m a 360 px, 0,020 a 390, 0,022 sul telefono lungo 1080×2340, 0,098 a 1280.
+- **Limite dello spostamento** (`limitaCentro`): calcolato sugli assi dello schermo e
+  sull'area libera. Ogni estremo della zona può arrivare al bordo dell'area libera, e lì la
+  vista si ferma; su un asse in cui la zona è più piccola dell'area libera, la zona resta al
+  centro dell'area libera. Il margine di 250 m della vista di T12 è stato tolto: da vicino
+  valeva centinaia di pixel e nascondeva i vertici sotto i comandi.
+- **Oltre la zona:** da così lontano la vista copre decine di chilometri verso l'orizzonte.
+  Il terreno e il mare oltre la zona arrivano a 60 km (erano 6), e la camera si allontana
+  quanto serve perché nulla resti dietro di lei o oltre il piano di fondo: gli angoli dello
+  schermo non mostrano mai lo sfondo, anche alla distanza massima.
+
+**Prove.** In `vista.test.ts`: alla distanza massima i quattro vertici nell'area libera (cinque
+schermi, quattro orientamenti); spingendo verso ciascun bordo il vertice di quel lato entra
+nell'area libera e la vista si ferma; arresto esatto al bordo efficace; un'area libera
+assurda non blocca la vista. Nel browser (`scripts/verifica.ts --t12e`, anche nella verifica
+completa): a 360, 390, 1280 px e 1080×2340 (412×892 a densità 2,625), nei quattro
+orientamenti, i vertici alla distanza massima e dopo 48 spinte per schermo stanno nell'area
+libera e, con un controllo indipendente dal gioco, sotto nessun comando misurato nel DOM;
+l'area libera segue la finestra «Elenco»; angoli dello schermo anche a 1e-4 px/m.
+Schermate prima e dopo alla distanza massima: `docs/schermate/t12e-prima-*` (da `main`,
+`9694485`) e `t12e-dopo-*`, quattro orientamenti, quattro schermi.
 
 ## Compatibilità e avvio (T12d): mai più pagina bianca
 

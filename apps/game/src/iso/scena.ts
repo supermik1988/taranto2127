@@ -20,7 +20,7 @@ import { MEZZA_X, MEZZA_Y } from './griglia.js';
 import { IMPOSTAZIONI, Regolatore, type Livello, type Scelta } from './livelli.js';
 import { caminoAcciaio, costruisciAspetto, type Animato } from './lotti.js';
 import { memoriaTexture, textureFacciata } from './texture.js';
-import { Vista, direzioneCamera, impronta } from './vista.js';
+import { Vista, direzioneCamera, impronta, type Area } from './vista.js';
 import { Vita, type StatoVita } from './vita.js';
 import { guastoDiProva } from '../errori.js';
 
@@ -68,6 +68,10 @@ export interface CittaApi extends PlasticoApi {
   angoli(): boolean[];
   /** Angolo della camera: elevazione e azimut in gradi, e se è ortografica. */
   camera(): { ortografica: boolean; elevazione: number; azimut: number };
+  /** Area della tela libera dai comandi, ingrandimento minimo e i quattro vertici della zona sullo schermo (T12e). */
+  areaLibera(): { area: Area; ppmMinimo: number; ppm: number; vertici: { x: number; y: number }[] };
+  /** Porta un punto della zona (metri) al centro dell'area libera, poi trascina la vista di (dx, dy) pixel: per le prove. */
+  spingi(punto: [number, number] | null, dx: number, dy: number): void;
   /** Ridisegna e dà la luminosità media (0-255, Rec. 709 sui valori sRGB) di un rettangolo della tela, in pixel CSS. */
   luminosita(x0: number, y0: number, x1: number, y1: number): number;
   /** La vita della città letta dal motore (vita.ts, vitaDaStato). */
@@ -95,6 +99,8 @@ export interface CittaOptions {
   onSelect: (kind: 'district' | 'lot', id: string) => void;
   onFallback?: (motivo: string) => void;
   onLivello?: (livello: Livello, scelta: Scelta, motivo: string) => void;
+  /** Rettangolo della tela libero dai comandi che la coprono, in pixel della tela (T12e); null = tutta. */
+  areaLibera?: () => Area | null;
   scelta?: Scelta;
 }
 
@@ -165,7 +171,7 @@ function materialiAFasce(radice: THREE.Object3D, cache: Map<THREE.Material, THRE
 }
 const RIEMPITIVO = new Set(['cespugli', 'alberi-ulivo']);
 
-export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, scelta = 'auto' }: CittaOptions): CittaApi {
+export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, scelta = 'auto', areaLibera }: CittaOptions): CittaApi {
   const aFasce = new Map<THREE.Material, THREE.Material>();
   const contorni: THREE.LineSegments[] = [];
   // Stencil: il mare segna i suoi pixel, i fondi del terreno li saltano (suolo.ts).
@@ -295,7 +301,9 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 9000);
   const tamburi = centroid(geo.quartieri['tamburi']!);
   const parks = centroid(geo.lotti['lotto-parchi-minerali']!);
-  const margine = 250;
+  // T12e: nessun margine in metri (da vicino valeva centinaia di pixel e nascondeva i vertici sotto i comandi);
+  // il margine è in pixel, dentro l'area libera (vista.ts, MARGINE_PX).
+  const margine = 0;
   const vista = new Vista([(tamburi[0] + parks[0]) / 2, (tamburi[1] + parks[1]) / 2], 1.1, { minX: -MEZZA_X - margine, maxX: MEZZA_X + margine, minY: -MEZZA_Y - margine, maxY: MEZZA_Y + margine });
 
   // ---------- Livelli di dettaglio ----------
@@ -362,6 +370,7 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
     const h = canvas.clientHeight || 1;
     renderer.setSize(w, h, false);
     vista.dimensioni(w, h);
+    vista.impostaAreaLibera(areaLibera?.() ?? null);
     vista.applica(camera);
   }
   const observer = new ResizeObserver(resize);
@@ -461,6 +470,8 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
     last = now;
     const dt = Math.min(0.1, ms / 1000);
     frame += 1;
+    // L'area libera cambia quando un pannello si apre o si chiude: la si rilegge ogni dieci immagini.
+    if (frame % 10 === 0) vista.impostaAreaLibera(areaLibera?.() ?? null);
     vista.aggiorna(dt);
     vista.applica(camera);
     // Sotto un certo ingrandimento gli oggetti piccoli non si vedono: si spengono.
@@ -793,6 +804,25 @@ export function createCitta({ canvas, labels, onSelect, onFallback, onLivello, s
       let somma = 0;
       for (let i = 0; i < px.length; i += 4) somma += 0.2126 * px[i]! + 0.7152 * px[i + 1]! + 0.0722 * px[i + 2]!;
       return somma / (w * hh);
+    },
+    areaLibera() {
+      vista.impostaAreaLibera(areaLibera?.() ?? null);
+      vista.applica(camera);
+      const vertici = ([
+        [-MEZZA_X, -MEZZA_Y],
+        [MEZZA_X, -MEZZA_Y],
+        [MEZZA_X, MEZZA_Y],
+        [-MEZZA_X, MEZZA_Y],
+      ] as const).map(([x, y]) => project(new THREE.Vector3(x, 0, -y)));
+      return { area: vista.libera, ppmMinimo: vista.ppmMinimo(), ppm: vista.ora.ppm, vertici };
+    },
+    spingi(punto, dx, dy) {
+      vista.impostaAreaLibera(areaLibera?.() ?? null);
+      const a = vista.libera;
+      if (punto !== null) vista.porta(punto, (a.left + a.right) / 2, (a.top + a.bottom) / 2);
+      vista.trascina(dx, dy);
+      vista.applica(camera);
+      shadowDirty = true;
     },
     camera() {
       const d = direzioneCamera(vista.ora.azimut);

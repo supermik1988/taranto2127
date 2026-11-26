@@ -701,7 +701,8 @@ async function angoliSempreCitta(browser: Browser, width: number): Promise<void>
   const { page, close } = await apriCitta(browser, width, { livello: 'basso' });
   let prove = 0;
   for (let o = 0; o < 4; o++) {
-    for (const ppm of [0.3, 0.6, 1, 2, 4, 8]) {
+    // 1e-4: la distanza massima (T12e), alla quale la vista copre decine di chilometri.
+    for (const ppm of [1e-4, 0.3, 0.6, 1, 2, 4, 8]) {
       for (const [x, y] of [
         [0, 0],
         [-MEZZA.x * 2, -MEZZA.y * 2],
@@ -726,7 +727,7 @@ async function angoliSempreCitta(browser: Browser, width: number): Promise<void>
       }
     }
   }
-  misura(`angoli dello schermo a ${width} px: ${prove} viste controllate (4 orientamenti × 6 ingrandimenti × 5 posizioni)`);
+  misura(`angoli dello schermo a ${width} px: ${prove} viste controllate (4 orientamenti × 7 ingrandimenti, dalla distanza massima, × 5 posizioni)`);
   await close();
 }
 
@@ -1158,6 +1159,148 @@ async function controlloBersaglio(): Promise<void> {
   misura(`pagina compilata: ${file.length} file JavaScript, sintassi dentro il bersaglio ${BERSAGLIO.join(', ')}; funzioni recenti trovate: ${[...trovate.keys()].join(', ') || 'nessuna'} (tutte con sostituto: ${[...trovate.keys()].every((n) => SOSTITUITE.includes(n)) ? 'sì' : 'no'})`);
 }
 
+// ---------- Tutta la mappa sul telefono (T12e) ----------
+
+/** Schermi della prova: telefoni verticali, telefono lungo 1080×2340 (412×892 a densità 2,625), schermo largo. */
+const SCHERMI_T12E: { nome: string; width: number; height: number; dpr: number; touch: boolean }[] = [
+  { nome: '360', width: 360, height: 780, dpr: 2, touch: true },
+  { nome: '390', width: 390, height: 844, dpr: 2, touch: true },
+  { nome: '1080x2340', width: 412, height: 892, dpr: 2.625, touch: true },
+  { nome: '1280', width: 1280, height: 900, dpr: 1, touch: false },
+];
+/** Le schermate di questa prova vanno nel repository del ramo anche quando si prova un'altra copia (VERIFICA_APP). */
+const schermateRamo = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'docs', 'schermate');
+
+async function apriSchermo(browser: Browser, s: (typeof SCHERMI_T12E)[number]): Promise<{ page: Page; close: () => Promise<void> }> {
+  const context = await browser.newContext({ viewport: { width: s.width, height: s.height }, deviceScaleFactor: s.dpr, hasTouch: s.touch });
+  await context.addInitScript(() => {
+    localStorage.setItem('taranto2127:visita-fatta', 'si');
+    localStorage.setItem('taranto2127:dettaglio', 'alto');
+  });
+  const page = await context.newPage();
+  page.on('pageerror', (err) => fail(`errore nella pagina (${s.nome}): ${err.message}`));
+  await page.goto(`${BASE}?seme=${SEED}`, { timeout: 240_000 });
+  await waitForModel(page);
+  return { page, close: () => context.close() };
+}
+
+/** Schermate alla distanza massima nei quattro orientamenti (anche per la copia di prima, con le sonde di allora). */
+async function schermateDistanzaMassima(browser: Browser, prefisso: 'prima' | 'dopo'): Promise<void> {
+  for (const s of SCHERMI_T12E) {
+    const { page, close } = await apriSchermo(browser, s);
+    for (let o = 0; o < 4; o++) {
+      await page.evaluate((oo) => {
+        const p = window.taranto2127Plastico!;
+        p.imposta(1e-4, oo);
+        p.guarda(0, 0, 1e-4);
+      }, o);
+      await page.waitForTimeout(1200);
+      await page.screenshot({ path: join(schermateRamo, `t12e-${prefisso}-distanza-massima-o${o + 1}-${s.nome}.png`) });
+    }
+    await close();
+  }
+}
+
+/**
+ * Rettangoli dei comandi sopra la mappa e della tela, misurati dal DOM nella pagina:
+ * la prova non si fida dell'area libera calcolata dal gioco.
+ */
+async function comandiSullaMappa(page: Page): Promise<{ tela: { x: number; y: number; w: number; h: number }; comandi: { x0: number; y0: number; x1: number; y1: number }[] }> {
+  return page.evaluate(() => {
+    const t = document.querySelector('[data-testid="mappa-3d"]')!.getBoundingClientRect();
+    const comandi = [...document.querySelectorAll<HTMLElement>('.hud-top, .timebar, .rail, .map-controls')]
+      .map((el) => el.getBoundingClientRect())
+      .filter((r) => r.width > 0 && r.height > 0)
+      .map((r) => ({ x0: r.left - t.left, y0: r.top - t.top, x1: r.right - t.left, y1: r.bottom - t.top }));
+    return { tela: { x: t.left, y: t.top, w: t.width, h: t.height }, comandi };
+  });
+}
+
+/** Un punto della tela (pixel della tela) è visibile: dentro la tela e sotto nessun comando. */
+function visibileSullaMappa(v: { x: number; y: number }, m: Awaited<ReturnType<typeof comandiSullaMappa>>, tol = 1): boolean {
+  if (v.x < -tol || v.y < -tol || v.x > m.tela.w + tol || v.y > m.tela.h + tol) return false;
+  return !m.comandi.some((c) => v.x > c.x0 + tol && v.x < c.x1 - tol && v.y > c.y0 + tol && v.y < c.y1 - tol);
+}
+
+async function controlliT12e(browser: Browser): Promise<void> {
+  const tol = 1;
+  for (const s of SCHERMI_T12E) {
+    const { page, close } = await apriSchermo(browser, s);
+    const dom = await comandiSullaMappa(page);
+    let spinte = 0;
+    for (let o = 0; o < 4; o++) {
+      // Alla distanza massima i quattro vertici della zona cadono dentro l'area libera.
+      const r = await page.evaluate((oo) => {
+        const p = window.taranto2127Plastico!;
+        p.imposta(1e-4, oo);
+        p.guarda(0, 0, 1e-4);
+        return p.areaLibera();
+      }, o);
+      const fuori = r.vertici.filter((v) => v.x < r.area.left - tol || v.x > r.area.right + tol || v.y < r.area.top - tol || v.y > r.area.bottom + tol);
+      if (fuori.length > 0) fail(`${s.nome}, orientamento ${o + 1}, distanza massima: ${fuori.length} vertici della zona fuori dall'area libera ${JSON.stringify(r.area)}: ${JSON.stringify(fuori)}`);
+      // Controllo indipendente dal gioco: nessun vertice sotto un comando misurato nel DOM, nessuno fuori dalla tela.
+      const nascosti = r.vertici.filter((v) => !visibileSullaMappa(v, dom));
+      if (nascosti.length > 0) fail(`${s.nome}, orientamento ${o + 1}, distanza massima: ${nascosti.length} vertici della zona sotto un comando o fuori dalla tela: ${JSON.stringify(nascosti)}`);
+      if (o === 0) misura(`${s.nome}: area libera ${Math.round(r.area.left)}-${Math.round(r.area.right)} × ${Math.round(r.area.top)}-${Math.round(r.area.bottom)} px su ${s.width}×${s.height}; distanza massima ${r.ppmMinimo.toFixed(3)} px/m (era 0,3)`);
+      // Spingendo verso ciascun bordo, il vertice di quel lato si porta nell'area libera.
+      for (const ppm of [0.3, 1, 3]) {
+        for (const [dx, dy, lato] of [
+          [1e6, 0, 'sinistro'],
+          [-1e6, 0, 'destro'],
+          [0, 1e6, 'alto'],
+          [0, -1e6, 'basso'],
+        ] as const) {
+          const esito = await page.evaluate(
+            ([oo, pp, ddx, ddy, ll]) => {
+              const p = window.taranto2127Plastico!;
+              p.imposta(pp, oo);
+              const prima = p.areaLibera();
+              // Il vertice più esterno dalla parte del lato.
+              const scelto = prima.vertici.map((v, i) => ({ v, i })).reduce((a, b) => {
+                if (ll === 'sinistro') return b.v.x < a.v.x ? b : a;
+                if (ll === 'destro') return b.v.x > a.v.x ? b : a;
+                if (ll === 'alto') return b.v.y < a.v.y ? b : a;
+                return b.v.y > a.v.y ? b : a;
+              }).i;
+              const vertici: [number, number][] = [
+                [-4740, -2984],
+                [4740, -2984],
+                [4740, 2984],
+                [-4740, 2984],
+              ];
+              p.spingi(vertici[scelto]!, ddx, ddy);
+              const dopo = p.areaLibera();
+              return { area: dopo.area, v: dopo.vertici[scelto]! };
+            },
+            [o, ppm, dx, dy, lato] as const,
+          );
+          spinte += 1;
+          const { area, v } = esito;
+          if (!visibileSullaMappa(v, dom)) fail(`${s.nome}, orientamento ${o + 1}, ${ppm} px/m, spinta verso il lato ${lato}: il vertice resta sotto un comando o fuori dalla tela (${Math.round(v.x)}, ${Math.round(v.y)})`);
+          else if (v.x < area.left - tol || v.x > area.right + tol || v.y < area.top - tol || v.y > area.bottom + tol) {
+            fail(`${s.nome}, orientamento ${o + 1}, ${ppm} px/m, spinta verso il lato ${lato}: il vertice resta fuori dall'area libera (${Math.round(v.x)}, ${Math.round(v.y)})`);
+          }
+        }
+      }
+    }
+    misura(`${s.nome}: alla distanza massima i quattro vertici nell'area libera nei quattro orientamenti; ${spinte} spinte verso i bordi, ogni vertice portato nell'area libera`);
+    // L'area libera si ricalcola quando una finestra si apre e si chiude.
+    const chiusa = (await page.evaluate(() => window.taranto2127Plastico!.areaLibera())).area;
+    await openPanel(page, 'elenco');
+    await page.waitForTimeout(700);
+    const aperta = (await page.evaluate(() => window.taranto2127Plastico!.areaLibera())).area;
+    await closeOutside(page);
+    await page.waitForTimeout(700);
+    const dinuovo = (await page.evaluate(() => window.taranto2127Plastico!.areaLibera())).area;
+    const ristretta = aperta.bottom < chiusa.bottom - 20 || aperta.right < chiusa.right - 20;
+    const tornata = Math.abs(dinuovo.bottom - chiusa.bottom) < 2 && Math.abs(dinuovo.right - chiusa.right) < 2;
+    if (!ristretta || !tornata) fail(`${s.nome}: l'area libera non segue la finestra «Elenco» (chiusa ${JSON.stringify(chiusa)}, aperta ${JSON.stringify(aperta)}, di nuovo chiusa ${JSON.stringify(dinuovo)})`);
+    else misura(`${s.nome}: con la finestra «Elenco» aperta l'area libera si restringe (${Math.round(chiusa.right)}×${Math.round(chiusa.bottom)} → ${Math.round(aperta.right)}×${Math.round(aperta.bottom)}) e torna com'era alla chiusura`);
+    await close();
+  }
+  await schermateDistanzaMassima(browser, 'dopo');
+}
+
 async function main(): Promise<void> {
   const quick = process.argv.includes('--rapida');
   const onlyContrast = process.argv.includes('--misura-strato');
@@ -1170,7 +1313,10 @@ async function main(): Promise<void> {
   const after = process.argv.includes('--dopo');
   const t12c = process.argv.includes('--t12c');
   const t12d = process.argv.includes('--t12d');
-  const partial = quick || onlyContrast || onlyPerf || onlyCity || onlyCorners || onlyDescent || after || t12c || t12d || process.argv.includes('--diagnosi');
+  const t12e = process.argv.includes('--t12e');
+  // Solo le schermate «prima» alla distanza massima, sulla copia indicata da VERIFICA_APP (per esempio main).
+  const t12ePrima = process.argv.includes('--t12e-prima');
+  const partial = quick || onlyContrast || onlyPerf || onlyCity || onlyCorners || onlyDescent || after || t12c || t12d || t12e || t12ePrima || process.argv.includes('--diagnosi');
   mkdirSync(shotsDir, { recursive: true });
   execSync('npx vite build', { cwd: appDir, stdio: 'inherit' });
   const server = spawn(`npx vite preview --port ${PORT} --strictPort`, { cwd: appDir, shell: true, stdio: 'ignore' });
@@ -1179,7 +1325,12 @@ async function main(): Promise<void> {
     const channel = process.env['BROWSER'] === 'chrome' ? 'chrome' : 'msedge';
     const browser = await chromium.launch({ channel });
     try {
-      if (t12d) {
+      if (t12ePrima) {
+        await schermateDistanzaMassima(browser, 'prima');
+      } else if (t12e) {
+        await controlliT12e(browser);
+        await angoliSempreCitta(browser, 390);
+      } else if (t12d) {
         await controlloBersaglio();
         await controlliT12d(browser);
       } else if (process.argv.includes('--diagnosi')) {
@@ -1219,6 +1370,7 @@ async function main(): Promise<void> {
         await controlliT12c(browser);
         await controlloBersaglio();
         await controlliT12d(browser);
+        await controlliT12e(browser);
         await checkLayerContrast(browser);
         await playAt(390, browser, 'completa');
         await playAt(1280, browser, 'salta');

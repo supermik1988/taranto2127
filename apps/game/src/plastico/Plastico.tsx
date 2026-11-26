@@ -36,6 +36,8 @@ export interface PlasticoProbe {
   tempi(): number[];
   azzeraTempi(): void;
   angoli(): boolean[];
+  areaLibera(): { area: { left: number; top: number; right: number; bottom: number }; ppmMinimo: number; ppm: number; vertici: { x: number; y: number }[] };
+  spingi(punto: [number, number] | null, dx: number, dy: number): void;
   luminosita(x0: number, y0: number, x1: number, y1: number): number;
   movimento(): { accesi: number; fermi: boolean };
   mostraCatalogo(): { x: number; y: number };
@@ -76,6 +78,34 @@ function freeArea(canvas: HTMLCanvasElement): { left: number; top: number; right
   top = Math.max(0, top - box.top);
   bottom = Math.max(top + 1, bottom - box.top);
   right = Math.max(left + 1, right - box.left);
+  return { left, top, right, bottom };
+}
+
+/** Comandi che stanno sopra la mappa: barra in alto, comandi del tempo, colonna dei pulsanti, ingrandimento, finestre. */
+const COMANDI = '.hud-top, .timebar, .rail, .map-controls, .map-window';
+
+/**
+ * Area della tela libera dai comandi (T12e): le barre larghe almeno metà della tela tolgono
+ * spazio in alto o in basso, le altre (colonne, pulsanti, finestra di fianco) a sinistra o a
+ * destra, secondo da che parte stanno. Pixel della tela, dalla sinistra e dall'alto.
+ */
+export function areaLiberaDa(tela: DOMRect, comandi: DOMRect[]): { left: number; top: number; right: number; bottom: number } {
+  let left = 0;
+  let top = 0;
+  let right = tela.width;
+  let bottom = tela.height;
+  for (const r of comandi) {
+    const x0 = Math.max(r.left, tela.left) - tela.left;
+    const x1 = Math.min(r.right, tela.right) - tela.left;
+    const y0 = Math.max(r.top, tela.top) - tela.top;
+    const y1 = Math.min(r.bottom, tela.bottom) - tela.top;
+    if (x1 <= x0 || y1 <= y0) continue; // non copre la tela
+    if (x1 - x0 >= tela.width * 0.5) {
+      if ((y0 + y1) / 2 < tela.height / 2) top = Math.max(top, y1);
+      else bottom = Math.min(bottom, y0);
+    } else if ((x0 + x1) / 2 < tela.width / 2) left = Math.max(left, x1);
+    else right = Math.min(right, x0);
+  }
   return { left, top, right, bottom };
 }
 
@@ -127,6 +157,12 @@ export default function Plastico({
     const cambi: string[] = [];
     try {
       instance = createCitta({
+        areaLibera: () => {
+          const tela = canvas.current;
+          if (tela === null) return null;
+          const comandi = [...document.querySelectorAll<HTMLElement>(COMANDI)].filter((el) => el.offsetParent !== null || getComputedStyle(el).position === 'fixed').map((el) => el.getBoundingClientRect());
+          return areaLiberaDa(tela.getBoundingClientRect(), comandi);
+        },
         canvas: canvas.current,
         labels: labels.current,
         onSelect: (kind, id) => select.current(kind, id),
@@ -161,6 +197,8 @@ export default function Plastico({
       tempi: () => instance.tempi(),
       azzeraTempi: () => instance.azzeraTempi(),
       angoli: () => instance.angoli(),
+      areaLibera: () => instance.areaLibera(),
+      spingi: (p, dx, dy) => instance.spingi(p, dx, dy),
       luminosita: (a, b, c, d) => instance.luminosita(a, b, c, d),
       movimento: () => instance.movimento(),
       mostraCatalogo: () => instance.mostraCatalogo(),

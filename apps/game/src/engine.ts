@@ -377,14 +377,3 @@ export function avvioSicuro(location: { hash: string; search: string }, store = 
     return nonApribile(null);
   }
 }
-
-/** La partita da aprire: dal link, poi dal browser, poi dal seme dell'indirizzo, altrimenti una nuova. */
-export function startingGame(location: { hash: string; search: string }): Game {
-  const fromHash = savedFromHash(location.hash);
-  if (fromHash !== null) return restoreGame(fromHash);
-  const seedParam = new URLSearchParams(location.search).get('seme');
-  const local = loadLocal();
-  if (local !== null && (seedParam === null || Number(seedParam) === local.seme)) return restoreGame(local);
-  const seed = seedParam !== null && /^\d+$/.test(seedParam) ? Number(seedParam) : freshSeed();
-  return newGame(seed);
-}

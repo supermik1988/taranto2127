@@ -6,9 +6,14 @@
  * - Il passaggio da un orientamento all'altro e gli ingrandimenti dai pulsanti
  *   sono morbidi, con un fattore che dipende dal tempo trascorso
  *   (1 − exp(−k·dt)): lo stesso movimento a 30 o a 120 immagini al secondo.
- * - Si limita la vista, non solo il centro: l'impronta a terra di ciò che si vede
- *   resta dentro la zona (più un margine), tenendo conto dell'ingrandimento e
- *   dell'orientamento. Se la vista è più grande della zona, il centro resta al centro.
+ * - Si limita la vista, non solo il centro, sull'area libera della tela (T12e): la
+ *   tela meno i comandi che la coprono (barra in alto, comandi del tempo, colonna dei
+ *   pulsanti, pulsanti di ingrandimento, finestre aperte). Ogni punto della zona si può
+ *   portare dentro l'area libera, e non oltre: quando un estremo della zona arriva al bordo
+ *   dell'area libera la vista si ferma. Se la zona è più piccola dell'area libera, resta al
+ *   centro dell'area libera.
+ * - Alla distanza massima l'intera zona entra nell'area libera, in ogni orientamento e a
+ *   ogni larghezza (ingrandimento minimo calcolato, non fisso).
  */
 import * as THREE from 'three';
 import type { Pt } from '../plastico/data.js';
@@ -17,19 +22,34 @@ export const ELEVAZIONE = (30 * Math.PI) / 180;
 /** Primo orientamento: si guarda da sud-est verso nord-ovest (azimut 45°). */
 export const AZIMUT_BASE = Math.PI / 4;
 export const PASSO_ROTAZIONE = Math.PI / 2;
-/** Pixel per metro: dal colpo d'occhio sulla zona al dettaglio di un isolato. */
+/**
+ * Pixel per metro: dal colpo d'occhio sulla zona al dettaglio di un isolato. PPM_MIN è il
+ * minimo di partenza; se la zona intera non entra nell'area libera si scende ancora (ppmPerTutta).
+ */
 export const PPM_MIN = 0.3;
 export const PPM_MAX = 8;
 /** Rapidità dei movimenti morbidi (per secondo). */
 export const RAPIDITA = 9;
-/** Distanza della camera dal centro lungo la direzione di vista: basta a stare sopra le ciminiere. */
+/** Distanza minima della camera dal centro lungo la direzione di vista: basta a stare sopra le ciminiere. */
 const DISTANZA = 3000;
+/** Alla distanza massima la zona occupa al più questa parte dell'area libera: un po' d'aria attorno. */
+const RESPIRO = 0.96;
+/** Margine in pixel dentro l'area libera: i bordi della zona non toccano i comandi, a ogni ingrandimento. */
+export const MARGINE_PX = 8;
 
 export interface Limiti {
   minX: number;
   maxX: number;
   minY: number;
   maxY: number;
+}
+
+/** Rettangolo della tela libero dai comandi, in pixel dalla sinistra e dall'alto della tela. */
+export interface Area {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
 }
 
 export interface Stato {
@@ -66,14 +86,59 @@ export function impronta(ppm: number, w: number, h: number): { lungoDestra: numb
   return { lungoDestra: w / 2 / ppm, inAvanti: h / 2 / ppm / Math.sin(ELEVAZIONE) };
 }
 
-/** Centro ammesso perché tutta l'impronta della vista stia dentro i limiti. */
-export function limitaCentro(centro: Pt, ppm: number, azimut: number, w: number, h: number, lim: Limiti): Pt {
+/** Estremi della zona sugli assi della vista (metri lungo la destra e in avanti). */
+function estremi(azimut: number, lim: Limiti): { destra: Pt; avanti: Pt; a0: number; a1: number; b0: number; b1: number } {
   const { destra, avanti } = assiATerra(azimut);
-  const { lungoDestra, inAvanti } = impronta(ppm, w, h);
-  const ex = Math.abs(destra[0]) * lungoDestra + Math.abs(avanti[0]) * inAvanti;
-  const ey = Math.abs(destra[1]) * lungoDestra + Math.abs(avanti[1]) * inAvanti;
-  const fit = (v: number, min: number, max: number, e: number) => (max - min <= 2 * e ? (min + max) / 2 : Math.min(max - e, Math.max(min + e, v)));
-  return [fit(centro[0], lim.minX, lim.maxX, ex), fit(centro[1], lim.minY, lim.maxY, ey)];
+  let a0 = Infinity;
+  let a1 = -Infinity;
+  let b0 = Infinity;
+  let b1 = -Infinity;
+  for (const [x, y] of [
+    [lim.minX, lim.minY],
+    [lim.maxX, lim.minY],
+    [lim.maxX, lim.maxY],
+    [lim.minX, lim.maxY],
+  ] as const) {
+    const a = x * destra[0] + y * destra[1];
+    const b = x * avanti[0] + y * avanti[1];
+    a0 = Math.min(a0, a);
+    a1 = Math.max(a1, a);
+    b0 = Math.min(b0, b);
+    b1 = Math.max(b1, b);
+  }
+  return { destra, avanti, a0, a1, b0, b1 };
+}
+
+/** Tutta la tela come area libera. */
+export const tutta = (w: number, h: number): Area => ({ left: 0, top: 0, right: w, bottom: h });
+
+/** Ingrandimento più grande a cui la zona intera entra nell'area libera (con un po' d'aria). */
+export function ppmPerTutta(azimut: number, lim: Limiti, area: Area): number {
+  const { a0, a1, b0, b1 } = estremi(azimut, lim);
+  const largo = Math.max(1, area.right - area.left);
+  const alto = Math.max(1, area.bottom - area.top);
+  return RESPIRO * Math.min(largo / (a1 - a0), alto / ((b1 - b0) * Math.sin(ELEVAZIONE)));
+}
+
+/**
+ * Centro ammesso: ogni punto della zona si può portare dentro l'area libera, e la vista si
+ * ferma quando un estremo della zona arriva al bordo dell'area libera. Su un asse in cui la
+ * zona è più piccola dell'area libera, la zona sta al centro dell'area libera.
+ */
+export function limitaCentro(centro: Pt, ppm: number, azimut: number, w: number, h: number, lim: Limiti, area: Area = tutta(w, h)): Pt {
+  const { destra, avanti, a0, a1, b0, b1 } = estremi(azimut, lim);
+  const k = ppm;
+  const kv = ppm * Math.sin(ELEVAZIONE);
+  // Sullo schermo: x = w/2 + (a − ca)·k; y = h/2 − (b − cb)·kv.
+  const caMin = a0 + (w / 2 - area.left) / k; // l'estremo sinistro della zona al bordo sinistro libero
+  const caMax = a1 - (area.right - w / 2) / k; // l'estremo destro al bordo destro libero
+  const cbMin = b0 + (area.bottom - h / 2) / kv; // l'estremo più vicino al bordo basso libero
+  const cbMax = b1 - (h / 2 - area.top) / kv; // l'estremo più lontano al bordo alto libero
+  const ca0 = centro[0] * destra[0] + centro[1] * destra[1];
+  const cb0 = centro[0] * avanti[0] + centro[1] * avanti[1];
+  const ca = caMin > caMax ? (a0 + a1) / 2 + (w / 2 - (area.left + area.right) / 2) / k : Math.min(caMax, Math.max(caMin, ca0));
+  const cb = cbMin > cbMax ? (b0 + b1) / 2 + ((area.top + area.bottom) / 2 - h / 2) / kv : Math.min(cbMax, Math.max(cbMin, cb0));
+  return [destra[0] * ca + avanti[0] * cb, destra[1] * ca + avanti[1] * cb];
 }
 
 /** Fattore di avvicinamento per un passo di tempo: 1 − exp(−k·dt). */
@@ -89,6 +154,8 @@ export class Vista {
   private passi = 0;
   w = 1;
   h = 1;
+  /** Area libera dai comandi (null = tutta la tela). */
+  private area: Area | null = null;
 
   constructor(
     centro: Pt,
@@ -108,12 +175,38 @@ export class Vista {
     this.w = Math.max(1, w);
     this.h = Math.max(1, h);
     this.limita();
-    this.ora.centro = limitaCentro(this.ora.centro, this.ora.ppm, this.ora.azimut, this.w, this.h, this.limiti);
+    this.ora.ppm = Math.min(PPM_MAX, Math.max(this.ppmMinimo(this.ora.azimut), this.ora.ppm));
+    this.ora.centro = limitaCentro(this.ora.centro, this.ora.ppm, this.ora.azimut, this.w, this.h, this.limiti, this.libera);
+  }
+
+  /** L'area della tela libera dai comandi (pixel dalla sinistra e dall'alto della tela). */
+  get libera(): Area {
+    const a0 = this.area;
+    if (a0 === null) return tutta(this.w, this.h);
+    const a = { left: a0.left + MARGINE_PX, top: a0.top + MARGINE_PX, right: a0.right - MARGINE_PX, bottom: a0.bottom - MARGINE_PX };
+    // Mai meno di un quinto della tela per lato: un'area assurda non deve bloccare la vista.
+    const left = Math.min(Math.max(0, a.left), this.w * 0.8);
+    const top = Math.min(Math.max(0, a.top), this.h * 0.8);
+    return { left, top, right: Math.max(left + this.w * 0.2, Math.min(this.w, a.right)), bottom: Math.max(top + this.h * 0.2, Math.min(this.h, a.bottom)) };
+  }
+
+  /** Cambia l'area libera (comandi che si aprono e si chiudono, finestra che cambia): si riapplicano i limiti. */
+  impostaAreaLibera(area: Area | null): void {
+    const prima = this.area;
+    if (prima === area) return;
+    if (prima !== null && area !== null && Math.abs(prima.left - area.left) + Math.abs(prima.top - area.top) + Math.abs(prima.right - area.right) + Math.abs(prima.bottom - area.bottom) < 1) return;
+    this.area = area;
+    this.dimensioni(this.w, this.h);
+  }
+
+  /** Ingrandimento minimo: la zona intera entra nell'area libera (al più PPM_MIN). */
+  ppmMinimo(azimut = this.meta.azimut): number {
+    return Math.min(PPM_MIN, ppmPerTutta(azimut, this.limiti, this.libera));
   }
 
   private limita(): void {
-    this.meta.ppm = Math.min(PPM_MAX, Math.max(PPM_MIN, this.meta.ppm));
-    this.meta.centro = limitaCentro(this.meta.centro, this.meta.ppm, this.meta.azimut, this.w, this.h, this.limiti);
+    this.meta.ppm = Math.min(PPM_MAX, Math.max(this.ppmMinimo(), this.meta.ppm));
+    this.meta.centro = limitaCentro(this.meta.centro, this.meta.ppm, this.meta.azimut, this.w, this.h, this.limiti, this.libera);
   }
 
   /** Ruota di un quarto di giro (verso = +1 o −1), con passaggio morbido. */
@@ -158,7 +251,7 @@ export class Vista {
   ingrandisci(k: number, sx = this.w / 2, sy = this.h / 2, subito = false): void {
     const base = subito ? this.ora : this.meta;
     const fermo = this.aTerra(sx, sy, base);
-    const ppm = Math.min(PPM_MAX, Math.max(PPM_MIN, base.ppm * k));
+    const ppm = Math.min(PPM_MAX, Math.max(this.ppmMinimo(), base.ppm * k));
     const r = base.ppm / ppm;
     this.meta.ppm = ppm;
     this.meta.centro = [fermo[0] + (base.centro[0] - fermo[0]) * r, fermo[1] + (base.centro[1] - fermo[1]) * r];
@@ -215,10 +308,13 @@ export class Vista {
     camera.right = halfW;
     camera.top = halfH;
     camera.bottom = -halfH;
+    // Da lontano la vista a terra arriva a decine di chilometri verso l'orizzonte: la camera si
+    // allontana quanto serve perché nulla resti dietro di lei o oltre il piano di fondo (T12e).
+    const distanza = Math.max(DISTANZA, (this.h / 2 / o.ppm / Math.sin(ELEVAZIONE)) * Math.cos(ELEVAZIONE) + 1000);
     camera.near = 1;
-    camera.far = DISTANZA * 3;
+    camera.far = distanza * 2 + DISTANZA;
     const centro = CENTRO.set(o.centro[0], 0, -o.centro[1]);
-    camera.position.copy(centro).addScaledVector(direzioneCamera(o.azimut, DIREZIONE), DISTANZA);
+    camera.position.copy(centro).addScaledVector(direzioneCamera(o.azimut, DIREZIONE), distanza);
     camera.up.set(0, 1, 0);
     camera.lookAt(centro);
     camera.updateProjectionMatrix();

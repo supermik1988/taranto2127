@@ -334,7 +334,8 @@ function parcheggia(ring: Pt[], auto: THREE.Matrix4[], griglia: Griglia): void {
  * erba dove è terra. Così, comunque si guardi, oltre la zona non c'è il vuoto.
  */
 function oltreLaZona(): THREE.Object3D[] {
-  const lontano = 6000;
+  // 60 km: alla distanza massima, su un telefono lungo, la vista arriva a decine di chilometri dalla zona (T12e).
+  const lontano = 60000;
   const terra = new Geo3();
   const acqua = new Geo3();
   const passo = 50;
