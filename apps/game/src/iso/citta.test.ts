@@ -38,12 +38,13 @@ class Celle<T extends { ring: Pt[] }> {
 
 let citta: Citta;
 const meshes: THREE.Mesh[] = [];
+// La città intera si costruisce in 3-5 secondi; con le altre prove in parallelo e il computer carico supera i 10 di serie.
 beforeAll(() => {
   citta = costruisciCitta();
   citta.gruppo.traverse((o) => {
     if (o instanceof THREE.Mesh) meshes.push(o);
   });
-});
+}, 30_000);
 
 const triangoli = (m: THREE.Mesh) => (m.geometry.getAttribute('position').count / 3) * (m instanceof THREE.InstancedMesh ? m.count : 1);
 

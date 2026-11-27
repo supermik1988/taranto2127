@@ -1379,9 +1379,16 @@ async function controllaPasso(page: Page, dove: string, bersaglio: string): Prom
       dentro: a.left >= -1 && a.top >= -1 && a.right <= window.innerWidth + 1 && a.bottom <= window.innerHeight + 1,
       coperto: !(a.right <= c.left || a.left >= c.right || a.bottom <= c.top || a.top >= c.bottom),
       inCima: sopra !== null && (el.contains(sopra) || sopra.contains(el)),
+      // Il fumetto si legge: tutto sullo schermo e alto almeno quanto due righe e il pulsante.
+      fumettoVisibile: c.top >= -1 && c.bottom <= window.innerHeight + 1 && c.height >= 60 && c.width >= 200,
+      // Con un dilemma aperto, il fumetto non copre nessuna opzione: tutte devono poter essere scelte.
+      copreOpzione: [...document.querySelectorAll('[data-testid="opzione"]')].some((o) => {
+        const q = o.getBoundingClientRect();
+        return !(q.right <= c.left || q.left >= c.right || q.bottom <= c.top || q.top >= c.bottom);
+      }),
       fuoco: document.activeElement === el || el.contains(document.activeElement),
       // Comandi che possono ricevere il fuoco da tastiera (un pulsante, un collegamento, un campo).
-      focusabile: el.matches('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+      focusabile: el.matches('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])') && !el.matches(':disabled'),
       // Niente animazioni né transizioni, anche con «riduci animazioni».
       animato: [f, document.querySelector('[data-testid="tutorial-evidenza"]')].some((x) => {
         if (x === null) return false;
@@ -1395,6 +1402,8 @@ async function controllaPasso(page: Page, dove: string, bersaglio: string): Prom
     if (!r.dentro) fail(`${dove}: il comando «${bersaglio}» esce dallo schermo`);
     if (r.coperto) fail(`${dove}: il fumetto copre il comando «${bersaglio}»`);
     if (!r.inCima) fail(`${dove}: il comando «${bersaglio}» è coperto da altro`);
+    if (!r.fumettoVisibile) fail(`${dove}: il fumetto non si vede per intero sullo schermo`);
+    if (r.copreOpzione) fail(`${dove}: il fumetto copre un'opzione del dilemma`);
     if (r.focusabile && !r.fuoco) fail(`${dove}: il fuoco da tastiera non è sul comando «${bersaglio}»`);
     if (r.animato) fail(`${dove}: il fumetto o l'evidenza hanno un'animazione`);
   }
@@ -1403,7 +1412,7 @@ async function controllaPasso(page: Page, dove: string, bersaglio: string): Prom
 /** Fa l'azione che il passo chiede sul comando evidenziato. */
 async function azionePasso(page: Page, bersaglio: string): Promise<void> {
   if (bersaglio === 'strade-lotto') await page.locator(`${sel('strade-lotto')} button`).first().click();
-  else if (bersaglio === 'dilemma') {
+  else if (bersaglio === 'dilemma' || bersaglio === 'scegli') {
     await page.locator(sel('opzione')).first().click();
     await click(page, 'scegli');
   } else if (bersaglio === 'aiuto') await click(page, 'tutorial-fine');

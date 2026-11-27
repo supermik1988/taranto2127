@@ -405,3 +405,30 @@ button.link-button { display: inline; min-height: 0; padding: 0; border: 0; back
 .tutorial-prima {
   font-weight: 600;
 }
+.tutorial-testa {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.tutorial-testa .kicker {
+  margin: 0;
+}
+.tutorial-esci {
+  flex: none;
+  min-height: 36px;
+  padding: 4px 10px;
+  font-size: 0.9rem;
+}
+/* Nel dilemma il fumetto sta dentro la finestra, nel flusso del testo: non copre opzioni né pulsanti. */
+.tutorial-fumetto.tutorial-in-finestra {
+  position: static;
+  margin: 10px 0;
+  max-width: none;
+  box-shadow: 0 0 0 3px #f0b429;
+}
+/* Con il fumetto dentro una finestra in primo piano (il dilemma) niente ombra: resta solo il riquadro. */
+.tutorial-evidenza.senza-ombra {
+  box-shadow: none;
+}

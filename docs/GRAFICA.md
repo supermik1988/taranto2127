@@ -44,9 +44,12 @@ porto, della Città Vecchia e del Borgo.
   guidata».
 - **Un passo alla volta** (`tutorial.tsx`, `Tutorial`): un riquadro giallo di 3 pixel attorno
   al comando da toccare e il resto scurito al 45% (un'ombra che non blocca i tocchi); un
-  fumetto con «Partita guidata · passo N di 15», il testo e «Esci dal tutorial». Il fumetto
-  sta sopra o sotto il comando, dove c'è più spazio, e non lo copre mai; se lo spazio è poco,
-  il testo scorre. Il comando evidenziato è il primo dell'elenco del passo che è sullo schermo
+  fumetto con «Partita guidata · passo N di 15» e, sulla stessa riga, «Esci dal tutorial»,
+  poi il testo. Il fumetto va sotto il comando se ci sta per intero, altrimenti sopra, altrimenti
+  dalla parte più larga (il testo scorre); non copre mai il comando. Nel dilemma il fumetto
+  entra nella finestra, tra le opzioni e «Scegli questa opzione», e scorre con il contenuto:
+  non copre nessuna opzione, e lì l'ombra non c'è (il dilemma è già in primo piano). Un comando
+  in fondo a una finestra che scorre viene portato in vista. Il comando evidenziato è il primo dell'elenco del passo che è sullo schermo
   e non è coperto da altro: sul telefono, se una finestra copre il pulsante, si evidenzia
   «Chiudi» e il fumetto aggiunge «Prima chiudi la finestra aperta: il comando che serve è
   sotto».
@@ -68,7 +71,8 @@ porto, della Città Vecchia e del Borgo.
 - **Prove nel browser** (`scripts/verifica.ts --t16`, anche nella verifica completa): una
   partita da copione completa il tutorial a 360, 390 e 1280 px, con la città 3D e con la mappa
   schematica; a ogni passo il comando è sullo schermo, in cima, non coperto dal fumetto, con
-  il fuoco se può riceverlo, senza animazioni; alla fine la partita è al 2032. Uscita e ripresa
+  il fuoco se può riceverlo (non se è disabilitato), senza animazioni; il fumetto si vede per
+  intero e non copre le opzioni di un dilemma; alla fine la partita è al 2032. Uscita e ripresa
   da «?», anche dopo una ricarica. Schermate di ogni passo a 390 px:
   `docs/schermate/t16-passo-NN-<passo>-390.png`, e la scelta all'avvio `t16-scelta-390.png`.
 

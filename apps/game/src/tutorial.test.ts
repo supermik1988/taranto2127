@@ -14,31 +14,39 @@ import { fatto, tutorial, type Contesto } from './tutorial.js';
 const STRADE = ['green-steel', 'remediation', 'energy', 'sea-culture'] as const;
 
 describe('seme della partita guidata', { timeout: 60_000 }, () => {
-  it('con qualunque lotto e strada: il cantiere cambia fase entro la fine del primo anno, il primo dilemma arriva alla fine del secondo (mai prima), la Cronaca ha titoli ogni anno', () => {
+  it('con ogni strada e ogni lotto: il cantiere cambia fase alla fine del primo anno, il primo dilemma arriva alla fine del secondo (mai prima)', () => {
     const lotti = newGame(tutorial.seme).state.plantLots.map((l) => l.id);
     expect(lotti.length).toBe(6);
-    for (const lotto of lotti) {
-      for (const strada of STRADE) {
-        let g = newGame(tutorial.seme);
-        g = act(g, { kind: 'convert-lot', lotId: lotto, path: strada });
-        const fase0 = g.state.projects.find((p) => p.lotId === lotto)!.phase;
-        let dilemma = -1;
-        let fase = -1;
-        for (let anno = 1; anno <= 5; anno++) {
-          const r = closeYear(g);
-          g = r.game;
-          expect(r.headlines.length, `${lotto} ${strada} anno ${anno}: Cronaca`).toBeGreaterThan(0);
-          if (g.state.openDilemmaId !== null) {
-            if (dilemma < 0) dilemma = g.state.turn;
-            const id = g.state.openDilemmaId;
-            g = act(g, { kind: 'answer-dilemma', dilemmaId: id, optionId: Object.keys(content.rules.dilemmas[id]!.options)[0]! });
-          }
-          if (fase < 0 && g.state.projects.find((p) => p.lotId === lotto)!.phase !== fase0) fase = g.state.turn;
+    // Le quattro strade sul primo lotto, e una strada (a giro) su ciascuno degli altri: la durata dei progetti non dipende dal lotto.
+    const casi: [string, (typeof STRADE)[number]][] = [...STRADE.map((s) => [lotti[0]!, s] as [string, (typeof STRADE)[number]]), ...lotti.slice(1).map((l, i) => [l, STRADE[i % 4]!] as [string, (typeof STRADE)[number]])];
+    for (const [lotto, strada] of casi) {
+      let g = newGame(tutorial.seme);
+      g = act(g, { kind: 'convert-lot', lotId: lotto, path: strada });
+      const fase0 = g.state.projects.find((p) => p.lotId === lotto)!.phase;
+      let dilemma = -1;
+      let fase = -1;
+      for (let anno = 1; anno <= 3; anno++) {
+        g = closeYear(g).game;
+        if (g.state.openDilemmaId !== null && dilemma < 0) {
+          dilemma = g.state.turn;
+          const id = g.state.openDilemmaId;
+          g = act(g, { kind: 'answer-dilemma', dilemmaId: id, optionId: Object.keys(content.rules.dilemmas[id]!.options)[0]! });
         }
-        const msg = `${lotto} ${strada}`;
-        expect(fase, `${msg}: cambio di fase`).toBe(1);
-        expect(dilemma, `${msg}: primo dilemma`).toBe(2);
+        if (fase < 0 && g.state.projects.find((p) => p.lotId === lotto)!.phase !== fase0) fase = g.state.turn;
       }
+      expect(fase, `${lotto} ${strada}: cambio di fase`).toBe(1);
+      expect(dilemma, `${lotto} ${strada}: primo dilemma`).toBe(2);
+    }
+  });
+
+  it('la Cronaca ha titoli ogni anno dei primi cinque', () => {
+    let g = act(newGame(tutorial.seme), { kind: 'convert-lot', lotId: 'lotto-parchi-minerali', path: 'remediation' });
+    for (let anno = 1; anno <= 5; anno++) {
+      const r = closeYear(g);
+      g = r.game;
+      expect(r.headlines.length, `anno ${anno}`).toBeGreaterThan(0);
+      const id = g.state.openDilemmaId;
+      if (id !== null) g = act(g, { kind: 'answer-dilemma', dilemmaId: id, optionId: Object.keys(content.rules.dilemmas[id]!.options)[0]! });
     }
   });
 

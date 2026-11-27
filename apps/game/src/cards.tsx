@@ -388,6 +388,8 @@ export function DilemmaCard({ state, onAnswer }: { state: GameState; onAnswer: (
             </button>
           );
         })}
+        {/* Posto per il fumetto della partita guidata (T16): dentro la finestra, tra le opzioni e il pulsante, così non copre nulla. */}
+        <div className="spazio-tutorial" data-testid="spazio-tutorial" />
         <div className="buttons">
           <button type="button" className="primary" disabled={chosen === null} onClick={() => chosen !== null && onAnswer(chosen)} data-testid="scegli">
             Scegli questa opzione

@@ -79,7 +79,7 @@
     {
       "id": "dilemma",
       "testo": "Leggi le opzioni e scegline una. Ogni scelta ha le sue conseguenze, nessuna è quella giusta.",
-      "evidenzia": ["dilemma"],
+      "evidenzia": ["scegli", "dilemma"],
       "attesa": { "tipo": "dilemma-risposto" }
     },
     {
@@ -97,7 +97,7 @@
     {
       "id": "quinto-anno",
       "testo": "Accompagna la città fino alla fine del quinto anno, con «Un anno avanti» o «Avvia». Se arriva un altro dilemma, decidi come preferisci.",
-      "evidenzia": ["dilemma", "un-anno", "spiegazione-chiudi", "finestra-chiudi"],
+      "evidenzia": ["scegli", "un-anno", "spiegazione-chiudi", "finestra-chiudi"],
       "attesa": {
         "tipo": "anno",
         "anno": { "valore": 5, "stima": true, "motivazione": "La fine del quinto anno: la partita guidata copre i primi cinque (scheda T16)." }
