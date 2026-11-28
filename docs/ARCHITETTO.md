@@ -162,7 +162,7 @@ Aggiungi D18 e D19 a `docs/DECISIONI.md` se mancano.
 | T12c | Aspetto illustrato, edifici, colori, vita | In `main` dal 26 novembre (`9cd63f9`); superato da D24 |
 | T12d | Mai più pagina bianca | In `main` dal 26 novembre (`9694485`): partite di versioni precedenti non bloccano più l'avvio |
 | T12e | Tutta la mappa sul telefono | In `main` dal 26 novembre (`102cff6`). Aperto per T15: sul computer, alla distanza massima, si vedono grandi triangoli verdi e blu finti intorno alla zona |
-| T16 | Partita guidata (tutorial dei primi cinque anni) | In corso sul ramo `task/T16-partita-guidata`. Ordine deciso con Michele: T12d, T12e, T16, poi grafica premium (T15) |
+| T16 | Partita guidata (tutorial dei primi cinque anni) | In `main` (2f7f942), testi approvati da Michele il 28 novembre 2026, con le correzioni ai passi 12 e 13. Aperto per T13: al passo 14 il fumetto copre in parte «Avvia»; la prova completa del seme (sei lotti per quattro strade) da spostare tra le prove lunghe |
 | T15 | Grafica premium (D24) | Prova: tre edifici generati con Higgsfield, se Michele approva il costo; poi scheda |
 | T13 | Interfaccia gestionale (D23) | Scheda pronta; si decide dopo la prova di T15 se farla prima o dopo |
 | T14 | Consiglieri come personaggi (D21, D22) | Scheda pronta; parte dopo T13; nomi e ritratti li approva Michele |
