@@ -127,6 +127,12 @@ describe('passi della partita guidata', () => {
     expect(fatto(p('coscienza'), { ...inizio, tip: null, tipVisti: new Set() }), 'mai aperta').toBe(false);
     expect(fatto(p('coscienza'), { ...inizio, tip: null, tipVisti: new Set(['reputazione']) }), "aperta un'altra spiegazione").toBe(false);
     expect(fatto(p('coscienza'), { ...inizio, tip: null, tipVisti: visti }), 'aperta e chiusa').toBe(true);
+    // La finestra «Cantieri»: il passo va avanti solo quando è stata aperta e poi chiusa (come il Consiglio al passo 4).
+    const cantieri = new Set(['cantieri']);
+    expect(fatto(p('cantieri'), { ...inizio, panel: 'cantieri', pannelliVisti: cantieri }), 'finestra «Cantieri» ancora aperta').toBe(false);
+    expect(fatto(p('cantieri'), { ...inizio, panel: null, pannelliVisti: new Set() }), 'mai aperta').toBe(false);
+    expect(fatto(p('cantieri'), { ...inizio, panel: null, pannelliVisti: new Set(['bilancio']) }), 'aperta un\u2019altra finestra').toBe(false);
+    expect(fatto(p('cantieri'), { ...inizio, panel: null, pannelliVisti: cantieri }), 'aperta e chiusa').toBe(true);
   });
 
   it('l\'ultimo passo finisce solo con «Fine», e la partita guidata copre i primi cinque anni', () => {

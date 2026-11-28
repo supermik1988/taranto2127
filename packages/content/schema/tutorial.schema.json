@@ -46,6 +46,16 @@
               },
               {
                 "type": "object",
+                "required": ["tipo", "pannello", "poi"],
+                "properties": {
+                  "tipo": { "const": "pannello-visto" },
+                  "pannello": { "enum": ["strati", "consiglio", "cantieri", "bilancio", "grafici", "politiche", "elenco"] },
+                  "poi": { "type": "string", "minLength": 1 }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
                 "required": ["tipo", "anno"],
                 "properties": { "tipo": { "const": "anno" }, "anno": { "$ref": "comune.json#/$defs/interoPositivo" } },
                 "additionalProperties": false

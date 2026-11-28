@@ -61,6 +61,11 @@ porto, della Città Vecchia e del Borgo.
   quando la spiegazione aperta toccando «Coscienza» viene chiusa con «Ok», così ai passi dopo
   non resta sopra i comandi. Mentre è aperta, l'evidenza passa su «Ok» e il fumetto aggiunge
   «Quando hai letto, tocca «Ok».» (`tutorial-poi`).
+- **Finestra «Cantieri»** (passo 13, correzione di Michele): il passo va avanti solo quando il
+  giocatore chiude la finestra, come il Consiglio al passo 4. Mentre è aperta l'evidenza passa
+  su «Chiudi», il fumetto aggiunge «Quando hai visto, chiudi la finestra.» e si mette fuori
+  dalla finestra (sopra o sotto; sullo schermo largo, se non ci sta, alla sua sinistra), così
+  le fasi del cantiere restano libere. Al passo 14 la finestra è già chiusa.
 - **Facoltativa:** «Esci dal tutorial» in ogni passo; da «?» si riprende dal passo in cui si
   era, anche dopo una ricarica (il punto è salvato nel browser, `taranto2127:tutorial`). Alla
   fine del quinto anno «Fine» chiude la guida e la partita continua.
@@ -76,9 +81,11 @@ porto, della Città Vecchia e del Borgo.
   partita da copione completa il tutorial a 360, 390 e 1280 px, con la città 3D e con la mappa
   schematica; a ogni passo il comando è sullo schermo, in cima, non coperto dal fumetto, con
   il fuoco se può riceverlo (non se è disabilitato), senza animazioni; il fumetto si vede per
-  intero e non copre le opzioni di un dilemma; dopo il passo «coscienza» la sua spiegazione è chiusa; alla fine la partita è al 2032. Uscita e ripresa
+  intero e non copre le opzioni di un dilemma; dopo il passo «coscienza» la sua spiegazione è chiusa; al passo «cantieri», con la finestra
+  aperta, il fumetto non copre le fasi e al passo 14 la finestra è chiusa; alla fine la partita è al 2032. Uscita e ripresa
   da «?», anche dopo una ricarica. Schermate di ogni passo a 390 px:
-  `docs/schermate/t16-passo-NN-<passo>-390.png`, la spiegazione aperta al passo 12 `t16-passo-12b-coscienza-ok-390.png`, e la scelta all'avvio
+  `docs/schermate/t16-passo-NN-<passo>-390.png`, la spiegazione aperta al passo 12 `t16-passo-12b-coscienza-ok-390.png`, la finestra «Cantieri»
+  aperta al passo 13 `t16-passo-13b-cantieri-chiudi-390.png`, e la scelta all'avvio
   `t16-scelta-390.png`.
 
 ## Tutta la mappa sul telefono (T12e)

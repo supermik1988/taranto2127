@@ -245,6 +245,8 @@ export type AttesaTutorial =
   | { tipo: 'anno'; anno: number }
   /** La spiegazione del termine si è aperta ed è stata chiusa con «Ok»; `poi` si legge mentre è aperta. */
   | { tipo: 'spiegazione-letta'; termine: string; poi: string }
+  /** La finestra si è aperta ed è stata chiusa; `poi` si legge mentre è aperta. */
+  | { tipo: 'pannello-visto'; pannello: string; poi: string }
   | { tipo: 'strato' | 'finestra-chiusa' | 'lotto-aperto' | 'cantiere-avviato' | 'cronaca' | 'dilemma-aperto' | 'dilemma-risposto' | 'fine' };
 
 /** Partita guidata (T16): seme, testi della scelta all'avvio, passi. Solo per l'interfaccia. */

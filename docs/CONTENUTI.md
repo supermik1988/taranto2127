@@ -78,6 +78,7 @@ azioni al posto del giocatore (regola 1).
   | `anno` | la partita è arrivata alla fine dell'anno indicato (numero annotato) |
   | `cronaca` | la Cronaca è aperta |
   | `dilemma-aperto`, `dilemma-risposto` | un dilemma è arrivato, oppure ha avuto risposta |
+  | `pannello-visto` | la finestra indicata si è aperta ed è stata chiusa; mentre è aperta il fumetto aggiunge la frase `poi` e non copre la finestra |
   | `spiegazione-letta` | la spiegazione del termine indicato si è aperta ed è stata chiusa con «Ok»; mentre è aperta il fumetto aggiunge la frase `poi` |
   | `fine` | il giocatore tocca «Fine» |
 

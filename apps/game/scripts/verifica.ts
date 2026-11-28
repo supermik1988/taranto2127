@@ -1442,10 +1442,12 @@ async function tutorialDaCopione(browser: Browser, width: number, mappa: '3d' | 
       visti.push(p.id);
       // Dopo il passo «coscienza» la sua spiegazione è chiusa: non resta sopra i comandi dei passi dopo.
       if (visti.includes('coscienza') && p.id !== 'coscienza' && (await visible(page, 'spiegazione'))) fail(`${dove}, passo «${p.id}»: la spiegazione della Coscienza è rimasta aperta`);
+      // Al passo 14 la finestra «Cantieri» è già chiusa: niente «Prima chiudi la finestra aperta».
+      if (p.id === 'quinto-anno' && ((await visible(page, 'finestra-cantieri')) || (await visible(page, 'tutorial-prima-chiudi')))) fail(`${dove}, passo «quinto-anno»: la finestra «Cantieri» è ancora aperta e il fumetto chiede di chiuderla`);
       await controllaPasso(page, `${dove}, passo «${p.id}»`, p.bersaglio);
       if (width === 390 && mappa === '3d') {
         await page.waitForTimeout(500);
-        await page.screenshot({ path: join(shotsDir, `t16-passo-${String(visti.filter((x) => x !== 'coscienza-ok').length).padStart(2, '0')}-${p.id}-390.png`) });
+        await page.screenshot({ path: join(shotsDir, `t16-passo-${String(visti.filter((x) => x !== 'coscienza-ok' && x !== 'cantieri-chiudi').length).padStart(2, '0')}-${p.id}-390.png`) });
       }
     }
     else if (p.id === 'coscienza' && p.bersaglio === 'spiegazione-chiudi' && !visti.includes('coscienza-ok')) {
@@ -1456,6 +1458,30 @@ async function tutorialDaCopione(browser: Browser, width: number, mappa: '3d' | 
       if (width === 390 && mappa === '3d') {
         await page.waitForTimeout(500);
         await page.screenshot({ path: join(shotsDir, 't16-passo-12b-coscienza-ok-390.png') });
+      }
+    }
+    else if (p.id === 'cantieri' && p.bersaglio === 'finestra-chiudi' && !visti.includes('cantieri-chiudi')) {
+      // Finestra «Cantieri» aperta: l'evidenza passa su «Chiudi», il fumetto dice di chiudere e non copre le fasi.
+      visti.push('cantieri-chiudi');
+      await page.waitForTimeout(400);
+      await controllaPasso(page, `${dove}, passo «cantieri» con la finestra aperta`, p.bersaglio);
+      if (!(await visible(page, 'finestra-cantieri'))) fail(`${dove}, passo «cantieri»: «Chiudi» è evidenziato ma la finestra «Cantieri» non è aperta`);
+      if (!(await visible(page, 'tutorial-poi'))) fail(`${dove}, passo «cantieri»: con la finestra aperta il fumetto non dice di chiuderla`);
+      if (await visible(page, 'tutorial-prima-chiudi')) fail(`${dove}, passo «cantieri»: con la finestra «Cantieri» aperta il fumetto dice «Prima chiudi la finestra aperta»`);
+      const copre = await page.evaluate(() => {
+        const f = document.querySelector('[data-testid="tutorial"]')!.getBoundingClientRect();
+        const fasi = [...document.querySelectorAll('[data-testid="finestra-cantieri"] [data-testid="cantiere"] .phases')];
+        if (fasi.length === 0) return 'nessuna';
+        return fasi.some((el) => {
+          const q = el.getBoundingClientRect();
+          return !(q.right <= f.left || q.left >= f.right || q.bottom <= f.top || q.top >= f.bottom);
+        }) ? 'si' : 'no';
+      });
+      if (copre === 'nessuna') fail(`${dove}, passo «cantieri»: nella finestra non c'è l'elenco delle fasi`);
+      if (copre === 'si') fail(`${dove}, passo «cantieri»: il fumetto copre l'elenco delle fasi del cantiere`);
+      if (width === 390 && mappa === '3d') {
+        await page.waitForTimeout(500);
+        await page.screenshot({ path: join(shotsDir, 't16-passo-13b-cantieri-chiudi-390.png') });
       }
     }
     if (process.env['T16LOG'] === '1') console.log(`LOG ${width} ${mappa} passo ${p.id} bersaglio ${p.bersaglio}`);
@@ -1477,9 +1503,10 @@ async function tutorialDaCopione(browser: Browser, width: number, mappa: '3d' | 
   const attesi = loadContent().tutorial.passi.map((x) => x.id).filter((id) => !(mappa === 'schematica' && id === 'strato'));
   const mancanti = attesi.filter((id) => !visti.includes(id));
   if (!visti.includes('coscienza-ok')) fail(`${dove}: al passo «coscienza» la spiegazione aperta non porta l'evidenza su «Ok»`);
-  const ordine = visti.filter((id) => id !== 'coscienza-ok');
+  if (!visti.includes('cantieri-chiudi')) fail(`${dove}: al passo «cantieri» la finestra aperta non porta l'evidenza su «Chiudi»`);
+  const ordine = visti.filter((id) => id !== 'coscienza-ok' && id !== 'cantieri-chiudi');
   if (mancanti.length > 0 || ordine.join() !== attesi.join()) fail(`${dove}: passi non visti o fuori ordine (mancano ${mancanti.join(', ') || 'nessuno'}; visti ${visti.join(', ')})`);
-  misura(`${dove}: tutorial completato, ${ordine.length} passi (${ordine.join(' → ')}; a «coscienza» l'evidenza passa su «Ok»), ${azioni} azioni, partita al ${anno}`);
+  misura(`${dove}: tutorial completato, ${ordine.length} passi (${ordine.join(' → ')}; a «coscienza» l'evidenza passa su «Ok», a «cantieri» su «Chiudi»), ${azioni} azioni, partita al ${anno}`);
   await close();
 }
 

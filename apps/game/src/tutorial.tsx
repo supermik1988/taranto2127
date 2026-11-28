@@ -74,6 +74,8 @@ export interface Contesto {
   tip?: string | null;
   /** I termini di cui, durante questo passo, si è aperta la spiegazione. */
   tipVisti?: ReadonlySet<string>;
+  /** Le finestre (pannelli) aperte durante questo passo. */
+  pannelliVisti?: ReadonlySet<string>;
 }
 
 /** Il comando con questo data-testid, se c'è nella pagina. */
@@ -105,6 +107,9 @@ export function fatto(passo: Passo, c: Contesto): boolean {
     case 'spiegazione-letta':
       // Aperta e poi chiusa con «Ok»: così ai passi dopo la spiegazione non resta sullo schermo.
       return (c.tipVisti?.has(a.termine) ?? false) && (c.tip ?? null) === null;
+    case 'pannello-visto':
+      // Aperta e poi chiusa, come il Consiglio al passo 4: il giocatore guarda la finestra quanto vuole.
+      return (c.pannelliVisti?.has(a.pannello) ?? false) && c.panel === null;
     case 'fine':
       return false;
   }
@@ -169,6 +174,14 @@ export function SceltaPartita({ onScegli }: { onScegli: (s: 'guidata' | 'libera'
 }
 
 const MARGINE = 10;
+
+/** È aperto ciò che il passo chiede di guardare e poi chiudere (una spiegazione, una finestra)? */
+function chiusuraDelPasso(passo: Passo, c: Contesto): boolean {
+  const a = passo.attesa;
+  if (a.tipo === 'spiegazione-letta') return (c.tip ?? null) === a.termine;
+  if (a.tipo === 'pannello-visto') return c.panel === a.pannello;
+  return false;
+}
 /** Pulsanti di chiusura: se il passo deve evidenziare uno di questi al posto del suo comando, lo dice. */
 const CHIUSURE = new Set(['finestra-chiudi', 'spiegazione-chiudi', 'continua']);
 
@@ -178,16 +191,17 @@ export function Tutorial({ indice, contesto, onAvanti, onEsci, onFine }: { indic
   const ultimo = indice === tutorial.passi.length - 1;
   const fumetto = useRef<HTMLDivElement>(null);
   const [rect, setRect] = useState<{ x: number; y: number; w: number; h: number; testid: string } | null>(null);
-  const [pos, setPos] = useState<{ top: number; maxHeight: number } | null>(null);
+  const [pos, setPos] = useState<{ top: number; maxHeight: number; left?: number; width?: number } | null>(null);
   /** Posto per il fumetto dentro una finestra (il dilemma): lì il fumetto scorre con il contenuto e non copre nulla. */
   const [spazio, setSpazio] = useState<HTMLElement | null>(null);
   const tip = useTipAperto();
   // Le spiegazioni aperte durante questo passo (si ricomincia a ogni passo).
-  const visti = useRef<{ indice: number; termini: Set<string> }>({ indice, termini: new Set() });
-  if (visti.current.indice !== indice) visti.current = { indice, termini: new Set() };
+  const visti = useRef<{ indice: number; termini: Set<string>; pannelli: Set<string> }>({ indice, termini: new Set(), pannelli: new Set() });
+  if (visti.current.indice !== indice) visti.current = { indice, termini: new Set(), pannelli: new Set() };
   if (tip !== null) visti.current.termini.add(tip);
+  if (contesto.panel !== null) visti.current.pannelli.add(contesto.panel);
   const contestoRef = useRef<Contesto>(contesto);
-  contestoRef.current = { ...contesto, tip, tipVisti: visti.current.termini };
+  contestoRef.current = { ...contesto, tip, tipVisti: visti.current.termini, pannelliVisti: visti.current.pannelli };
   const fuoco = useRef<HTMLElement | null>(null);
 
   // Il passo va avanti quando l'azione è fatta: si controlla a ogni cambio e, per ciò che sta solo nella pagina, ogni 300 ms.
@@ -209,16 +223,34 @@ export function Tutorial({ indice, contesto, onAvanti, onEsci, onFine }: { indic
     const posto = b.el.closest('[data-testid="dilemma"]')?.querySelector<HTMLElement>('[data-testid="spazio-tutorial"]') ?? null;
     setSpazio(posto);
     const r = b.el.getBoundingClientRect();
+    const poni = (p: { top: number; maxHeight: number; left?: number; width?: number }) =>
+      setPos((prima) => (prima !== null && Math.abs(prima.top - p.top) < 0.5 && Math.abs(prima.maxHeight - p.maxHeight) < 0.5 && prima.left === p.left && prima.width === p.width ? prima : p));
     setRect((prima) => (prima !== null && prima.testid === b.testid && Math.abs(prima.x - r.left) < 0.5 && Math.abs(prima.y - r.top) < 0.5 && Math.abs(prima.w - r.width) < 0.5 && Math.abs(prima.h - r.height) < 0.5 ? prima : { x: r.left, y: r.top, w: r.width, h: r.height, testid: b.testid }));
+    const pieno = fumetto.current?.scrollHeight ?? 120;
+    // La finestra da guardare (passo «pannello-visto», finestra aperta): il fumetto sta fuori, sopra o sotto, o accanto sullo schermo largo.
+    const finestra = passo.attesa.tipo === 'pannello-visto' && chiusuraDelPasso(passo, contestoRef.current) ? b.el.closest<HTMLElement>('.map-window') : null;
+    if (finestra !== null) {
+      const w = finestra.getBoundingClientRect();
+      const libSopra = w.top - MARGINE * 2;
+      const libSotto = window.innerHeight - w.bottom - MARGINE * 2;
+      const libSinistra = w.left - MARGINE * 2;
+      if (pieno > Math.max(libSopra, libSotto) && libSinistra >= 280) {
+        const top = Math.max(MARGINE, w.top);
+        poni({ top, maxHeight: window.innerHeight - top - MARGINE, left: MARGINE, width: Math.min(440, libSinistra) });
+      } else if (libSopra >= libSotto) {
+        const alto = Math.min(pieno, libSopra);
+        poni({ top: Math.max(MARGINE, w.top - MARGINE - alto), maxHeight: libSopra });
+      } else poni({ top: w.bottom + MARGINE, maxHeight: libSotto });
+    } else {
     const sopra = r.top - MARGINE * 2;
     const sotto = window.innerHeight - r.bottom - MARGINE * 2;
-    const pieno = fumetto.current?.scrollHeight ?? 120;
     // Sotto il comando se il fumetto ci sta per intero (di solito lì c'è spazio libero), poi sopra, poi dalla parte più larga.
     const giu = pieno <= sotto || (pieno > sopra && sotto >= sopra);
     const alto = Math.min(pieno, giu ? sotto : sopra);
     const top = giu ? r.bottom + MARGINE : Math.max(MARGINE, r.top - MARGINE - alto);
     const massimo = giu ? sotto : sopra;
-    setPos((prima) => (prima !== null && Math.abs(prima.top - top) < 0.5 && Math.abs(prima.maxHeight - massimo) < 0.5 ? prima : { top, maxHeight: massimo }));
+    poni({ top, maxHeight: massimo });
+    }
     // Il fuoco da tastiera va sul comando, una volta per comando.
     if (fuoco.current !== b.el) {
       fuoco.current = b.el;
@@ -240,6 +272,8 @@ export function Tutorial({ indice, contesto, onAvanti, onEsci, onFine }: { indic
     };
   }, [controlla, misura]);
 
+  // Il comando evidenziato è la chiusura di ciò che il passo chiede di guardare: il fumetto dice di chiudere.
+  const chiude = rect !== null && chiusuraDelPasso(passo, contestoRef.current) && rect.testid === (passo.attesa.tipo === 'spiegazione-letta' ? 'spiegazione-chiudi' : 'finestra-chiudi');
   const contenuto = (
     <>
       <div className="tutorial-testa">
@@ -250,13 +284,13 @@ export function Tutorial({ indice, contesto, onAvanti, onEsci, onFine }: { indic
           Esci dal tutorial
         </button>
       </div>
-      {rect !== null && CHIUSURE.has(rect.testid) && passo.evidenzia[0] !== rect.testid && (
+      {rect !== null && CHIUSURE.has(rect.testid) && !chiude && (passo.evidenzia[0] !== rect.testid || 'poi' in passo.attesa) && (
         <p className="tutorial-testo tutorial-prima" data-testid="tutorial-prima-chiudi">
           {tutorial.primaChiudi}
         </p>
       )}
       <p className="tutorial-testo">{passo.testo}</p>
-      {passo.attesa.tipo === 'spiegazione-letta' && rect?.testid === 'spiegazione-chiudi' && (
+      {chiude && 'poi' in passo.attesa && (
         <p className="tutorial-testo" data-testid="tutorial-poi">
           {passo.attesa.poi}
         </p>
@@ -299,7 +333,7 @@ export function Tutorial({ indice, contesto, onAvanti, onEsci, onFine }: { indic
             spazio,
           )
         : (
-          <div {...attributi} className="tutorial-fumetto" style={pos === null ? { bottom: MARGINE } : { top: pos.top, maxHeight: pos.maxHeight }}>
+          <div {...attributi} className="tutorial-fumetto" style={pos === null ? { bottom: MARGINE } : pos.left !== undefined ? { top: pos.top, maxHeight: pos.maxHeight, left: pos.left, right: 'auto', width: pos.width, margin: 0 } : { top: pos.top, maxHeight: pos.maxHeight }}>
             {contenuto}
           </div>
         )}
