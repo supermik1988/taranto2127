@@ -84,9 +84,9 @@
     },
     {
       "id": "coscienza",
-      "testo": "In alto, Coscienza e Reputazione raccontano come governi: verità, parola data, cura, legalità, ascolto. Tocca «Coscienza» per sapere cosa misura.",
-      "evidenzia": ["termine-coscienza"],
-      "attesa": { "tipo": "vede", "testid": "spiegazione" }
+      "testo": "In alto, la Coscienza misura come governi davvero; la Reputazione è ciò che i cittadini credono di te. Tocca «Coscienza» per sapere cosa misura.",
+      "evidenzia": ["spiegazione-chiudi", "termine-coscienza"],
+      "attesa": { "tipo": "spiegazione-letta", "termine": "coscienza", "poi": "Quando hai letto, tocca «Ok»." }
     },
     {
       "id": "cantieri",

@@ -1440,10 +1440,22 @@ async function tutorialDaCopione(browser: Browser, width: number, mappa: '3d' | 
     }
     if (!visti.includes(p.id)) {
       visti.push(p.id);
+      // Dopo il passo «coscienza» la sua spiegazione è chiusa: non resta sopra i comandi dei passi dopo.
+      if (visti.includes('coscienza') && p.id !== 'coscienza' && (await visible(page, 'spiegazione'))) fail(`${dove}, passo «${p.id}»: la spiegazione della Coscienza è rimasta aperta`);
       await controllaPasso(page, `${dove}, passo «${p.id}»`, p.bersaglio);
       if (width === 390 && mappa === '3d') {
         await page.waitForTimeout(500);
-        await page.screenshot({ path: join(shotsDir, `t16-passo-${String(visti.length).padStart(2, '0')}-${p.id}-390.png`) });
+        await page.screenshot({ path: join(shotsDir, `t16-passo-${String(visti.filter((x) => x !== 'coscienza-ok').length).padStart(2, '0')}-${p.id}-390.png`) });
+      }
+    }
+    else if (p.id === 'coscienza' && p.bersaglio === 'spiegazione-chiudi' && !visti.includes('coscienza-ok')) {
+      // Spiegazione aperta: ora si evidenzia «Ok» e il fumetto dice di chiuderla.
+      visti.push('coscienza-ok');
+      await controllaPasso(page, `${dove}, passo «coscienza» con la spiegazione aperta`, p.bersaglio);
+      if (!(await visible(page, 'tutorial-poi'))) fail(`${dove}, passo «coscienza»: con la spiegazione aperta il fumetto non dice di toccare «Ok»`);
+      if (width === 390 && mappa === '3d') {
+        await page.waitForTimeout(500);
+        await page.screenshot({ path: join(shotsDir, 't16-passo-12b-coscienza-ok-390.png') });
       }
     }
     if (process.env['T16LOG'] === '1') console.log(`LOG ${width} ${mappa} passo ${p.id} bersaglio ${p.bersaglio}`);
@@ -1464,8 +1476,10 @@ async function tutorialDaCopione(browser: Browser, width: number, mappa: '3d' | 
   // Ogni passo dei dati si vede; con la mappa schematica lo strato è sempre acceso, quindi «strato» si salta da solo.
   const attesi = loadContent().tutorial.passi.map((x) => x.id).filter((id) => !(mappa === 'schematica' && id === 'strato'));
   const mancanti = attesi.filter((id) => !visti.includes(id));
-  if (mancanti.length > 0 || visti.join() !== attesi.join()) fail(`${dove}: passi non visti o fuori ordine (mancano ${mancanti.join(', ') || 'nessuno'}; visti ${visti.join(', ')})`);
-  misura(`${dove}: tutorial completato, ${visti.length} passi (${visti.join(' → ')}), ${azioni} azioni, partita al ${anno}`);
+  if (!visti.includes('coscienza-ok')) fail(`${dove}: al passo «coscienza» la spiegazione aperta non porta l'evidenza su «Ok»`);
+  const ordine = visti.filter((id) => id !== 'coscienza-ok');
+  if (mancanti.length > 0 || ordine.join() !== attesi.join()) fail(`${dove}: passi non visti o fuori ordine (mancano ${mancanti.join(', ') || 'nessuno'}; visti ${visti.join(', ')})`);
+  misura(`${dove}: tutorial completato, ${ordine.length} passi (${ordine.join(' → ')}; a «coscienza» l'evidenza passa su «Ok»), ${azioni} azioni, partita al ${anno}`);
   await close();
 }
 

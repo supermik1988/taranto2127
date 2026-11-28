@@ -57,6 +57,10 @@ porto, della Città Vecchia e del Borgo.
   a ogni cambio dello stato e ogni 300 ms per ciò che sta solo nella pagina; mai a tempo.
   L'avanzamento porta con sé il passo da cui parte, così due controlli dello stesso passo non
   ne fanno saltare uno.
+- **Spiegazione della Coscienza** (passo 12, correzione di Michele): il passo va avanti solo
+  quando la spiegazione aperta toccando «Coscienza» viene chiusa con «Ok», così ai passi dopo
+  non resta sopra i comandi. Mentre è aperta, l'evidenza passa su «Ok» e il fumetto aggiunge
+  «Quando hai letto, tocca «Ok».» (`tutorial-poi`).
 - **Facoltativa:** «Esci dal tutorial» in ogni passo; da «?» si riprende dal passo in cui si
   era, anche dopo una ricarica (il punto è salvato nel browser, `taranto2127:tutorial`). Alla
   fine del quinto anno «Fine» chiude la guida e la partita continua.
@@ -66,15 +70,16 @@ porto, della Città Vecchia e del Borgo.
   il passo «strato» si salta da solo).
 - **Identificativi nuovi:** `scelta-partita`, `scelta-guidata`, `scelta-libera`, `tutorial`
   (con `data-passo` e `data-bersaglio`), `tutorial-evidenza`, `tutorial-esci`, `tutorial-fine`,
-  `tutorial-prima-chiudi`, `aiuto-tutorial`; nella finestra del lotto `strade-lotto` e
+  `tutorial-prima-chiudi`, `tutorial-poi`, `aiuto-tutorial`; nella finestra del lotto `strade-lotto` e
   `strada-<strada>`.
 - **Prove nel browser** (`scripts/verifica.ts --t16`, anche nella verifica completa): una
   partita da copione completa il tutorial a 360, 390 e 1280 px, con la città 3D e con la mappa
   schematica; a ogni passo il comando è sullo schermo, in cima, non coperto dal fumetto, con
   il fuoco se può riceverlo (non se è disabilitato), senza animazioni; il fumetto si vede per
-  intero e non copre le opzioni di un dilemma; alla fine la partita è al 2032. Uscita e ripresa
+  intero e non copre le opzioni di un dilemma; dopo il passo «coscienza» la sua spiegazione è chiusa; alla fine la partita è al 2032. Uscita e ripresa
   da «?», anche dopo una ricarica. Schermate di ogni passo a 390 px:
-  `docs/schermate/t16-passo-NN-<passo>-390.png`, e la scelta all'avvio `t16-scelta-390.png`.
+  `docs/schermate/t16-passo-NN-<passo>-390.png`, la spiegazione aperta al passo 12 `t16-passo-12b-coscienza-ok-390.png`, e la scelta all'avvio
+  `t16-scelta-390.png`.
 
 ## Tutta la mappa sul telefono (T12e)
 

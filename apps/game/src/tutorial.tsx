@@ -14,6 +14,7 @@ import type { GameState } from '@taranto2127/sim';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { content } from './engine.js';
+import { useTipAperto } from './guide.js';
 
 export const tutorial = content.tutorial;
 type Passo = (typeof tutorial.passi)[number];
@@ -69,6 +70,10 @@ export interface Contesto {
   layer: string | null;
   selected: { kind: 'district' | 'lot'; id: string } | null;
   paperOpen: boolean;
+  /** Il termine di cui è aperta la spiegazione, o null (lo aggiunge il tutorial stesso). */
+  tip?: string | null;
+  /** I termini di cui, durante questo passo, si è aperta la spiegazione. */
+  tipVisti?: ReadonlySet<string>;
 }
 
 /** Il comando con questo data-testid, se c'è nella pagina. */
@@ -97,8 +102,9 @@ export function fatto(passo: Passo, c: Contesto): boolean {
       return c.state.openDilemmaId !== null || c.state.history.some((h) => h.action.kind === 'answer-dilemma');
     case 'dilemma-risposto':
       return c.state.history.some((h) => h.action.kind === 'answer-dilemma');
-    case 'vede':
-      return trova(a.testid) !== null;
+    case 'spiegazione-letta':
+      // Aperta e poi chiusa con «Ok»: così ai passi dopo la spiegazione non resta sullo schermo.
+      return (c.tipVisti?.has(a.termine) ?? false) && (c.tip ?? null) === null;
     case 'fine':
       return false;
   }
@@ -175,8 +181,13 @@ export function Tutorial({ indice, contesto, onAvanti, onEsci, onFine }: { indic
   const [pos, setPos] = useState<{ top: number; maxHeight: number } | null>(null);
   /** Posto per il fumetto dentro una finestra (il dilemma): lì il fumetto scorre con il contenuto e non copre nulla. */
   const [spazio, setSpazio] = useState<HTMLElement | null>(null);
-  const contestoRef = useRef(contesto);
-  contestoRef.current = contesto;
+  const tip = useTipAperto();
+  // Le spiegazioni aperte durante questo passo (si ricomincia a ogni passo).
+  const visti = useRef<{ indice: number; termini: Set<string> }>({ indice, termini: new Set() });
+  if (visti.current.indice !== indice) visti.current = { indice, termini: new Set() };
+  if (tip !== null) visti.current.termini.add(tip);
+  const contestoRef = useRef<Contesto>(contesto);
+  contestoRef.current = { ...contesto, tip, tipVisti: visti.current.termini };
   const fuoco = useRef<HTMLElement | null>(null);
 
   // Il passo va avanti quando l'azione è fatta: si controlla a ogni cambio e, per ciò che sta solo nella pagina, ogni 300 ms.
@@ -184,7 +195,7 @@ export function Tutorial({ indice, contesto, onAvanti, onEsci, onFine }: { indic
   const controlla = useCallback(() => {
     if (fatto(passo, contestoRef.current)) onAvanti(indice);
   }, [passo, indice, onAvanti]);
-  useEffect(controlla, [contesto, controlla]);
+  useEffect(controlla, [contesto, tip, controlla]);
 
   // Dove sta il comando evidenziato, e dove mettere il fumetto perché non lo copra.
   const misura = useCallback(() => {
@@ -245,6 +256,11 @@ export function Tutorial({ indice, contesto, onAvanti, onEsci, onFine }: { indic
         </p>
       )}
       <p className="tutorial-testo">{passo.testo}</p>
+      {passo.attesa.tipo === 'spiegazione-letta' && rect?.testid === 'spiegazione-chiudi' && (
+        <p className="tutorial-testo" data-testid="tutorial-poi">
+          {passo.attesa.poi}
+        </p>
+      )}
       {ultimo && (
         <div className="buttons">
           <button type="button" className="primary" onClick={onFine} data-testid="tutorial-fine">

@@ -52,8 +52,12 @@
               },
               {
                 "type": "object",
-                "required": ["tipo", "testid"],
-                "properties": { "tipo": { "const": "vede" }, "testid": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9-]*$" } },
+                "required": ["tipo", "termine", "poi"],
+                "properties": {
+                  "tipo": { "const": "spiegazione-letta" },
+                  "termine": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9-]*$" },
+                  "poi": { "type": "string", "minLength": 1 }
+                },
                 "additionalProperties": false
               },
               {

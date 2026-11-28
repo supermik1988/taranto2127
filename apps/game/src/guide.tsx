@@ -14,6 +14,9 @@ export const fill = (text: string, values: Record<string, string | number>): str
 // ---------- Termini spiegati al tocco ----------
 
 const TipContext = createContext<(id: string) => void>(() => {});
+/** Il termine di cui è aperta la spiegazione (la partita guidata lo guarda), o null. */
+const TipApertoContext = createContext<string | null>(null);
+export const useTipAperto = (): string | null => useContext(TipApertoContext);
 
 /** Un termine tecnico: toccandolo, la spiegazione compare in basso. */
 export function Term({ id, children }: { id: string; children?: ReactNode }) {
@@ -42,7 +45,7 @@ export function TipProvider({ children }: { children: ReactNode }) {
   const entry = tip === null ? undefined : guide.glossary[tip];
   return (
     <TipContext.Provider value={setTip}>
-      {children}
+      <TipApertoContext.Provider value={entry === undefined ? null : tip}>{children}</TipApertoContext.Provider>
       {entry !== undefined && (
         <div className="tip" role="dialog" aria-label={entry.termine} data-testid="spiegazione">
           <div>

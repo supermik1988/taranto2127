@@ -101,7 +101,7 @@ describe('passi della partita guidata', () => {
     }
     for (const passo of tutorial.passi) {
       for (const id of passo.evidenzia) expect(ammessi.has(id), `${passo.id}: ${id}`).toBe(true);
-      if (passo.attesa.tipo === 'vede') expect(letterali.has(passo.attesa.testid), passo.id).toBe(true);
+      if (passo.attesa.tipo === 'spiegazione-letta') expect(Object.keys(content.guide.glossary), passo.id).toContain(passo.attesa.termine);
     }
   });
 
@@ -121,6 +121,12 @@ describe('passi della partita guidata', () => {
     expect(fatto(p('cantiere'), { ...inizio, state: avviato })).toBe(true);
     expect(fatto(p('cronaca'), { ...inizio, paperOpen: true })).toBe(true);
     expect(fatto(p('fine'), { ...inizio, panel: 'strati', paperOpen: true })).toBe(false);
+    // La spiegazione della Coscienza: il passo va avanti solo quando è stata aperta e poi chiusa con «Ok».
+    const visti = new Set(['coscienza']);
+    expect(fatto(p('coscienza'), { ...inizio, tip: 'coscienza', tipVisti: visti }), 'spiegazione ancora aperta').toBe(false);
+    expect(fatto(p('coscienza'), { ...inizio, tip: null, tipVisti: new Set() }), 'mai aperta').toBe(false);
+    expect(fatto(p('coscienza'), { ...inizio, tip: null, tipVisti: new Set(['reputazione']) }), "aperta un'altra spiegazione").toBe(false);
+    expect(fatto(p('coscienza'), { ...inizio, tip: null, tipVisti: visti }), 'aperta e chiusa').toBe(true);
   });
 
   it('l\'ultimo passo finisce solo con «Fine», e la partita guidata copre i primi cinque anni', () => {
